@@ -65,8 +65,8 @@ export default function CreateItemForm() {
 
         {/* TV Show Form */}
         <TabsContent value="show">
-          <input type="hidden" name="itemtype" value="Show" />
           <form className="space-y-4">
+            <input type="hidden" name="itemtype" value="Show" />
             <Label>Title</Label>
             <Input type="text" name="title" required />
 
@@ -81,9 +81,7 @@ export default function CreateItemForm() {
               <Label htmlFor="redo">This was a rewatch</Label>
             </div>
 
-            <SubmitButton formAction={createItemAction}>
-              Save movie
-            </SubmitButton>
+            <SubmitButton formAction={createItemAction}>Save show</SubmitButton>
           </form>
         </TabsContent>
       </Tabs>
