@@ -20,7 +20,7 @@ import {
   useTransition,
   useRef,
 } from "react";
-import { Search, X, Filter, SortAsc, SortDesc } from "lucide-react";
+import { Search, Filter, SortAsc, SortDesc, SortDescIcon } from "lucide-react";
 import Link from "next/link";
 
 const categories = [
@@ -232,12 +232,12 @@ export default function SearchForm({ isLoggedIn = false }) {
       <form
         ref={searchFormRef}
         onSubmit={handleSubmit}
-        className="space-y-4"
+        className="space-y-4 mx-auto  w-full max-w-2xl"
         role="search"
         aria-label="Search for books, movies, and TV shows"
       >
         {/* Main search input */}
-        <div className="relative">
+        <div className="relative ">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
           </div>
@@ -247,22 +247,10 @@ export default function SearchForm({ isLoggedIn = false }) {
             value={inputValue}
             onChange={handleInputChange}
             placeholder="Search titles, authors, directors..."
-            className="pl-10 pr-12 py-3 text-base w-full max-w-2xl sm:text-sm"
+            className="pl-10 pr-12 py-3 text-base w-full  sm:text-sm"
             aria-describedby="search-instructions search-results-status"
             autoComplete="off"
           />
-          {hasQuery && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleClearSearch}
-              className="absolute inset-y-0 right-0 pr-3 h-auto p-0"
-              aria-label="Clear search"
-            >
-              <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-            </Button>
-          )}
           {isSearching && (
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
               <LoadingSpinner size={20} />
@@ -291,7 +279,7 @@ export default function SearchForm({ isLoggedIn = false }) {
 
             {/* Sort Options */}
             <div className="flex items-center gap-2 flex-1 xs:flex-initial">
-              <span className="text-sm text-gray-500 flex-shrink-0">Sort:</span>
+              <SortDescIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-full xs:w-36 sm:w-40 h-8 text-sm">
                   <SelectValue aria-label="Sort results" />
@@ -306,20 +294,6 @@ export default function SearchForm({ isLoggedIn = false }) {
               </Select>
             </div>
           </div>
-
-          {/* Results count - only show when we have results */}
-          {hasResults && (
-            <span className="text-sm text-gray-600 sm:ml-auto">
-              {processedResults.length} result
-              {processedResults.length !== 1 ? "s" : ""}
-              {filterType !== "all" && (
-                <span className="hidden xs:inline">
-                  {" "}
-                  ({filterType.toLowerCase()}s only)
-                </span>
-              )}
-            </span>
-          )}
         </div>
 
         <div id="search-instructions" className="sr-only">
@@ -383,7 +357,20 @@ export default function SearchForm({ isLoggedIn = false }) {
           </h2>
 
           {/* Single column layout with better formatting */}
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-2xl mx-auto">
+            {/* Results count - only show when we have results */}
+            {hasResults && (
+              <span className="text-sm text-gray-600 sm:ml-auto">
+                {processedResults.length} result
+                {processedResults.length !== 1 ? "s" : ""}
+                {filterType !== "all" && (
+                  <span className="hidden xs:inline">
+                    {" "}
+                    ({filterType.toLowerCase()}s only)
+                  </span>
+                )}
+              </span>
+            )}
             {categories.map(({ title, type }) => {
               const categoryItems = processedResults.filter(
                 (item: Item) => item.itemtype === type,
@@ -397,10 +384,7 @@ export default function SearchForm({ isLoggedIn = false }) {
               }
 
               return (
-                <div
-                  key={type}
-                  className="bg-card rounded-lg border p-4 sm:p-6"
-                >
+                <div key={type} className="bg-card">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     {title}
                     <span className="text-sm font-normal text-muted-foreground">
@@ -415,7 +399,7 @@ export default function SearchForm({ isLoggedIn = false }) {
                         className="flex flex-col sm:flex-row sm:justify-between sm:items-start p-3 bg-background rounded border hover:shadow-sm transition-shadow gap-2 sm:gap-4"
                       >
                         <div className="flex-1 min-w-0">
-                          <div className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-2 mb-2">
+                          <div className="flex flex-row justify-between items-center gap-1 xs:gap-2 mb-2">
                             <h4 className="font-medium text-foreground break-words">
                               <HighlightText
                                 text={item.title}
