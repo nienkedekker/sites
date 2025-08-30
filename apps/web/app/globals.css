@@ -137,3 +137,59 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Accessibility improvements */
+
+/* Screen reader only utility - hidden visually but available to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus styles for better keyboard navigation */
+:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* High contrast focus for dark mode */
+.dark :focus,
+.dark :focus-visible {
+  outline-color: #60a5fa;
+}
+
+/* Skip link focus styles */
+.skip-link:focus {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 1000 !important;
+  padding: 0.5rem 1rem !important;
+  background-color: #1d4ed8 !important;
+  color: white !important;
+  text-decoration: none !important;
+  border-radius: 0.25rem !important;
+}

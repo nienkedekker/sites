@@ -11,7 +11,12 @@ export default async function ItemsList({ year }: { year: number }) {
 
   if (error) {
     console.error("Error fetching items:", error);
-    return <p>Failed to load data.</p>;
+    return (
+      <div role="alert" className="text-center p-8">
+        <p className="text-red-600">Unable to load your items right now.</p>
+        <p className="text-sm text-gray-500 mt-2">Please try refreshing the page.</p>
+      </div>
+    );
   }
 
   const categories = [
