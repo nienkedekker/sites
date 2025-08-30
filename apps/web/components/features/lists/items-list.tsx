@@ -35,20 +35,20 @@ export default async function ItemsList({ year }: { year: number }) {
   // Group items by category
   const allItems = items || [];
   const categoryData = [
-    { 
-      title: "Books", 
-      type: "Book" as const, 
-      items: allItems.filter(item => item.itemtype === "Book") 
+    {
+      title: "Books",
+      type: "Book" as const,
+      items: allItems.filter((item) => item.itemtype === "Book"),
     },
-    { 
-      title: "Movies", 
-      type: "Movie" as const, 
-      items: allItems.filter(item => item.itemtype === "Movie") 
+    {
+      title: "Movies",
+      type: "Movie" as const,
+      items: allItems.filter((item) => item.itemtype === "Movie"),
     },
-    { 
-      title: "TV Shows", 
-      type: "Show" as const, 
-      items: allItems.filter(item => item.itemtype === "Show") 
+    {
+      title: "TV Shows",
+      type: "Show" as const,
+      items: allItems.filter((item) => item.itemtype === "Show"),
     },
   ];
 

@@ -37,7 +37,9 @@ export function validateItemCreation(data: {
 
   // Published year validation
   if (!data.publishedYear || !isValidYear(data.publishedYear)) {
-    errors.push("Published year must be a valid year between 1900 and 10 years in the future");
+    errors.push(
+      "Published year must be a valid year between 1900 and 10 years in the future",
+    );
   }
 
   // Type-specific validation

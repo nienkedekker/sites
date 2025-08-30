@@ -89,27 +89,7 @@ const nextConfig: NextConfig = {
 - Add JSDoc comments for complex functions
 - Add API documentation
 
-## 📋 Refactoring Opportunities
 
-### 16. Server Actions Organization
-- **Location**: `apps/web/app/actions.ts`
-- **Issue**: All actions in one file
-- **Fix**: Split into feature-based files:
-  ```
-  actions/
-    ├── auth.ts
-    ├── items.ts
-    └── search.ts
-  ```
-
-
-
-### 17. Utilities Structure
-- **Issue**: Limited utility functions
-- **Fix**: Add common utilities:
-    - Date formatting helpers
-    - Validation schemas
-    - Constants file
 
 ## 🚀 Feature Enhancements
 
