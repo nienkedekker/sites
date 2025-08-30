@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { fetchStatsData } from "@/utils/fetch-stats-data";
-import { ItemCountBarChart } from "@/components/charts/item-count-bar-chart";
-import { CumulativeLineChart } from "@/components/charts/cumulative-line-chart";
+import { ItemCountBarChart } from "@/components/features/charts/item-count-bar-chart";
+import { CumulativeLineChart } from "@/components/features/charts/cumulative-line-chart";
 import { type ChartConfig } from "@/components/ui/chart";
-import { StatsPageSkeleton } from "@/components/skeletons/stats-skeleton";
+import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
 
 // Extract stats content to a separate component for Suspense
 async function StatsContent() {

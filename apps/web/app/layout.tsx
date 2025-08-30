@@ -2,7 +2,7 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { ReactNode } from "react";
-import Navigation from "@/components/navigation";
+import Navigation from "@/components/layouts/navigation";
 
 const inter = Inter({
   subsets: ["latin"],

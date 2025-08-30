@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SearchResultsSkeleton } from "@/components/skeletons/search-skeleton";
+import { SearchResultsSkeleton } from "@/components/features/skeletons/search-skeleton";
 import { Item } from "@/types";
 import {
   useActionState,

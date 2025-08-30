@@ -1,5 +1,5 @@
 import { createClientForServer } from "@/utils/supabase/server";
-import { CategoryList } from "@/components/lists/category-list";
+import { CategoryList } from "@/components/features/lists/category-list";
 
 export default async function ItemsList({ year }: { year: number }) {
   const supabase = await createClientForServer();

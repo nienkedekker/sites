@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import ItemsList from "@/components/lists/items-list";
-import { ItemsListSkeleton } from "@/components/skeletons/items-list-skeleton";
+import ItemsList from "@/components/features/lists/items-list";
+import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
 
 export default async function Home() {
   const currentYear = new Date().getFullYear();

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import AuthButton from "@/components/header-auth";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import YearNavigation from "@/components/lists/year-navigation";
+import AuthButton from "@/components/layouts/header-auth";
+import { ThemeSwitcher } from "@/components/features/theme-switcher";
+import YearNavigation from "@/components/features/lists/year-navigation";
 import { Gamja_Flower } from "next/font/google";
 
 const gamja = Gamja_Flower({
