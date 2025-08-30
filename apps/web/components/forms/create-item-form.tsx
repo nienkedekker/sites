@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createItemAction } from "@/app/actions";
+import { createItemAction } from "@/app/actions/items";
 import { SubmitButton } from "./submit-button";
 
 export default function CreateItemForm() {
@@ -19,20 +19,47 @@ export default function CreateItemForm() {
 
         {/* Book Form */}
         <TabsContent value="book">
-          <form className="space-y-4">
+          <form className="space-y-4" aria-labelledby="book-form-title">
+            <h2 id="book-form-title" className="sr-only">
+              Add new book
+            </h2>
             <input type="hidden" name="itemtype" value="Book" />
-            <Label>Title</Label>
-            <Input type="text" name="title" required />
+            <div>
+              <Label htmlFor="book-title">Title</Label>
+              <Input
+                type="text"
+                id="book-title"
+                name="title"
+                required
+                aria-describedby="book-title-error"
+              />
+            </div>
 
-            <Label>Author</Label>
-            <Input type="text" name="author" required />
+            <div>
+              <Label htmlFor="book-author">Author</Label>
+              <Input
+                type="text"
+                id="book-author"
+                name="author"
+                required
+                aria-describedby="book-author-error"
+              />
+            </div>
 
-            <Label>Published Year</Label>
-            <Input type="number" name="publishedYear" required />
+            <div>
+              <Label htmlFor="book-publishedYear">Published Year</Label>
+              <Input
+                type="number"
+                id="book-publishedYear"
+                name="publishedYear"
+                required
+                aria-describedby="book-year-error"
+              />
+            </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox id="redo" name="redo" />
-              <Label htmlFor="redo">This was a re-read</Label>
+              <Checkbox id="book-redo" name="redo" />
+              <Label htmlFor="book-redo">This was a re-read</Label>
             </div>
 
             <SubmitButton formAction={createItemAction}>Save book</SubmitButton>
@@ -41,20 +68,47 @@ export default function CreateItemForm() {
 
         {/* Movie Form */}
         <TabsContent value="movie">
-          <form className="space-y-4">
+          <form className="space-y-4" aria-labelledby="movie-form-title">
+            <h2 id="movie-form-title" className="sr-only">
+              Add new movie
+            </h2>
             <input type="hidden" name="itemtype" value="Movie" />
-            <Label>Title</Label>
-            <Input type="text" name="title" required />
+            <div>
+              <Label htmlFor="movie-title">Title</Label>
+              <Input
+                type="text"
+                id="movie-title"
+                name="title"
+                required
+                aria-describedby="movie-title-error"
+              />
+            </div>
 
-            <Label>Director</Label>
-            <Input type="text" name="director" required />
+            <div>
+              <Label htmlFor="movie-director">Director</Label>
+              <Input
+                type="text"
+                id="movie-director"
+                name="director"
+                required
+                aria-describedby="movie-director-error"
+              />
+            </div>
 
-            <Label>Release Year</Label>
-            <Input type="number" name="publishedYear" required />
+            <div>
+              <Label htmlFor="movie-publishedYear">Release Year</Label>
+              <Input
+                type="number"
+                id="movie-publishedYear"
+                name="publishedYear"
+                required
+                aria-describedby="movie-year-error"
+              />
+            </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox id="redo" name="redo" />
-              <Label htmlFor="redo">This was a rewatch</Label>
+              <Checkbox id="movie-redo" name="redo" />
+              <Label htmlFor="movie-redo">This was a rewatch</Label>
             </div>
 
             <SubmitButton formAction={createItemAction}>
@@ -65,20 +119,47 @@ export default function CreateItemForm() {
 
         {/* TV Show Form */}
         <TabsContent value="show">
-          <form className="space-y-4">
+          <form className="space-y-4" aria-labelledby="show-form-title">
+            <h2 id="show-form-title" className="sr-only">
+              Add new TV show
+            </h2>
             <input type="hidden" name="itemtype" value="Show" />
-            <Label>Title</Label>
-            <Input type="text" name="title" required />
+            <div>
+              <Label htmlFor="show-title">Title</Label>
+              <Input
+                type="text"
+                id="show-title"
+                name="title"
+                required
+                aria-describedby="show-title-error"
+              />
+            </div>
 
-            <Label>Season</Label>
-            <Input type="number" name="season" required />
+            <div>
+              <Label htmlFor="show-season">Season</Label>
+              <Input
+                type="number"
+                id="show-season"
+                name="season"
+                required
+                aria-describedby="show-season-error"
+              />
+            </div>
 
-            <Label>Release Year</Label>
-            <Input type="number" name="publishedYear" required />
+            <div>
+              <Label htmlFor="show-publishedYear">Release Year</Label>
+              <Input
+                type="number"
+                id="show-publishedYear"
+                name="publishedYear"
+                required
+                aria-describedby="show-year-error"
+              />
+            </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox id="redo" name="redo" />
-              <Label htmlFor="redo">This was a rewatch</Label>
+              <Checkbox id="show-redo" name="redo" />
+              <Label htmlFor="show-redo">This was a rewatch</Label>
             </div>
 
             <SubmitButton formAction={createItemAction}>Save show</SubmitButton>

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { deleteItemAction } from "@/app/actions";
+import { deleteItemAction } from "@/app/actions/items";
 import {
   Dialog,
   DialogTrigger,
@@ -34,11 +34,11 @@ export default function DeleteItemDialog({
           Delete
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent aria-describedby="delete-description">
         <DialogHeader>
           <DialogTitle>Are you sure?</DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-gray-600">
+        <p id="delete-description" className="text-sm text-gray-600">
           This action cannot be undone. This will permanently delete the item.
         </p>
         <DialogFooter>
@@ -48,7 +48,12 @@ export default function DeleteItemDialog({
           <form action={handleSubmit}>
             <input type="hidden" name="id" value={itemId} />
             <input type="hidden" name="belongsToYear" value={belongsToYear} />
-            <Button type="submit" variant="destructive" disabled={pending}>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={pending}
+              aria-describedby="delete-description"
+            >
               {pending ? "Deleting..." : "Confirm"}
             </Button>
           </form>

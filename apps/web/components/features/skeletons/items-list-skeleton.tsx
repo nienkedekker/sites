@@ -1,0 +1,27 @@
+import { Skeleton } from "@/components/ui/skeleton";
+
+export function ItemsListSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-32 px-6">
+      {/* Three category columns */}
+      {Array.from({ length: 3 }).map((_, columnIndex) => (
+        <div key={columnIndex} className="flex flex-col gap-6">
+          {/* Category title */}
+          <Skeleton className="h-6 w-20 -ml-4" />
+
+          {/* List items */}
+          <div className="space-y-2">
+            {Array.from({ length: Math.floor(Math.random() * 5) + 1 }).map(
+              (_, itemIndex) => (
+                <div key={itemIndex} className="pl-2">
+                  <Skeleton className="h-4 w-full mb-1" />
+                  <Skeleton className="h-3 w-3/4" />
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

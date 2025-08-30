@@ -29,13 +29,19 @@ const ThemeSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="link" className="cursor-pointer">
+        <Button
+          variant="link"
+          className="cursor-pointer"
+          aria-label={`Current theme: ${theme}. Click to change theme`}
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
           {theme === "light" ? (
-            <Sun key="light" size={ICON_SIZE} />
+            <Sun key="light" size={ICON_SIZE} aria-hidden="true" />
           ) : theme === "dark" ? (
-            <Moon key="dark" size={ICON_SIZE} />
+            <Moon key="dark" size={ICON_SIZE} aria-hidden="true" />
           ) : (
-            <Laptop key="system" size={ICON_SIZE} />
+            <Laptop key="system" size={ICON_SIZE} aria-hidden="true" />
           )}
         </Button>
       </DropdownMenuTrigger>

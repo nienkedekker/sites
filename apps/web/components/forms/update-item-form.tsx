@@ -1,4 +1,4 @@
-import { updateItemAction } from "@/app/actions";
+import { updateItemAction } from "@/app/actions/items";
 import { SubmitButton } from "./submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

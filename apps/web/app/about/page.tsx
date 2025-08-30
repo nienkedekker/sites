@@ -26,7 +26,7 @@ export default async function AboutPage() {
         for this site{" "}
         <Link
           className="underline"
-          href="https://github.com/nienkedekker/whatpm-2025"
+          href="https://github.com/nienkedekker/what.pm"
         >
           here
         </Link>

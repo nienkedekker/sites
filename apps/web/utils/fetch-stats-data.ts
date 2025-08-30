@@ -1,10 +1,15 @@
 import { createClientForServer } from "@/utils/supabase/server";
-import { order, chartConfig } from "@/utils/chart-config";
+import {
+  ITEM_TYPE_ORDER,
+  CHART_CONFIG,
+  ITEM_TYPES,
+} from "@/utils/constants/app";
+import { getCurrentYear } from "@/utils/formatters/date";
 import { ItemCountEntry } from "@/types";
 
 export async function fetchStatsData() {
   const supabase = await createClientForServer();
-  const currentYear = new Date().getFullYear();
+  const currentYear = getCurrentYear();
 
   const [
     { data: itemCountsData, error: itemCountsError },
@@ -30,13 +35,19 @@ export async function fetchStatsData() {
   ) =>
     itemCountsData
       ?.filter((entry): entry is ItemCountEntry =>
-        ["Book", "Movie", "Show"].includes(entry.itemtype),
+        Object.values(ITEM_TYPES).includes(entry.itemtype),
       )
-      .sort((a, b) => order[a.itemtype] - order[b.itemtype])
+      .sort(
+        (a, b) =>
+          ITEM_TYPE_ORDER[a.itemtype as keyof typeof ITEM_TYPE_ORDER] -
+          ITEM_TYPE_ORDER[b.itemtype as keyof typeof ITEM_TYPE_ORDER],
+      )
       .map((entry) => ({
         type: entry.itemtype,
         count: entry[key],
-        fill: chartConfig[entry.itemtype]?.color || "hsl(var(--chart-1))",
+        fill:
+          CHART_CONFIG[entry.itemtype as keyof typeof CHART_CONFIG]?.color ||
+          "hsl(var(--chart-1))",
       }));
 
   return {
