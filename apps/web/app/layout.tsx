@@ -35,7 +35,11 @@ export default function RootLayout({
         >
           <div className="min-h-screen flex flex-col justify-between">
             <Navigation />
-            <main id="main-content" className="flex-grow mx-auto container py-12" role="main">
+            <main
+              id="main-content"
+              className="flex-grow mx-auto container py-12"
+              role="main"
+            >
               {children}
             </main>
           </div>

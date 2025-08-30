@@ -22,7 +22,11 @@ export default function Navigation() {
             <span className={`${gamja.className}`}>what.</span>
           </Link>
         </div>
-        <nav role="navigation" aria-label="Main navigation" className="flex flex-col sm:flex-row sm:items-center justify-between text-sm pl-1 bg-sky-200 dark:bg-zinc-800 border-b border-b-foreground/10">
+        <nav
+          role="navigation"
+          aria-label="Main navigation"
+          className="flex flex-col sm:flex-row sm:items-center justify-between text-sm pl-1 bg-sky-200 dark:bg-zinc-800 border-b border-b-foreground/10"
+        >
           <ul className="flex list-none">
             <li>
               <Button asChild variant="link">

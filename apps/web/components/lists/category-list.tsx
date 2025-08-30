@@ -16,13 +16,18 @@ export function CategoryList({
   isLoggedIn = false,
   showYearLink = false,
 }: CategoryListProps) {
-  const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, '-')}-heading`;
-  
+  const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-heading`;
+
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-6">
-      <h2 id={headingId} className="font-bold -ml-4">{categoryTitle}</h2>
+      <h2 id={headingId} className="font-bold -ml-4">
+        {categoryTitle}
+      </h2>
       {items.length > 0 ? (
-        <ol className="list-decimal list-outside text-gray-400 space-y-2" aria-label={`List of ${categoryTitle.toLowerCase()}`}>
+        <ol
+          className="list-decimal list-outside text-gray-400 space-y-2"
+          aria-label={`List of ${categoryTitle.toLowerCase()}`}
+        >
           {items.map((item) => (
             <li key={item.id} className="pl-2">
               <div className="text-gray-700 dark:text-gray-300">
@@ -38,7 +43,11 @@ export function CategoryList({
                 {item.itemtype === "Movie" && (
                   <>
                     <span className="sr-only"> directed by </span>
-                    <span> ({item.director || "Unknown Director"}, {item.published_year})</span>
+                    <span>
+                      {" "}
+                      ({item.director || "Unknown Director"},{" "}
+                      {item.published_year})
+                    </span>
                   </>
                 )}
                 {item.itemtype === "Show" && (
@@ -50,9 +59,13 @@ export function CategoryList({
               </div>
 
               {item.redo && (
-                <span 
+                <span
                   className="ml-2 px-2 py-1 text-xs font-semibold rounded-md bg-indigo-100 text-indigo-700"
-                  aria-label={item.itemtype === "Book" ? "This was a re-read" : "This was a rewatch"}
+                  aria-label={
+                    item.itemtype === "Book"
+                      ? "This was a re-read"
+                      : "This was a rewatch"
+                  }
                 >
                   {item.itemtype === "Book" ? "Reread" : "Rewatch"}
                 </span>
@@ -71,13 +84,17 @@ export function CategoryList({
               )}
 
               {isLoggedIn && (
-                <div className="flex gap-2" role="group" aria-label={`Actions for ${item.title}`}>
+                <div
+                  className="flex gap-2"
+                  role="group"
+                  aria-label={`Actions for ${item.title}`}
+                >
                   <Button
                     asChild
                     className="text-xs p-0 cursor-pointer"
                     variant="link"
                   >
-                    <Link 
+                    <Link
                       href={`/item/${item.id}`}
                       aria-label={`Update ${item.title}`}
                     >

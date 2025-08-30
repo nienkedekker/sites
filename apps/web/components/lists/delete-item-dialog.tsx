@@ -48,7 +48,12 @@ export default function DeleteItemDialog({
           <form action={handleSubmit}>
             <input type="hidden" name="id" value={itemId} />
             <input type="hidden" name="belongsToYear" value={belongsToYear} />
-            <Button type="submit" variant="destructive" disabled={pending} aria-describedby="delete-description">
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={pending}
+              aria-describedby="delete-description"
+            >
               {pending ? "Deleting..." : "Confirm"}
             </Button>
           </form>

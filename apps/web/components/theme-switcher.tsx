@@ -29,8 +29,8 @@ const ThemeSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="link" 
+        <Button
+          variant="link"
           className="cursor-pointer"
           aria-label={`Current theme: ${theme}. Click to change theme`}
           aria-haspopup="menu"

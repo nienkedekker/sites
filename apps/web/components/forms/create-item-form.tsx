@@ -20,21 +20,41 @@ export default function CreateItemForm() {
         {/* Book Form */}
         <TabsContent value="book">
           <form className="space-y-4" aria-labelledby="book-form-title">
-            <h2 id="book-form-title" className="sr-only">Add new book</h2>
+            <h2 id="book-form-title" className="sr-only">
+              Add new book
+            </h2>
             <input type="hidden" name="itemtype" value="Book" />
             <div>
               <Label htmlFor="book-title">Title</Label>
-              <Input type="text" id="book-title" name="title" required aria-describedby="book-title-error" />
+              <Input
+                type="text"
+                id="book-title"
+                name="title"
+                required
+                aria-describedby="book-title-error"
+              />
             </div>
 
             <div>
               <Label htmlFor="book-author">Author</Label>
-              <Input type="text" id="book-author" name="author" required aria-describedby="book-author-error" />
+              <Input
+                type="text"
+                id="book-author"
+                name="author"
+                required
+                aria-describedby="book-author-error"
+              />
             </div>
 
             <div>
               <Label htmlFor="book-publishedYear">Published Year</Label>
-              <Input type="number" id="book-publishedYear" name="publishedYear" required aria-describedby="book-year-error" />
+              <Input
+                type="number"
+                id="book-publishedYear"
+                name="publishedYear"
+                required
+                aria-describedby="book-year-error"
+              />
             </div>
 
             <div className="flex items-center space-x-2">
@@ -49,21 +69,41 @@ export default function CreateItemForm() {
         {/* Movie Form */}
         <TabsContent value="movie">
           <form className="space-y-4" aria-labelledby="movie-form-title">
-            <h2 id="movie-form-title" className="sr-only">Add new movie</h2>
+            <h2 id="movie-form-title" className="sr-only">
+              Add new movie
+            </h2>
             <input type="hidden" name="itemtype" value="Movie" />
             <div>
               <Label htmlFor="movie-title">Title</Label>
-              <Input type="text" id="movie-title" name="title" required aria-describedby="movie-title-error" />
+              <Input
+                type="text"
+                id="movie-title"
+                name="title"
+                required
+                aria-describedby="movie-title-error"
+              />
             </div>
 
             <div>
               <Label htmlFor="movie-director">Director</Label>
-              <Input type="text" id="movie-director" name="director" required aria-describedby="movie-director-error" />
+              <Input
+                type="text"
+                id="movie-director"
+                name="director"
+                required
+                aria-describedby="movie-director-error"
+              />
             </div>
 
             <div>
               <Label htmlFor="movie-publishedYear">Release Year</Label>
-              <Input type="number" id="movie-publishedYear" name="publishedYear" required aria-describedby="movie-year-error" />
+              <Input
+                type="number"
+                id="movie-publishedYear"
+                name="publishedYear"
+                required
+                aria-describedby="movie-year-error"
+              />
             </div>
 
             <div className="flex items-center space-x-2">
@@ -80,21 +120,41 @@ export default function CreateItemForm() {
         {/* TV Show Form */}
         <TabsContent value="show">
           <form className="space-y-4" aria-labelledby="show-form-title">
-            <h2 id="show-form-title" className="sr-only">Add new TV show</h2>
+            <h2 id="show-form-title" className="sr-only">
+              Add new TV show
+            </h2>
             <input type="hidden" name="itemtype" value="Show" />
             <div>
               <Label htmlFor="show-title">Title</Label>
-              <Input type="text" id="show-title" name="title" required aria-describedby="show-title-error" />
+              <Input
+                type="text"
+                id="show-title"
+                name="title"
+                required
+                aria-describedby="show-title-error"
+              />
             </div>
 
             <div>
               <Label htmlFor="show-season">Season</Label>
-              <Input type="number" id="show-season" name="season" required aria-describedby="show-season-error" />
+              <Input
+                type="number"
+                id="show-season"
+                name="season"
+                required
+                aria-describedby="show-season-error"
+              />
             </div>
 
             <div>
               <Label htmlFor="show-publishedYear">Release Year</Label>
-              <Input type="number" id="show-publishedYear" name="publishedYear" required aria-describedby="show-year-error" />
+              <Input
+                type="number"
+                id="show-publishedYear"
+                name="publishedYear"
+                required
+                aria-describedby="show-year-error"
+              />
             </div>
 
             <div className="flex items-center space-x-2">

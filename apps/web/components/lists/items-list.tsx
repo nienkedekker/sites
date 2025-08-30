@@ -14,7 +14,9 @@ export default async function ItemsList({ year }: { year: number }) {
     return (
       <div role="alert" className="text-center p-8">
         <p className="text-red-600">Unable to load your items right now.</p>
-        <p className="text-sm text-gray-500 mt-2">Please try refreshing the page.</p>
+        <p className="text-sm text-gray-500 mt-2">
+          Please try refreshing the page.
+        </p>
       </div>
     );
   }

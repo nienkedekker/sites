@@ -102,14 +102,6 @@ const nextConfig: NextConfig = {
 };
 ```
 
-### 10. Accessibility Improvements
-- **Issue**: Missing ARIA labels and semantic HTML
-- **Fix**: Add proper accessibility attributes and semantic structure
-
-### 11. SEO Optimization
-- **Location**: `apps/web/app/layout.tsx:16-20`
-- **Issue**: Basic metadata only
-- **Fix**: Add dynamic metadata generation for each page
 
 ## 🔵 Low Priority / Nice-to-Have
 
