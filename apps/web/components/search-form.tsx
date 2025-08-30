@@ -1,6 +1,6 @@
 "use client";
 
-import { searchItems } from "@/app/actions";
+import { searchItems } from "@/app/actions/search";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

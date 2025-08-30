@@ -124,7 +124,7 @@ const nextConfig: NextConfig = {
 
 ### 19. Data Export/Import
 - Add CSV export functionality
-- Create a new endpoint that, when hit, will download the whole database as a JSON?
+- Create a new endpoint that, when hit & authenticated, will download the whole database as a JSON?
 
 ### 21. Analytics & Insights
 - Reading/watching patterns analysis

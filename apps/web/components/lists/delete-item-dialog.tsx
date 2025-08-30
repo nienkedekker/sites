@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { deleteItemAction } from "@/app/actions";
+import { deleteItemAction } from "@/app/actions/items";
 import {
   Dialog,
   DialogTrigger,
