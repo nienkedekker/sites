@@ -1,35 +1,35 @@
 import { createClientForServer } from "@/utils/supabase/server";
 import { CategoryList } from "@/components/features/lists/category-list";
+import { DataLoadingError } from "@/components/features/error-fallbacks";
 
 export default async function ItemsList({ year }: { year: number }) {
-  const supabase = await createClientForServer();
+  let items, user, error;
 
-  // Fetch all items for the year and user data
-  const [
-    { data: items, error },
-    {
-      data: { user },
-    },
-  ] = await Promise.all([
-    supabase
-      .from("items")
-      .select("*")
-      .eq("belongs_to_year", year)
-      .order("created_at", { ascending: true }),
-    supabase.auth.getUser(),
-  ]);
+  try {
+    const supabase = await createClientForServer();
+
+    // Fetch all items for the year and user data
+    const [itemsResult, userResult] = await Promise.all([
+      supabase
+        .from("items")
+        .select("*")
+        .eq("belongs_to_year", year)
+        .order("created_at", { ascending: true }),
+      supabase.auth.getUser(),
+    ]);
+
+    items = itemsResult.data;
+    error = itemsResult.error;
+    user = userResult.data.user;
+  } catch (unexpectedError) {
+    console.error("Unexpected error in ItemsList:", unexpectedError);
+    return <DataLoadingError error={unexpectedError instanceof Error ? unexpectedError : new Error("Unknown error occurred")} />;
+  }
 
   // Check for any errors
   if (error) {
-    console.error("Error fetching items:", error);
-    return (
-      <div role="alert" className="text-center p-8">
-        <p className="text-red-600">Unable to load your items right now.</p>
-        <p className="text-sm text-gray-500 mt-2">
-          Please try refreshing the page.
-        </p>
-      </div>
-    );
+    console.error("Error fetching items for year", year, ":", error);
+    return <DataLoadingError error={error} />;
   }
 
   // Group items by category
