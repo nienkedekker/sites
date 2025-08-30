@@ -143,11 +143,13 @@ export async function searchItems(
   const supabase = await createClientForServer();
 
   // Escape special characters for ILIKE pattern matching
-  const escapedQuery = trimmedQuery.replace(/[%_]/g, '\\$&');
+  const escapedQuery = trimmedQuery.replace(/[%_]/g, "\\$&");
 
   const { data, error } = await supabase
     .from("items")
-    .select("id, title, author, director, itemtype, season, published_year, belongs_to_year, redo") // Select only needed columns
+    .select(
+      "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo",
+    ) // Select only needed columns
     .or(
       `title.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%,director.ilike.%${escapedQuery}%`,
     )

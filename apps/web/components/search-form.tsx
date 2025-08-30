@@ -312,7 +312,10 @@ export default function SearchForm() {
               {processedResults.length} result
               {processedResults.length !== 1 ? "s" : ""}
               {filterType !== "all" && (
-                <span className="hidden xs:inline"> ({filterType.toLowerCase()}s only)</span>
+                <span className="hidden xs:inline">
+                  {" "}
+                  ({filterType.toLowerCase()}s only)
+                </span>
               )}
             </span>
           )}
@@ -393,7 +396,10 @@ export default function SearchForm() {
               }
 
               return (
-                <div key={type} className="bg-card rounded-lg border p-4 sm:p-6">
+                <div
+                  key={type}
+                  className="bg-card rounded-lg border p-4 sm:p-6"
+                >
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     {title}
                     <span className="text-sm font-normal text-muted-foreground">
@@ -456,7 +462,12 @@ export default function SearchForm() {
                         </div>
 
                         <div className="flex justify-end sm:flex-col sm:items-end gap-2">
-                          <Button asChild variant="outline" size="sm" className="text-xs px-3">
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="text-xs px-3"
+                          >
                             <Link href={`/item/${item.id}`}>Edit</Link>
                           </Button>
                         </div>

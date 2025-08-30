@@ -54,23 +54,8 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
 - **Fix**: Move custom types to separate file, keep generated types pure
 
 
-### 7. Search Functionality
-- **Location**: `apps/web/app/actions.ts:140-145`
-- **Issue**: Basic text search, no debouncing or optimization
-- **Fix**: Implement full-text search and debouncing
-
 ## 🟢 Medium Priority Improvements
 
-### 8. Component Organization
-- **Issue**: Mixed UI components with business logic
-- **Fix**: Create clear separation:
-  ```
-  components/
-    ├── ui/           # Pure UI components
-    ├── forms/        # Form components
-    ├── features/     # Business logic components
-    └── layouts/      # Layout components
-  ```
 
 ### 9. Configuration Management
 - **Location**: `apps/web/next.config.ts`
@@ -94,27 +79,14 @@ const nextConfig: NextConfig = {
 ### 12. Performance Optimizations
 - Add React.memo for expensive components
 - Implement virtual scrolling for large lists
-- Add image optimization for future media content
 
 ### 13. Testing Setup
 - **Issue**: No testing framework configured
 - **Fix**: Add Jest + React Testing Library setup
 
-### 14. Code Quality Tools
-- **Fix**: Add additional linting rules:
-```json
-{
-  "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "prefer-const": "error"
-  }
-}
-```
 
 ### 15. Documentation
 - Add JSDoc comments for complex functions
-- Create component storybook for UI library
 - Add API documentation
 
 ## 📋 Refactoring Opportunities
@@ -130,6 +102,17 @@ const nextConfig: NextConfig = {
     └── search.ts
   ```
 
+### 16.1. Component Organization
+- **Issue**: Mixed UI components with business logic
+- **Fix**: Create clear separation:
+  ```
+  components/
+    ├── ui/           # Pure UI components
+    ├── forms/        # Form components
+    ├── features/     # Business logic components
+    └── layouts/      # Layout components
+  ```
+
 ### 17. Utilities Structure
 - **Issue**: Limited utility functions
 - **Fix**: Add common utilities:
@@ -143,27 +126,9 @@ const nextConfig: NextConfig = {
 - Add CSV export functionality
 - Create a new endpoint that, when hit, will download the whole database as a JSON?
 
-### 20. Enhanced Search & Filtering
-- Advanced filters (by year, rating, etc.)
-- Recommendation system: when I add a new item, I want a radio button: recommended. If it is a recommended item, I want to show a 🌠 next to it and also be able to filter by recommended items.
-
 ### 21. Analytics & Insights
 - Reading/watching patterns analysis
 - Goal setting and tracking
 - Progress visualization improvements
 
-## Implementation Priority
-
-1. **Week 1**: Critical improvements (Error handling, Form validation, Environment variables)
-2. **Week 2**: High priority (Type safety, Loading states, Query optimization)
-3. **Week 3**: Medium priority (Component organization, Configuration, A11y)
-4. **Week 4**: Testing setup and code quality improvements
-
-## Estimated Impact
-
-- **Critical**: High impact, prevents bugs and improves reliability
-- **High Priority**: Medium-high impact, improves user experience significantly
-- **Medium Priority**: Medium impact, improves maintainability and scalability
-- **Low Priority**: Low-medium impact, nice polish and future-proofing
-
-The codebase shows good modern React/Next.js patterns and is well-organized overall. The main areas for improvement are around error handling, validation, and performance optimization.
+ling, validation, and performance optimization.

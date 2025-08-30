@@ -7,7 +7,6 @@ import { StatsPageSkeleton } from "@/components/skeletons/stats-skeleton";
 
 // Extract stats content to a separate component for Suspense
 async function StatsContent() {
-
   const statsData = await fetchStatsData();
 
   if (!statsData) {
