@@ -2,7 +2,6 @@
 
 import { encodedRedirect } from "@/utils";
 import { createClientForServer } from "@/utils/supabase/server";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Item, ItemInsert, ItemUpdate } from "@/types";
 
