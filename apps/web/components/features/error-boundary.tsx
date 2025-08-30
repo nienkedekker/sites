@@ -38,13 +38,15 @@ export class ErrorBoundary extends React.Component<
     if (this.state.hasError && this.state.error) {
       if (this.props.fallback) {
         const Fallback = this.props.fallback;
-        return <Fallback error={this.state.error} reset={this.resetErrorBoundary} />;
+        return (
+          <Fallback error={this.state.error} reset={this.resetErrorBoundary} />
+        );
       }
 
       return (
-        <DefaultErrorFallback 
-          error={this.state.error} 
-          reset={this.resetErrorBoundary} 
+        <DefaultErrorFallback
+          error={this.state.error}
+          reset={this.resetErrorBoundary}
         />
       );
     }
@@ -60,8 +62,8 @@ interface ErrorFallbackProps {
 
 function DefaultErrorFallback({ error, reset }: ErrorFallbackProps) {
   return (
-    <div 
-      role="alert" 
+    <div
+      role="alert"
       className="text-center p-8 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg"
     >
       <div className="mb-4">
@@ -69,7 +71,8 @@ function DefaultErrorFallback({ error, reset }: ErrorFallbackProps) {
           Something went wrong
         </h2>
         <p className="text-red-600 dark:text-red-400 text-sm mb-4">
-          We encountered an unexpected error. This has been logged and we'll look into it.
+          We encountered an unexpected error. This has been logged and we'll
+          look into it.
         </p>
         <details className="text-left">
           <summary className="cursor-pointer text-red-700 dark:text-red-300 text-xs mb-2">
@@ -81,16 +84,12 @@ function DefaultErrorFallback({ error, reset }: ErrorFallbackProps) {
         </details>
       </div>
       <div className="flex gap-2 justify-center">
-        <Button 
-          onClick={reset}
-          variant="outline"
-          size="sm"
-        >
+        <Button onClick={reset} variant="outline" size="sm">
           Try again
         </Button>
-        <Button 
+        <Button
           onClick={() => window.location.reload()}
-          variant="outline" 
+          variant="outline"
           size="sm"
         >
           Refresh page

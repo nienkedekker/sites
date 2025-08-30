@@ -91,7 +91,8 @@ function HighlightText({ text, query }: { text: string; query: string }) {
   );
 }
 
-export default function SearchForm() {
+// TODO: when pressing backspace, don't search again immediately
+export default function SearchForm({ isLoggedIn = false }) {
   const [state, formAction, isPending] = useActionState(searchItems, {
     query: "",
     results: [],
@@ -322,7 +323,7 @@ export default function SearchForm() {
         </div>
 
         <div id="search-instructions" className="sr-only">
-          Search through your books, movies, and TV shows. Results appear as you
+          Search through books, movies, and TV shows. Results appear as you
           type.
         </div>
       </form>
@@ -453,24 +454,23 @@ export default function SearchForm() {
                               <p>Season {item.season}</p>
                             )}
                             <div className="flex flex-wrap gap-3 text-xs">
-                              {item.published_year && (
-                                <span>Published: {item.published_year}</span>
-                              )}
                               <span>Added {item.belongs_to_year}</span>
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex justify-end sm:flex-col sm:items-end gap-2">
-                          <Button
-                            asChild
-                            variant="outline"
-                            size="sm"
-                            className="text-xs px-3"
-                          >
-                            <Link href={`/item/${item.id}`}>Edit</Link>
-                          </Button>
-                        </div>
+                        {isLoggedIn && (
+                          <div className="flex justify-end sm:flex-col sm:items-end gap-2">
+                            <Button
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="text-xs px-3"
+                            >
+                              <Link href={`/item/${item.id}`}>Edit</Link>
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

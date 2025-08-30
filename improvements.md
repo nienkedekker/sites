@@ -107,5 +107,8 @@ const nextConfig: NextConfig = {
 - Create a new endpoint that, when hit & authenticated, will download the whole database as a JSON?
 
 ### 21. Analytics & Insights
-
 - Reading/watching patterns analysis
+
+# Other
+- Fix TODOs in error-handling.ts
+- Search-form.tsx is too big

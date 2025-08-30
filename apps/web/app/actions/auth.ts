@@ -13,13 +13,21 @@ export const signInAction = async (formData: FormData) => {
 
     // Validate email format
     if (!validateEmail(email)) {
-      return encodedRedirect("error", "/sign-in", "Please enter a valid email address.");
+      return encodedRedirect(
+        "error",
+        "/sign-in",
+        "Please enter a valid email address.",
+      );
     }
 
     // Basic password validation
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.success) {
-      return encodedRedirect("error", "/sign-in", passwordValidation.errors.join(", "));
+      return encodedRedirect(
+        "error",
+        "/sign-in",
+        passwordValidation.errors.join(", "),
+      );
     }
 
     const supabase = await createClientForServer();
@@ -32,11 +40,12 @@ export const signInAction = async (formData: FormData) => {
     if (error) {
       // Provide user-friendly error messages
       let errorMessage = "Unable to sign in. Please check your credentials.";
-      
+
       if (error.message.includes("Invalid login credentials")) {
         errorMessage = "Invalid email or password. Please try again.";
       } else if (error.message.includes("Email not confirmed")) {
-        errorMessage = "Please check your email and click the confirmation link.";
+        errorMessage =
+          "Please check your email and click the confirmation link.";
       } else if (error.message.includes("Too many requests")) {
         errorMessage = "Too many sign-in attempts. Please try again later.";
       }
@@ -49,7 +58,11 @@ export const signInAction = async (formData: FormData) => {
   } catch (error) {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in signInAction:", error);
-    return encodedRedirect("error", "/sign-in", "Something went wrong. Please try again.");
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "Something went wrong. Please try again.",
+    );
   }
 };
 

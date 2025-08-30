@@ -16,7 +16,9 @@ export const createItemAction = async (formData: FormData) => {
     const publishedYear = Number(formData.get("publishedYear"));
     const author = formData.get("author")?.toString();
     const director = formData.get("director")?.toString();
-    const season = formData.get("season") ? Number(formData.get("season")) : undefined;
+    const season = formData.get("season")
+      ? Number(formData.get("season"))
+      : undefined;
     const redo = formData.get("redo") === "on";
 
     // Validate the input data
@@ -57,14 +59,22 @@ export const createItemAction = async (formData: FormData) => {
 
     if (error) {
       console.error("Database error creating item:", error);
-      return encodedRedirect("error", "/create", "Unable to save your item. Please try again.");
+      return encodedRedirect(
+        "error",
+        "/create",
+        "Unable to save your item. Please try again.",
+      );
     }
 
     return redirect(`/year/${currentYear}`);
   } catch (error) {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in createItemAction:", error);
-    return encodedRedirect("error", "/create", "Something went wrong. Please try again.");
+    return encodedRedirect(
+      "error",
+      "/create",
+      "Something went wrong. Please try again.",
+    );
   }
 };
 
@@ -82,14 +92,22 @@ export const deleteItemAction = async (formData: FormData) => {
 
     if (error) {
       console.error("Database error deleting item:", error);
-      return encodedRedirect("error", "/", "Unable to delete your item. Please try again.");
+      return encodedRedirect(
+        "error",
+        "/",
+        "Unable to delete your item. Please try again.",
+      );
     }
 
     return redirect(`/year/${belongsToYear}`);
   } catch (error) {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in deleteItemAction:", error);
-    return encodedRedirect("error", "/", "Something went wrong. Please try again.");
+    return encodedRedirect(
+      "error",
+      "/",
+      "Something went wrong. Please try again.",
+    );
   }
 };
 
@@ -108,7 +126,9 @@ export const updateItemAction = async (formData: FormData) => {
     const publishedYear = Number(formData.get("publishedYear"));
     const author = formData.get("author")?.toString();
     const director = formData.get("director")?.toString();
-    const season = formData.get("season") ? Number(formData.get("season")) : undefined;
+    const season = formData.get("season")
+      ? Number(formData.get("season"))
+      : undefined;
     const redo = formData.get("redo") === "on";
 
     // Validate the input data
@@ -150,7 +170,11 @@ export const updateItemAction = async (formData: FormData) => {
 
     if (error) {
       console.error("Database error updating item:", error);
-      return encodedRedirect("error", `/item/update/${itemId}`, "Unable to update your item. Please try again.");
+      return encodedRedirect(
+        "error",
+        `/item/update/${itemId}`,
+        "Unable to update your item. Please try again.",
+      );
     }
 
     return redirect(`/year/${belongsToYear}`);
@@ -158,6 +182,10 @@ export const updateItemAction = async (formData: FormData) => {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in updateItemAction:", error);
     const itemId = formData.get("id")?.toString();
-    return encodedRedirect("error", itemId ? `/item/update/${itemId}` : "/", "Something went wrong. Please try again.");
+    return encodedRedirect(
+      "error",
+      itemId ? `/item/update/${itemId}` : "/",
+      "Something went wrong. Please try again.",
+    );
   }
 };

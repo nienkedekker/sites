@@ -4,10 +4,9 @@ import { DataLoadingError } from "@/components/features/error-fallbacks";
 
 export default async function ItemsList({ year }: { year: number }) {
   let items, user, error;
+  const supabase = await createClientForServer();
 
   try {
-    const supabase = await createClientForServer();
-
     // Fetch all items for the year and user data
     const [itemsResult, userResult] = await Promise.all([
       supabase
@@ -23,7 +22,15 @@ export default async function ItemsList({ year }: { year: number }) {
     user = userResult.data.user;
   } catch (unexpectedError) {
     console.error("Unexpected error in ItemsList:", unexpectedError);
-    return <DataLoadingError error={unexpectedError instanceof Error ? unexpectedError : new Error("Unknown error occurred")} />;
+    return (
+      <DataLoadingError
+        error={
+          unexpectedError instanceof Error
+            ? unexpectedError
+            : new Error("Unknown error occurred")
+        }
+      />
+    );
   }
 
   // Check for any errors
