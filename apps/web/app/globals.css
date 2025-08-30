@@ -193,3 +193,16 @@
   text-decoration: none !important;
   border-radius: 0.25rem !important;
 }
+
+/* iOS Safari zoom prevention - ensure all input elements have at least 16px font size */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
