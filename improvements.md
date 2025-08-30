@@ -53,20 +53,6 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
 - **Issue**: Importing types from a file that should be generated
 - **Fix**: Move custom types to separate file, keep generated types pure
 
-### 5. Loading States
-- **Issue**: No loading states for async operations
-- **Fix**: Add loading skeletons and suspense boundaries
-```tsx
-// Add to server components
-<Suspense fallback={<ItemsListSkeleton />}>
-  <ItemsList year={currentYear} />
-</Suspense>
-```
-
-### 6. Database Query Optimization
-- **Location**: `apps/web/components/lists/items-list.tsx:6-10`
-- **Issue**: Fetching all items then filtering in component
-- **Fix**: Move filtering to database query for better performance
 
 ### 7. Search Functionality
 - **Location**: `apps/web/app/actions.ts:140-145`

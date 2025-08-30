@@ -134,15 +134,25 @@ export async function searchItems(
 
   if (!query) return { query: "", results: [], initial: false };
 
+  // Trim and validate query length
+  const trimmedQuery = query.trim();
+  if (trimmedQuery.length < 2) {
+    return { query, results: [], initial: false };
+  }
+
   const supabase = await createClientForServer();
+
+  // Escape special characters for ILIKE pattern matching
+  const escapedQuery = trimmedQuery.replace(/[%_]/g, '\\$&');
 
   const { data, error } = await supabase
     .from("items")
-    .select("*")
+    .select("id, title, author, director, itemtype, season, published_year, belongs_to_year, redo") // Select only needed columns
     .or(
-      `title.ilike.%${query}%,author.ilike.%${query}%,director.ilike.%${query}%`,
+      `title.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%,director.ilike.%${escapedQuery}%`,
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100); // Limit results to prevent excessive data transfer
 
   if (error) {
     console.error("Search error:", error);
