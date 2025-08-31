@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { Item } from "@/types";
+import IsLoggedIn from "@/components/is-logged-in";
 
 const categories = [
   { title: "Books", type: "Book" },
@@ -14,7 +15,6 @@ interface SearchResultsProps {
   results: Item[];
   query: string;
   filterType: string;
-  isLoggedIn: boolean;
   onClearFilter: () => void;
 }
 
@@ -22,7 +22,6 @@ export function SearchResults({
   results,
   query,
   filterType,
-  isLoggedIn,
   onClearFilter,
 }: SearchResultsProps) {
   const hasResults = results.length > 0;
@@ -135,7 +134,7 @@ export function SearchResults({
                       </div>
                     </div>
 
-                    {isLoggedIn && (
+                    <IsLoggedIn>
                       <div className="flex justify-end sm:flex-col sm:items-end gap-2">
                         <Button
                           asChild
@@ -146,7 +145,7 @@ export function SearchResults({
                           <Link href={`/item/${item.id}`}>Edit</Link>
                         </Button>
                       </div>
-                    )}
+                    </IsLoggedIn>
                   </div>
                 ))}
               </div>

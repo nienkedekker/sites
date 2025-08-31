@@ -5,7 +5,7 @@ import { searchItems, type SearchState } from "@/app/actions/search";
 import { SearchResultsSkeleton } from "@/components/features/skeletons/search-skeleton";
 import { SearchControls } from "@/components/features/search/search-controls";
 import { SearchResults } from "@/components/features/search/search-results";
-import { useCallback, useEffect, useState, useTransition, useRef } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 
 type SearchFormData = {
@@ -13,7 +13,7 @@ type SearchFormData = {
 };
 
 // TODO: when pressing backspace, don't search again immediately
-export default function SearchForm({ isLoggedIn = false }) {
+export default function SearchForm() {
   const form = useForm<SearchFormData>({
     defaultValues: {
       query: "",
@@ -31,33 +31,30 @@ export default function SearchForm({ isLoggedIn = false }) {
   const [isPendingTransition, startTransition] = useTransition();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const debouncedSearch = useCallback(
-    (query: string) => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
+  const debouncedSearch = useCallback((query: string) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
 
-      debounceTimeoutRef.current = setTimeout(() => {
-        if (query.trim().length >= 2) {
-          startTransition(async () => {
-            const formData = new FormData();
-            formData.append("query", query.trim());
-            const result = await searchItems(searchState, formData);
-            setSearchState(result);
-          });
-        } else if (query.trim().length === 0) {
-          // Clear results when search is empty
-          startTransition(async () => {
-            const formData = new FormData();
-            formData.append("query", "");
-            const result = await searchItems(searchState, formData);
-            setSearchState(result);
-          });
-        }
-      }, 300); // 300ms debounce delay
-    },
-    [searchState],
-  );
+    debounceTimeoutRef.current = setTimeout(() => {
+      if (query.trim().length >= 2) {
+        startTransition(async () => {
+          const formData = new FormData();
+          formData.append("query", query.trim());
+          const result = await searchItems(formData);
+          setSearchState(result);
+        });
+      } else if (query.trim().length === 0) {
+        // Clear results when search is empty
+        startTransition(async () => {
+          const formData = new FormData();
+          formData.append("query", "");
+          const result = await searchItems(formData);
+          setSearchState(result);
+        });
+      }
+    }, 300); // 300ms debounce delay
+  }, []);
 
   const onSubmit = (data: SearchFormData) => {
     if (data.query.trim().length >= 2) {
@@ -103,8 +100,7 @@ export default function SearchForm({ isLoggedIn = false }) {
   }, [searchState.results, sortBy, filterType]);
 
   useEffect(() => {
-    const isCurrentlySearching = isPendingTransition;
-    setIsSearching(isCurrentlySearching);
+    setIsSearching(isPendingTransition);
   }, [isPendingTransition]);
 
   useEffect(() => {
@@ -173,7 +169,6 @@ export default function SearchForm({ isLoggedIn = false }) {
             results={processedResults}
             query={watchedQuery}
             filterType={filterType}
-            isLoggedIn={isLoggedIn}
             onClearFilter={() => setFilterType("all")}
           />
         )}

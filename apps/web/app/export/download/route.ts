@@ -11,7 +11,6 @@ import { createJSONDownload, generateJSONFilename } from "@/utils/export/json";
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
     const supabase = await createClientForServer();
     const {
       data: { user },
@@ -25,7 +24,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get query parameters
     const searchParams = request.nextUrl.searchParams;
     const format = searchParams.get("format") || "json";
     const year = searchParams.get("year");
@@ -37,13 +35,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch user's items
     let query = supabase
       .from("items")
       .select("*")
       .order("created_at", { ascending: true });
 
-    // Filter by year if specified
     if (year) {
       const yearNum = parseInt(year);
       if (isNaN(yearNum)) {
@@ -65,7 +61,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Validate and type all items
     const validatedItems: TypedItem[] = (rawItems || [])
       .map(validateAndTypeItem)
       .filter((item): item is TypedItem => item !== null);
@@ -76,7 +71,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Generate export data based on format
     if (format === "csv") {
       const csvData = itemsToCSV(validatedItems);
       const filename = generateCSVFilename(

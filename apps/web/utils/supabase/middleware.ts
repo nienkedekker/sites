@@ -1,14 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Exact path matches
-const protectedPaths = ["/create", "/protected"];
+const protectedPaths = ["/create", "/protected", "/item", "/export"];
 
-// Add pattern-based protection (e.g., /item/<anything>)
 function isProtectedPathname(pathname: string) {
-  if (protectedPaths.includes(pathname)) return true;
-  if (pathname.startsWith("/item/")) return true; // 👈 NEW: protect all /item/*
-  return false;
+  return protectedPaths.includes(pathname);
 }
 
 export async function updateSession(request: NextRequest) {
@@ -48,7 +44,7 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute =
     pathname.startsWith("/auth") ||
     pathname.startsWith("/login") ||
-    pathname.startsWith("/sign-in"); // 👈 allow your sign-in page
+    pathname.startsWith("/sign-in");
 
   // Gate only the paths we care about
   if (!user && !isAuthRoute && isProtectedPathname(pathname)) {

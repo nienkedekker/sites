@@ -1,18 +1,7 @@
-import { createClientForServer } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 import { DataExport } from "@/components/features/data-export";
 import { getCurrentYear } from "@/utils/formatters/date";
 
 export default async function SettingsPage() {
-  const supabase = await createClientForServer();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return redirect("/sign-in");
-  }
   const currentYear = getCurrentYear();
 
   return (

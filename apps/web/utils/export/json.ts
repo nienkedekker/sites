@@ -4,9 +4,6 @@
 
 import type { TypedItem } from "@/types/shared";
 
-/**
- * Export format for JSON data
- */
 export interface ExportData {
   metadata: {
     exportDate: string;
@@ -56,17 +53,11 @@ export function itemsToJSON(items: TypedItem[]): ExportData {
   };
 }
 
-/**
- * Generate filename for JSON export
- */
 export function generateJSONFilename(prefix = "whatpm-export"): string {
   const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   return `${prefix}-${timestamp}.json`;
 }
 
-/**
- * Create downloadable JSON string
- */
 export function createJSONDownload(items: TypedItem[]): string {
   return JSON.stringify(itemsToJSON(items), null, 2);
 }

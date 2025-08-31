@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { SignOutButton } from "@/components/layouts/sign-out-button";
 import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { Gamja_Flower } from "next/font/google";
 import IsLoggedIn from "@/components/is-logged-in";
-import { CreateButton } from "@/components/layouts/create-item-button";
 import { AuthHeader } from "@/components/layouts/auth-header";
 
 const gamja = Gamja_Flower({

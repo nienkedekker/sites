@@ -33,7 +33,11 @@ import { TAB_VALUES, type TabValue } from "@/utils/constants/app";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
-export default function CreateItemForm({ message }: { message?: Message }) {
+interface CreateItemFormProps {
+  message?: Message;
+}
+
+export default function CreateItemForm({ message }: CreateItemFormProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
   const { schema, defaults } = useMemo(
@@ -70,7 +74,6 @@ export default function CreateItemForm({ message }: { message?: Message }) {
   return (
     <main className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Add New Item</h1>
-      {message && <BannerMessage message={message} />}
 
       <Tabs
         value={activeTab}
@@ -87,6 +90,8 @@ export default function CreateItemForm({ message }: { message?: Message }) {
           {/* key={activeTab} forces a fresh RHF form when switching tabs */}
           <Form key={activeTab} {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {message && <BannerMessage message={message} />}
+
               <FormField
                 control={form.control}
                 name={"title" as const}

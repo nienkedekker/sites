@@ -10,7 +10,6 @@ import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { itemsToCSV, generateCSVFilename } from "@/utils/export/csv";
 import { createJSONDownload, generateJSONFilename } from "@/utils/export/json";
 
-// Configure R2 client
 const r2Client = new S3Client({
   region: "auto",
   endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -31,7 +30,6 @@ export async function GET(request: NextRequest) {
     const supabase = await createClientForServer();
     const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-    // Fetch all items (since you're the only user, no user filtering needed)
     const { data: rawItems, error } = await supabase
       .from("items")
       .select("*")
@@ -53,7 +51,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Validate and type all items
     const validatedItems: TypedItem[] = rawItems
       .map(validateAndTypeItem)
       .filter((item): item is TypedItem => item !== null);
@@ -64,15 +61,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Generate export data
     const csvData = itemsToCSV(validatedItems);
     const jsonData = createJSONDownload(validatedItems);
 
-    // Generate filenames
     const csvFilename = generateCSVFilename(`whatpm-backup-${timestamp}`);
     const jsonFilename = generateJSONFilename(`whatpm-backup-${timestamp}`);
 
-    // Upload to R2
     const csvKey = `backups/${timestamp}/${csvFilename}`;
     await r2Client.send(
       new PutObjectCommand({

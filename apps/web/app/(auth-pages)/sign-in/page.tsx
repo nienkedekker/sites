@@ -35,7 +35,7 @@ function SignInForm() {
     formData.append("email", data.email);
     formData.append("password", data.password);
 
-    // Call server action → sets HttpOnly cookies and returns tokens
+    // Call server action, this sets HttpOnly cookies and returns tokens
     const res = await signInActionReturnSession(formData);
 
     if (!res.ok) {
