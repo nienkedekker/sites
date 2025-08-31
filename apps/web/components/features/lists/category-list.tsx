@@ -2,18 +2,17 @@ import Link from "next/link";
 import DeleteItemDialog from "./delete-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Item } from "@/types";
+import IsLoggedIn from "@/components/is-logged-in";
 
 interface CategoryListProps {
   categoryTitle: string;
   items: Item[];
-  isLoggedIn?: boolean;
   showYearLink?: boolean;
 }
 
 export function CategoryList({
   categoryTitle,
   items,
-  isLoggedIn = false,
   showYearLink = false,
 }: CategoryListProps) {
   const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-heading`;
@@ -83,7 +82,7 @@ export function CategoryList({
                 </div>
               )}
 
-              {isLoggedIn && (
+              <IsLoggedIn>
                 <div
                   className="flex gap-2"
                   role="group"
@@ -106,7 +105,7 @@ export function CategoryList({
                     belongsToYear={item.belongs_to_year}
                   />
                 </div>
-              )}
+              </IsLoggedIn>
             </li>
           ))}
         </ol>

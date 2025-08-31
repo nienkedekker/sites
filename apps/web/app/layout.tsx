@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { ReactNode } from "react";
 import Navigation from "@/components/layouts/navigation";
 import { Metadata } from "next";
+import { AuthProvider } from "@/providers/auth-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,23 +29,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={inter.className}>
       <body className="bg-background text-foreground text-sm/7">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          <div className="min-h-screen flex flex-col justify-between">
-            <Navigation />
-            <main
-              id="main-content"
-              className="flex-grow mx-auto container py-12"
-              role="main"
-            >
-              {children}
-            </main>
-          </div>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            disableTransitionOnChange
+          >
+            <div className="min-h-screen flex flex-col justify-between">
+              <Navigation />
+              <main
+                id="main-content"
+                className="flex-grow mx-auto container py-12"
+                role="main"
+              >
+                {children}
+              </main>
+            </div>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import AuthButton from "@/components/layouts/header-auth";
+import { SignOutButton } from "@/components/layouts/sign-out-button";
 import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { Gamja_Flower } from "next/font/google";
-import { createClientForServer } from "@/utils/supabase/server";
+import IsLoggedIn from "@/components/is-logged-in";
+import { CreateButton } from "@/components/layouts/create-item-button";
+import { AuthHeader } from "@/components/layouts/auth-header";
 
 const gamja = Gamja_Flower({
   weight: "400",
@@ -12,10 +14,6 @@ const gamja = Gamja_Flower({
 });
 
 export default async function Navigation() {
-  const supabase = await createClientForServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   return (
     <header role="banner">
       <a href="#main-content" className="sr-only skip-link">
@@ -53,16 +51,16 @@ export default async function Navigation() {
                 <Link href="/search">Search</Link>
               </Button>
             </li>
-            {user && (
+            <IsLoggedIn>
               <li>
                 <Button asChild variant="link">
                   <Link href="/export">Export</Link>
                 </Button>
               </li>
-            )}
+            </IsLoggedIn>
           </ul>
           <div className="flex items-center">
-            <AuthButton />
+            <AuthHeader />
             <ThemeSwitcher />
           </div>
         </nav>

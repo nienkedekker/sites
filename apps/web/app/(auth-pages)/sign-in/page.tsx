@@ -1,14 +1,13 @@
 "use client";
 
 import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInAction } from "@/app/actions/auth";
+
 import { SubmitButton } from "@/components/forms/submit-button";
 import { FormMessage, type Message } from "@/components/forms/form-message";
 import { Input } from "@/components/ui/input";
-import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
-import { useSearchParams } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -17,26 +16,52 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 
+import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
+import { signInActionReturnSession } from "@/app/actions/auth";
+import { supabaseBrowser } from "@/utils/supabase/browser";
+
 function SignInForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+
   const form = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = async (data: SignInInput) => {
-    // Convert react-hook-form data to FormData for server action
+    // Convert react-hook-form data to FormData
     const formData = new FormData();
     formData.append("email", data.email);
     formData.append("password", data.password);
 
-    return signInAction(formData);
+    // Call server action → sets HttpOnly cookies and returns tokens
+    const res = await signInActionReturnSession(formData);
+
+    if (!res.ok) {
+      form.setError("root", { message: res.error ?? "Sign-in failed" });
+      return;
+    }
+
+    // Hydrate browser client so <AuthProvider> updates immediately
+    if (res.access_token && res.refresh_token) {
+      await supabaseBrowser.auth.setSession({
+        access_token: res.access_token,
+        refresh_token: res.refresh_token,
+      });
+    }
+
+    const rawRedirect = searchParams.get("redirect") || "/";
+    const redirectTo =
+      rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+        ? rawRedirect
+        : "/";
+
+    router.refresh();
+    router.push(redirectTo);
   };
 
-  // Get message from search params
+  // Optional messages from query params
   const message: Message | undefined = searchParams.get("error")
     ? { error: searchParams.get("error")! }
     : searchParams.get("success")
@@ -45,18 +70,27 @@ function SignInForm() {
         ? { message: searchParams.get("message")! }
         : undefined;
 
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting, errors },
+  } = form;
+
   return (
     <div className="flex-1 flex flex-col max-w-96 mx-auto">
       <h1 className="text-2xl font-medium">Sign in</h1>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-2 [&>input]:mb-3 mt-8"
         >
           {message && <FormMessage message={message} />}
+          {errors.root?.message && (
+            <FormMessage message={{ error: errors.root.message }} />
+          )}
 
           <FormField
-            control={form.control}
+            control={control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -74,7 +108,7 @@ function SignInForm() {
           />
 
           <FormField
-            control={form.control}
+            control={control}
             name="password"
             render={({ field }) => (
               <FormItem>
@@ -91,7 +125,9 @@ function SignInForm() {
             )}
           />
 
-          <SubmitButton pendingText="Signing In...">Sign in</SubmitButton>
+          <SubmitButton pendingText="Signing In..." disabled={isSubmitting}>
+            Sign in
+          </SubmitButton>
         </form>
       </Form>
     </div>
