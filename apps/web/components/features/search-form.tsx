@@ -19,6 +19,8 @@ import {
   useState,
   useTransition,
   useRef,
+  FormEvent,
+  ChangeEvent,
 } from "react";
 import { Search, Filter, SortAsc, SortDesc, SortDescIcon } from "lucide-react";
 import Link from "next/link";
@@ -136,7 +138,7 @@ export default function SearchForm({ isLoggedIn = false }) {
 
   // Handle input changes
   const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setInputValue(value);
       debouncedSearch(value);
@@ -144,21 +146,9 @@ export default function SearchForm({ isLoggedIn = false }) {
     [debouncedSearch],
   );
 
-  // Clear search
-  const handleClearSearch = useCallback(() => {
-    setInputValue("");
-    setFilterType("all");
-    setSortBy("relevance");
-    startTransition(() => {
-      const formData = new FormData();
-      formData.append("query", "");
-      formAction(formData);
-    });
-  }, [formAction]);
-
   // Manual search submission
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    (e: FormEvent) => {
       e.preventDefault();
       if (inputValue.trim().length >= 2) {
         debouncedSearch(inputValue);

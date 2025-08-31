@@ -3,32 +3,20 @@
 import { encodedRedirect } from "@/utils/server/redirects";
 import { isNextRedirect } from "@/utils/server/error-handling";
 import { createClientForServer } from "@/utils/supabase/server";
-import { validateEmail, validatePassword } from "@/utils/validators/item";
+import { signInSchema, extractFormData } from "@/utils/schemas/validation";
 import { redirect } from "next/navigation";
 
 export const signInAction = async (formData: FormData) => {
   try {
-    const email = formData.get("email")?.toString() || "";
-    const password = formData.get("password")?.toString() || "";
+    // Validate form data using Zod schema
+    const validation = extractFormData(formData, signInSchema);
 
-    // Validate email format
-    if (!validateEmail(email)) {
-      return encodedRedirect(
-        "error",
-        "/sign-in",
-        "Please enter a valid email address.",
-      );
+    if (!validation.success) {
+      const errorMessage = validation.errors.join(", ");
+      return encodedRedirect("error", "/sign-in", errorMessage);
     }
 
-    // Basic password validation
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.success) {
-      return encodedRedirect(
-        "error",
-        "/sign-in",
-        passwordValidation.errors.join(", "),
-      );
-    }
+    const { email, password } = validation.data;
 
     const supabase = await createClientForServer();
 

@@ -4,56 +4,38 @@ import { encodedRedirect } from "@/utils/server/redirects";
 import { isNextRedirect } from "@/utils/server/error-handling";
 import { createClientForServer } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { validateItemCreation } from "@/utils/validators/item";
+import {
+  itemCreationSchema,
+  extractFormData,
+} from "@/utils/schemas/validation";
 import { getCurrentYear } from "@/utils/formatters/date";
 import { ItemInsert, ItemUpdate } from "@/types";
 
 export const createItemAction = async (formData: FormData) => {
   try {
-    // Extract form data
-    const itemType = formData.get("itemtype")?.toString() || "";
-    const title = formData.get("title")?.toString() || "";
-    const publishedYear = Number(formData.get("publishedYear"));
-    const author = formData.get("author")?.toString();
-    const director = formData.get("director")?.toString();
-    const season = formData.get("season")
-      ? Number(formData.get("season"))
-      : undefined;
-    const redo = formData.get("redo") === "on";
-
-    // Validate the input data
-    const validation = validateItemCreation({
-      title,
-      itemtype: itemType,
-      publishedYear,
-      author,
-      director,
-      season,
-    });
+    // Validate form data using Zod schema
+    const validation = extractFormData(formData, itemCreationSchema);
 
     if (!validation.success) {
       const errorMessage = validation.errors.join(", ");
       return encodedRedirect("error", "/create", errorMessage);
     }
 
+    const validatedData = validation.data;
+
     const supabase = await createClientForServer();
     const currentYear = getCurrentYear();
 
     const newItem: ItemInsert = {
-      title,
-      itemtype: itemType,
+      title: validatedData.title,
+      itemtype: validatedData.itemtype,
       belongs_to_year: currentYear,
-      published_year: publishedYear,
-      redo,
+      published_year: validatedData.publishedYear,
+      redo: validatedData.redo || false,
+      author: validatedData.author || null,
+      director: validatedData.director || null,
+      season: validatedData.season || null,
     };
-
-    if (itemType === "Book") {
-      newItem.author = author || null;
-    } else if (itemType === "Movie") {
-      newItem.director = director || null;
-    } else if (itemType === "Show") {
-      newItem.season = season || null;
-    }
 
     const { error } = await supabase.from("items").insert(newItem);
 
@@ -121,47 +103,27 @@ export const updateItemAction = async (formData: FormData) => {
       return encodedRedirect("error", "/", "Invalid update request.");
     }
 
-    // Extract form data
-    const title = formData.get("title")?.toString() || "";
-    const publishedYear = Number(formData.get("publishedYear"));
-    const author = formData.get("author")?.toString();
-    const director = formData.get("director")?.toString();
-    const season = formData.get("season")
-      ? Number(formData.get("season"))
-      : undefined;
-    const redo = formData.get("redo") === "on";
-
-    // Validate the input data
-    const validation = validateItemCreation({
-      title,
-      itemtype: itemType,
-      publishedYear,
-      author,
-      director,
-      season,
-    });
+    // Validate form data using Zod schema
+    const validation = extractFormData(formData, itemCreationSchema);
 
     if (!validation.success) {
       const errorMessage = validation.errors.join(", ");
       return encodedRedirect("error", `/item/update/${itemId}`, errorMessage);
     }
 
+    const validatedData = validation.data;
+
     const supabase = await createClientForServer();
 
     const updatedItem: ItemUpdate = {
-      title,
-      published_year: publishedYear,
+      title: validatedData.title,
+      published_year: validatedData.publishedYear,
       belongs_to_year: belongsToYear,
-      redo,
+      redo: validatedData.redo || false,
+      author: validatedData.author || null,
+      director: validatedData.director || null,
+      season: validatedData.season || null,
     };
-
-    if (itemType === "Book") {
-      updatedItem.author = author || null;
-    } else if (itemType === "Movie") {
-      updatedItem.director = director || null;
-    } else if (itemType === "Show") {
-      updatedItem.season = season || null;
-    }
 
     const { error } = await supabase
       .from("items")
