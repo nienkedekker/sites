@@ -1,6 +1,4 @@
 import React from "react";
-import { cn } from "@/utils/ui";
-import { useFormField } from "@/components/ui/form";
 
 export type Message =
   | { success: string }
@@ -13,8 +11,6 @@ interface FormMessageProps extends React.HTMLAttributes<HTMLElement> {
 
 export const FormMessage = React.forwardRef<HTMLElement, FormMessageProps>(
   ({ className, children, message, ...props }, ref) => {
-    const { error, formMessageId } = useFormField();
-
     // If we have a server action message, render it with custom styling
     if (message) {
       return (
@@ -37,24 +33,6 @@ export const FormMessage = React.forwardRef<HTMLElement, FormMessageProps>(
         </div>
       );
     }
-
-    // Otherwise, handle field validation errors (shadcn behavior)
-    const body = error ? String(error?.message ?? "") : children;
-
-    if (!body) {
-      return null;
-    }
-
-    return (
-      <p
-        ref={ref as React.ForwardedRef<HTMLParagraphElement>}
-        id={formMessageId}
-        className={cn("text-sm font-medium text-destructive", className)}
-        {...props}
-      >
-        {body}
-      </p>
-    );
   },
 );
 

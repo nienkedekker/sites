@@ -1,13 +1,24 @@
+// components/forms/update-item-form.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { updateItemAction } from "@/app/actions/items";
 import { SubmitButton } from "./submit-button";
-import { FormMessage, type Message } from "./form-message";
+import { FormMessage as BannerMessage, type Message } from "./form-message"; // banner (top-of-form)
+
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Item } from "@/types";
+import {
+  Form,
+  FormControl,
+  FormMessage,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+
 import {
   bookItemSchema,
   movieItemSchema,
@@ -16,94 +27,50 @@ import {
   type MovieItemInput,
   type ShowItemInput,
 } from "@/utils/schemas/validation";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
 import { ITEM_TYPES } from "@/utils/constants/app";
+import type { Item } from "@/types";
+
+type AnyItemInput = BookItemInput | MovieItemInput | ShowItemInput;
 
 interface UpdateItemFormProps {
   item: Item;
   message?: Message;
 }
 
+// NOTE: single form that adapts to the itemtype, with belongsToYear editable
 export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
-  // Get the appropriate schema based on item type
-  const getSchemaAndDefaults = () => {
-    switch (item.itemtype) {
-      case ITEM_TYPES.BOOK:
-        return {
-          schema: bookItemSchema,
-          defaultValues: {
-            itemtype: ITEM_TYPES.BOOK,
-            title: item.title,
-            publishedYear: item.published_year || 0,
-            redo: item.redo || false,
-            author: item.author || "",
-          },
-        };
-      case ITEM_TYPES.MOVIE:
-        return {
-          schema: movieItemSchema,
-          defaultValues: {
-            itemtype: ITEM_TYPES.MOVIE,
-            title: item.title,
-            publishedYear: item.published_year || 0,
-            redo: item.redo || false,
-            director: item.director || "",
-          },
-        };
-      case ITEM_TYPES.SHOW:
-        return {
-          schema: showItemSchema,
-          defaultValues: {
-            itemtype: ITEM_TYPES.SHOW,
-            title: item.title,
-            publishedYear: item.published_year || 0,
-            redo: item.redo || false,
-            season: item.season || 1,
-          },
-        };
-      default:
-        throw new Error(`Unknown item type: ${item.itemtype}`);
-    }
-  };
+  const { schema, defaultValues } = getSchemaAndDefaults(item);
 
-  const { schema, defaultValues } = getSchemaAndDefaults();
-
-  const form = useForm({
+  const form = useForm<AnyItemInput>({
     resolver: zodResolver(schema),
-    defaultValues: defaultValues,
-    mode: "onBlur", // Enable validation on blur
+    defaultValues,
+    mode: "onBlur",
   });
 
-  const onSubmit = async (
-    data: BookItemInput | MovieItemInput | ShowItemInput,
-  ) => {
-    // Convert react-hook-form data to FormData for server action
-    const formData = new FormData();
-    formData.append("id", item.id);
-    formData.append("itemtype", item.itemtype);
-    formData.append("title", data.title);
-    formData.append("publishedYear", data.publishedYear.toString());
-    formData.append("belongsToYear", item.belongs_to_year.toString());
-    formData.append("redo", data.redo ? "on" : "");
+  const toNum = (v: string) => (v === "" ? 0 : parseInt(v, 10) || 0);
 
-    if ("author" in data && data.author) formData.append("author", data.author);
+  const onSubmit = async (data: AnyItemInput) => {
+    const fd = new FormData();
+    fd.append("id", item.id);
+    fd.append("itemtype", data.itemtype);
+    fd.append("title", data.title);
+    fd.append("publishedYear", String(data.publishedYear));
+    fd.append("belongsToYear", String(data.belongsToYear));
+    fd.append("redo", data.redo ? "on" : "");
+
+    if ("author" in data && data.author) fd.append("author", data.author);
     if ("director" in data && data.director)
-      formData.append("director", data.director);
+      fd.append("director", data.director);
     if ("season" in data && data.season)
-      formData.append("season", data.season.toString());
+      fd.append("season", String(data.season));
 
-    return updateItemAction(formData);
+    return updateItemAction(fd);
   };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {message && <FormMessage message={message} />}
+        {message && <BannerMessage message={message} />}
 
         <FormField
           control={form.control}
@@ -122,7 +89,7 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
         {item.itemtype === ITEM_TYPES.BOOK && (
           <FormField
             control={form.control}
-            name="author"
+            name={"author" as const}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Author</FormLabel>
@@ -138,7 +105,7 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
         {item.itemtype === ITEM_TYPES.MOVIE && (
           <FormField
             control={form.control}
-            name="director"
+            name={"director" as const}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Director</FormLabel>
@@ -154,7 +121,7 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
         {item.itemtype === ITEM_TYPES.SHOW && (
           <FormField
             control={form.control}
-            name="season"
+            name={"season" as const}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Season</FormLabel>
@@ -162,10 +129,8 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
                   <Input
                     type="number"
                     {...field}
-                    value={field.value || ""}
-                    onChange={(e) =>
-                      field.onChange(parseInt(e.target.value) || 0)
-                    }
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(toNum(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -176,7 +141,7 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
 
         <FormField
           control={form.control}
-          name="publishedYear"
+          name={"publishedYear" as const}
           render={({ field }) => (
             <FormItem>
               <FormLabel>
@@ -188,10 +153,8 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
                 <Input
                   type="number"
                   {...field}
-                  value={field.value || ""}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value) || 0)
-                  }
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(toNum(e.target.value))}
                 />
               </FormControl>
               <FormMessage />
@@ -199,9 +162,10 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
           )}
         />
 
+        {/* NEW: editable belongsToYear (was fixed before) */}
         <FormField
           control={form.control}
-          name="belongsToYear"
+          name={"belongsToYear" as const}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Belongs To Year</FormLabel>
@@ -209,10 +173,8 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
                 <Input
                   type="number"
                   {...field}
-                  value={field.value || ""}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value) || 0)
-                  }
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(toNum(e.target.value))}
                 />
               </FormControl>
               <FormMessage />
@@ -222,13 +184,13 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
 
         <FormField
           control={form.control}
-          name="redo"
+          name={"redo" as const}
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
                 <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
+                  checked={!!field.value}
+                  onCheckedChange={(v) => field.onChange(Boolean(v))}
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
@@ -246,4 +208,48 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
       </form>
     </Form>
   );
+}
+
+/** Picks schema + defaults per itemtype, including belongsToYear */
+function getSchemaAndDefaults(item: Item) {
+  switch (item.itemtype) {
+    case ITEM_TYPES.BOOK:
+      return {
+        schema: bookItemSchema,
+        defaultValues: {
+          itemtype: ITEM_TYPES.BOOK,
+          title: item.title,
+          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
+          publishedYear: item.published_year ?? new Date().getFullYear(),
+          redo: !!item.redo,
+          author: item.author ?? "",
+        },
+      };
+    case ITEM_TYPES.MOVIE:
+      return {
+        schema: movieItemSchema,
+        defaultValues: {
+          itemtype: ITEM_TYPES.MOVIE,
+          title: item.title,
+          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
+          publishedYear: item.published_year ?? new Date().getFullYear(),
+          redo: !!item.redo,
+          director: item.director ?? "",
+        },
+      };
+    case ITEM_TYPES.SHOW:
+      return {
+        schema: showItemSchema,
+        defaultValues: {
+          itemtype: ITEM_TYPES.SHOW,
+          title: item.title,
+          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
+          publishedYear: item.published_year ?? new Date().getFullYear(),
+          redo: !!item.redo,
+          season: item.season ?? 1,
+        },
+      };
+    default:
+      throw new Error(`Unknown item type: ${item.itemtype}`);
+  }
 }

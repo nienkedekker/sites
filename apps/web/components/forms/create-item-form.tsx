@@ -1,14 +1,26 @@
+// components/forms/create-item-form.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createItemAction } from "@/app/actions/items";
+import {
+  Form,
+  FormControl,
+  FormMessage, // field-level message (shadcn)
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+
 import { SubmitButton } from "./submit-button";
-import { FormMessage, type Message } from "./form-message";
+import { FormMessage as BannerMessage, type Message } from "./form-message"; // top-of-form banner
+
+import { createItemAction } from "@/app/actions/items";
 import {
   bookItemSchema,
   movieItemSchema,
@@ -17,85 +29,52 @@ import {
   type MovieItemInput,
   type ShowItemInput,
 } from "@/utils/schemas/validation";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
 import { TAB_VALUES, type TabValue } from "@/utils/constants/app";
+
+type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
 export default function CreateItemForm({ message }: { message?: Message }) {
   const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
-  // Create forms for each type to avoid TypeScript union conflicts
-  const bookForm = useForm<BookItemInput>({
-    resolver: zodResolver(bookItemSchema),
-    defaultValues: {
-      itemtype: "Book",
-      title: "",
-      publishedYear: new Date().getFullYear(),
-      redo: false,
-      author: "",
-    },
+  const { schema, defaults } = useMemo(
+    () => getSchemaAndDefaults(activeTab),
+    [activeTab],
+  );
+
+  // One RHF instance at a time (keyed by activeTab so resolver/defaults swap cleanly)
+  const form = useForm<AnyCreateInput>({
+    resolver: zodResolver(schema),
+    defaultValues: defaults,
+    mode: "onBlur",
   });
 
-  const movieForm = useForm<MovieItemInput>({
-    resolver: zodResolver(movieItemSchema),
-    defaultValues: {
-      itemtype: "Movie",
-      title: "",
-      publishedYear: new Date().getFullYear(),
-      redo: false,
-      director: "",
-    },
-  });
+  const toNum = (v: string) => (v === "" ? 0 : parseInt(v, 10) || 0);
 
-  const showForm = useForm<ShowItemInput>({
-    resolver: zodResolver(showItemSchema),
-    defaultValues: {
-      itemtype: "Show",
-      title: "",
-      publishedYear: new Date().getFullYear(),
-      redo: false,
-      season: 1,
-    },
-  });
+  const onSubmit = async (data: AnyCreateInput) => {
+    const fd = new FormData();
+    fd.append("itemtype", data.itemtype);
+    fd.append("title", data.title);
+    fd.append("publishedYear", String(data.publishedYear));
+    fd.append("belongsToYear", String(data.belongsToYear));
+    fd.append("redo", data.redo ? "on" : "");
 
-  const handleTabChange = (value: string) => {
-    const tab = value as TabValue;
-    setActiveTab(tab);
-  };
-
-  const onSubmit = async (
-    data: BookItemInput | MovieItemInput | ShowItemInput,
-  ) => {
-    // Convert react-hook-form data to FormData for server action
-    const formData = new FormData();
-    formData.append("itemtype", data.itemtype);
-    formData.append("title", data.title);
-    formData.append("publishedYear", data.publishedYear.toString());
-    formData.append("redo", data.redo ? "on" : "");
-
-    if ("author" in data && data.author) formData.append("author", data.author);
+    if ("author" in data && data.author) fd.append("author", data.author);
     if ("director" in data && data.director)
-      formData.append("director", data.director);
+      fd.append("director", data.director);
     if ("season" in data && data.season)
-      formData.append("season", data.season.toString());
+      fd.append("season", String(data.season));
 
-    return createItemAction(formData);
+    return createItemAction(fd);
   };
 
   return (
     <main className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Add New Item</h1>
-
-      {message && <FormMessage message={message} />}
+      {message && <BannerMessage message={message} />}
 
       <Tabs
         value={activeTab}
-        onValueChange={handleTabChange}
+        onValueChange={(v) => setActiveTab(v as TabValue)}
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-3">
@@ -104,16 +83,13 @@ export default function CreateItemForm({ message }: { message?: Message }) {
           <TabsTrigger value={TAB_VALUES.SHOW}>TV Show</TabsTrigger>
         </TabsList>
 
-        {/* Book Form */}
-        <TabsContent value={TAB_VALUES.BOOK} className="mt-6 space-y-4">
-          <Form {...bookForm}>
-            <form
-              onSubmit={bookForm.handleSubmit(onSubmit)}
-              className="space-y-4"
-            >
+        <TabsContent value={activeTab} className="mt-6 space-y-4">
+          {/* key={activeTab} forces a fresh RHF form when switching tabs */}
+          <Form key={activeTab} {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
-                control={bookForm.control}
-                name="title"
+                control={form.control}
+                name={"title" as const}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
@@ -125,34 +101,79 @@ export default function CreateItemForm({ message }: { message?: Message }) {
                 )}
               />
 
-              <FormField
-                control={bookForm.control}
-                name="author"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Author</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Discriminated fields */}
+              {activeTab === TAB_VALUES.BOOK && (
+                <FormField
+                  control={form.control}
+                  name={"author" as const}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Author</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
+              {activeTab === TAB_VALUES.MOVIE && (
+                <FormField
+                  control={form.control}
+                  name={"director" as const}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Director</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {activeTab === TAB_VALUES.SHOW && (
+                <FormField
+                  control={form.control}
+                  name={"season" as const}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Season</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(toNum(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* Common fields */}
               <FormField
-                control={bookForm.control}
-                name="publishedYear"
+                control={form.control}
+                name={"publishedYear" as const}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Published Year</FormLabel>
+                    <FormLabel>
+                      {activeTab === TAB_VALUES.BOOK
+                        ? "Published Year"
+                        : "Release Year"}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         {...field}
-                        value={field.value || ""}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(toNum(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -161,193 +182,102 @@ export default function CreateItemForm({ message }: { message?: Message }) {
               />
 
               <FormField
-                control={bookForm.control}
-                name="redo"
+                control={form.control}
+                name={"belongsToYear" as const}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Belongs To Year</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(toNum(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={"redo" as const}
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
                       <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+                        checked={!!field.value}
+                        onCheckedChange={(v) => field.onChange(Boolean(v))}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>This was a re-read</FormLabel>
+                      <FormLabel>
+                        {activeTab === TAB_VALUES.BOOK
+                          ? "This was a re-read"
+                          : "This was a rewatch"}
+                      </FormLabel>
                     </div>
                   </FormItem>
                 )}
               />
 
-              <SubmitButton>Save book</SubmitButton>
-            </form>
-          </Form>
-        </TabsContent>
-
-        {/* Movie Form */}
-        <TabsContent value={TAB_VALUES.MOVIE} className="mt-6 space-y-4">
-          <Form {...movieForm}>
-            <form
-              onSubmit={movieForm.handleSubmit(onSubmit)}
-              className="space-y-4"
-            >
-              <FormField
-                control={movieForm.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={movieForm.control}
-                name="director"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Director</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={movieForm.control}
-                name="publishedYear"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Release Year</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value || ""}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={movieForm.control}
-                name="redo"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>This was a rewatch</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <SubmitButton>Save movie</SubmitButton>
-            </form>
-          </Form>
-        </TabsContent>
-
-        {/* Show Form */}
-        <TabsContent value={TAB_VALUES.SHOW} className="mt-6 space-y-4">
-          <Form {...showForm}>
-            <form
-              onSubmit={showForm.handleSubmit(onSubmit)}
-              className="space-y-4"
-            >
-              <FormField
-                control={showForm.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={showForm.control}
-                name="season"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Season</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value || ""}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={showForm.control}
-                name="publishedYear"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Release Year</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value || ""}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={showForm.control}
-                name="redo"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>This was a rewatch</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <SubmitButton>Save show</SubmitButton>
+              <SubmitButton>
+                {activeTab === TAB_VALUES.BOOK
+                  ? "Save book"
+                  : activeTab === TAB_VALUES.MOVIE
+                    ? "Save movie"
+                    : "Save show"}
+              </SubmitButton>
             </form>
           </Form>
         </TabsContent>
       </Tabs>
     </main>
   );
+}
+
+/** Schema + defaults per tab (used to configure RHF each time the tab changes) */
+function getSchemaAndDefaults(tab: TabValue) {
+  const year = new Date().getFullYear();
+
+  switch (tab) {
+    case TAB_VALUES.BOOK:
+      return {
+        schema: bookItemSchema,
+        defaults: {
+          itemtype: "Book" as const,
+          title: "",
+          belongsToYear: year,
+          publishedYear: year,
+          redo: false,
+          author: "",
+        } satisfies BookItemInput,
+      };
+    case TAB_VALUES.MOVIE:
+      return {
+        schema: movieItemSchema,
+        defaults: {
+          itemtype: "Movie" as const,
+          title: "",
+          belongsToYear: year,
+          publishedYear: year,
+          redo: false,
+          director: "",
+        } satisfies MovieItemInput,
+      };
+    case TAB_VALUES.SHOW:
+    default:
+      return {
+        schema: showItemSchema,
+        defaults: {
+          itemtype: "Show" as const,
+          title: "",
+          belongsToYear: year,
+          publishedYear: year,
+          redo: false,
+          season: 1,
+        } satisfies ShowItemInput,
+      };
+  }
 }
