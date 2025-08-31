@@ -1,10 +1,13 @@
+import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
+
 export const ITEM_TYPES = {
   BOOK: "Book",
   MOVIE: "Movie",
   SHOW: "Show",
 } as const;
 
-export type ValidItemType = (typeof ITEM_TYPES)[keyof typeof ITEM_TYPES];
+// Re-export from shared types for consistency
+export { VALID_ITEM_TYPES };
 
 export const CHART_CONFIG = {
   [ITEM_TYPES.BOOK]: {

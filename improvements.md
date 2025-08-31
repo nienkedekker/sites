@@ -17,11 +17,6 @@ The application is well-structured as a modern Next.js 15 app with:
 
 ## 🔴 Critical Improvements
 
-### 2. Form Validation
-
-- **Location**: `apps/web/components/forms/create-item-form.tsx`
-- **Issue**: Only client-side HTML validation, no server-side validation
-- **Fix**: Add zod schema validation and proper error handling for server actions. Let's try to use the same Zod schema on both client and server!
 
 ### 3. Environment Variable Handling
 
@@ -46,23 +41,7 @@ if (
 - **Issue**: Importing types from a file that should be generated
 - **Fix**: Move custom types to separate file, keep generated types pure
 
-### 9. Configuration Management
 
-- **Location**: `apps/web/next.config.ts`
-- **Issue**: Empty configuration file
-- **Fix**: Add proper Next.js optimizations:
-
-```tsx
-const nextConfig: NextConfig = {
-  experimental: {
-    typedRoutes: true,
-  },
-  images: {
-    formats: ["image/webp", "image/avif"],
-  },
-  compress: true,
-};
-```
 
 ### 15. Documentation
 

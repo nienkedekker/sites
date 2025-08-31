@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ITEM_TYPES } from "@/utils/constants/app";
+import { ITEM_TYPES, VALID_ITEM_TYPES } from "@/utils/constants/app";
 import { getCurrentYear } from "@/utils/formatters/date";
 
 /**
@@ -23,7 +23,7 @@ const baseItemSchema = z.object({
     .trim()
     .min(1, "Title is required")
     .max(200, "Title must be 200 characters or less"),
-  itemtype: z.enum([ITEM_TYPES.BOOK, ITEM_TYPES.MOVIE, ITEM_TYPES.SHOW], {
+  itemtype: z.enum(VALID_ITEM_TYPES, {
     message: "Invalid item type",
   }),
   publishedYear: yearSchema,
