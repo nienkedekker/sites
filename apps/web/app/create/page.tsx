@@ -1,8 +1,12 @@
 import { createClientForServer } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import CreateItemForm from "@/components/forms/create-item-form";
+import { Message } from "@/components/forms/form-message";
 
-export default async function CreatePage() {
+export default async function CreatePage(props: {
+  searchParams: Promise<Message>;
+}) {
+  const searchParams = await props.searchParams;
   const supabase = await createClientForServer();
 
   const {
@@ -13,5 +17,5 @@ export default async function CreatePage() {
     return redirect("/sign-in");
   }
 
-  return <CreateItemForm />;
+  return <CreateItemForm message={searchParams} />;
 }

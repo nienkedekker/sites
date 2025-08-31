@@ -1,6 +1,7 @@
 "use server";
 
 import { createClientForServer } from "@/utils/supabase/server";
+import { searchQuerySchema } from "@/utils/schemas/validation";
 import { Item } from "@/types";
 
 export type SearchState = {
@@ -13,15 +14,17 @@ export async function searchItems(
   prevState: SearchState,
   formData: FormData,
 ): Promise<SearchState> {
-  const query = formData.get("query") as string;
+  const rawQuery = formData.get("query") as string;
 
-  if (!query) return { query: "", results: [], initial: false };
+  if (!rawQuery) return { query: "", results: [], initial: false };
 
-  // Trim and validate query length
-  const trimmedQuery = query.trim();
-  if (trimmedQuery.length < 2) {
-    return { query, results: [], initial: false };
+  // Validate query using Zod schema
+  const queryValidation = searchQuerySchema.safeParse(rawQuery);
+  if (!queryValidation.success) {
+    return { query: rawQuery, results: [], initial: false };
   }
+
+  const trimmedQuery = queryValidation.data;
 
   const supabase = await createClientForServer();
 
@@ -41,11 +44,11 @@ export async function searchItems(
 
   if (error) {
     console.error("Search error:", error);
-    return { query, results: [], initial: false };
+    return { query: rawQuery, results: [], initial: false };
   }
 
   return {
-    query,
+    query: rawQuery,
     results: data as Item[],
     initial: false,
   };

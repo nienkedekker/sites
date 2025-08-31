@@ -3,6 +3,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { ReactNode } from "react";
 import Navigation from "@/components/layouts/navigation";
+import { Metadata } from "next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,7 +14,7 @@ const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "what.",
   description: "what!!!",
