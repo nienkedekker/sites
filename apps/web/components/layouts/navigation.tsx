@@ -4,13 +4,18 @@ import AuthButton from "@/components/layouts/header-auth";
 import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { Gamja_Flower } from "next/font/google";
+import { createClientForServer } from "@/utils/supabase/server";
 
 const gamja = Gamja_Flower({
   weight: "400",
   subsets: ["latin"],
 });
 
-export default function Navigation() {
+export default async function Navigation() {
+  const supabase = await createClientForServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   return (
     <header role="banner">
       <a href="#main-content" className="sr-only skip-link">
@@ -48,6 +53,13 @@ export default function Navigation() {
                 <Link href="/search">Search</Link>
               </Button>
             </li>
+            {user && (
+              <li>
+                <Button asChild variant="link">
+                  <Link href="/export">Export</Link>
+                </Button>
+              </li>
+            )}
           </ul>
           <div className="flex items-center">
             <AuthButton />
