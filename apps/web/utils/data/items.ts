@@ -4,10 +4,7 @@
  */
 
 import { createClientForServer } from "@/utils/supabase/server";
-import {
-  validateAndTypeItem,
-  type TypedItem,
-} from "@/types/shared";
+import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 
 /**
  * Result type for data operations
@@ -79,4 +76,3 @@ export async function getItemsForYear(
     };
   }
 }
-

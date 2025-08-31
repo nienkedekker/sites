@@ -26,7 +26,7 @@ export interface ExportData {
  */
 export function itemsToJSON(items: TypedItem[]): ExportData {
   const now = new Date().toISOString();
-  
+
   const itemCounts = items.reduce(
     (acc, item) => {
       switch (item.itemtype) {
@@ -42,7 +42,7 @@ export function itemsToJSON(items: TypedItem[]): ExportData {
       }
       return acc;
     },
-    { books: 0, movies: 0, shows: 0 }
+    { books: 0, movies: 0, shows: 0 },
   );
 
   return {
@@ -60,7 +60,7 @@ export function itemsToJSON(items: TypedItem[]): ExportData {
  * Generate filename for JSON export
  */
 export function generateJSONFilename(prefix = "whatpm-export"): string {
-  const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   return `${prefix}-${timestamp}.json`;
 }
 

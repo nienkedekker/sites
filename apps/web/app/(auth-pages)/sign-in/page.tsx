@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signInAction } from "@/app/actions/auth";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { FormMessage, type Message } from "@/components/forms/form-message";
@@ -23,7 +23,7 @@ function FieldError({ errors }: { errors?: string[] }) {
   );
 }
 
-export default function SignInPage() {
+function SignInForm() {
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState<SignInInput>({
     email: "",
@@ -87,12 +87,6 @@ export default function SignInPage() {
 
         <div className="flex justify-between items-center">
           <Label htmlFor="password">Password</Label>
-          <Link
-            className="text-xs text-foreground underline"
-            href="/forgot-password"
-          >
-            Forgot Password?
-          </Link>
         </div>
         <Input
           id="password"
@@ -108,5 +102,13 @@ export default function SignInPage() {
         <SubmitButton pendingText="Signing In...">Sign in</SubmitButton>
       </div>
     </form>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInForm />
+    </Suspense>
   );
 }

@@ -14,7 +14,7 @@ export function itemsToCSV(items: TypedItem[]): string {
 
   const headers = [
     "Title",
-    "Type", 
+    "Type",
     "Author",
     "Director",
     "Season",
@@ -22,23 +22,25 @@ export function itemsToCSV(items: TypedItem[]): string {
     "Year Logged",
     "Re-read/Re-watched",
     "Created At",
-    "Updated At"
+    "Updated At",
   ];
 
   const csvRows = [
     headers.join(","),
-    ...items.map(item => [
-      `"${escapeCSVField(item.title)}"`,
-      `"${item.itemtype}"`,
-      `"${item.author || ''}"`,
-      `"${item.director || ''}"`,
-      item.season?.toString() || '',
-      item.published_year.toString(),
-      item.belongs_to_year.toString(),
-      item.redo ? 'Yes' : 'No',
-      `"${item.created_at || ''}"`,
-      `"${item.updated_at || ''}"`
-    ].join(","))
+    ...items.map((item) =>
+      [
+        `"${escapeCSVField(item.title)}"`,
+        `"${item.itemtype}"`,
+        `"${item.author || ""}"`,
+        `"${item.director || ""}"`,
+        item.season?.toString() || "",
+        item.published_year.toString(),
+        item.belongs_to_year.toString(),
+        item.redo ? "Yes" : "No",
+        `"${item.created_at || ""}"`,
+        `"${item.updated_at || ""}"`,
+      ].join(","),
+    ),
   ];
 
   return csvRows.join("\n");
@@ -49,13 +51,13 @@ export function itemsToCSV(items: TypedItem[]): string {
  */
 function escapeCSVField(field: string): string {
   // Replace quotes with double quotes and handle other special characters
-  return field.replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, ' ');
+  return field.replace(/"/g, '""').replace(/\n/g, " ").replace(/\r/g, " ");
 }
 
 /**
  * Generate filename for CSV export
  */
 export function generateCSVFilename(prefix = "whatpm-export"): string {
-  const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   return `${prefix}-${timestamp}.csv`;
 }
