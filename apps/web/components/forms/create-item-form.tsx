@@ -1,111 +1,97 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createItemAction } from "@/app/actions/items";
 import { SubmitButton } from "./submit-button";
 import { FormMessage, type Message } from "./form-message";
 import {
-  itemCreationSchema,
-  type ItemCreationInput,
+  bookItemSchema,
+  movieItemSchema,
+  showItemSchema,
+  type BookItemInput,
+  type MovieItemInput,
+  type ShowItemInput,
 } from "@/utils/schemas/validation";
-import { useFormValidation } from "@/hooks/use-form-validation";
-import { ITEM_TYPES } from "@/utils/constants/app";
-
-// Error display component
-function FieldError({ errors }: { errors?: string[] }) {
-  if (!errors?.length) return null;
-  return (
-    <div className="text-sm text-red-600 mt-1" role="alert">
-      {errors.map((error, index) => (
-        <div key={index}>{error}</div>
-      ))}
-    </div>
-  );
-}
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { TAB_VALUES, type TabValue } from "@/utils/constants/app";
 
 export default function CreateItemForm({ message }: { message?: Message }) {
-  const [activeTab, setActiveTab] = useState<"book" | "movie" | "show">("book");
-  const [formData, setFormData] = useState<Partial<ItemCreationInput>>({
-    itemtype: ITEM_TYPES.BOOK,
-    redo: false,
+  const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
+
+  // Create forms for each type to avoid TypeScript union conflicts
+  const bookForm = useForm<BookItemInput>({
+    resolver: zodResolver(bookItemSchema),
+    defaultValues: {
+      itemtype: "Book",
+      title: "",
+      publishedYear: new Date().getFullYear(),
+      redo: false,
+      author: "",
+    },
   });
 
-  const { errors, validateField, validateForm } =
-    useFormValidation(itemCreationSchema);
+  const movieForm = useForm<MovieItemInput>({
+    resolver: zodResolver(movieItemSchema),
+    defaultValues: {
+      itemtype: "Movie",
+      title: "",
+      publishedYear: new Date().getFullYear(),
+      redo: false,
+      director: "",
+    },
+  });
 
-  const handleFormSubmit = (formData: FormData) => {
-    // Get current form data for validation
-    const currentData = Object.fromEntries(formData.entries());
-
-    // Convert form data to proper types for validation
-    const validationData = {
-      itemtype: currentData.itemtype as string,
-      title: (currentData.title as string) || "",
-      publishedYear: parseInt(currentData.publishedYear as string) || 0,
-      redo: currentData.redo === "on",
-      // Always include these fields as strings (empty if not provided)
-      author: (currentData.author as string) || "",
-      director: (currentData.director as string) || "",
-      season: currentData.season
-        ? parseInt(currentData.season as string) || 0
-        : 0,
-    } as ItemCreationInput;
-
-    // Validate before submitting
-    const isFormValid = validateForm(validationData);
-    if (!isFormValid) {
-      return; // Don't submit if validation fails
-    }
-
-    // If validation passes, proceed with server action
-    return createItemAction(formData);
-  };
-
-  const handleInputChange = (
-    field: keyof ItemCreationInput,
-    value: string | number | boolean,
-  ) => {
-    const newFormData = { ...formData, [field]: value };
-    setFormData(newFormData);
-    validateField(field, value);
-  };
+  const showForm = useForm<ShowItemInput>({
+    resolver: zodResolver(showItemSchema),
+    defaultValues: {
+      itemtype: "Show",
+      title: "",
+      publishedYear: new Date().getFullYear(),
+      redo: false,
+      season: 1,
+    },
+  });
 
   const handleTabChange = (value: string) => {
-    const tab = value as "book" | "movie" | "show";
+    const tab = value as TabValue;
     setActiveTab(tab);
+  };
 
-    let itemtype: (typeof ITEM_TYPES)[keyof typeof ITEM_TYPES];
-    if (tab === "book") itemtype = ITEM_TYPES.BOOK;
-    else if (tab === "movie") itemtype = ITEM_TYPES.MOVIE;
-    else itemtype = ITEM_TYPES.SHOW;
+  const onSubmit = async (
+    data: BookItemInput | MovieItemInput | ShowItemInput,
+  ) => {
+    // Convert react-hook-form data to FormData for server action
+    const formData = new FormData();
+    formData.append("itemtype", data.itemtype);
+    formData.append("title", data.title);
+    formData.append("publishedYear", data.publishedYear.toString());
+    formData.append("redo", data.redo ? "on" : "");
 
-    const baseData = {
-      itemtype,
-      title: formData.title || "",
-      publishedYear: formData.publishedYear || 0,
-      redo: formData.redo || false,
-    };
+    if ("author" in data && data.author) formData.append("author", data.author);
+    if ("director" in data && data.director)
+      formData.append("director", data.director);
+    if ("season" in data && data.season)
+      formData.append("season", data.season.toString());
 
-    // Add type-specific fields based on tab
-    let newFormData: Partial<ItemCreationInput>;
-    if (tab === "book") {
-      newFormData = { ...baseData, author: formData.author || "" };
-    } else if (tab === "movie") {
-      newFormData = { ...baseData, director: formData.director || "" };
-    } else {
-      newFormData = { ...baseData, season: formData.season || 1 };
-    }
-
-    setFormData(newFormData);
+    return createItemAction(formData);
   };
 
   return (
     <main className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Add New Item</h1>
+
+      {message && <FormMessage message={message} />}
 
       <Tabs
         value={activeTab}
@@ -113,239 +99,253 @@ export default function CreateItemForm({ message }: { message?: Message }) {
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="book">Book</TabsTrigger>
-          <TabsTrigger value="movie">Movie</TabsTrigger>
-          <TabsTrigger value="show">TV Show</TabsTrigger>
+          <TabsTrigger value={TAB_VALUES.BOOK}>Book</TabsTrigger>
+          <TabsTrigger value={TAB_VALUES.MOVIE}>Movie</TabsTrigger>
+          <TabsTrigger value={TAB_VALUES.SHOW}>TV Show</TabsTrigger>
         </TabsList>
 
         {/* Book Form */}
-        <TabsContent value="book">
-          <form
-            action={handleFormSubmit}
-            className="space-y-4"
-            aria-labelledby="book-form-title"
-          >
-            <h2 id="book-form-title" className="sr-only">
-              Add new book
-            </h2>
-            {message && <FormMessage message={message} />}
-            <input type="hidden" name="itemtype" value={ITEM_TYPES.BOOK} />
-
-            <div>
-              <Label htmlFor="book-title">Title</Label>
-              <Input
-                type="text"
-                id="book-title"
+        <TabsContent value={TAB_VALUES.BOOK} className="mt-6 space-y-4">
+          <Form {...bookForm}>
+            <form
+              onSubmit={bookForm.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                control={bookForm.control}
                 name="title"
-                value={formData.title || ""}
-                onChange={(e) => handleInputChange("title", e.target.value)}
-                aria-describedby="book-title-error"
-                className={errors.title ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.title} />
-            </div>
 
-            <div>
-              <Label htmlFor="book-author">Author</Label>
-              <Input
-                type="text"
-                id="book-author"
+              <FormField
+                control={bookForm.control}
                 name="author"
-                value={formData.author || ""}
-                onChange={(e) => handleInputChange("author", e.target.value)}
-                aria-describedby="book-author-error"
-                className={errors.author ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Author</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.author} />
-            </div>
 
-            <div>
-              <Label htmlFor="book-publishedYear">Published Year</Label>
-              <Input
-                type="number"
-                id="book-publishedYear"
+              <FormField
+                control={bookForm.control}
                 name="publishedYear"
-                value={formData.publishedYear || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "publishedYear",
-                    parseInt(e.target.value) || 0,
-                  )
-                }
-                aria-describedby="book-year-error"
-                className={errors.publishedYear ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Published Year</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.publishedYear} />
-            </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="book-redo"
+              <FormField
+                control={bookForm.control}
                 name="redo"
-                checked={formData.redo || false}
-                onCheckedChange={(checked) =>
-                  handleInputChange("redo", checked === true)
-                }
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>This was a re-read</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
               />
-              <Label htmlFor="book-redo">This was a re-read</Label>
-            </div>
 
-            <SubmitButton>Save book</SubmitButton>
-          </form>
+              <SubmitButton>Save book</SubmitButton>
+            </form>
+          </Form>
         </TabsContent>
 
         {/* Movie Form */}
-        <TabsContent value="movie">
-          <form
-            action={handleFormSubmit}
-            className="space-y-4"
-            aria-labelledby="movie-form-title"
-          >
-            <h2 id="movie-form-title" className="sr-only">
-              Add new movie
-            </h2>
-            {message && <FormMessage message={message} />}
-            <input type="hidden" name="itemtype" value={ITEM_TYPES.MOVIE} />
-
-            <div>
-              <Label htmlFor="movie-title">Title</Label>
-              <Input
-                type="text"
-                id="movie-title"
+        <TabsContent value={TAB_VALUES.MOVIE} className="mt-6 space-y-4">
+          <Form {...movieForm}>
+            <form
+              onSubmit={movieForm.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                control={movieForm.control}
                 name="title"
-                value={formData.title || ""}
-                onChange={(e) => handleInputChange("title", e.target.value)}
-                aria-describedby="movie-title-error"
-                className={errors.title ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.title} />
-            </div>
 
-            <div>
-              <Label htmlFor="movie-director">Director</Label>
-              <Input
-                type="text"
-                id="movie-director"
+              <FormField
+                control={movieForm.control}
                 name="director"
-                value={formData.director || ""}
-                onChange={(e) => handleInputChange("director", e.target.value)}
-                aria-describedby="movie-director-error"
-                className={errors.director ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Director</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.director} />
-            </div>
 
-            <div>
-              <Label htmlFor="movie-publishedYear">Release Year</Label>
-              <Input
-                type="number"
-                id="movie-publishedYear"
+              <FormField
+                control={movieForm.control}
                 name="publishedYear"
-                value={formData.publishedYear || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "publishedYear",
-                    parseInt(e.target.value) || 0,
-                  )
-                }
-                aria-describedby="movie-year-error"
-                className={errors.publishedYear ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Release Year</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.publishedYear} />
-            </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="movie-redo"
+              <FormField
+                control={movieForm.control}
                 name="redo"
-                checked={formData.redo || false}
-                onCheckedChange={(checked) =>
-                  handleInputChange("redo", checked === true)
-                }
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>This was a rewatch</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
               />
-              <Label htmlFor="movie-redo">This was a rewatch</Label>
-            </div>
 
-            <SubmitButton>Save movie</SubmitButton>
-          </form>
+              <SubmitButton>Save movie</SubmitButton>
+            </form>
+          </Form>
         </TabsContent>
 
-        {/* TV Show Form */}
-        <TabsContent value="show">
-          <form
-            action={handleFormSubmit}
-            className="space-y-4"
-            aria-labelledby="show-form-title"
-          >
-            <h2 id="show-form-title" className="sr-only">
-              Add new TV show
-            </h2>
-            {message && <FormMessage message={message} />}
-            <input type="hidden" name="itemtype" value={ITEM_TYPES.SHOW} />
-
-            <div>
-              <Label htmlFor="show-title">Title</Label>
-              <Input
-                type="text"
-                id="show-title"
+        {/* Show Form */}
+        <TabsContent value={TAB_VALUES.SHOW} className="mt-6 space-y-4">
+          <Form {...showForm}>
+            <form
+              onSubmit={showForm.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                control={showForm.control}
                 name="title"
-                value={formData.title || ""}
-                onChange={(e) => handleInputChange("title", e.target.value)}
-                aria-describedby="show-title-error"
-                className={errors.title ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.title} />
-            </div>
 
-            <div>
-              <Label htmlFor="show-season">Season</Label>
-              <Input
-                type="number"
-                id="show-season"
+              <FormField
+                control={showForm.control}
                 name="season"
-                value={formData.season || ""}
-                onChange={(e) =>
-                  handleInputChange("season", parseInt(e.target.value) || 0)
-                }
-                aria-describedby="show-season-error"
-                className={errors.season ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Season</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.season} />
-            </div>
 
-            <div>
-              <Label htmlFor="show-publishedYear">Release Year</Label>
-              <Input
-                type="number"
-                id="show-publishedYear"
+              <FormField
+                control={showForm.control}
                 name="publishedYear"
-                value={formData.publishedYear || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "publishedYear",
-                    parseInt(e.target.value) || 0,
-                  )
-                }
-                aria-describedby="show-year-error"
-                className={errors.publishedYear ? "border-red-500" : ""}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Release Year</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <FieldError errors={errors.publishedYear} />
-            </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="show-redo"
+              <FormField
+                control={showForm.control}
                 name="redo"
-                checked={formData.redo || false}
-                onCheckedChange={(checked) =>
-                  handleInputChange("redo", checked === true)
-                }
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>This was a rewatch</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
               />
-              <Label htmlFor="show-redo">This was a rewatch</Label>
-            </div>
 
-            <SubmitButton>Save show</SubmitButton>
-          </form>
+              <SubmitButton>Save show</SubmitButton>
+            </form>
+          </Form>
         </TabsContent>
       </Tabs>
     </main>

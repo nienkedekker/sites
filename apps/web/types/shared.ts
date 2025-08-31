@@ -7,7 +7,7 @@
  * Valid item types - single source of truth
  * These should match exactly what's stored in the database
  */
-export const VALID_ITEM_TYPES = ["Book", "Movie", "Show"] as const;
+export const VALID_ITEM_TYPES = ["Book", "Movie", "Show"];
 export type ValidItemType = (typeof VALID_ITEM_TYPES)[number];
 
 /**

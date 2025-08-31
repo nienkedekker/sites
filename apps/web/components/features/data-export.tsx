@@ -110,12 +110,6 @@ export function DataExport({ currentYear }: DataExportProps) {
           </div>
         </div>
       )}
-
-      <div className="text-xs text-gray-500 dark:text-gray-400">
-        <p>• CSV format is ideal for spreadsheet applications</p>
-        <p>• JSON format includes metadata and preserves data structure</p>
-        <p>• Only your own data will be exported</p>
-      </div>
     </div>
   );
 }

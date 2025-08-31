@@ -28,5 +28,3 @@ The application is well-structured as a modern Next.js 15 app with:
 ### 21. Analytics & Insights
 - Reading/watching patterns analysis
 
-# Other
-- Search-form.tsx is too big; split it up

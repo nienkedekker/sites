@@ -6,6 +6,15 @@ export const ITEM_TYPES = {
   SHOW: "Show",
 } as const;
 
+// Tab values (lowercase for UI tabs)
+export const TAB_VALUES = {
+  BOOK: "book",
+  MOVIE: "movie",
+  SHOW: "show",
+} as const;
+
+export type TabValue = (typeof TAB_VALUES)[keyof typeof TAB_VALUES];
+
 // Re-export from shared types for consistency
 export { VALID_ITEM_TYPES };
 

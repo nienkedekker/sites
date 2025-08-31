@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await createClientForServer();
-    const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     // Fetch all items (since you're the only user, no user filtering needed)
     const { data: rawItems, error } = await supabase
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       console.error("Database error fetching items:", error);
       return NextResponse.json(
         { error: "Failed to fetch items" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -60,34 +60,38 @@ export async function GET(request: NextRequest) {
 
     if (validatedItems.length !== rawItems.length) {
       console.warn(
-        `${rawItems.length - validatedItems.length} invalid items filtered out during export`
+        `${rawItems.length - validatedItems.length} invalid items filtered out during export`,
       );
     }
 
     // Generate export data
     const csvData = itemsToCSV(validatedItems);
     const jsonData = createJSONDownload(validatedItems);
-    
+
     // Generate filenames
     const csvFilename = generateCSVFilename(`whatpm-backup-${timestamp}`);
     const jsonFilename = generateJSONFilename(`whatpm-backup-${timestamp}`);
 
     // Upload to R2
     const csvKey = `backups/${timestamp}/${csvFilename}`;
-    await r2Client.send(new PutObjectCommand({
-      Bucket: process.env.CLOUDFLARE_BUCKET_NAME!,
-      Key: csvKey,
-      Body: csvData,
-      ContentType: "text/csv",
-    }));
+    await r2Client.send(
+      new PutObjectCommand({
+        Bucket: process.env.CLOUDFLARE_BUCKET_NAME!,
+        Key: csvKey,
+        Body: csvData,
+        ContentType: "text/csv",
+      }),
+    );
 
     const jsonKey = `backups/${timestamp}/${jsonFilename}`;
-    await r2Client.send(new PutObjectCommand({
-      Bucket: process.env.CLOUDFLARE_BUCKET_NAME!,
-      Key: jsonKey,
-      Body: jsonData,
-      ContentType: "application/json",
-    }));
+    await r2Client.send(
+      new PutObjectCommand({
+        Bucket: process.env.CLOUDFLARE_BUCKET_NAME!,
+        Key: jsonKey,
+        Body: jsonData,
+        ContentType: "application/json",
+      }),
+    );
 
     return NextResponse.json({
       success: true,
@@ -98,12 +102,14 @@ export async function GET(request: NextRequest) {
         json: jsonKey,
       },
     });
-
   } catch (error) {
     console.error("Cron export error:", error);
     return NextResponse.json(
-      { error: "Export failed", details: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
+      {
+        error: "Export failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
     );
   }
 }
