@@ -15,6 +15,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { PageHeader } from "@/components/ui/page-header";
 
 import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
 import { signInActionReturnSession } from "@/app/actions/auth";
@@ -77,13 +78,11 @@ function SignInForm() {
   } = form;
 
   return (
-    <div className="flex-1 flex flex-col max-w-96 mx-auto">
-      <h1 className="text-2xl font-medium">Sign in</h1>
+    <div className="space-y-4 max-w-md mx-auto">
+      <PageHeader>Sign in</PageHeader>
+
       <Form {...form}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-2 [&>input]:mb-3 mt-8"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {message && <FormMessage message={message} />}
           {errors.root?.message && (
             <FormMessage message={{ error: errors.root.message }} />

@@ -19,6 +19,7 @@ import {
 
 import { SubmitButton } from "./submit-button";
 import { FormMessage as BannerMessage, type Message } from "./form-message"; // top-of-form banner
+import { PageHeader } from "@/components/ui/page-header";
 
 import { createItemAction } from "@/app/actions/items";
 import {
@@ -73,23 +74,38 @@ export default function CreateItemForm({ message }: CreateItemFormProps) {
 
   return (
     <main className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Add New Item</h1>
+      <PageHeader className="mb-8">Add New Item</PageHeader>
 
       <Tabs
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as TabValue)}
         className="w-full"
       >
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value={TAB_VALUES.BOOK}>Book</TabsTrigger>
-          <TabsTrigger value={TAB_VALUES.MOVIE}>Movie</TabsTrigger>
-          <TabsTrigger value={TAB_VALUES.SHOW}>TV Show</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-slate-100 dark:bg-slate-800/50 border-0 p-1 rounded-lg">
+          <TabsTrigger
+            value={TAB_VALUES.BOOK}
+            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100"
+          >
+            Book
+          </TabsTrigger>
+          <TabsTrigger
+            value={TAB_VALUES.MOVIE}
+            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100"
+          >
+            Movie
+          </TabsTrigger>
+          <TabsTrigger
+            value={TAB_VALUES.SHOW}
+            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100"
+          >
+            TV Show
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="mt-6 space-y-4">
+        <TabsContent value={activeTab} className="mt-8 space-y-6">
           {/* key={activeTab} forces a fresh RHF form when switching tabs */}
           <Form key={activeTab} {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {message && <BannerMessage message={message} />}
 
               <FormField

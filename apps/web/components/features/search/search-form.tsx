@@ -12,7 +12,6 @@ type SearchFormData = {
   query: string;
 };
 
-// TODO: when pressing backspace, don't search again immediately
 export default function SearchForm() {
   const form = useForm<SearchFormData>({
     defaultValues: {
@@ -31,42 +30,24 @@ export default function SearchForm() {
   const [isPendingTransition, startTransition] = useTransition();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const debouncedSearch = useCallback((query: string) => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (query.trim().length >= 2) {
-        startTransition(async () => {
-          const formData = new FormData();
-          formData.append("query", query.trim());
-          const result = await searchItems(formData);
-          setSearchState(result);
-        });
-      } else if (query.trim().length === 0) {
-        // Clear results when search is empty
-        startTransition(async () => {
-          const formData = new FormData();
-          formData.append("query", "");
-          const result = await searchItems(formData);
-          setSearchState(result);
-        });
-      }
-    }, 300); // 300ms debounce delay
-  }, []);
-
-  const onSubmit = (data: SearchFormData) => {
+  const onSubmit = async (data: SearchFormData) => {
     if (data.query.trim().length >= 2) {
-      debouncedSearch(data.query);
+      startTransition(async () => {
+        const formData = new FormData();
+        formData.append("query", data.query.trim());
+        const result = await searchItems(formData);
+        setSearchState(result);
+      });
+    } else if (data.query.trim().length === 0) {
+      // Clear results when search is empty
+      startTransition(async () => {
+        const formData = new FormData();
+        formData.append("query", "");
+        const result = await searchItems(formData);
+        setSearchState(result);
+      });
     }
   };
-
-  // Watch for changes to the search query and trigger debounced search
-  const watchedQuery = form.watch("query");
-  useEffect(() => {
-    debouncedSearch(watchedQuery);
-  }, [watchedQuery, debouncedSearch]);
 
   const sortedAndFilteredResults = useCallback(() => {
     let results = [...searchState.results];
@@ -113,14 +94,11 @@ export default function SearchForm() {
 
   const processedResults = sortedAndFilteredResults();
   const hasResults = processedResults.length > 0;
-  const hasQuery = watchedQuery.trim().length > 0;
+  const hasQuery = searchState.query.trim().length > 0;
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="query"
@@ -133,7 +111,6 @@ export default function SearchForm() {
                   filterType={filterType}
                   isSearching={isSearching}
                   onInputChange={(e) => field.onChange(e.target.value)}
-                  onSubmit={form.handleSubmit(onSubmit)}
                   onSortChange={setSortBy}
                   onFilterChange={setFilterType}
                 />
@@ -160,14 +137,14 @@ export default function SearchForm() {
             `Found ${processedResults.length} result${processedResults.length !== 1 ? "s" : ""}.`}
         </div>
 
-        {/* Show skeleton while searching */}
-        {isSearching && <SearchResultsSkeleton />}
+        {/* Show skeleton while searching (but not on initial load) */}
+        {isSearching && hasQuery && <SearchResultsSkeleton />}
 
         {/* Show results or no results state */}
         {!searchState.initial && !isSearching && (
           <SearchResults
             results={processedResults}
-            query={watchedQuery}
+            query={searchState.query}
             filterType={filterType}
             onClearFilter={() => setFilterType("all")}
           />

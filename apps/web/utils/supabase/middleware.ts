@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const protectedPaths = ["/create", "/protected", "/item", "/export"];
 
 function isProtectedPathname(pathname: string) {
-  return protectedPaths.some(path => pathname.startsWith(path));
+  return protectedPaths.some((path) => pathname.startsWith(path));
 }
 
 export async function updateSession(request: NextRequest) {

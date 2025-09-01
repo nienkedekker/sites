@@ -69,7 +69,7 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {message && <BannerMessage message={message} />}
 
         <FormField

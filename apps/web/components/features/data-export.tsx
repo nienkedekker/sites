@@ -52,13 +52,6 @@ export function DataExport({ currentYear }: DataExportProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Export Your Data</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Download your reading and watching history in CSV or JSON format.
-        </p>
-      </div>
-
       {/* All Data Export */}
       <div className="space-y-3">
         <h4 className="font-medium text-sm">Export All Data</h4>

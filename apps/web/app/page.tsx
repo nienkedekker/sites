@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import ItemsList from "@/components/features/lists/items-list";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function Home() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div>
-      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-sky-950 dark:text-sky-50">
-        {currentYear}
-      </h1>
+    <div className="space-y-4">
+      <PageHeader>{currentYear}</PageHeader>
+
       <Suspense fallback={<ItemsListSkeleton />}>
         <ItemsList year={currentYear} />
       </Suspense>

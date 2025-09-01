@@ -3,6 +3,9 @@ import DeleteItemDialog from "./delete-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
+import { BookOpen, Film, Tv, RotateCcw } from "lucide-react";
+import { cn } from "@/utils/ui";
+import { cardStyles, textStyles, badgeStyles } from "@/utils/styles";
 
 interface CategoryListProps {
   categoryTitle: string;
@@ -10,109 +13,185 @@ interface CategoryListProps {
   showYearLink?: boolean;
 }
 
+const getIcon = (itemType: string) => {
+  switch (itemType) {
+    case "Book":
+      return <BookOpen className="w-5 h-5" />;
+    case "Movie":
+      return <Film className="w-5 h-5" />;
+    case "Show":
+      return <Tv className="w-5 h-5" />;
+    default:
+      return <BookOpen className="w-5 h-5" />;
+  }
+};
+
+const getTypeColor = () => {
+  return cardStyles;
+};
+
 export function CategoryList({
   categoryTitle,
   items,
   showYearLink = false,
 }: CategoryListProps) {
   const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-heading`;
+  const itemType = items[0]?.itemtype || categoryTitle.slice(0, -1); // Remove 's' from plural
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-6">
-      <h2 id={headingId} className="font-bold -ml-4">
-        {categoryTitle}
-      </h2>
+    <section aria-labelledby={headingId} className="space-y-6">
+      {/* Enhanced Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 text-slate-300 dark:text-slate-600">
+          {getIcon(itemType)}
+        </div>
+        <div>
+          <h2
+            id={headingId}
+            className="text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400"
+          >
+            {categoryTitle}
+          </h2>
+          <p className={cn("text-sm", textStyles.muted)}>
+            {items.length} {items.length === 1 ? "item" : "items"}
+          </p>
+        </div>
+      </div>
+
       {items.length > 0 ? (
-        <ol
-          className="list-decimal list-outside text-gray-400 space-y-2"
-          aria-label={`List of ${categoryTitle.toLowerCase()}`}
-        >
-          {items.map((item) => (
-            <li key={item.id} className="pl-2">
-              <div className="text-gray-700 dark:text-gray-300">
-                {item.itemtype === "Book" && (
-                  <>
-                    <span className="sr-only">By </span>
-                    <span>{item.author}, </span>
-                  </>
-                )}
-                <span className="text-sky-900 dark:text-sky-200 font-medium">
-                  {item.title}
-                </span>
-                {item.itemtype === "Movie" && (
-                  <>
-                    <span className="sr-only"> directed by </span>
-                    <span>
-                      {" "}
-                      ({item.director || "Unknown Director"},{" "}
-                      {item.published_year})
-                    </span>
-                  </>
-                )}
-                {item.itemtype === "Show" && (
-                  <>
-                    <span className="sr-only"> season </span>
-                    <span> (season {item.season || "Unknown"})</span>
-                  </>
-                )}
+        <div className="space-y-3">
+          {items.map((item, index) => (
+            <div
+              key={item.id}
+              className={cn(
+                "group relative p-3 rounded-lg border transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700 min-h-[85px] flex flex-col",
+                getTypeColor(),
+              )}
+            >
+              {/* Item Number */}
+              <div className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-full flex items-center justify-center text-xs font-medium">
+                {index + 1}
               </div>
 
-              {item.redo && (
-                <span
-                  className="ml-2 px-2 py-1 text-xs font-semibold rounded-md bg-indigo-100 text-indigo-700"
-                  aria-label={
-                    item.itemtype === "Book"
-                      ? "This was a re-read"
-                      : "This was a rewatch"
-                  }
-                >
-                  {item.itemtype === "Book" ? "Reread" : "Rewatch"}
-                </span>
-              )}
+              {/* Main Content */}
+              <div className="ml-5 flex-1 flex flex-col overflow-hidden justify-center">
+                <div className="flex-1 overflow-hidden flex flex-col justify-center">
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 line-clamp-2">
+                        {item.title}
+                      </h3>
 
-              {showYearLink && (
-                <div className="flex">
-                  <Link
-                    href={`/year/${item.belongs_to_year}`}
-                    className="text-sm text-gray-500 hover:underline"
-                    aria-label={`View all items from ${item.belongs_to_year}`}
-                  >
-                    Added in {item.belongs_to_year}
-                  </Link>
+                      {/* Metadata */}
+                      <div
+                        className={cn(
+                          "flex flex-wrap items-center gap-1 mt-0.5 text-xs",
+                          textStyles.muted,
+                        )}
+                      >
+                        {item.itemtype === "Book" && item.author && (
+                          <span>by {item.author}</span>
+                        )}
+                        {item.itemtype === "Movie" && (
+                          <span>
+                            {item.director && `dir. ${item.director}`}
+                            {item.director && item.published_year && " • "}
+                            {item.published_year}
+                          </span>
+                        )}
+                        {item.itemtype === "Show" && item.season && (
+                          <span>Season {item.season}</span>
+                        )}
+
+                        {item.published_year && item.itemtype === "Book" && (
+                          <span className="text-xs">
+                            ({item.published_year})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Redo Badge */}
+                    {item.redo && (
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
+                          badgeStyles.amber,
+                        )}
+                        aria-label={
+                          item.itemtype === "Book"
+                            ? "This was a re-read"
+                            : "This was a rewatch"
+                        }
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        {item.itemtype === "Book" ? "Reread" : "Rewatch"}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Year Link */}
+                  {showYearLink && (
+                    <div className="pt-2 border-t border-current/10">
+                      <Link
+                        href={`/year/${item.belongs_to_year}`}
+                        className={cn(
+                          "text-xs hover:underline transition-colors",
+                          textStyles.mutedLight,
+                          "hover:text-slate-700 dark:hover:text-slate-300",
+                        )}
+                        aria-label={`View all items from ${item.belongs_to_year}`}
+                      >
+                        Added in {item.belongs_to_year}
+                      </Link>
+                    </div>
+                  )}
                 </div>
-              )}
 
-              <IsLoggedIn>
-                <div
-                  className="flex gap-2"
-                  role="group"
-                  aria-label={`Actions for ${item.title}`}
-                >
-                  <Button
-                    asChild
-                    className="text-xs p-0 cursor-pointer"
-                    variant="link"
+                {/* Actions - Always at bottom */}
+                <IsLoggedIn>
+                  <div
+                    className="flex items-center gap-1 pt-1 mt-auto"
+                    role="group"
+                    aria-label={`Actions for ${item.title}`}
                   >
-                    <Link
-                      href={`/item/${item.id}`}
-                      aria-label={`Update ${item.title}`}
+                    <Button
+                      asChild
+                      size="sm"
+                      variant="ghost"
+                      className="h-5 px-1.5 text-xs"
                     >
-                      Update
-                    </Link>
-                  </Button>
-                  <DeleteItemDialog
-                    itemId={item.id}
-                    belongsToYear={item.belongs_to_year}
-                  />
-                </div>
-              </IsLoggedIn>
-            </li>
+                      <Link
+                        href={`/item/${item.id}`}
+                        aria-label={`Update ${item.title}`}
+                      >
+                        Edit
+                      </Link>
+                    </Button>
+                    <DeleteItemDialog
+                      itemId={item.id}
+                      belongsToYear={item.belongs_to_year}
+                    />
+                  </div>
+                </IsLoggedIn>
+              </div>
+            </div>
           ))}
-        </ol>
+        </div>
       ) : (
-        <p className="text-gray-500 italic -ml-4" role="status">
-          No {categoryTitle.toLowerCase()} found.
-        </p>
+        <div
+          className={cn(
+            "flex flex-col items-center justify-center p-12 rounded-xl border-2 border-dashed",
+            "text-slate-400 dark:text-slate-600",
+          )}
+        >
+          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+            {getIcon(itemType)}
+          </div>
+          <p className="text-center font-medium">
+            I did not log any {categoryTitle.toLowerCase()} this year.
+          </p>
+        </div>
       )}
     </section>
   );

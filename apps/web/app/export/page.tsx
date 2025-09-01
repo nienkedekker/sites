@@ -1,16 +1,15 @@
 import { DataExport } from "@/components/features/data-export";
 import { getCurrentYear } from "@/utils/formatters/date";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function SettingsPage() {
   const currentYear = getCurrentYear();
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Settings</h1>
+    <div className="space-y-4">
+      <PageHeader>Settings</PageHeader>
 
-      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <DataExport currentYear={currentYear} />
-      </div>
+      <DataExport currentYear={currentYear} />
     </div>
   );
 }

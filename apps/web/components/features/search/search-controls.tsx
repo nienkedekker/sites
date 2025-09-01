@@ -1,6 +1,6 @@
-import { ChangeEvent, FormEvent } from "react";
-import { Search, Filter, SortDescIcon } from "lucide-react";
+import { ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   Select,
@@ -24,7 +24,6 @@ interface SearchControlsProps {
   filterType: string;
   isSearching: boolean;
   onInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: FormEvent) => void;
   onSortChange: (value: string) => void;
   onFilterChange: (value: string) => void;
 }
@@ -40,72 +39,84 @@ export function SearchControls({
 }: SearchControlsProps) {
   return (
     <div
-      className="space-y-4 mx-auto w-full max-w-2xl"
+      className="space-y-6"
       role="search"
       aria-label="Search for books, movies, and TV shows"
     >
-      {/* Main search input */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
+      {/* Main search input - Vercel style */}
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Input
+            type="text"
+            id="search-query"
+            value={inputValue}
+            onChange={onInputChange}
+            placeholder="Search your items..."
+            className="h-10 text-sm bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:border-slate-400 dark:focus:border-slate-600"
+            aria-describedby="search-instructions search-results-status"
+            autoComplete="off"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const form = e.currentTarget.closest("form");
+                if (form) {
+                  const event = new Event("submit", {
+                    bubbles: true,
+                    cancelable: true,
+                  });
+                  form.dispatchEvent(event);
+                }
+              }
+            }}
+          />
+          {isSearching && (
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <LoadingSpinner size={16} />
+            </div>
+          )}
         </div>
-        <Input
-          type="text"
-          id="search-query"
-          value={inputValue}
-          onChange={onInputChange}
-          placeholder="Search titles, authors, directors..."
-          className="pl-10 pr-12 py-3 text-base w-full sm:text-sm"
-          aria-describedby="search-instructions search-results-status"
-          autoComplete="off"
-        />
-        {isSearching && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <LoadingSpinner size={20} />
-          </div>
-        )}
+        <Button
+          type="submit"
+          size="sm"
+          variant="outline"
+          disabled={isSearching}
+          className="h-10 px-4"
+        >
+          {isSearching ? "Searching..." : "Search"}
+        </Button>
       </div>
 
-      {/* Filter and Sort Controls */}
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 sm:items-center">
-        <div className="flex flex-col xs:flex-row gap-3 xs:gap-4">
-          {/* Type Filter */}
-          <div className="flex items-center gap-2 flex-1 xs:flex-initial">
-            <Filter className="h-4 w-4 text-gray-500 flex-shrink-0" />
-            <Select value={filterType} onValueChange={onFilterChange}>
-              <SelectTrigger className="w-full xs:w-36 sm:w-40 h-8 text-sm">
-                <SelectValue aria-label="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="Book">Books Only</SelectItem>
-                <SelectItem value="Movie">Movies Only</SelectItem>
-                <SelectItem value="Show">TV Shows Only</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Minimal Filter and Sort Controls */}
+      <div className="flex flex-wrap gap-3 text-sm">
+        <Select value={filterType} onValueChange={onFilterChange}>
+          <SelectTrigger className="w-32 h-8 text-xs border-slate-200 dark:border-slate-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="Book">Books</SelectItem>
+            <SelectItem value="Movie">Movies</SelectItem>
+            <SelectItem value="Show">Shows</SelectItem>
+          </SelectContent>
+        </Select>
 
-          {/* Sort Options */}
-          <div className="flex items-center gap-2 flex-1 xs:flex-initial">
-            <SortDescIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
-            <Select value={sortBy} onValueChange={onSortChange}>
-              <SelectTrigger className="w-full xs:w-36 sm:w-40 h-8 text-sm">
-                <SelectValue aria-label="Sort results" />
-              </SelectTrigger>
-              <SelectContent>
-                {sortOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <Select value={sortBy} onValueChange={onSortChange}>
+          <SelectTrigger className="w-36 h-8 text-xs border-slate-200 dark:border-slate-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {sortOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div id="search-instructions" className="sr-only">
-        Search through books, movies, and TV shows. Results appear as you type.
+        Search through books, movies, and TV shows. Press Enter or click Search
+        to find results.
       </div>
     </div>
   );
