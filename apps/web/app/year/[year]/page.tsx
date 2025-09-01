@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import ItemsList from "@/components/features/lists/items-list";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function YearPage(props: {
   params: Promise<{ year: string }>;
@@ -9,10 +10,9 @@ export default async function YearPage(props: {
   const year = parseInt(params.year, 10);
 
   return (
-    <div>
-      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-sky-950 dark:text-sky-50">
-        {year}
-      </h1>
+    <div className="space-y-4">
+      <PageHeader>{year}</PageHeader>
+
       <Suspense fallback={<ItemsListSkeleton />}>
         <ItemsList year={year} />
       </Suspense>

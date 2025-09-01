@@ -1,56 +1,68 @@
 "use client";
 
-import { useState, Suspense } from "react";
-import { signInAction } from "@/app/actions/auth";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { SubmitButton } from "@/components/forms/submit-button";
 import { FormMessage, type Message } from "@/components/forms/form-message";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
-import { useFormValidation } from "@/hooks/use-form-validation";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { PageHeader } from "@/components/ui/page-header";
 
-// Error display component
-function FieldError({ errors }: { errors?: string[] }) {
-  if (!errors?.length) return null;
-  return (
-    <div className="text-sm text-red-600 mt-1" role="alert">
-      {errors.map((error, index) => (
-        <div key={index}>{error}</div>
-      ))}
-    </div>
-  );
-}
+import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
+import { signInActionReturnSession } from "@/app/actions/auth";
+import { supabaseBrowser } from "@/utils/supabase/browser";
 
 function SignInForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [formData, setFormData] = useState<SignInInput>({
-    email: "",
-    password: "",
+
+  const form = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: "", password: "" },
   });
 
-  const { errors, validateField, validateForm } =
-    useFormValidation(signInSchema);
+  const onSubmit = async (data: SignInInput) => {
+    // Convert react-hook-form data to FormData
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
 
-  const handleFormSubmit = (formData: FormData) => {
-    // Get form data for validation
-    const validationData = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    };
+    // Call server action, this sets HttpOnly cookies and returns tokens
+    const res = await signInActionReturnSession(formData);
 
-    // Validate before submitting
-    const isFormValid = validateForm(validationData);
-    if (!isFormValid) {
-      return; // Don't submit if validation fails
+    if (!res.ok) {
+      form.setError("root", { message: res.error ?? "Sign-in failed" });
+      return;
     }
 
-    // If validation passes, proceed with server action
-    return signInAction(formData);
+    // Hydrate browser client so <AuthProvider> updates immediately
+    if (res.access_token && res.refresh_token) {
+      await supabaseBrowser.auth.setSession({
+        access_token: res.access_token,
+        refresh_token: res.refresh_token,
+      });
+    }
+
+    const rawRedirect = searchParams.get("redirect") || "/";
+    const redirectTo =
+      rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+        ? rawRedirect
+        : "/";
+
+    router.refresh();
+    router.push(redirectTo);
   };
 
-  // Get message from search params
+  // Optional messages from query params
   const message: Message | undefined = searchParams.get("error")
     ? { error: searchParams.get("error")! }
     : searchParams.get("success")
@@ -59,49 +71,65 @@ function SignInForm() {
         ? { message: searchParams.get("message")! }
         : undefined;
 
-  const handleInputChange = (field: keyof SignInInput, value: string) => {
-    const newFormData = { ...formData, [field]: value };
-    setFormData(newFormData);
-    validateField(field, value);
-  };
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting, errors },
+  } = form;
 
   return (
-    <form
-      action={handleFormSubmit}
-      className="flex-1 flex flex-col max-w-96 mx-auto"
-    >
-      <h1 className="text-2xl font-medium">Sign in</h1>
-      <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-        {message && <FormMessage message={message} />}
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="you@example.com"
-          value={formData.email}
-          onChange={(e) => handleInputChange("email", e.target.value)}
-          className={errors.email ? "border-red-500" : ""}
-        />
-        <FieldError errors={errors.email} />
+    <div className="space-y-4 max-w-md mx-auto">
+      <PageHeader>Sign in</PageHeader>
 
-        <div className="flex justify-between items-center">
-          <Label htmlFor="password">Password</Label>
-        </div>
-        <Input
-          id="password"
-          type="password"
-          name="password"
-          placeholder="Your password"
-          value={formData.password}
-          onChange={(e) => handleInputChange("password", e.target.value)}
-          className={errors.password ? "border-red-500" : ""}
-        />
-        <FieldError errors={errors.password} />
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {message && <FormMessage message={message} />}
+          {errors.root?.message && (
+            <FormMessage message={{ error: errors.root.message }} />
+          )}
 
-        <SubmitButton pendingText="Signing In...">Sign in</SubmitButton>
-      </div>
-    </form>
+          <FormField
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Your password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <SubmitButton pendingText="Signing In..." disabled={isSubmitting}>
+            Sign in
+          </SubmitButton>
+        </form>
+      </Form>
+    </div>
   );
 }
 

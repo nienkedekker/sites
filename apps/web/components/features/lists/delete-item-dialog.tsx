@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useFormStatus } from "react-dom";
 import { deleteItemAction } from "@/app/actions/items";
 import {
   Dialog,
@@ -11,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/forms/submit-button";
 
 export default function DeleteItemDialog({
   itemId,
@@ -20,7 +20,6 @@ export default function DeleteItemDialog({
   belongsToYear: number;
 }) {
   const [open, setOpen] = useState(false);
-  const { pending } = useFormStatus();
 
   const handleSubmit = async (formData: FormData) => {
     await deleteItemAction(formData);
@@ -48,14 +47,13 @@ export default function DeleteItemDialog({
           <form action={handleSubmit}>
             <input type="hidden" name="id" value={itemId} />
             <input type="hidden" name="belongsToYear" value={belongsToYear} />
-            <Button
-              type="submit"
+            <SubmitButton
               variant="destructive"
-              disabled={pending}
+              pendingText="Deleting..."
               aria-describedby="delete-description"
             >
-              {pending ? "Deleting..." : "Confirm"}
-            </Button>
+              Confirm
+            </SubmitButton>
           </form>
         </DialogFooter>
       </DialogContent>

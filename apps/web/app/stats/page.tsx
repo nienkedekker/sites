@@ -4,6 +4,7 @@ import { ItemCountBarChart } from "@/components/features/charts/item-count-bar-c
 import { CumulativeLineChart } from "@/components/features/charts/cumulative-line-chart";
 import { type ChartConfig } from "@/components/ui/chart";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 
 // Extract stats content to a separate component for Suspense
 async function StatsContent() {
@@ -82,10 +83,9 @@ async function StatsContent() {
 
 export default function StatsPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-sky-950 dark:text-sky-50">
-        Stats
-      </h1>
+    <div className="space-y-8">
+      <PageHeader>Stats</PageHeader>
+
       <Suspense fallback={<StatsPageSkeleton />}>
         <StatsContent />
       </Suspense>

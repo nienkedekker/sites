@@ -10,10 +10,7 @@ export type SearchState = {
   initial: boolean;
 };
 
-export async function searchItems(
-  prevState: SearchState,
-  formData: FormData,
-): Promise<SearchState> {
+export async function searchItems(formData: FormData): Promise<SearchState> {
   const rawQuery = formData.get("query") as string;
 
   if (!rawQuery) return { query: "", results: [], initial: false };

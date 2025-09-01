@@ -1,191 +1,257 @@
+// components/forms/update-item-form.tsx
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { updateItemAction } from "@/app/actions/items";
 import { SubmitButton } from "./submit-button";
-import { FormMessage, type Message } from "./form-message";
+import { FormMessage as BannerMessage, type Message } from "./form-message"; // banner (top-of-form)
+
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Item } from "@/types";
 import {
-  itemCreationSchema,
-  type ItemCreationInput,
+  Form,
+  FormControl,
+  FormMessage,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+
+import {
+  bookItemSchema,
+  movieItemSchema,
+  showItemSchema,
+  type BookItemInput,
+  type MovieItemInput,
+  type ShowItemInput,
 } from "@/utils/schemas/validation";
-import { useFormValidation } from "@/hooks/use-form-validation";
+import { ITEM_TYPES } from "@/utils/constants/app";
+import type { Item } from "@/types";
+
+type AnyItemInput = BookItemInput | MovieItemInput | ShowItemInput;
 
 interface UpdateItemFormProps {
   item: Item;
   message?: Message;
 }
 
-// Error display component
-function FieldError({ errors }: { errors?: string[] }) {
-  if (!errors?.length) return null;
+// NOTE: single form that adapts to the itemtype, with belongsToYear editable
+export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
+  const { schema, defaultValues } = getSchemaAndDefaults(item);
+
+  const form = useForm<AnyItemInput>({
+    resolver: zodResolver(schema),
+    defaultValues,
+    mode: "onBlur",
+  });
+
+  const toNum = (v: string) => (v === "" ? 0 : parseInt(v, 10) || 0);
+
+  const onSubmit = async (data: AnyItemInput) => {
+    const fd = new FormData();
+    fd.append("id", item.id);
+    fd.append("itemtype", data.itemtype);
+    fd.append("title", data.title);
+    fd.append("publishedYear", String(data.publishedYear));
+    fd.append("belongsToYear", String(data.belongsToYear));
+    fd.append("redo", data.redo ? "on" : "");
+
+    if ("author" in data && data.author) fd.append("author", data.author);
+    if ("director" in data && data.director)
+      fd.append("director", data.director);
+    if ("season" in data && data.season)
+      fd.append("season", String(data.season));
+
+    return updateItemAction(fd);
+  };
+
   return (
-    <div className="text-sm text-red-600 mt-1" role="alert">
-      {errors.map((error, index) => (
-        <div key={index}>{error}</div>
-      ))}
-    </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {message && <BannerMessage message={message} />}
+
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {item.itemtype === ITEM_TYPES.BOOK && (
+          <FormField
+            control={form.control}
+            name={"author" as const}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Author</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {item.itemtype === ITEM_TYPES.MOVIE && (
+          <FormField
+            control={form.control}
+            name={"director" as const}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Director</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {item.itemtype === ITEM_TYPES.SHOW && (
+          <FormField
+            control={form.control}
+            name={"season" as const}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Season</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field}
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(toNum(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <FormField
+          control={form.control}
+          name={"publishedYear" as const}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                {item.itemtype === ITEM_TYPES.BOOK
+                  ? "Published Year"
+                  : "Release Year"}
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(toNum(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* NEW: editable belongsToYear (was fixed before) */}
+        <FormField
+          control={form.control}
+          name={"belongsToYear" as const}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Belongs To Year</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(toNum(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name={"redo" as const}
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={!!field.value}
+                  onCheckedChange={(v) => field.onChange(Boolean(v))}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  {item.itemtype === ITEM_TYPES.BOOK
+                    ? "This was a re-read"
+                    : "This was a rewatch"}
+                </FormLabel>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        <SubmitButton isSubmitting={form.formState.isSubmitting}>
+          Update Item
+        </SubmitButton>
+      </form>
+    </Form>
   );
 }
 
-export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
-  const [formData, setFormData] = useState<Partial<ItemCreationInput>>({
-    itemtype: item.itemtype as ItemCreationInput["itemtype"],
-    title: item.title,
-    publishedYear: item.published_year,
-    redo: item.redo || false,
-    author: item.author || "",
-    director: item.director || "",
-    season: item.season || undefined,
-  });
-
-  const { errors, validateField, validateForm } =
-    useFormValidation(itemCreationSchema);
-
-  const handleFormSubmit = (formData: FormData) => {
-    // Get form data for validation
-    const currentData = Object.fromEntries(formData.entries());
-
-    // Convert form data to proper types for validation
-    const validationData = {
-      itemtype: currentData.itemtype as string,
-      title: (currentData.title as string) || "",
-      publishedYear: parseInt(currentData.publishedYear as string) || 0,
-      redo: currentData.redo === "on",
-      // Always include these fields as strings (empty if not provided)
-      author: (currentData.author as string) || "",
-      director: (currentData.director as string) || "",
-      season: currentData.season
-        ? parseInt(currentData.season as string) || 0
-        : 0,
-    } as ItemCreationInput;
-
-    // Validate before submitting
-    const isFormValid = validateForm(validationData);
-    if (!isFormValid) {
-      return; // Don't submit if validation fails
-    }
-
-    // If validation passes, proceed with server action
-    return updateItemAction(formData);
-  };
-
-  const handleInputChange = (
-    field: keyof ItemCreationInput,
-    value: string | number | boolean,
-  ) => {
-    const newFormData = { ...formData, [field]: value };
-    setFormData(newFormData);
-    validateField(field, value);
-  };
-  return (
-    <form action={handleFormSubmit} className="space-y-4">
-      <input type="hidden" name="id" value={item.id} />
-      <input type="hidden" name="itemtype" value={item.itemtype} />
-
-      {message && <FormMessage message={message} />}
-
-      <div>
-        <Label htmlFor="title">Title</Label>
-        <Input
-          id="title"
-          type="text"
-          name="title"
-          value={formData.title || ""}
-          onChange={(e) => handleInputChange("title", e.target.value)}
-          className={errors.title ? "border-red-500" : ""}
-        />
-        <FieldError errors={errors.title} />
-      </div>
-
-      {item.itemtype === "Book" && (
-        <div>
-          <Label htmlFor="author">Author</Label>
-          <Input
-            id="author"
-            type="text"
-            name="author"
-            value={formData.author || ""}
-            onChange={(e) => handleInputChange("author", e.target.value)}
-            className={errors.author ? "border-red-500" : ""}
-          />
-          <FieldError errors={errors.author} />
-        </div>
-      )}
-
-      {item.itemtype === "Movie" && (
-        <div>
-          <Label htmlFor="director">Director</Label>
-          <Input
-            id="director"
-            type="text"
-            name="director"
-            value={formData.director || ""}
-            onChange={(e) => handleInputChange("director", e.target.value)}
-            className={errors.director ? "border-red-500" : ""}
-          />
-          <FieldError errors={errors.director} />
-        </div>
-      )}
-
-      {item.itemtype === "Show" && (
-        <div>
-          <Label htmlFor="season">Season</Label>
-          <Input
-            id="season"
-            type="number"
-            name="season"
-            value={formData.season || ""}
-            onChange={(e) =>
-              handleInputChange("season", parseInt(e.target.value) || 0)
-            }
-            className={errors.season ? "border-red-500" : ""}
-          />
-          <FieldError errors={errors.season} />
-        </div>
-      )}
-
-      <div>
-        <Label htmlFor="publishedYear">Published Year</Label>
-        <Input
-          id="publishedYear"
-          type="number"
-          name="publishedYear"
-          value={formData.publishedYear || ""}
-          onChange={(e) =>
-            handleInputChange("publishedYear", parseInt(e.target.value) || 0)
-          }
-          className={errors.publishedYear ? "border-red-500" : ""}
-        />
-        <FieldError errors={errors.publishedYear} />
-      </div>
-
-      <div>
-        <Label htmlFor="belongsToYear">Belongs To Year</Label>
-        <Input
-          id="belongsToYear"
-          type="number"
-          name="belongsToYear"
-          defaultValue={item.belongs_to_year}
-        />
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="redo"
-          name="redo"
-          checked={formData.redo || false}
-          onCheckedChange={(checked) =>
-            handleInputChange("redo", checked === true)
-          }
-        />
-        <Label htmlFor="redo">Redo?</Label>
-      </div>
-
-      <SubmitButton>Update Item</SubmitButton>
-    </form>
-  );
+/** Picks schema + defaults per itemtype, including belongsToYear */
+function getSchemaAndDefaults(item: Item) {
+  switch (item.itemtype) {
+    case ITEM_TYPES.BOOK:
+      return {
+        schema: bookItemSchema,
+        defaultValues: {
+          itemtype: ITEM_TYPES.BOOK,
+          title: item.title,
+          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
+          publishedYear: item.published_year ?? new Date().getFullYear(),
+          redo: !!item.redo,
+          author: item.author ?? "",
+        },
+      };
+    case ITEM_TYPES.MOVIE:
+      return {
+        schema: movieItemSchema,
+        defaultValues: {
+          itemtype: ITEM_TYPES.MOVIE,
+          title: item.title,
+          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
+          publishedYear: item.published_year ?? new Date().getFullYear(),
+          redo: !!item.redo,
+          director: item.director ?? "",
+        },
+      };
+    case ITEM_TYPES.SHOW:
+      return {
+        schema: showItemSchema,
+        defaultValues: {
+          itemtype: ITEM_TYPES.SHOW,
+          title: item.title,
+          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
+          publishedYear: item.published_year ?? new Date().getFullYear(),
+          redo: !!item.redo,
+          season: item.season ?? 1,
+        },
+      };
+    default:
+      throw new Error(`Unknown item type: ${item.itemtype}`);
+  }
 }

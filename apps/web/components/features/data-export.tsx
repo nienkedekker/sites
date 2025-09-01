@@ -52,13 +52,6 @@ export function DataExport({ currentYear }: DataExportProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Export Your Data</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Download your reading and watching history in CSV or JSON format.
-        </p>
-      </div>
-
       {/* All Data Export */}
       <div className="space-y-3">
         <h4 className="font-medium text-sm">Export All Data</h4>
@@ -110,12 +103,6 @@ export function DataExport({ currentYear }: DataExportProps) {
           </div>
         </div>
       )}
-
-      <div className="text-xs text-gray-500 dark:text-gray-400">
-        <p>• CSV format is ideal for spreadsheet applications</p>
-        <p>• JSON format includes metadata and preserves data structure</p>
-        <p>• Only your own data will be exported</p>
-      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { ITEM_TYPES, VALID_ITEM_TYPES } from "@/utils/constants/app";
+import { VALID_ITEM_TYPES } from "@/types/shared";
+import { ITEM_TYPES } from "@/utils/constants/app";
 import { getCurrentYear } from "@/utils/formatters/date";
 
 /**
@@ -26,14 +27,15 @@ const baseItemSchema = z.object({
   itemtype: z.enum(VALID_ITEM_TYPES, {
     message: "Invalid item type",
   }),
+  belongsToYear: yearSchema,
   publishedYear: yearSchema,
-  redo: z.boolean().optional().default(false),
+  redo: z.boolean(),
 });
 
 /**
  * Book-specific schema
  */
-const bookItemSchema = baseItemSchema.extend({
+export const bookItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.BOOK),
   author: z
     .string()
@@ -47,7 +49,7 @@ const bookItemSchema = baseItemSchema.extend({
 /**
  * Movie-specific schema
  */
-const movieItemSchema = baseItemSchema.extend({
+export const movieItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.MOVIE),
   director: z
     .string()
@@ -61,7 +63,7 @@ const movieItemSchema = baseItemSchema.extend({
 /**
  * Show-specific schema
  */
-const showItemSchema = baseItemSchema.extend({
+export const showItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.SHOW),
   season: z
     .number()
@@ -127,13 +129,11 @@ export const searchSchema = z.object({
 /**
  * Type exports for use in components
  */
-export type ItemCreationInput = z.infer<typeof itemCreationSchema>;
+export type BookItemInput = z.infer<typeof bookItemSchema>;
+export type MovieItemInput = z.infer<typeof movieItemSchema>;
+export type ShowItemInput = z.infer<typeof showItemSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
-export type SearchInput = z.infer<typeof searchSchema>;
 
-/**
- * Helper function to extract and validate form data
- */
 export function extractFormData<T>(
   formData: FormData,
   schema: z.ZodSchema<T>,
@@ -142,9 +142,11 @@ export function extractFormData<T>(
     const rawData: Record<string, FormDataEntryValue | number | boolean> =
       Object.fromEntries(formData.entries());
 
-    // Convert specific fields to appropriate types
     if ("publishedYear" in rawData) {
       rawData.publishedYear = Number(rawData.publishedYear);
+    }
+    if ("belongsToYear" in rawData) {
+      rawData.belongsToYear = Number(rawData.belongsToYear);
     }
     if ("season" in rawData && rawData.season) {
       rawData.season = Number(rawData.season);
@@ -157,14 +159,8 @@ export function extractFormData<T>(
     return { success: true, data: result };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        errors: error.issues.map((err) => err.message),
-      };
+      return { success: false, errors: error.issues.map((e) => e.message) };
     }
-    return {
-      success: false,
-      errors: ["Validation failed"],
-    };
+    return { success: false, errors: ["Validation failed"] };
   }
 }
