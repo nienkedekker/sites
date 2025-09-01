@@ -146,7 +146,7 @@ export function extractFormData<T>(
       rawData.publishedYear = Number(rawData.publishedYear);
     }
     if ("belongsToYear" in rawData) {
-      rawData.belongsToYear = Number(rawData.belongsToYear); // <-- ADD THIS
+      rawData.belongsToYear = Number(rawData.belongsToYear);
     }
     if ("season" in rawData && rawData.season) {
       rawData.season = Number(rawData.season);
