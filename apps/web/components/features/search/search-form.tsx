@@ -5,7 +5,7 @@ import { searchItems, type SearchState } from "@/app/actions/search";
 import { SearchResultsSkeleton } from "@/components/features/skeletons/search-skeleton";
 import { SearchControls } from "@/components/features/search/search-controls";
 import { SearchResults } from "@/components/features/search/search-results";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 
 type SearchFormData = {
@@ -28,7 +28,6 @@ export default function SearchForm() {
   const [sortBy, setSortBy] = useState("relevance");
   const [filterType, setFilterType] = useState("all");
   const [isPendingTransition, startTransition] = useTransition();
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const onSubmit = async (data: SearchFormData) => {
     if (data.query.trim().length >= 2) {
@@ -83,14 +82,6 @@ export default function SearchForm() {
   useEffect(() => {
     setIsSearching(isPendingTransition);
   }, [isPendingTransition]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const processedResults = sortedAndFilteredResults();
   const hasResults = processedResults.length > 0;
