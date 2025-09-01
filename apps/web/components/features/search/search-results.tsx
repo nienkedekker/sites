@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { Item } from "@/types";
-import IsLoggedIn from "@/components/is-logged-in";
+import IsLoggedIn from "@/components/auth/is-logged-in";
 
 const categories = [
   { title: "Books", type: "Book" },

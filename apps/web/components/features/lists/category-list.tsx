@@ -2,7 +2,7 @@ import Link from "next/link";
 import DeleteItemDialog from "./delete-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Item } from "@/types";
-import IsLoggedIn from "@/components/is-logged-in";
+import IsLoggedIn from "@/components/auth/is-logged-in";
 
 interface CategoryListProps {
   categoryTitle: string;

@@ -1,4 +1,3 @@
-// components/auth/AuthHeader.tsx
 "use client";
 
 import Link from "next/link";

@@ -204,7 +204,9 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
           )}
         />
 
-        <SubmitButton>Update Item</SubmitButton>
+        <SubmitButton isSubmitting={form.formState.isSubmitting}>
+          Update Item
+        </SubmitButton>
       </form>
     </Form>
   );

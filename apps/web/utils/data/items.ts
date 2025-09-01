@@ -3,7 +3,7 @@
  * Ensures consistent validation and error handling across the app
  */
 
-import { createClientForServer } from "@/utils/supabase/server";
+import { supabasePublic } from "@/utils/supabase/public";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 
 /**
@@ -20,9 +20,7 @@ export async function getItemsForYear(
   year: number,
 ): Promise<DataResult<TypedItem[]>> {
   try {
-    const supabase = await createClientForServer();
-
-    const { data: rawItems, error } = await supabase
+    const { data: rawItems, error } = await supabasePublic
       .from("items")
       .select("*")
       .eq("belongs_to_year", year)

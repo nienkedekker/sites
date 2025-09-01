@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { Gamja_Flower } from "next/font/google";
-import IsLoggedIn from "@/components/is-logged-in";
 import { AuthHeader } from "@/components/layouts/auth-header";
+import IsLoggedIn from "@/components/auth/is-logged-in";
 
 const gamja = Gamja_Flower({
   weight: "400",
   subsets: ["latin"],
 });
 
-export default async function Navigation() {
+export default function Navigation() {
   return (
     <header role="banner">
       <a href="#main-content" className="sr-only skip-link">

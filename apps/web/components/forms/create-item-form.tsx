@@ -227,7 +227,7 @@ export default function CreateItemForm({ message }: CreateItemFormProps) {
                 )}
               />
 
-              <SubmitButton>
+              <SubmitButton isSubmitting={form.formState.isSubmitting}>
                 {activeTab === TAB_VALUES.BOOK
                   ? "Save book"
                   : activeTab === TAB_VALUES.MOVIE

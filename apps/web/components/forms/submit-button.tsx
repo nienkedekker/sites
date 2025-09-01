@@ -7,23 +7,28 @@ import { LoaderCircle } from "lucide-react";
 
 type Props = ComponentProps<typeof Button> & {
   pendingText?: string;
+  isSubmitting?: boolean; // For React Hook Form compatibility
 };
 
 export function SubmitButton({
   children,
   pendingText = "Submitting...",
+  isSubmitting = false,
   ...props
 }: Props) {
   const { pending } = useFormStatus();
 
+  // Use either native form pending state or RHF isSubmitting
+  const isPending = pending || isSubmitting;
+
   return (
     <Button
       type="submit"
-      disabled={pending}
-      aria-describedby={pending ? "loading-description" : undefined}
+      disabled={isPending}
+      aria-describedby={isPending ? "loading-description" : undefined}
       {...props}
     >
-      {pending && (
+      {isPending && (
         <>
           <LoaderCircle
             className="animate-spin"
@@ -37,7 +42,7 @@ export function SubmitButton({
           </span>
         </>
       )}
-      {!pending && children}
+      {!isPending && children}
     </Button>
   );
 }
