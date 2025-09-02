@@ -5,7 +5,7 @@ import Link from "next/link";
 export default async function AboutPage() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-sky-950 dark:text-sky-50">
+      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-gray-950 dark:text-gray-50">
         About
       </h1>
       <Image

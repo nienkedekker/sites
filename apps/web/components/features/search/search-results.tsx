@@ -32,7 +32,7 @@ export function SearchResults({
   if (!hasResults && hasQuery) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate-600 dark:text-slate-400 mb-4">
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           No results found for "{query}"
         </p>
         {filterType !== "all" && (
@@ -83,7 +83,7 @@ export function SearchResults({
             <div key={type} className="space-y-4">
               <h3
                 className={cn(
-                  "text-sm font-semibold uppercase tracking-wider flex items-center gap-2",
+                  "text-sm font-semibold uppercase flex items-center gap-2",
                   textStyles.muted,
                 )}
               >
@@ -98,7 +98,7 @@ export function SearchResults({
                   <div key={item.id} className={cn("p-4 border", cardStyles)}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2 leading-tight">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2 leading-tight">
                           <HighlightText text={item.title} query={query} />
                         </h4>
 

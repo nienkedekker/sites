@@ -30,13 +30,13 @@ export default async function YearNavigation() {
   }
 
   return (
-    <div className="bg-accent dark:bg-zinc-700 text-sm p-3 px-5 text-foreground">
+    <div className="bg-indigo-50/50 dark:bg-indigo-950/30 text-sm p-3 px-5 text-foreground">
       <ul className="flex gap-4 flex-wrap">
         {years.map((y) => (
           <li key={y}>
             <Link
               href={`/year/${y}`}
-              className="text-sky-600 dark:text-sky-200"
+              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
             >
               {y}
             </Link>

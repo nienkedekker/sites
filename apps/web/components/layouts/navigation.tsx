@@ -22,7 +22,7 @@ export default function Navigation() {
           <Link
             href="/"
             aria-label="What - Home"
-            className="hover:text-slate-200 transition-colors duration-200"
+            className="hover:text-indigo-100 transition-colors duration-200"
           >
             <span className={`${gamja.className} drop-shadow-lg`}>what.</span>
           </Link>
@@ -30,32 +30,52 @@ export default function Navigation() {
         <nav
           role="navigation"
           aria-label="Main navigation"
-          className="flex flex-col sm:flex-row sm:items-center justify-between text-sm px-4 py-2 bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 border-b border-b-foreground/10"
+          className="flex flex-col sm:flex-row sm:items-center justify-between text-sm px-4 py-2 bg-gradient-to-r from-indigo-50/30 via-slate-50 to-indigo-50/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-indigo-950/20 border-b border-b-foreground/10"
         >
           <ul className="flex list-none">
             <li>
-              <Button asChild variant="link">
+              <Button
+                asChild
+                variant="link"
+                className="hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
                 <Link href="/">Home</Link>
               </Button>
             </li>
             <li>
-              <Button asChild variant="link">
+              <Button
+                asChild
+                variant="link"
+                className="hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
                 <Link href="/about">About</Link>
               </Button>
             </li>
             <li>
-              <Button asChild variant="link">
+              <Button
+                asChild
+                variant="link"
+                className="hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
                 <Link href="/stats">Stats</Link>
               </Button>
             </li>
             <li>
-              <Button asChild variant="link">
+              <Button
+                asChild
+                variant="link"
+                className="hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
                 <Link href="/search">Search</Link>
               </Button>
             </li>
             <IsLoggedIn>
               <li>
-                <Button asChild variant="link">
+                <Button
+                  asChild
+                  variant="link"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   <Link href="/export">Export</Link>
                 </Button>
               </li>

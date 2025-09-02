@@ -52,7 +52,6 @@ export function SearchControls({
             value={inputValue}
             onChange={onInputChange}
             placeholder="Search your items..."
-            className="h-10 text-sm bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:border-slate-400 dark:focus:border-slate-600"
             aria-describedby="search-instructions search-results-status"
             autoComplete="off"
             onKeyDown={(e) => {
@@ -89,7 +88,7 @@ export function SearchControls({
       {/* Minimal Filter and Sort Controls */}
       <div className="flex flex-wrap gap-3 text-sm">
         <Select value={filterType} onValueChange={onFilterChange}>
-          <SelectTrigger className="w-32 h-8 text-xs border-slate-200 dark:border-slate-800">
+          <SelectTrigger className="w-32 h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -101,7 +100,7 @@ export function SearchControls({
         </Select>
 
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="w-36 h-8 text-xs border-slate-200 dark:border-slate-800">
+          <SelectTrigger className="w-32 h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

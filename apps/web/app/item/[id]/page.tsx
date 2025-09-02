@@ -20,7 +20,7 @@ export default async function Page(props: { params: Params }) {
 
   return (
     <main className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-sky-950 dark:text-sky-50">
+      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-gray-950 dark:text-gray-50">
         Update item
       </h1>
       <UpdateItemForm item={item} />

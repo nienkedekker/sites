@@ -44,7 +44,7 @@ export default async function ItemsList({ year }: { year: number }) {
       <div className="space-y-12">
         {/* Year Summary */}
         {totalItems > 0 && (
-          <div className="flex items-center justify-center md:justify-start gap-8 py-1 text-sm text-slate-400 dark:text-slate-500">
+          <div className="flex items-center justify-center md:justify-start gap-8 py-1 text-sm text-gray-600 dark:text-gray-400">
             <span>{totalItems} total</span>
             <span>{totalBooks} books</span>
             <span>{totalMovies} movies</span>

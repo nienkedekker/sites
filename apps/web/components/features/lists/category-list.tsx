@@ -42,13 +42,13 @@ export function CategoryList({
     <section aria-labelledby={headingId} className="space-y-6">
       {/* Enhanced Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 text-slate-300 dark:text-slate-600">
+        <div className="p-2 text-gray-300 dark:text-gray-600">
           {getIcon(itemType)}
         </div>
         <div>
           <h2
             id={headingId}
-            className="text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400"
+            className="text-sm font-semibold uppercase text-gray-600 dark:text-gray-400"
           >
             {categoryTitle}
           </h2>
@@ -64,12 +64,12 @@ export function CategoryList({
             <div
               key={item.id}
               className={cn(
-                "group relative p-3 rounded-lg border transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700 min-h-[85px] flex flex-col",
+                "group relative p-3 rounded-lg border transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-700 min-h-[85px] flex flex-col",
                 getTypeColor(),
               )}
             >
               {/* Item Number */}
-              <div className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-full flex items-center justify-center text-xs font-medium">
+              <div className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-full flex items-center justify-center text-xs font-medium">
                 {index + 1}
               </div>
 
@@ -78,7 +78,7 @@ export function CategoryList({
                 <div className="flex-1 overflow-hidden flex flex-col justify-center">
                   <div className="flex items-start justify-between mb-1">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 line-clamp-2">
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
                         {item.title}
                       </h3>
 
@@ -138,7 +138,7 @@ export function CategoryList({
                         className={cn(
                           "text-xs hover:underline transition-colors",
                           textStyles.mutedLight,
-                          "hover:text-slate-700 dark:hover:text-slate-300",
+                          "hover:text-gray-700 dark:hover:text-gray-300",
                         )}
                         aria-label={`View all items from ${item.belongs_to_year}`}
                       >
@@ -182,10 +182,10 @@ export function CategoryList({
         <div
           className={cn(
             "flex flex-col items-center justify-center p-12 rounded-xl border-2 border-dashed",
-            "text-slate-400 dark:text-slate-600",
+            "text-gray-400 dark:text-gray-600",
           )}
         >
-          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
             {getIcon(itemType)}
           </div>
           <p className="text-center font-medium">

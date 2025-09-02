@@ -81,22 +81,22 @@ export default function CreateItemForm({ message }: CreateItemFormProps) {
         onValueChange={(v) => setActiveTab(v as TabValue)}
         className="w-full"
       >
-        <TabsList className="grid w-full grid-cols-3 bg-slate-100 dark:bg-slate-800/50 border-0 p-1 rounded-lg">
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800/50 border-0 p-1 rounded-lg">
           <TabsTrigger
             value={TAB_VALUES.BOOK}
-            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100"
+            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
           >
             Book
           </TabsTrigger>
           <TabsTrigger
             value={TAB_VALUES.MOVIE}
-            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100"
+            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
           >
             Movie
           </TabsTrigger>
           <TabsTrigger
             value={TAB_VALUES.SHOW}
-            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100"
+            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
           >
             TV Show
           </TabsTrigger>
