@@ -52,7 +52,7 @@ export const bookItemSchema = baseItemSchema.extend({
 export const movieItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.MOVIE),
   director: z
-    .string()
+    .string({ message: "Director is required for movies" })
     .trim()
     .min(1, "Director is required for movies")
     .max(100, "Director must be 100 characters or less"),
@@ -66,7 +66,7 @@ export const movieItemSchema = baseItemSchema.extend({
 export const showItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.SHOW),
   season: z
-    .number()
+    .number({ message: "Season is required for shows" })
     .int()
     .min(1, "Season must be at least 1")
     .max(50, "Season must be 50 or less"),
