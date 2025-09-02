@@ -8,7 +8,6 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-4">
       <PageHeader>Settings</PageHeader>
-
       <DataExport currentYear={currentYear} />
     </div>
   );

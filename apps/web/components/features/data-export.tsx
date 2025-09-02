@@ -52,7 +52,6 @@ export function DataExport({ currentYear }: DataExportProps) {
 
   return (
     <div className="space-y-6">
-      {/* All Data Export */}
       <div className="space-y-3">
         <h4 className="font-medium text-sm">Export All Data</h4>
         <div className="flex gap-3">
@@ -77,7 +76,6 @@ export function DataExport({ currentYear }: DataExportProps) {
         </div>
       </div>
 
-      {/* Current Year Export */}
       {currentYear && (
         <div className="space-y-3">
           <h4 className="font-medium text-sm">Export {currentYear} Data</h4>

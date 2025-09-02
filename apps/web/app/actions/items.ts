@@ -13,7 +13,6 @@ import { ItemInsert, ItemUpdate } from "@/types";
 
 export const createItemAction = async (formData: FormData) => {
   try {
-    // Validate form data using Zod schema
     const validation = extractFormData(formData, itemCreationSchema);
 
     if (!validation.success) {
@@ -103,7 +102,6 @@ export const updateItemAction = async (formData: FormData) => {
       return encodedRedirect("error", "/", "Invalid update request.");
     }
 
-    // Validate form data using Zod schema
     const validation = extractFormData(formData, itemCreationSchema);
 
     if (!validation.success) {

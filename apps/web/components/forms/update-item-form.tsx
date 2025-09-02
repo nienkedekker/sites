@@ -1,4 +1,3 @@
-// components/forms/update-item-form.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -6,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { updateItemAction } from "@/app/actions/items";
 import { SubmitButton } from "./submit-button";
-import { FormMessage as BannerMessage, type Message } from "./form-message"; // banner (top-of-form)
 
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,11 +32,10 @@ type AnyItemInput = BookItemInput | MovieItemInput | ShowItemInput;
 
 interface UpdateItemFormProps {
   item: Item;
-  message?: Message;
 }
 
 // NOTE: single form that adapts to the itemtype, with belongsToYear editable
-export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
+export default function UpdateItemForm({ item }: UpdateItemFormProps) {
   const { schema, defaultValues } = getSchemaAndDefaults(item);
 
   const form = useForm<AnyItemInput>({
@@ -70,8 +67,6 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {message && <BannerMessage message={message} />}
-
         <FormField
           control={form.control}
           name="title"
@@ -186,20 +181,18 @@ export default function UpdateItemForm({ item, message }: UpdateItemFormProps) {
           control={form.control}
           name={"redo" as const}
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+            <FormItem className="flex flex-row items-start">
               <FormControl>
                 <Checkbox
                   checked={!!field.value}
                   onCheckedChange={(v) => field.onChange(Boolean(v))}
                 />
               </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  {item.itemtype === ITEM_TYPES.BOOK
-                    ? "This was a re-read"
-                    : "This was a rewatch"}
-                </FormLabel>
-              </div>
+              <FormLabel>
+                {item.itemtype === ITEM_TYPES.BOOK
+                  ? "This was a re-read"
+                  : "This was a rewatch"}
+              </FormLabel>
             </FormItem>
           )}
         />

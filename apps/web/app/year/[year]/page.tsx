@@ -12,7 +12,6 @@ export default async function YearPage(props: {
   return (
     <div className="space-y-4">
       <PageHeader>{year}</PageHeader>
-
       <Suspense fallback={<ItemsListSkeleton />}>
         <ItemsList year={year} />
       </Suspense>

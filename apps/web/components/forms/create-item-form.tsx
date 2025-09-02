@@ -1,4 +1,3 @@
-// components/forms/create-item-form.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -11,14 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
-  FormMessage, // field-level message (shadcn)
+  FormMessage,
   FormField,
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
 
 import { SubmitButton } from "./submit-button";
-import { FormMessage as BannerMessage, type Message } from "./form-message"; // top-of-form banner
 import { PageHeader } from "@/components/ui/page-header";
 
 import { createItemAction } from "@/app/actions/items";
@@ -34,11 +32,7 @@ import { TAB_VALUES, type TabValue } from "@/utils/constants/app";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
-interface CreateItemFormProps {
-  message?: Message;
-}
-
-export default function CreateItemForm({ message }: CreateItemFormProps) {
+export default function CreateItemForm() {
   const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
   const { schema, defaults } = useMemo(
@@ -46,7 +40,6 @@ export default function CreateItemForm({ message }: CreateItemFormProps) {
     [activeTab],
   );
 
-  // One RHF instance at a time (keyed by activeTab so resolver/defaults swap cleanly)
   const form = useForm<AnyCreateInput>({
     resolver: zodResolver(schema),
     defaultValues: defaults,
@@ -106,8 +99,6 @@ export default function CreateItemForm({ message }: CreateItemFormProps) {
           {/* key={activeTab} forces a fresh RHF form when switching tabs */}
           <Form key={activeTab} {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {message && <BannerMessage message={message} />}
-
               <FormField
                 control={form.control}
                 name={"title" as const}
@@ -225,20 +216,18 @@ export default function CreateItemForm({ message }: CreateItemFormProps) {
                 control={form.control}
                 name={"redo" as const}
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem className="flex flex-row items-start">
                     <FormControl>
                       <Checkbox
                         checked={!!field.value}
                         onCheckedChange={(v) => field.onChange(Boolean(v))}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        {activeTab === TAB_VALUES.BOOK
-                          ? "This was a re-read"
-                          : "This was a rewatch"}
-                      </FormLabel>
-                    </div>
+                    <FormLabel>
+                      {activeTab === TAB_VALUES.BOOK
+                        ? "This was a re-read"
+                        : "This was a rewatch"}
+                    </FormLabel>
                   </FormItem>
                 )}
               />
@@ -258,7 +247,6 @@ export default function CreateItemForm({ message }: CreateItemFormProps) {
   );
 }
 
-/** Schema + defaults per tab (used to configure RHF each time the tab changes) */
 function getSchemaAndDefaults(tab: TabValue) {
   const year = new Date().getFullYear();
 

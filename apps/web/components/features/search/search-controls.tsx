@@ -43,7 +43,6 @@ export function SearchControls({
       role="search"
       aria-label="Search for books, movies, and TV shows"
     >
-      {/* Main search input - Vercel style */}
       <div className="flex gap-3">
         <div className="relative flex-1">
           <Input
@@ -51,7 +50,7 @@ export function SearchControls({
             id="search-query"
             value={inputValue}
             onChange={onInputChange}
-            placeholder="Search your items..."
+            placeholder="Search items..."
             aria-describedby="search-instructions search-results-status"
             autoComplete="off"
             onKeyDown={(e) => {

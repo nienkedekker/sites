@@ -6,7 +6,6 @@ export default async function ItemsList({ year }: { year: number }) {
   try {
     const itemsResult = await getItemsForYear(year);
 
-    // Handle items result
     if (!itemsResult.success) {
       return <DataLoadingError error={new Error(itemsResult.error)} />;
     }

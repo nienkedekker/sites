@@ -49,7 +49,6 @@ export function SearchResults({
     );
   }
 
-  // Results display
   if (!hasResults) return null;
 
   return (

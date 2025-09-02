@@ -15,7 +15,6 @@ export async function searchItems(formData: FormData): Promise<SearchState> {
 
   if (!rawQuery) return { query: "", results: [], initial: false };
 
-  // Validate query using Zod schema
   const queryValidation = searchQuerySchema.safeParse(rawQuery);
   if (!queryValidation.success) {
     return { query: rawQuery, results: [], initial: false };
@@ -25,19 +24,17 @@ export async function searchItems(formData: FormData): Promise<SearchState> {
 
   const supabase = await createClientForServer();
 
-  // Escape special characters for ILIKE pattern matching
   const escapedQuery = trimmedQuery.replace(/[%_]/g, "\\$&");
 
   const { data, error } = await supabase
     .from("items")
     .select(
       "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo",
-    ) // Select only needed columns
+    )
     .or(
       `title.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%,director.ilike.%${escapedQuery}%`,
     )
-    .order("created_at", { ascending: false })
-    .limit(100); // Limit results to prevent excessive data transfer
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Search error:", error);

@@ -61,7 +61,7 @@ export function CumulativeLineChart({
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="leading-none text-muted-foreground">
-          Tracking cumulative logs of Books, Movies, and Shows over the years.
+          Tracking cumulative logs of books, movies, and shows over the years.
         </div>
       </CardFooter>
     </Card>

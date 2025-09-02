@@ -6,7 +6,6 @@ import { type ChartConfig } from "@/components/ui/chart";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 
-// Extract stats content to a separate component for Suspense
 async function StatsContent() {
   const statsData = await fetchStatsData();
 
@@ -85,7 +84,6 @@ export default function StatsPage() {
   return (
     <div className="space-y-8">
       <PageHeader>Stats</PageHeader>
-
       <Suspense fallback={<StatsPageSkeleton />}>
         <StatsContent />
       </Suspense>

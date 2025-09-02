@@ -6,13 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { SubmitButton } from "@/components/forms/submit-button";
-import { FormMessage, type Message } from "@/components/forms/form-message";
 import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
+  FormMessage,
   FormLabel,
 } from "@/components/ui/form";
 import { PageHeader } from "@/components/ui/page-header";
@@ -63,7 +63,7 @@ function SignInForm() {
   };
 
   // Optional messages from query params
-  const message: Message | undefined = searchParams.get("error")
+  const message = searchParams.get("error")
     ? { error: searchParams.get("error")! }
     : searchParams.get("success")
       ? { success: searchParams.get("success")! }
@@ -83,9 +83,9 @@ function SignInForm() {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {message && <FormMessage message={message} />}
+          {message && <FormMessage>{JSON.stringify(message)}</FormMessage>}
           {errors.root?.message && (
-            <FormMessage message={{ error: errors.root.message }} />
+            <FormMessage>{errors.root.message}</FormMessage>
           )}
 
           <FormField

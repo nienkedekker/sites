@@ -1,8 +1,7 @@
 /**
  * Vercel Cron function for automated data export
- * Runs every 3 days to backup your data to R2
+ * Runs every 3 days to backup data to R2
  */
-
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { createClientForServer } from "@/utils/supabase/server";
