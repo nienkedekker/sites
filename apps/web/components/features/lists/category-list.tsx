@@ -69,7 +69,7 @@ export function CategoryList({
               )}
             >
               {/* Item Number */}
-              <div className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-full flex items-center justify-center text-xs font-medium">
+              <div className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-600 rounded-full flex items-center justify-center text-xs font-medium">
                 {index + 1}
               </div>
 

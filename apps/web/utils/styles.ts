@@ -3,7 +3,7 @@
  */
 
 export const cardStyles =
-  "bg-white dark:bg-transparent border-gray-200/50 dark:border-gray-700/50 rounded-lg transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600 dark:grayscale";
+  "bg-white dark:bg-transparent border-neutral-200/50 dark:border-neutral-700/50 rounded-lg transition-all duration-200 hover:border-neutral-300 dark:hover:border-neutral-600";
 
 export const textStyles = {
   muted: "text-gray-600 dark:text-gray-400",
@@ -13,5 +13,6 @@ export const textStyles = {
 } as const;
 
 export const badgeStyles = {
-  amber: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300",
+  amber:
+    "bg-amber-100 dark:bg-orange-900/30 text-amber-800 dark:text-orange-300",
 } as const;

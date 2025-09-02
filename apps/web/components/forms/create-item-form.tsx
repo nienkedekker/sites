@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -32,13 +32,8 @@ import { TAB_VALUES, type TabValue } from "@/utils/constants/app";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
-export default function CreateItemForm() {
-  const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
-
-  const { schema, defaults } = useMemo(
-    () => getSchemaAndDefaults(activeTab),
-    [activeTab],
-  );
+function FormComponent({ activeTab }: { activeTab: TabValue }) {
+  const { schema, defaults } = getSchemaAndDefaults(activeTab);
 
   const form = useForm<AnyCreateInput>({
     resolver: zodResolver(schema),
@@ -64,6 +59,167 @@ export default function CreateItemForm() {
 
     return createItemAction(fd);
   };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name={"title" as const}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Discriminated fields */}
+        {activeTab === TAB_VALUES.BOOK && (
+          <FormField
+            control={form.control}
+            name={"author" as const}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Author</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {activeTab === TAB_VALUES.MOVIE && (
+          <FormField
+            control={form.control}
+            name={"director" as const}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Director</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {activeTab === TAB_VALUES.SHOW && (
+          <FormField
+            control={form.control}
+            name={"season" as const}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Season</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...field}
+                    value={field.value === 0 ? "" : (field.value ?? "")}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value === "" ? 0 : toNum(e.target.value),
+                      )
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Common fields */}
+        <FormField
+          control={form.control}
+          name={"publishedYear" as const}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                {activeTab === TAB_VALUES.BOOK
+                  ? "Published Year"
+                  : "Release Year"}
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={field.value === 0 ? "" : (field.value ?? "")}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === "" ? 0 : toNum(e.target.value),
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name={"belongsToYear" as const}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Belongs To Year</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={field.value ?? ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === "" ? 0 : toNum(e.target.value),
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name={"redo" as const}
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start">
+              <FormControl>
+                <Checkbox
+                  checked={!!field.value}
+                  onCheckedChange={(v) => field.onChange(Boolean(v))}
+                />
+              </FormControl>
+              <FormLabel>
+                {activeTab === TAB_VALUES.BOOK
+                  ? "This was a re-read"
+                  : "This was a rewatch"}
+              </FormLabel>
+            </FormItem>
+          )}
+        />
+
+        <SubmitButton isSubmitting={form.formState.isSubmitting}>
+          {activeTab === TAB_VALUES.BOOK
+            ? "Save book"
+            : activeTab === TAB_VALUES.MOVIE
+              ? "Save movie"
+              : "Save show"}
+        </SubmitButton>
+      </form>
+    </Form>
+  );
+}
+
+export default function CreateItemForm() {
+  const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
   return (
     <main className="p-8 max-w-2xl mx-auto">
@@ -96,151 +252,8 @@ export default function CreateItemForm() {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-8 space-y-6">
-          {/* key={activeTab} forces a fresh RHF form when switching tabs */}
-          <Form key={activeTab} {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name={"title" as const}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Discriminated fields */}
-              {activeTab === TAB_VALUES.BOOK && (
-                <FormField
-                  control={form.control}
-                  name={"author" as const}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Author</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {activeTab === TAB_VALUES.MOVIE && (
-                <FormField
-                  control={form.control}
-                  name={"director" as const}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Director</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {activeTab === TAB_VALUES.SHOW && (
-                <FormField
-                  control={form.control}
-                  name={"season" as const}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Season</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(toNum(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {/* Common fields */}
-              <FormField
-                control={form.control}
-                name={"publishedYear" as const}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {activeTab === TAB_VALUES.BOOK
-                        ? "Published Year"
-                        : "Release Year"}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(toNum(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={"belongsToYear" as const}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Belongs To Year</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(toNum(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={"redo" as const}
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start">
-                    <FormControl>
-                      <Checkbox
-                        checked={!!field.value}
-                        onCheckedChange={(v) => field.onChange(Boolean(v))}
-                      />
-                    </FormControl>
-                    <FormLabel>
-                      {activeTab === TAB_VALUES.BOOK
-                        ? "This was a re-read"
-                        : "This was a rewatch"}
-                    </FormLabel>
-                  </FormItem>
-                )}
-              />
-
-              <SubmitButton isSubmitting={form.formState.isSubmitting}>
-                {activeTab === TAB_VALUES.BOOK
-                  ? "Save book"
-                  : activeTab === TAB_VALUES.MOVIE
-                    ? "Save movie"
-                    : "Save show"}
-              </SubmitButton>
-            </form>
-          </Form>
+          {/* key={activeTab} forces a fresh form instance when switching tabs */}
+          <FormComponent key={activeTab} activeTab={activeTab} />
         </TabsContent>
       </Tabs>
     </main>
@@ -258,7 +271,7 @@ function getSchemaAndDefaults(tab: TabValue) {
           itemtype: "Book" as const,
           title: "",
           belongsToYear: year,
-          publishedYear: year,
+          publishedYear: 0,
           redo: false,
           author: "",
         } satisfies BookItemInput,
@@ -270,7 +283,7 @@ function getSchemaAndDefaults(tab: TabValue) {
           itemtype: "Movie" as const,
           title: "",
           belongsToYear: year,
-          publishedYear: year,
+          publishedYear: 0,
           redo: false,
           director: "",
         } satisfies MovieItemInput,
@@ -283,9 +296,9 @@ function getSchemaAndDefaults(tab: TabValue) {
           itemtype: "Show" as const,
           title: "",
           belongsToYear: year,
-          publishedYear: year,
+          publishedYear: 0,
           redo: false,
-          season: 1,
+          season: 0,
         } satisfies ShowItemInput,
       };
   }
