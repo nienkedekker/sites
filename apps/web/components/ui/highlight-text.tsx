@@ -19,7 +19,7 @@ export function HighlightText({ text, query, className }: HighlightTextProps) {
         regex.test(part) ? (
           <mark
             key={index}
-            className="bg-gray-200 dark:bg-gray-700 font-semibold"
+            className="bg-yellow-200 dark:bg-yellow-500/30 dark:text-yellow-100 rounded-sm px-0.5 font-semibold"
           >
             {part}
           </mark>

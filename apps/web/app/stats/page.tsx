@@ -2,9 +2,9 @@ import { Suspense } from "react";
 import { fetchStatsData } from "@/utils/fetch-stats-data";
 import { ItemCountBarChart } from "@/components/features/charts/item-count-bar-chart";
 import { CumulativeLineChart } from "@/components/features/charts/cumulative-line-chart";
-import { type ChartConfig } from "@/components/ui/chart";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { CHART_CONFIG } from "@/utils/constants/app";
 
 async function StatsContent() {
   const statsData = await fetchStatsData();
@@ -20,21 +20,6 @@ async function StatsContent() {
     );
   }
 
-  const chartConfig = {
-    Book: {
-      label: "Books",
-      color: "hsl(var(--chart-1))",
-    },
-    Movie: {
-      label: "Movies",
-      color: "hsl(var(--chart-2))",
-    },
-    Show: {
-      label: "Shows",
-      color: "hsl(var(--chart-3))",
-    },
-  } satisfies ChartConfig;
-
   const {
     chartData,
     chartDataCurrentYear,
@@ -47,7 +32,7 @@ async function StatsContent() {
     <div className="grid lg:grid-cols-2 gap-4">
       <ItemCountBarChart
         chartData={chartData ?? []}
-        config={chartConfig}
+        config={CHART_CONFIG}
         title="Items over time"
       >
         <div className="flex gap-2 font-medium leading-none">
@@ -59,7 +44,7 @@ async function StatsContent() {
         </div>
       </ItemCountBarChart>
       <ItemCountBarChart
-        config={chartConfig}
+        config={CHART_CONFIG}
         chartData={chartDataCurrentYear ?? []}
         title={`Items in ${currentYear}`}
       >
@@ -73,7 +58,7 @@ async function StatsContent() {
       <div className="lg:col-span-2">
         <CumulativeLineChart
           chartData={chartDataCum ?? []}
-          config={chartConfig}
+          config={CHART_CONFIG}
         />
       </div>
     </div>

@@ -30,27 +30,8 @@ export default async function ItemsList({ year }: { year: number }) {
       },
     ];
 
-    // Calculate total items for the year
-    const totalItems = validatedItems.length;
-    const totalBooks =
-      categoryData.find((c) => c.type === "Book")?.items.length || 0;
-    const totalMovies =
-      categoryData.find((c) => c.type === "Movie")?.items.length || 0;
-    const totalShows =
-      categoryData.find((c) => c.type === "Show")?.items.length || 0;
-
     return (
       <div className="space-y-12">
-        {/* Year Summary */}
-        {totalItems > 0 && (
-          <div className="flex items-center justify-center md:justify-start gap-8 py-1 text-sm text-gray-600 dark:text-gray-400">
-            <span>{totalItems} total</span>
-            <span>{totalBooks} {totalBooks === 1 ? "book" : "books"}</span>
-            <span>{totalMovies} {totalMovies === 1 ? "movie" : "movies"}</span>
-            <span>{totalShows} {totalShows === 1 ? "show" : "shows"}</span>
-          </div>
-        )}
-
         {/* Category Lists */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {categoryData.map(({ title, type, items }) => (
