@@ -45,9 +45,9 @@ export default async function ItemsList({ year }: { year: number }) {
         {totalItems > 0 && (
           <div className="flex items-center justify-center md:justify-start gap-8 py-1 text-sm text-gray-600 dark:text-gray-400">
             <span>{totalItems} total</span>
-            <span>{totalBooks} books</span>
-            <span>{totalMovies} movies</span>
-            <span>{totalShows} shows</span>
+            <span>{totalBooks} {totalBooks === 1 ? "book" : "books"}</span>
+            <span>{totalMovies} {totalMovies === 1 ? "movie" : "movies"}</span>
+            <span>{totalShows} {totalShows === 1 ? "show" : "shows"}</span>
           </div>
         )}
 

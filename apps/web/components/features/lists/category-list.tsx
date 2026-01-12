@@ -40,7 +40,6 @@ export function CategoryList({
 
   return (
     <section aria-labelledby={headingId} className="space-y-6">
-      {/* Enhanced Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 text-gray-300 dark:text-gray-600">
           {getIcon(itemType)}
