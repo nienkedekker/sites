@@ -15,5 +15,12 @@ export const textStyles = {
 export const badgeStyles = {
   amber:
     "bg-amber-100 dark:bg-orange-900/30 text-amber-800 dark:text-orange-300",
-  progress: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300",
+  progress:
+    "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300",
+} as const;
+
+export const formStyles = {
+  container:
+    "bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-sm",
+  fieldGroup: "space-y-5",
 } as const;

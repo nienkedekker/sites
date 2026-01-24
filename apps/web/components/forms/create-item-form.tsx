@@ -29,6 +29,7 @@ import {
   type ShowItemInput,
 } from "@/utils/schemas/validation";
 import { TAB_VALUES, type TabValue } from "@/utils/constants/app";
+import { formStyles } from "@/utils/styles";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
@@ -64,7 +65,11 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={formStyles.container}
+      >
+        <div className="space-y-5">
         <FormField
           control={form.control}
           name={"title" as const}
@@ -140,14 +145,16 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
               control={form.control}
               name={"inProgress" as const}
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start">
+                <FormItem className="flex flex-row items-center gap-2">
                   <FormControl>
                     <Checkbox
                       checked={!!field.value}
                       onCheckedChange={(v) => field.onChange(Boolean(v))}
                     />
                   </FormControl>
-                  <FormLabel>Currently watching (in progress)</FormLabel>
+                  <FormLabel className="!mt-0">
+                    Currently watching (in progress)
+                  </FormLabel>
                 </FormItem>
               )}
             />
@@ -209,14 +216,14 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
           control={form.control}
           name={"redo" as const}
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start">
+            <FormItem className="flex flex-row items-center gap-2">
               <FormControl>
                 <Checkbox
                   checked={!!field.value}
                   onCheckedChange={(v) => field.onChange(Boolean(v))}
                 />
               </FormControl>
-              <FormLabel>
+              <FormLabel className="!mt-0">
                 {activeTab === TAB_VALUES.BOOK
                   ? "This was a re-read"
                   : "This was a rewatch"}
@@ -224,14 +231,20 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
             </FormItem>
           )}
         />
+        </div>
 
-        <SubmitButton isSubmitting={form.formState.isSubmitting}>
-          {activeTab === TAB_VALUES.BOOK
-            ? "Save book"
-            : activeTab === TAB_VALUES.MOVIE
-              ? "Save movie"
-              : "Save show"}
-        </SubmitButton>
+        <div className="pt-6 mt-6 border-t border-neutral-200/50 dark:border-neutral-700/50">
+          <SubmitButton
+            isSubmitting={form.formState.isSubmitting}
+            className="w-full"
+          >
+            {activeTab === TAB_VALUES.BOOK
+              ? "Save book"
+              : activeTab === TAB_VALUES.MOVIE
+                ? "Save movie"
+                : "Save show"}
+          </SubmitButton>
+        </div>
       </form>
     </Form>
   );
@@ -249,28 +262,28 @@ export default function CreateItemForm() {
         onValueChange={(v) => setActiveTab(v as TabValue)}
         className="w-full"
       >
-        <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800/50 border-0 p-1 rounded-lg">
+        <TabsList className="grid w-full grid-cols-3 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg gap-1">
           <TabsTrigger
             value={TAB_VALUES.BOOK}
-            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
+            className="rounded-md font-semibold transition-all duration-200 data-[state=active]:bg-neutral-900 dark:data-[state=active]:bg-neutral-100 data-[state=active]:text-white dark:data-[state=active]:text-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
           >
             Book
           </TabsTrigger>
           <TabsTrigger
             value={TAB_VALUES.MOVIE}
-            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
+            className="rounded-md font-semibold transition-all duration-200 data-[state=active]:bg-neutral-900 dark:data-[state=active]:bg-neutral-100 data-[state=active]:text-white dark:data-[state=active]:text-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
           >
             Movie
           </TabsTrigger>
           <TabsTrigger
             value={TAB_VALUES.SHOW}
-            className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-gray-100"
+            className="rounded-md font-semibold transition-all duration-200 data-[state=active]:bg-neutral-900 dark:data-[state=active]:bg-neutral-100 data-[state=active]:text-white dark:data-[state=active]:text-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
           >
             TV Show
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="mt-8 space-y-6">
+        <TabsContent value={activeTab} className="mt-6">
           {/* key={activeTab} forces a fresh form instance when switching tabs */}
           <FormComponent key={activeTab} activeTab={activeTab} />
         </TabsContent>

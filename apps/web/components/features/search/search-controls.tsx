@@ -75,10 +75,8 @@ export function SearchControls({
         </div>
         <Button
           type="submit"
-          size="sm"
           variant="outline"
           disabled={isSearching}
-          className="h-10 px-4"
         >
           {isSearching ? "Searching..." : "Search"}
         </Button>

@@ -26,6 +26,7 @@ import {
   type ShowItemInput,
 } from "@/utils/schemas/validation";
 import { ITEM_TYPES } from "@/utils/constants/app";
+import { formStyles } from "@/utils/styles";
 import type { Item } from "@/types";
 
 type AnyItemInput = BookItemInput | MovieItemInput | ShowItemInput;
@@ -68,7 +69,11 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={formStyles.container}
+      >
+        <div className="space-y-5">
         <FormField
           control={form.control}
           name="title"
@@ -139,14 +144,16 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
               control={form.control}
               name={"inProgress" as const}
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start">
+                <FormItem className="flex flex-row items-center gap-2">
                   <FormControl>
                     <Checkbox
                       checked={!!field.value}
                       onCheckedChange={(v) => field.onChange(Boolean(v))}
                     />
                   </FormControl>
-                  <FormLabel>Currently watching (in progress)</FormLabel>
+                  <FormLabel className="!mt-0">
+                    Currently watching (in progress)
+                  </FormLabel>
                 </FormItem>
               )}
             />
@@ -200,14 +207,14 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
           control={form.control}
           name={"redo" as const}
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start">
+            <FormItem className="flex flex-row items-center gap-2">
               <FormControl>
                 <Checkbox
                   checked={!!field.value}
                   onCheckedChange={(v) => field.onChange(Boolean(v))}
                 />
               </FormControl>
-              <FormLabel>
+              <FormLabel className="!mt-0">
                 {item.itemtype === ITEM_TYPES.BOOK
                   ? "This was a re-read"
                   : "This was a rewatch"}
@@ -215,10 +222,16 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
             </FormItem>
           )}
         />
+        </div>
 
-        <SubmitButton isSubmitting={form.formState.isSubmitting}>
-          Update Item
-        </SubmitButton>
+        <div className="pt-6 mt-6 border-t border-neutral-200/50 dark:border-neutral-700/50">
+          <SubmitButton
+            isSubmitting={form.formState.isSubmitting}
+            className="w-full"
+          >
+            Update Item
+          </SubmitButton>
+        </div>
       </form>
     </Form>
   );
