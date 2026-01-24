@@ -21,6 +21,7 @@ export type Database = {
           created_at: string | null;
           director: string | null;
           id: string;
+          in_progress: boolean | null;
           itemtype: string;
           published_year: number;
           redo: boolean;
@@ -34,6 +35,7 @@ export type Database = {
           created_at?: string | null;
           director?: string | null;
           id?: string;
+          in_progress?: boolean | null;
           itemtype: string;
           published_year: number;
           redo?: boolean;
@@ -47,6 +49,7 @@ export type Database = {
           created_at?: string | null;
           director?: string | null;
           id?: string;
+          in_progress?: boolean | null;
           itemtype?: string;
           published_year?: number;
           redo?: boolean;

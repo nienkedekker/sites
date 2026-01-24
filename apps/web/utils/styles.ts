@@ -15,4 +15,5 @@ export const textStyles = {
 export const badgeStyles = {
   amber:
     "bg-amber-100 dark:bg-orange-900/30 text-amber-800 dark:text-orange-300",
+  progress: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300",
 } as const;

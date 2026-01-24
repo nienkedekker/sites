@@ -37,6 +37,7 @@ export interface BaseItem {
   author?: string | null;
   director?: string | null;
   season?: number | null;
+  in_progress?: boolean | null;
 }
 
 /**
@@ -48,6 +49,7 @@ export type BookItem = BaseItem & {
   author: string;
   director: null;
   season: null;
+  in_progress: null;
 };
 
 export type MovieItem = BaseItem & {
@@ -55,6 +57,7 @@ export type MovieItem = BaseItem & {
   director: string;
   author: null;
   season: null;
+  in_progress: null;
 };
 
 export type ShowItem = BaseItem & {
@@ -62,6 +65,7 @@ export type ShowItem = BaseItem & {
   season: number;
   author: null;
   director: null;
+  in_progress: boolean;
 };
 
 /**
@@ -119,6 +123,7 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
     author: typeof item.author === "string" ? item.author : null,
     director: typeof item.director === "string" ? item.director : null,
     season: typeof item.season === "number" ? item.season : null,
+    in_progress: typeof item.in_progress === "boolean" ? item.in_progress : null,
   };
 
   // Type-specific validation and typing
@@ -134,6 +139,7 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
         author: baseItem.author,
         director: null,
         season: null,
+        in_progress: null,
       } as BookItem;
 
     case "Movie":
@@ -147,6 +153,7 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
         director: baseItem.director,
         author: null,
         season: null,
+        in_progress: null,
       } as MovieItem;
 
     case "Show":
@@ -160,6 +167,7 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
         season: baseItem.season,
         author: null,
         director: null,
+        in_progress: baseItem.in_progress ?? false,
       } as ShowItem;
 
     default:

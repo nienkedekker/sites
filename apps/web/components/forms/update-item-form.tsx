@@ -60,6 +60,8 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
       fd.append("director", data.director);
     if ("season" in data && data.season)
       fd.append("season", String(data.season));
+    if ("inProgress" in data && data.inProgress)
+      fd.append("inProgress", "on");
 
     return updateItemAction(fd);
   };
@@ -114,24 +116,41 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
         )}
 
         {item.itemtype === ITEM_TYPES.SHOW && (
-          <FormField
-            control={form.control}
-            name={"season" as const}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Season</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(toNum(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <>
+            <FormField
+              control={form.control}
+              name={"season" as const}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Season</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(toNum(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={"inProgress" as const}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start">
+                  <FormControl>
+                    <Checkbox
+                      checked={!!field.value}
+                      onCheckedChange={(v) => field.onChange(Boolean(v))}
+                    />
+                  </FormControl>
+                  <FormLabel>Currently watching (in progress)</FormLabel>
+                </FormItem>
+              )}
+            />
+          </>
         )}
 
         <FormField
@@ -242,6 +261,7 @@ function getSchemaAndDefaults(item: Item) {
           publishedYear: item.published_year ?? new Date().getFullYear(),
           redo: !!item.redo,
           season: item.season ?? 1,
+          inProgress: !!item.in_progress,
         },
       };
     default:

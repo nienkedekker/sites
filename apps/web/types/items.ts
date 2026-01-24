@@ -45,6 +45,7 @@ export const baseItemDbSchema = z.object({
   author: z.string().nullable(),
   director: z.string().nullable(),
   season: z.number().int().nullable(),
+  in_progress: z.boolean().nullable(),
 });
 
 // Base form input schema (for user input validation)
@@ -109,6 +110,7 @@ export type BookItem = BaseItem & {
   author: string;
   director: null;
   season: null;
+  in_progress: null;
 };
 
 export type MovieItem = BaseItem & {
@@ -116,6 +118,7 @@ export type MovieItem = BaseItem & {
   director: string;
   author: null;
   season: null;
+  in_progress: null;
 };
 
 export type ShowItem = BaseItem & {
@@ -123,6 +126,7 @@ export type ShowItem = BaseItem & {
   season: number;
   author: null;
   director: null;
+  in_progress: boolean;
 };
 
 export type Item = BookItem | MovieItem | ShowItem;
@@ -169,6 +173,7 @@ export function validateDatabaseItem(dbItem: unknown): Item | null {
           author: validated.author,
           director: null,
           season: null,
+          in_progress: null,
         } as BookItem;
 
       case "Movie":
@@ -182,6 +187,7 @@ export function validateDatabaseItem(dbItem: unknown): Item | null {
           director: validated.director,
           author: null,
           season: null,
+          in_progress: null,
         } as MovieItem;
 
       case "Show":
@@ -195,6 +201,7 @@ export function validateDatabaseItem(dbItem: unknown): Item | null {
           season: validated.season,
           author: null,
           director: null,
+          in_progress: validated.in_progress ?? false,
         } as ShowItem;
 
       default:

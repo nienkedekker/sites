@@ -34,6 +34,8 @@ export const createItemAction = async (formData: FormData) => {
       author: validatedData.author || null,
       director: validatedData.director || null,
       season: validatedData.season || null,
+      in_progress:
+        "inProgress" in validatedData ? (validatedData.inProgress ?? false) : null,
     };
 
     const { error } = await supabase.from("items").insert(newItem);
@@ -121,6 +123,8 @@ export const updateItemAction = async (formData: FormData) => {
       author: validatedData.author || null,
       director: validatedData.director || null,
       season: validatedData.season || null,
+      in_progress:
+        "inProgress" in validatedData ? (validatedData.inProgress ?? false) : null,
     };
 
     const { error } = await supabase

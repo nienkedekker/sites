@@ -72,6 +72,7 @@ export const showItemSchema = baseItemSchema.extend({
     .max(50, "Season must be 50 or less"),
   author: z.string().optional(),
   director: z.string().optional(),
+  inProgress: z.boolean().optional(),
 });
 
 /**
@@ -153,6 +154,9 @@ export function extractFormData<T>(
     }
     if ("redo" in rawData) {
       rawData.redo = rawData.redo === "on";
+    }
+    if ("inProgress" in rawData) {
+      rawData.inProgress = rawData.inProgress === "on";
     }
 
     const result = schema.parse(rawData);

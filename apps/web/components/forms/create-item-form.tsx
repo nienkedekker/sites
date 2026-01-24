@@ -56,6 +56,8 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
       fd.append("director", data.director);
     if ("season" in data && data.season)
       fd.append("season", String(data.season));
+    if ("inProgress" in data && data.inProgress)
+      fd.append("inProgress", "on");
 
     return createItemAction(fd);
   };
@@ -111,28 +113,45 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
         )}
 
         {activeTab === TAB_VALUES.SHOW && (
-          <FormField
-            control={form.control}
-            name={"season" as const}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Season</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    value={field.value === 0 ? "" : (field.value ?? "")}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? 0 : toNum(e.target.value),
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <>
+            <FormField
+              control={form.control}
+              name={"season" as const}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Season</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value === 0 ? "" : (field.value ?? "")}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? 0 : toNum(e.target.value),
+                        )
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={"inProgress" as const}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start">
+                  <FormControl>
+                    <Checkbox
+                      checked={!!field.value}
+                      onCheckedChange={(v) => field.onChange(Boolean(v))}
+                    />
+                  </FormControl>
+                  <FormLabel>Currently watching (in progress)</FormLabel>
+                </FormItem>
+              )}
+            />
+          </>
         )}
 
         {/* Common fields */}
@@ -299,6 +318,7 @@ function getSchemaAndDefaults(tab: TabValue) {
           publishedYear: 0,
           redo: false,
           season: 0,
+          inProgress: false,
         } satisfies ShowItemInput,
       };
   }

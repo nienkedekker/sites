@@ -3,7 +3,7 @@ import DeleteItemDialog from "./delete-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
-import { BookOpen, Film, Tv, RotateCcw } from "lucide-react";
+import { BookOpen, Film, Tv, RotateCcw, Clock } from "lucide-react";
 import { cn } from "@/utils/ui";
 import { cardStyles, textStyles, badgeStyles } from "@/utils/styles";
 
@@ -110,23 +110,40 @@ export function CategoryList({
                       </div>
                     </div>
 
-                    {/* Redo Badge */}
-                    {item.redo && (
-                      <div
-                        className={cn(
-                          "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-                          badgeStyles.amber,
-                        )}
-                        aria-label={
-                          item.itemtype === "Book"
-                            ? "This was a re-read"
-                            : "This was a rewatch"
-                        }
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                        {item.itemtype === "Book" ? "Reread" : "Rewatch"}
-                      </div>
-                    )}
+                    {/* Badges */}
+                    <div className="flex items-center gap-1.5">
+                      {/* In Progress Badge - Shows only */}
+                      {item.itemtype === "Show" && item.in_progress && (
+                        <div
+                          className={cn(
+                            "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
+                            badgeStyles.progress,
+                          )}
+                          aria-label="Currently watching this show"
+                        >
+                          <Clock className="w-3 h-3" />
+                          In Progress
+                        </div>
+                      )}
+
+                      {/* Redo Badge */}
+                      {item.redo && (
+                        <div
+                          className={cn(
+                            "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
+                            badgeStyles.amber,
+                          )}
+                          aria-label={
+                            item.itemtype === "Book"
+                              ? "This was a re-read"
+                              : "This was a rewatch"
+                          }
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          {item.itemtype === "Book" ? "Reread" : "Rewatch"}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Year Link */}
