@@ -40,7 +40,7 @@ export default function RootLayout({
               <Navigation />
               <main
                 id="main-content"
-                className="flex-grow mx-auto container py-12"
+                className="flex-grow mx-auto container px-7 sm:px-8 lg:px-8 pt-8 pb-6 sm:pt-20 sm:pb-12"
                 role="main"
               >
                 {children}

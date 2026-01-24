@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { Gamja_Flower } from "next/font/google";
@@ -30,58 +29,38 @@ export default function Navigation() {
         <nav
           role="navigation"
           aria-label="Main navigation"
-          className="flex flex-col sm:flex-row sm:items-center justify-between text-sm px-4 py-2 bg-gradient-to-r from-indigo-50/30 via-slate-50 to-indigo-50/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-indigo-950/20 border-b border-b-foreground/10"
+          className="flex flex-wrap items-center justify-between gap-x-1 text-sm px-4 sm:px-6 py-2 bg-gradient-to-r from-indigo-50/30 via-slate-50 to-indigo-50/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-indigo-950/20 border-b border-b-foreground/10"
         >
-          <ul className="flex list-none">
+          <ul className="flex flex-wrap gap-4 sm:gap-6 list-none">
             <li>
-              <Button
-                asChild
-                variant="link"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400"
-              >
-                <Link href="/">Home</Link>
-              </Button>
+              <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                Home
+              </Link>
             </li>
             <li>
-              <Button
-                asChild
-                variant="link"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400"
-              >
-                <Link href="/about">About</Link>
-              </Button>
+              <Link href="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                About
+              </Link>
             </li>
             <li>
-              <Button
-                asChild
-                variant="link"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400"
-              >
-                <Link href="/stats">Stats</Link>
-              </Button>
+              <Link href="/stats" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                Stats
+              </Link>
             </li>
             <li>
-              <Button
-                asChild
-                variant="link"
-                className="hover:text-indigo-600 dark:hover:text-indigo-400"
-              >
-                <Link href="/search">Search</Link>
-              </Button>
+              <Link href="/search" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                Search
+              </Link>
             </li>
             <IsLoggedIn>
               <li>
-                <Button
-                  asChild
-                  variant="link"
-                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
-                >
-                  <Link href="/export">Export</Link>
-                </Button>
+                <Link href="/export" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                  Export
+                </Link>
               </li>
             </IsLoggedIn>
           </ul>
-          <div className="flex items-center">
+          <div className="flex items-center gap-4 sm:gap-6">
             <AuthHeader />
             <ThemeSwitcher />
           </div>

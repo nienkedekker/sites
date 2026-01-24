@@ -6,7 +6,7 @@ export default async function SettingsPage() {
   const currentYear = getCurrentYear();
 
   return (
-    <div className="space-y-4">
+    <div className="max-w-2xl mx-auto space-y-6">
       <PageHeader>Settings</PageHeader>
       <DataExport currentYear={currentYear} />
     </div>

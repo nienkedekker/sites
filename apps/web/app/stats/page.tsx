@@ -67,7 +67,7 @@ async function StatsContent() {
 
 export default function StatsPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader>Stats</PageHeader>
       <Suspense fallback={<StatsPageSkeleton />}>
         <StatsContent />

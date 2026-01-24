@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { signOutAction } from "@/app/actions/auth";
 import { supabaseBrowser } from "@/utils/supabase/browser";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -25,13 +24,13 @@ export function SignOutButton() {
   };
 
   return (
-    <Button
+    <button
       type="button"
       onClick={handleClick}
       disabled={pending}
-      variant="ghost"
+      className="hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-50"
     >
       Sign out
-    </Button>
+    </button>
   );
 }

@@ -78,7 +78,7 @@ function SignInForm() {
   } = form;
 
   return (
-    <div className="space-y-4 max-w-md mx-auto">
+    <div className="max-w-md mx-auto space-y-6">
       <PageHeader>Sign in</PageHeader>
 
       <Form {...form}>

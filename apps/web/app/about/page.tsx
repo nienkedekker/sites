@@ -1,13 +1,12 @@
 import Image from "next/image";
 import tumblr from "./tumblr.png";
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function AboutPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-gray-950 dark:text-gray-50">
-        About
-      </h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <PageHeader>About</PageHeader>
       <Image
         className="rounded-md border"
         src={tumblr}

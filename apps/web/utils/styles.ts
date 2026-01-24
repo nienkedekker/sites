@@ -21,6 +21,6 @@ export const badgeStyles = {
 
 export const formStyles = {
   container:
-    "bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-sm",
+    "bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm",
   fieldGroup: "space-y-5",
 } as const;

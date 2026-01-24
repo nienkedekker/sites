@@ -197,7 +197,7 @@ export function CategoryList({
       ) : (
         <div
           className={cn(
-            "flex flex-col items-center justify-center p-12 rounded-xl border-2 border-dashed",
+            "flex flex-col items-center justify-center p-6 sm:p-12 rounded-xl border-2 border-dashed",
             "text-gray-400 dark:text-gray-600",
           )}
         >

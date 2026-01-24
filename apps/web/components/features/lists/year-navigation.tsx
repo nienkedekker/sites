@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
+import { YearLinks } from "./year-links";
 
 const getDistinctYears = unstable_cache(
   async () => {
@@ -30,19 +30,8 @@ export default async function YearNavigation() {
   }
 
   return (
-    <div className="bg-indigo-50/50 dark:bg-indigo-950/30 text-sm p-3 px-5 text-foreground">
-      <ul className="flex gap-4 flex-wrap">
-        {years.map((y) => (
-          <li key={y}>
-            <Link
-              href={`/year/${y}`}
-              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-            >
-              {y}
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <div className="bg-indigo-50/50 dark:bg-indigo-950/30 text-sm py-3 px-4 sm:px-6 text-foreground">
+      <YearLinks years={years} />
     </div>
   );
 }

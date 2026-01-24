@@ -2,6 +2,7 @@ import { createClientForServer } from "@/utils/supabase/server";
 import UpdateItemForm from "@/components/forms/update-item-form";
 import { notFound } from "next/navigation";
 import { Params } from "@/types";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function Page(props: { params: Params }) {
   const params = await props.params;
@@ -19,11 +20,9 @@ export default async function Page(props: { params: Params }) {
   }
 
   return (
-    <main className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8 -ml-6 px-6 text-gray-950 dark:text-gray-50">
-        Update item
-      </h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <PageHeader>Update item</PageHeader>
       <UpdateItemForm item={item} />
-    </main>
+    </div>
   );
 }

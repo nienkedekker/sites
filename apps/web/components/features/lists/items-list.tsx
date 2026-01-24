@@ -31,9 +31,9 @@ export default async function ItemsList({ year }: { year: number }) {
     ];
 
     return (
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-12">
         {/* Category Lists */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8">
           {categoryData.map(({ title, type, items }) => (
             <CategoryList key={type} categoryTitle={title} items={items} />
           ))}

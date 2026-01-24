@@ -254,8 +254,8 @@ export default function CreateItemForm() {
   const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
   return (
-    <main className="p-8 max-w-2xl mx-auto">
-      <PageHeader className="mb-8">Add New Item</PageHeader>
+    <>
+      <PageHeader>Add New Item</PageHeader>
 
       <Tabs
         value={activeTab}
@@ -288,7 +288,7 @@ export default function CreateItemForm() {
           <FormComponent key={activeTab} activeTab={activeTab} />
         </TabsContent>
       </Tabs>
-    </main>
+    </>
   );
 }
 
