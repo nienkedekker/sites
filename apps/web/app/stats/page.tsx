@@ -35,25 +35,25 @@ async function StatsContent() {
         config={CHART_CONFIG}
         title="Items over time"
       >
-        <div className="flex gap-2 font-medium leading-none">
+        <p className="flex gap-2 font-medium">
           Total items logged across {yearsLogged} distinct years
-        </div>
-        <div className="leading-none text-muted-foreground">
+        </p>
+        <p className="text-muted-foreground">
           Displaying counts of Books, Movies, and TV Shows logged across all
           years.
-        </div>
+        </p>
       </ItemCountBarChart>
       <ItemCountBarChart
         config={CHART_CONFIG}
         chartData={chartDataCurrentYear ?? []}
         title={`Items in ${currentYear}`}
       >
-        <div className="flex gap-2 font-medium leading-none">
+        <p className="flex gap-2 font-medium">
           Total items logged in {currentYear}
-        </div>
-        <div className="leading-none text-muted-foreground">
+        </p>
+        <p className="text-muted-foreground">
           Displaying counts of Books, Movies, and TV Shows logged this year.
-        </div>
+        </p>
       </ItemCountBarChart>
       <div className="lg:col-span-2">
         <CumulativeLineChart

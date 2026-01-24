@@ -28,7 +28,7 @@ export function SignOutButton() {
       type="button"
       onClick={handleClick}
       disabled={pending}
-      className="hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-50"
+      className="font-medium hover:underline underline-offset-4 disabled:opacity-50"
     >
       Sign out
     </button>

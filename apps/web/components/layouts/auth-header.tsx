@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SignOutButton } from "@/components/layouts/sign-out-button";
+import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import { useAuth } from "@/providers/auth-provider";
 
 export function AuthHeader() {
@@ -12,19 +13,20 @@ export function AuthHeader() {
   }
 
   return (
-    <>
+    <div className={`flex items-center gap-4 sm:gap-6 ${isLoggedIn ? "" : "ml-auto"}`}>
       {isLoggedIn ? (
         <>
-          <Link href="/create" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+          <Link href="/create" className="font-medium hover:underline underline-offset-4">
             Create
           </Link>
           <SignOutButton />
         </>
       ) : (
-        <Link href="/sign-in" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+        <Link href="/sign-in" className="font-medium hover:underline underline-offset-4">
           Sign in
         </Link>
       )}
-    </>
+      <ThemeSwitcher />
+    </div>
   );
 }

@@ -73,11 +73,7 @@ export function SearchControls({
             </div>
           )}
         </div>
-        <Button
-          type="submit"
-          variant="outline"
-          disabled={isSearching}
-        >
+        <Button type="submit" variant="outline" disabled={isSearching}>
           {isSearching ? "Searching..." : "Search"}
         </Button>
       </div>
@@ -85,7 +81,7 @@ export function SearchControls({
       {/* Minimal Filter and Sort Controls */}
       <div className="flex flex-wrap gap-3 text-sm">
         <Select value={filterType} onValueChange={onFilterChange}>
-          <SelectTrigger className="w-32 h-8 text-xs">
+          <SelectTrigger className="w-32 h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -97,7 +93,7 @@ export function SearchControls({
         </Select>
 
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="w-32 h-8 text-xs">
+          <SelectTrigger className="w-32 h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

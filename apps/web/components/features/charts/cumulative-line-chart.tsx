@@ -31,7 +31,6 @@ export function CumulativeLineChart({
     <Card>
       <CardHeader>
         <CardTitle>Total Logged Items Over Time</CardTitle>
-        <CardDescription>Tracking cumulative items per year</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={config} className="max-h-96 w-full">
@@ -60,9 +59,9 @@ export function CumulativeLineChart({
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="leading-none text-muted-foreground">
+        <p className=" text-muted-foreground">
           Tracking cumulative logs of books, movies, and shows over the years.
-        </div>
+        </p>
       </CardFooter>
     </Card>
   );

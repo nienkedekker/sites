@@ -30,7 +30,7 @@ export default async function YearNavigation() {
   }
 
   return (
-    <div className="bg-indigo-50/50 dark:bg-indigo-950/30 text-sm py-3 px-4 sm:px-6 text-foreground">
+    <div className="bg-indigo-50/50 dark:bg-indigo-950/30 text-sm py-5 px-6 text-foreground">
       <YearLinks years={years} />
     </div>
   );

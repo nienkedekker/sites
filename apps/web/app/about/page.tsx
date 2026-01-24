@@ -16,7 +16,7 @@ export default async function AboutPage() {
         }}
         alt="A screenshot of a Tumblr post by user so-many-ocs, with the text '[on the verge of having a complete breakdown] i need to make some kind of list or perhaps sort things into categories'"
       />
-      <p>
+      <p className="prose">
         I (
         <Link href="https://nienke.dev" className="underline">
           Nienke

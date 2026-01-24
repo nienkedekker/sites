@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { Gamja_Flower } from "next/font/google";
 import { AuthHeader } from "@/components/layouts/auth-header";
@@ -29,41 +28,38 @@ export default function Navigation() {
         <nav
           role="navigation"
           aria-label="Main navigation"
-          className="flex flex-wrap items-center justify-between gap-x-1 text-sm px-4 sm:px-6 py-2 bg-gradient-to-r from-indigo-50/30 via-slate-50 to-indigo-50/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-indigo-950/20 border-b border-b-foreground/10"
+          className="flex flex-wrap items-center gap-4 sm:gap-6 sm:justify-between text-sm px-6 py-5 bg-gradient-to-r from-indigo-50/30 via-slate-50 to-indigo-50/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-indigo-950/20 border-b border-b-foreground/10"
         >
           <ul className="flex flex-wrap gap-4 sm:gap-6 list-none">
             <li>
-              <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+              <Link href="/" className="font-medium hover:underline underline-offset-4">
                 Home
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+              <Link href="/about" className="font-medium hover:underline underline-offset-4">
                 About
               </Link>
             </li>
             <li>
-              <Link href="/stats" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+              <Link href="/stats" className="font-medium hover:underline underline-offset-4">
                 Stats
               </Link>
             </li>
             <li>
-              <Link href="/search" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+              <Link href="/search" className="font-medium hover:underline underline-offset-4">
                 Search
               </Link>
             </li>
             <IsLoggedIn>
               <li>
-                <Link href="/export" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link href="/export" className="font-medium hover:underline underline-offset-4">
                   Export
                 </Link>
               </li>
             </IsLoggedIn>
           </ul>
-          <div className="flex items-center gap-4 sm:gap-6">
-            <AuthHeader />
-            <ThemeSwitcher />
-          </div>
+          <AuthHeader />
         </nav>
         <YearNavigation />
       </div>
