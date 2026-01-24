@@ -33,8 +33,6 @@ const ThemeSwitcher = () => {
           variant="link"
           className="cursor-pointer p-0 h-auto"
           aria-label={`Current theme: ${theme}. Click to change theme`}
-          aria-haspopup="menu"
-          aria-expanded="false"
         >
           {theme === "light" ? (
             <Sun key="light" size={ICON_SIZE} aria-hidden="true" />

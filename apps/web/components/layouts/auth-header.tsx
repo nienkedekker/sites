@@ -13,16 +13,24 @@ export function AuthHeader() {
   }
 
   return (
-    <div className={`flex items-center gap-4 sm:gap-6 ${isLoggedIn ? "" : "ml-auto"}`}>
+    <div
+      className={`flex items-center gap-4 sm:gap-6 ${isLoggedIn ? "" : "ml-auto"}`}
+    >
       {isLoggedIn ? (
         <>
-          <Link href="/create" className="font-medium hover:underline underline-offset-4">
+          <Link
+            href="/create"
+            className="font-medium hover:underline underline-offset-4"
+          >
             Create
           </Link>
           <SignOutButton />
         </>
       ) : (
-        <Link href="/sign-in" className="font-medium hover:underline underline-offset-4">
+        <Link
+          href="/sign-in"
+          className="font-medium hover:underline underline-offset-4"
+        >
           Sign in
         </Link>
       )}

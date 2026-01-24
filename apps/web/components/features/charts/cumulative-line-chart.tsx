@@ -4,7 +4,6 @@ import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -34,7 +33,11 @@ export function CumulativeLineChart({
       </CardHeader>
       <CardContent>
         <ChartContainer config={config} className="max-h-96 w-full">
-          <LineChart data={chartData} margin={{ left: -20, right: 12 }}>
+          <LineChart
+            accessibilityLayer
+            data={chartData}
+            margin={{ left: -20, right: 12 }}
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="year"

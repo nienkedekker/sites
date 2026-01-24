@@ -123,7 +123,8 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
     author: typeof item.author === "string" ? item.author : null,
     director: typeof item.director === "string" ? item.director : null,
     season: typeof item.season === "number" ? item.season : null,
-    in_progress: typeof item.in_progress === "boolean" ? item.in_progress : null,
+    in_progress:
+      typeof item.in_progress === "boolean" ? item.in_progress : null,
   };
 
   // Type-specific validation and typing

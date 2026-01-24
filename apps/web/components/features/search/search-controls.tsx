@@ -45,8 +45,11 @@ export function SearchControls({
     >
       <div className="flex gap-3">
         <div className="relative flex-1">
+          <label htmlFor="search-query" className="sr-only">
+            Search items
+          </label>
           <Input
-            type="text"
+            type="search"
             id="search-query"
             value={inputValue}
             onChange={onInputChange}
@@ -81,7 +84,7 @@ export function SearchControls({
       {/* Minimal Filter and Sort Controls */}
       <div className="flex flex-wrap gap-3 text-sm">
         <Select value={filterType} onValueChange={onFilterChange}>
-          <SelectTrigger className="w-32 h-8">
+          <SelectTrigger className="w-32 h-8" aria-label="Filter by type">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -93,7 +96,7 @@ export function SearchControls({
         </Select>
 
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="w-32 h-8">
+          <SelectTrigger className="w-32 h-8" aria-label="Sort by">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

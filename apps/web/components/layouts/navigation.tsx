@@ -11,7 +11,7 @@ const gamja = Gamja_Flower({
 
 export default function Navigation() {
   return (
-    <header role="banner">
+    <header>
       <a href="#main-content" className="sr-only skip-link">
         Skip to main content
       </a>
@@ -26,34 +26,48 @@ export default function Navigation() {
           </Link>
         </div>
         <nav
-          role="navigation"
           aria-label="Main navigation"
           className="flex flex-wrap items-center gap-4 sm:gap-6 sm:justify-between text-sm px-6 py-5 bg-gradient-to-r from-indigo-50/30 via-slate-50 to-indigo-50/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-indigo-950/20 border-b border-b-foreground/10"
         >
           <ul className="flex flex-wrap gap-4 sm:gap-6 list-none">
             <li>
-              <Link href="/" className="font-medium hover:underline underline-offset-4">
+              <Link
+                href="/"
+                className="font-medium hover:underline underline-offset-4"
+              >
                 Home
               </Link>
             </li>
             <li>
-              <Link href="/about" className="font-medium hover:underline underline-offset-4">
+              <Link
+                href="/about"
+                className="font-medium hover:underline underline-offset-4"
+              >
                 About
               </Link>
             </li>
             <li>
-              <Link href="/stats" className="font-medium hover:underline underline-offset-4">
+              <Link
+                href="/stats"
+                className="font-medium hover:underline underline-offset-4"
+              >
                 Stats
               </Link>
             </li>
             <li>
-              <Link href="/search" className="font-medium hover:underline underline-offset-4">
+              <Link
+                href="/search"
+                className="font-medium hover:underline underline-offset-4"
+              >
                 Search
               </Link>
             </li>
             <IsLoggedIn>
               <li>
-                <Link href="/export" className="font-medium hover:underline underline-offset-4">
+                <Link
+                  href="/export"
+                  className="font-medium hover:underline underline-offset-4"
+                >
                   Export
                 </Link>
               </li>

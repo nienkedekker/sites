@@ -10,6 +10,13 @@
         "dist/**",
         ".next/**",
         "!.next/cache/**"
+      ],
+      "passThroughEnv": [
+        "CLOUDFLARE_ACCOUNT_ID",
+        "CLOUDFLARE_ACCESS_KEY_ID",
+        "CLOUDFLARE_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_BUCKET_NAME",
+        "CRON_SECRET"
       ]
     },
     "lint": {

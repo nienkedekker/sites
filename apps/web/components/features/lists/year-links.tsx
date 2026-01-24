@@ -27,6 +27,7 @@ export function YearLinks({ years }: YearLinksProps) {
           <li key={y}>
             <Link
               href={y === currentYear ? "/" : `/year/${y}`}
+              aria-current={isActive ? "page" : undefined}
               className={
                 isActive
                   ? "font-bold text-indigo-900 dark:text-white bg-indigo-200 dark:bg-indigo-800 px-2 py-0.5 rounded-md"
