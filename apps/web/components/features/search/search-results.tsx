@@ -5,12 +5,7 @@ import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
 import { cardStyles, textStyles, badgeStyles } from "@/utils/styles";
-
-const categories = [
-  { title: "Books", type: "Book" },
-  { title: "Movies", type: "Movie" },
-  { title: "TV Shows", type: "Show" },
-];
+import { CATEGORY_CONFIG } from "@/utils/constants";
 
 interface SearchResultsProps {
   results: Item[];
@@ -66,7 +61,7 @@ export function SearchResults({
           )}
         </div>
 
-        {categories.map(({ title, type }) => {
+        {CATEGORY_CONFIG.map(({ title, type }) => {
           const categoryItems = results.filter(
             (item: Item) => item.itemtype === type,
           );

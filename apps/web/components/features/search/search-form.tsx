@@ -5,7 +5,7 @@ import { searchItems, type SearchState } from "@/app/actions/search";
 import { SearchResultsSkeleton } from "@/components/features/skeletons/search-skeleton";
 import { SearchControls } from "@/components/features/search/search-controls";
 import { SearchResults } from "@/components/features/search/search-results";
-import { useCallback, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 
 type SearchFormData = {
@@ -47,7 +47,11 @@ export default function SearchForm() {
     }
   };
 
-  const sortedAndFilteredResults = useCallback(() => {
+  /**
+   * Filters and sorts search results based on current filter and sort settings.
+   * Memoized to avoid recomputing on every render.
+   */
+  const processedResults = useMemo(() => {
     let results = [...searchState.results];
 
     if (filterType !== "all") {
@@ -77,8 +81,6 @@ export default function SearchForm() {
 
     return results;
   }, [searchState.results, sortBy, filterType]);
-
-  const processedResults = sortedAndFilteredResults();
   const hasResults = processedResults.length > 0;
   const hasQuery = searchState.query.trim().length > 0;
 

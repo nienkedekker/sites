@@ -1,7 +1,12 @@
 import { CategoryList } from "@/components/features/lists/category-list";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { getItemsForYear } from "@/utils/data/items";
+import { CATEGORY_CONFIG } from "@/utils/constants";
 
+/**
+ * Server component that fetches and displays items for a given year,
+ * grouped by category (Books, Movies, TV Shows).
+ */
 export default async function ItemsList({ year }: { year: number }) {
   try {
     const itemsResult = await getItemsForYear(year);
@@ -12,23 +17,11 @@ export default async function ItemsList({ year }: { year: number }) {
 
     const validatedItems = itemsResult.data;
 
-    const categoryData = [
-      {
-        title: "Books",
-        type: "Book" as const,
-        items: validatedItems.filter((item) => item.itemtype === "Book"),
-      },
-      {
-        title: "Movies",
-        type: "Movie" as const,
-        items: validatedItems.filter((item) => item.itemtype === "Movie"),
-      },
-      {
-        title: "TV Shows",
-        type: "Show" as const,
-        items: validatedItems.filter((item) => item.itemtype === "Show"),
-      },
-    ];
+    const categoryData = CATEGORY_CONFIG.map(({ title, type }) => ({
+      title,
+      type,
+      items: validatedItems.filter((item) => item.itemtype === type),
+    }));
 
     return (
       <div className="space-y-8 sm:space-y-12">

@@ -13,6 +13,7 @@ interface CategoryListProps {
   showYearLink?: boolean;
 }
 
+/** Returns the appropriate icon component for the given item type. */
 const getIcon = (itemType: string) => {
   switch (itemType) {
     case "Book":
@@ -26,9 +27,6 @@ const getIcon = (itemType: string) => {
   }
 };
 
-const getTypeColor = () => {
-  return cardStyles;
-};
 
 export function CategoryList({
   categoryTitle,
@@ -64,7 +62,7 @@ export function CategoryList({
               key={item.id}
               className={cn(
                 "group relative p-3 rounded-lg border transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-700 min-h-[85px] flex flex-col",
-                getTypeColor(),
+                cardStyles,
               )}
             >
               {/* Item Number */}

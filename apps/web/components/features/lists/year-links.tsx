@@ -11,9 +11,13 @@ export function YearLinks({ years }: YearLinksProps) {
   const pathname = usePathname();
   const currentYear = new Date().getFullYear();
 
+  /**
+   * Extracts the active year from the current URL pathname.
+   * Returns the current year for the home page, or parses the year from /year/:year routes.
+   */
   const getActiveYear = (): number | null => {
     if (pathname === "/") return currentYear;
-    const match = pathname.match(/^\/year\/(\d+)/);
+    const match = pathname.match(/^\/year\/(\d+)$/);
     return match ? parseInt(match[1], 10) : null;
   };
 
