@@ -112,37 +112,56 @@ export function CategoryList({
 
                     {/* Badges */}
                     <div className="flex items-center gap-1.5">
-                      {/* In Progress Badge - Shows only */}
-                      {item.itemtype === "Show" && item.in_progress && (
-                        <div
-                          className={cn(
-                            "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-                            badgeStyles.progress,
-                          )}
-                          aria-label="Currently watching this show"
-                        >
-                          <Clock className="w-3 h-3" />
-                          In Progress
-                        </div>
-                      )}
+                      {/* Rewatch in Progress Badge - Shows only */}
+                      {item.itemtype === "Show" &&
+                        item.in_progress &&
+                        item.redo && (
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
+                              badgeStyles.progress,
+                            )}
+                            aria-label="Currently rewatching this show"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            Rewatch in progress
+                          </div>
+                        )}
 
-                      {/* Redo Badge */}
-                      {item.redo && (
-                        <div
-                          className={cn(
-                            "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-                            badgeStyles.amber,
-                          )}
-                          aria-label={
-                            item.itemtype === "Book"
-                              ? "This was a re-read"
-                              : "This was a rewatch"
-                          }
-                        >
-                          <RotateCcw className="w-3 h-3" />
-                          {item.itemtype === "Book" ? "Reread" : "Rewatch"}
-                        </div>
-                      )}
+                      {/* In Progress Badge - Shows only, not a rewatch */}
+                      {item.itemtype === "Show" &&
+                        item.in_progress &&
+                        !item.redo && (
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
+                              badgeStyles.progress,
+                            )}
+                            aria-label="Currently watching this show"
+                          >
+                            <Clock className="w-3 h-3" />
+                            In Progress
+                          </div>
+                        )}
+
+                      {/* Redo Badge - not in progress */}
+                      {item.redo &&
+                        !(item.itemtype === "Show" && item.in_progress) && (
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
+                              badgeStyles.amber,
+                            )}
+                            aria-label={
+                              item.itemtype === "Book"
+                                ? "This was a re-read"
+                                : "This was a rewatch"
+                            }
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            {item.itemtype === "Book" ? "Reread" : "Rewatch"}
+                          </div>
+                        )}
                     </div>
                   </div>
 
