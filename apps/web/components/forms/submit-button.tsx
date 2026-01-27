@@ -6,10 +6,16 @@ import { useFormStatus } from "react-dom";
 import { LoaderCircle } from "lucide-react";
 
 type Props = ComponentProps<typeof Button> & {
+  /** Text to display while form is submitting */
   pendingText?: string;
-  isSubmitting?: boolean; // For React Hook Form compatibility
+  /** For React Hook Form compatibility - combines with native form pending state */
+  isSubmitting?: boolean;
 };
 
+/**
+ * Submit button that shows loading state during form submission.
+ * Works with both native form actions and React Hook Form.
+ */
 export function SubmitButton({
   children,
   pendingText = "Submitting...",
@@ -18,17 +24,18 @@ export function SubmitButton({
 }: Props) {
   const { pending } = useFormStatus();
 
-  // Use either native form pending state or RHF isSubmitting
+  // Combine native form pending state with RHF isSubmitting
   const isPending = pending || isSubmitting;
 
   return (
     <Button
       type="submit"
       disabled={isPending}
-      aria-describedby={isPending ? "loading-description" : undefined}
+      aria-busy={isPending}
+      aria-label={isPending ? pendingText : undefined}
       {...props}
     >
-      {isPending && (
+      {isPending ? (
         <>
           <LoaderCircle
             className="animate-spin"
@@ -37,12 +44,10 @@ export function SubmitButton({
             aria-hidden="true"
           />
           <span className="ml-2">{pendingText}</span>
-          <span id="loading-description" className="sr-only">
-            Please wait while your request is being processed
-          </span>
         </>
+      ) : (
+        children
       )}
-      {!isPending && children}
     </Button>
   );
 }

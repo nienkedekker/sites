@@ -11,7 +11,7 @@ export type SearchState = {
 };
 
 export async function searchItems(formData: FormData): Promise<SearchState> {
-  const rawQuery = formData.get("query") as string;
+  const rawQuery = formData.get("query")?.toString() ?? "";
 
   if (!rawQuery) return { query: "", results: [], initial: false };
 

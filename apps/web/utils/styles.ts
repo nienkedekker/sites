@@ -24,3 +24,11 @@ export const formStyles = {
     "bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm",
   fieldGroup: "space-y-5",
 } as const;
+
+export const navStyles = {
+  link: "font-medium hover:underline underline-offset-4",
+  linkDisabled: "font-medium hover:underline underline-offset-4 disabled:opacity-50",
+  logo: "text-4xl text-white md:text-5xl lg:text-6xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 p-6",
+  navbar:
+    "flex flex-wrap items-center gap-4 sm:gap-6 sm:justify-between text-sm px-6 py-5 bg-gradient-to-r from-indigo-50/30 via-slate-50 to-indigo-50/30 dark:from-indigo-950/20 dark:via-zinc-800 dark:to-indigo-950/20 border-b border-b-foreground/10",
+} as const;

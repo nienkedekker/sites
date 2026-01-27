@@ -5,7 +5,7 @@ import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
 import { cardStyles, textStyles, badgeStyles } from "@/utils/styles";
-import { CATEGORY_CONFIG } from "@/utils/constants";
+import { CATEGORY_CONFIG } from "@/utils/constants/app";
 
 interface SearchResultsProps {
   results: Item[];

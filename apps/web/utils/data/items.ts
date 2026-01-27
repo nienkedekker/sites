@@ -1,8 +1,3 @@
-/**
- * Type-safe data fetching utilities for items
- * Ensures consistent validation and error handling across the app
- */
-
 import { supabasePublic } from "@/utils/supabase/public";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 
@@ -35,19 +30,29 @@ export async function getItemsForYear(
       };
     }
 
-    // Validate and type all items
-    const validatedItems: TypedItem[] = (rawItems || [])
-      .map(validateAndTypeItem)
+    // Validate and type all items, tracking failures
+    const validationResults = (rawItems || []).map((item) => ({
+      original: item,
+      validated: validateAndTypeItem(item),
+    }));
+
+    const validatedItems = validationResults
+      .map((r) => r.validated)
       .filter((item): item is TypedItem => item !== null);
 
     // Log if any items failed validation
-    if (rawItems && validatedItems.length !== rawItems.length) {
+    const invalidCount = validationResults.length - validatedItems.length;
+    if (invalidCount > 0) {
+      const invalidItems = validationResults
+        .filter((r) => r.validated === null)
+        .map((r) => r.original);
+
       console.warn(
-        `${rawItems.length - validatedItems.length} invalid items filtered out for year ${year}`,
+        `${invalidCount} invalid items filtered out for year ${year}`,
         {
-          totalItems: rawItems.length,
+          totalItems: validationResults.length,
           validItems: validatedItems.length,
-          invalidItems: rawItems.filter((item) => !validateAndTypeItem(item)),
+          invalidItems,
         },
       );
     }

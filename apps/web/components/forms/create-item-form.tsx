@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -28,13 +28,22 @@ import {
   type MovieItemInput,
   type ShowItemInput,
 } from "@/utils/schemas/validation";
-import { TAB_VALUES, type TabValue } from "@/utils/constants/app";
+import { TAB_VALUES, ITEM_TYPES, type TabValue } from "@/utils/constants/app";
 import { formStyles } from "@/utils/styles";
+import { getCurrentYear } from "@/utils/formatters/date";
+import { toNumber, formatNumberInputValue } from "@/utils/form";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
+/**
+ * Internal form component that renders fields based on the active tab/item type.
+ * Re-mounts when tab changes to reset form state.
+ */
 function FormComponent({ activeTab }: { activeTab: TabValue }) {
-  const { schema, defaults } = getSchemaAndDefaults(activeTab);
+  const { schema, defaults } = useMemo(
+    () => getSchemaAndDefaults(activeTab),
+    [activeTab],
+  );
 
   const form = useForm<AnyCreateInput>({
     resolver: zodResolver(schema),
@@ -42,8 +51,10 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
     mode: "onBlur",
   });
 
-  const toNum = (v: string) => (v === "" ? 0 : parseInt(v, 10) || 0);
+  const formErrors = Object.values(form.formState.errors);
+  const hasErrors = formErrors.length > 0;
 
+  /** Builds FormData from validated form data and submits to server action */
   const onSubmit = async (data: AnyCreateInput) => {
     const fd = new FormData();
     fd.append("itemtype", data.itemtype);
@@ -68,10 +79,15 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
         onSubmit={form.handleSubmit(onSubmit)}
         className={formStyles.container}
       >
+        {/* Screen reader announcements for form errors */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {hasErrors && `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}
+        </div>
+
         <div className="space-y-5">
           <FormField
             control={form.control}
-            name={"title" as const}
+            name="title"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
@@ -87,7 +103,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
           {activeTab === TAB_VALUES.BOOK && (
             <FormField
               control={form.control}
-              name={"author" as const}
+              name="author"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Author</FormLabel>
@@ -103,7 +119,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
           {activeTab === TAB_VALUES.MOVIE && (
             <FormField
               control={form.control}
-              name={"director" as const}
+              name="director"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Director</FormLabel>
@@ -120,7 +136,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
             <>
               <FormField
                 control={form.control}
-                name={"season" as const}
+                name="season"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Season</FormLabel>
@@ -128,12 +144,8 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
                       <Input
                         type="number"
                         {...field}
-                        value={field.value === 0 ? "" : (field.value ?? "")}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === "" ? 0 : toNum(e.target.value),
-                          )
-                        }
+                        value={formatNumberInputValue(field.value as number)}
+                        onChange={(e) => field.onChange(toNumber(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -142,7 +154,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
               />
               <FormField
                 control={form.control}
-                name={"inProgress" as const}
+                name="inProgress"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center gap-2">
                     <FormControl>
@@ -163,7 +175,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
           {/* Common fields */}
           <FormField
             control={form.control}
-            name={"publishedYear" as const}
+            name="publishedYear"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
@@ -175,12 +187,8 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
                   <Input
                     type="number"
                     {...field}
-                    value={field.value === 0 ? "" : (field.value ?? "")}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? 0 : toNum(e.target.value),
-                      )
-                    }
+                    value={formatNumberInputValue(field.value)}
+                    onChange={(e) => field.onChange(toNumber(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -190,7 +198,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
 
           <FormField
             control={form.control}
-            name={"belongsToYear" as const}
+            name="belongsToYear"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Belongs To Year</FormLabel>
@@ -199,11 +207,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
                     type="number"
                     {...field}
                     value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? 0 : toNum(e.target.value),
-                      )
-                    }
+                    onChange={(e) => field.onChange(toNumber(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -213,7 +217,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
 
           <FormField
             control={form.control}
-            name={"redo" as const}
+            name="redo"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center gap-2">
                 <FormControl>
@@ -291,15 +295,18 @@ export default function CreateItemForm() {
   );
 }
 
+/**
+ * Returns the appropriate Zod schema and default values for a given tab/item type.
+ */
 function getSchemaAndDefaults(tab: TabValue) {
-  const year = new Date().getFullYear();
+  const year = getCurrentYear();
 
   switch (tab) {
     case TAB_VALUES.BOOK:
       return {
         schema: bookItemSchema,
         defaults: {
-          itemtype: "Book" as const,
+          itemtype: ITEM_TYPES.BOOK,
           title: "",
           belongsToYear: year,
           publishedYear: 0,
@@ -311,7 +318,7 @@ function getSchemaAndDefaults(tab: TabValue) {
       return {
         schema: movieItemSchema,
         defaults: {
-          itemtype: "Movie" as const,
+          itemtype: ITEM_TYPES.MOVIE,
           title: "",
           belongsToYear: year,
           publishedYear: 0,
@@ -324,7 +331,7 @@ function getSchemaAndDefaults(tab: TabValue) {
       return {
         schema: showItemSchema,
         defaults: {
-          itemtype: "Show" as const,
+          itemtype: ITEM_TYPES.SHOW,
           title: "",
           belongsToYear: year,
           publishedYear: 0,

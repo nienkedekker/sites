@@ -21,6 +21,52 @@ import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
 import { signInActionReturnSession } from "@/app/actions/auth";
 import { supabaseBrowser } from "@/utils/supabase/browser";
 
+/** Allowed redirect paths (whitelist for security) */
+const ALLOWED_REDIRECT_PREFIXES = ["/", "/year/", "/item/", "/stats", "/search", "/about", "/export", "/create"];
+
+/**
+ * Validates and sanitizes a redirect URL.
+ * Returns "/" if the URL is invalid or potentially malicious.
+ */
+function getSafeRedirectUrl(rawRedirect: string | null): string {
+  if (!rawRedirect) return "/";
+
+  // Must start with single "/" and not be a protocol-relative URL
+  if (!rawRedirect.startsWith("/") || rawRedirect.startsWith("//")) {
+    return "/";
+  }
+
+  // Check against whitelist of allowed prefixes
+  const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(
+    (prefix) => rawRedirect === prefix || rawRedirect.startsWith(prefix),
+  );
+
+  return isAllowed ? rawRedirect : "/";
+}
+
+/**
+ * Extracts and validates message from query parameters.
+ * Returns null if no valid message found.
+ */
+function getQueryMessage(
+  searchParams: URLSearchParams,
+): { type: "error" | "success" | "info"; text: string } | null {
+  const error = searchParams.get("error");
+  const success = searchParams.get("success");
+  const message = searchParams.get("message");
+
+  // Sanitize: only allow alphanumeric, spaces, and basic punctuation
+  const sanitize = (text: string): string => {
+    return text.replace(/[^\w\s.,!?-]/g, "").slice(0, 200);
+  };
+
+  if (error) return { type: "error", text: sanitize(error) };
+  if (success) return { type: "success", text: sanitize(success) };
+  if (message) return { type: "info", text: sanitize(message) };
+
+  return null;
+}
+
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -52,24 +98,13 @@ function SignInForm() {
       });
     }
 
-    const rawRedirect = searchParams.get("redirect") || "/";
-    const redirectTo =
-      rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
-        ? rawRedirect
-        : "/";
+    const redirectTo = getSafeRedirectUrl(searchParams.get("redirect"));
 
     router.refresh();
     router.push(redirectTo);
   };
 
-  // Optional messages from query params
-  const message = searchParams.get("error")
-    ? { error: searchParams.get("error")! }
-    : searchParams.get("success")
-      ? { success: searchParams.get("success")! }
-      : searchParams.get("message")
-        ? { message: searchParams.get("message")! }
-        : undefined;
+  const queryMessage = getQueryMessage(searchParams);
 
   const {
     handleSubmit,
@@ -83,7 +118,19 @@ function SignInForm() {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {message && <FormMessage>{JSON.stringify(message)}</FormMessage>}
+          {queryMessage && (
+            <FormMessage
+              className={
+                queryMessage.type === "success"
+                  ? "text-green-600 dark:text-green-400"
+                  : queryMessage.type === "error"
+                    ? "text-red-600 dark:text-red-400"
+                    : undefined
+              }
+            >
+              {queryMessage.text}
+            </FormMessage>
+          )}
           {errors.root?.message && (
             <FormMessage>{errors.root.message}</FormMessage>
           )}

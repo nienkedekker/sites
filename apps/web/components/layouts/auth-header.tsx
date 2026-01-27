@@ -4,12 +4,26 @@ import Link from "next/link";
 import { SignOutButton } from "@/components/layouts/sign-out-button";
 import { ThemeSwitcher } from "@/components/features/theme-switcher";
 import { useAuth } from "@/providers/auth-provider";
+import { navStyles } from "@/utils/styles";
 
-export function AuthHeader() {
+/**
+ * Header section that displays auth-related navigation links.
+ * Shows Create/Sign out when logged in, Sign in when logged out.
+ */
+export function AuthHeader(): React.ReactElement {
   const { isLoggedIn, loading } = useAuth();
 
+  // Show placeholder during loading to prevent layout shift
   if (loading) {
-    return null;
+    return (
+      <div className="flex items-center gap-4 sm:gap-6 ml-auto">
+        <div
+          className="w-16 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
+          aria-hidden="true"
+        />
+        <ThemeSwitcher />
+      </div>
+    );
   }
 
   return (
@@ -18,19 +32,13 @@ export function AuthHeader() {
     >
       {isLoggedIn ? (
         <>
-          <Link
-            href="/create"
-            className="font-medium hover:underline underline-offset-4"
-          >
+          <Link href="/create" className={navStyles.link}>
             Create
           </Link>
           <SignOutButton />
         </>
       ) : (
-        <Link
-          href="/sign-in"
-          className="font-medium hover:underline underline-offset-4"
-        >
+        <Link href="/sign-in" className={navStyles.link}>
           Sign in
         </Link>
       )}

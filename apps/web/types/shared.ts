@@ -1,18 +1,9 @@
 /**
- * Shared application types - domain-specific types that ensure consistency
- * between database, forms, and UI components
- */
-
-/**
- * Valid item types - single source of truth
  * These should match exactly what's stored in the database
  */
-export const VALID_ITEM_TYPES = ["Book", "Movie", "Show"];
+export const VALID_ITEM_TYPES = ["Book", "Movie", "Show"] as const;
 export type ValidItemType = (typeof VALID_ITEM_TYPES)[number];
 
-/**
- * Type guard to check if a value is a valid item type
- */
 export function isValidItemType(value: unknown): value is ValidItemType {
   return (
     typeof value === "string" &&
@@ -20,10 +11,6 @@ export function isValidItemType(value: unknown): value is ValidItemType {
   );
 }
 
-/**
- * Base item interface with guaranteed types
- * This represents the shape of data we work with in the application
- */
 export interface BaseItem {
   id: string;
   title: string;
@@ -40,10 +27,6 @@ export interface BaseItem {
   in_progress?: boolean | null;
 }
 
-/**
- * Discriminated union types for type-specific items
- * This ensures that Books have authors, Movies have directors, etc.
- */
 export type BookItem = BaseItem & {
   itemtype: "Book";
   author: string;
@@ -68,14 +51,8 @@ export type ShowItem = BaseItem & {
   in_progress: boolean;
 };
 
-/**
- * Union type for all item types
- */
 export type TypedItem = BookItem | MovieItem | ShowItem;
 
-/**
- * Type guards for discriminated union
- */
 export function isBookItem(item: BaseItem): item is BookItem {
   return item.itemtype === "Book";
 }

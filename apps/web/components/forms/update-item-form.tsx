@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -27,6 +28,8 @@ import {
 } from "@/utils/schemas/validation";
 import { ITEM_TYPES } from "@/utils/constants/app";
 import { formStyles } from "@/utils/styles";
+import { getCurrentYear } from "@/utils/formatters/date";
+import { toNumber, formatNumberInputValue } from "@/utils/form";
 import type { Item } from "@/types";
 
 type AnyItemInput = BookItemInput | MovieItemInput | ShowItemInput;
@@ -35,9 +38,14 @@ interface UpdateItemFormProps {
   item: Item;
 }
 
-// NOTE: single form that adapts to the itemtype, with belongsToYear editable
+/**
+ * Form for updating an existing item. Adapts fields based on item type.
+ */
 export default function UpdateItemForm({ item }: UpdateItemFormProps) {
-  const { schema, defaultValues } = getSchemaAndDefaults(item);
+  const { schema, defaultValues } = useMemo(
+    () => getSchemaAndDefaults(item),
+    [item],
+  );
 
   const form = useForm<AnyItemInput>({
     resolver: zodResolver(schema),
@@ -45,8 +53,10 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
     mode: "onBlur",
   });
 
-  const toNum = (v: string) => (v === "" ? 0 : parseInt(v, 10) || 0);
+  const formErrors = Object.values(form.formState.errors);
+  const hasErrors = formErrors.length > 0;
 
+  /** Builds FormData from validated form data and submits to server action */
   const onSubmit = async (data: AnyItemInput) => {
     const fd = new FormData();
     fd.append("id", item.id);
@@ -72,6 +82,11 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className={formStyles.container}
       >
+        {/* Screen reader announcements for form errors */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {hasErrors && `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}
+        </div>
+
         <div className="space-y-5">
           <FormField
             control={form.control}
@@ -90,7 +105,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
           {item.itemtype === ITEM_TYPES.BOOK && (
             <FormField
               control={form.control}
-              name={"author" as const}
+              name="author"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Author</FormLabel>
@@ -106,7 +121,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
           {item.itemtype === ITEM_TYPES.MOVIE && (
             <FormField
               control={form.control}
-              name={"director" as const}
+              name="director"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Director</FormLabel>
@@ -123,7 +138,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
             <>
               <FormField
                 control={form.control}
-                name={"season" as const}
+                name="season"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Season</FormLabel>
@@ -131,8 +146,8 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
                       <Input
                         type="number"
                         {...field}
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(toNum(e.target.value))}
+                        value={formatNumberInputValue(field.value as number)}
+                        onChange={(e) => field.onChange(toNumber(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -141,7 +156,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
               />
               <FormField
                 control={form.control}
-                name={"inProgress" as const}
+                name="inProgress"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center gap-2">
                     <FormControl>
@@ -161,7 +176,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
 
           <FormField
             control={form.control}
-            name={"publishedYear" as const}
+            name="publishedYear"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
@@ -173,8 +188,8 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
                   <Input
                     type="number"
                     {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(toNum(e.target.value))}
+                    value={formatNumberInputValue(field.value)}
+                    onChange={(e) => field.onChange(toNumber(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -182,10 +197,9 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
             )}
           />
 
-          {/* NEW: editable belongsToYear (was fixed before) */}
           <FormField
             control={form.control}
-            name={"belongsToYear" as const}
+            name="belongsToYear"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Belongs To Year</FormLabel>
@@ -194,7 +208,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
                     type="number"
                     {...field}
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(toNum(e.target.value))}
+                    onChange={(e) => field.onChange(toNumber(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -204,7 +218,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
 
           <FormField
             control={form.control}
-            name={"redo" as const}
+            name="redo"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center gap-2">
                 <FormControl>
@@ -236,8 +250,12 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
   );
 }
 
-/** Picks schema + defaults per itemtype, including belongsToYear */
+/**
+ * Returns the appropriate Zod schema and default values for the given item.
+ */
 function getSchemaAndDefaults(item: Item) {
+  const currentYear = getCurrentYear();
+
   switch (item.itemtype) {
     case ITEM_TYPES.BOOK:
       return {
@@ -245,8 +263,8 @@ function getSchemaAndDefaults(item: Item) {
         defaultValues: {
           itemtype: ITEM_TYPES.BOOK,
           title: item.title,
-          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
-          publishedYear: item.published_year ?? new Date().getFullYear(),
+          belongsToYear: item.belongs_to_year ?? currentYear,
+          publishedYear: item.published_year ?? currentYear,
           redo: !!item.redo,
           author: item.author ?? "",
         },
@@ -257,8 +275,8 @@ function getSchemaAndDefaults(item: Item) {
         defaultValues: {
           itemtype: ITEM_TYPES.MOVIE,
           title: item.title,
-          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
-          publishedYear: item.published_year ?? new Date().getFullYear(),
+          belongsToYear: item.belongs_to_year ?? currentYear,
+          publishedYear: item.published_year ?? currentYear,
           redo: !!item.redo,
           director: item.director ?? "",
         },
@@ -269,8 +287,8 @@ function getSchemaAndDefaults(item: Item) {
         defaultValues: {
           itemtype: ITEM_TYPES.SHOW,
           title: item.title,
-          belongsToYear: item.belongs_to_year ?? new Date().getFullYear(),
-          publishedYear: item.published_year ?? new Date().getFullYear(),
+          belongsToYear: item.belongs_to_year ?? currentYear,
+          publishedYear: item.published_year ?? currentYear,
           redo: !!item.redo,
           season: item.season ?? 1,
           inProgress: !!item.in_progress,

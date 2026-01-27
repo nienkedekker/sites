@@ -1,6 +1,5 @@
-/**
- * Main types entry point - combines generated database types with our custom types
- */
+import type { Database } from "./database";
+import type { ValidItemType } from "./shared";
 
 // Re-export all database types (these get regenerated from Supabase)
 export type {
@@ -38,10 +37,6 @@ export type Item = Database["public"]["Tables"]["items"]["Row"];
 export type ItemInsert = Database["public"]["Tables"]["items"]["Insert"];
 export type ItemUpdate = Database["public"]["Tables"]["items"]["Update"];
 
-// Function return types
-export type CumulativeItemEntry =
-  Database["public"]["Functions"]["get_cumulative_item_counts"]["Returns"][number];
-
 // Custom interfaces that use our validated types
 export interface ItemCountEntry {
   itemtype: ValidItemType; // Use our validated type instead of database string
@@ -51,10 +46,3 @@ export interface ItemCountEntry {
 
 // Next.js specific types
 export type Params = Promise<{ id: string }>;
-export type SearchParams = Promise<{
-  [key: string]: string | string[] | undefined;
-}>;
-
-// Import the Database type for use in derived types
-import type { Database } from "./database";
-import type { ValidItemType } from "./shared";

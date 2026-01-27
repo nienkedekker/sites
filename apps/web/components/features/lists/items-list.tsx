@@ -1,7 +1,7 @@
 import { CategoryList } from "@/components/features/lists/category-list";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { getItemsForYear } from "@/utils/data/items";
-import { CATEGORY_CONFIG } from "@/utils/constants";
+import { CATEGORY_CONFIG } from "@/utils/constants/app";
 
 /**
  * Server component that fetches and displays items for a given year,
