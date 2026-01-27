@@ -22,7 +22,7 @@ const NAV_LINKS = [
  * Main navigation header component.
  * Includes logo, nav links, auth controls, and year navigation.
  */
-export function Navigation() {
+function Navigation() {
   return (
     <header>
       <a href="#main-content" className="sr-only skip-link">
@@ -63,5 +63,4 @@ export function Navigation() {
   );
 }
 
-// Default export for backwards compatibility with existing imports
 export default Navigation;

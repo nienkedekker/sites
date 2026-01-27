@@ -4,7 +4,7 @@
 
 import type { TypedItem } from "@/types/shared";
 
-export interface ExportData {
+interface ExportData {
   metadata: {
     exportDate: string;
     version: string;
@@ -19,9 +19,9 @@ export interface ExportData {
 }
 
 /**
- * Convert items to structured JSON export format
+ * Convert items to structured JSON export format (internal use only)
  */
-export function itemsToJSON(items: TypedItem[]): ExportData {
+function itemsToJSON(items: TypedItem[]): ExportData {
   const now = new Date().toISOString();
 
   const itemCounts = items.reduce(

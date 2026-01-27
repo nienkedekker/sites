@@ -85,18 +85,18 @@ export const itemCreationSchema = z.discriminatedUnion("itemtype", [
 ]);
 
 /**
- * Email validation schema
+ * Email validation schema (internal use only)
  */
-export const emailSchema = z
+const emailSchema = z
   .string()
   .trim()
   .min(1, "Email is required")
   .email("Please enter a valid email address");
 
 /**
- * Password validation schema
+ * Password validation schema (internal use only)
  */
-export const passwordSchema = z
+const passwordSchema = z
   .string()
   .min(1, "Password is required")
   .min(8, "Password must be at least 8 characters long")
@@ -118,13 +118,6 @@ export const searchQuerySchema = z
 export const signInSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-});
-
-export const searchSchema = z.object({
-  query: searchQuerySchema,
-  itemType: z.string().optional(),
-  sortBy: z.enum(["title", "published_year", "created_at"]).optional(),
-  sortOrder: z.enum(["asc", "desc"]).optional(),
 });
 
 /**

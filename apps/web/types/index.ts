@@ -22,16 +22,6 @@ export type {
   ShowItem,
 } from "./shared";
 
-// Re-export type guards and validation functions
-export {
-  VALID_ITEM_TYPES,
-  isValidItemType,
-  isBookItem,
-  isMovieItem,
-  isShowItem,
-  validateAndTypeItem,
-} from "./shared";
-
 // Database-derived types with better typing
 export type Item = Database["public"]["Tables"]["items"]["Row"];
 export type ItemInsert = Database["public"]["Tables"]["items"]["Insert"];

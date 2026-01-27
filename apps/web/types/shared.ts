@@ -4,7 +4,7 @@
 export const VALID_ITEM_TYPES = ["Book", "Movie", "Show"] as const;
 export type ValidItemType = (typeof VALID_ITEM_TYPES)[number];
 
-export function isValidItemType(value: unknown): value is ValidItemType {
+function isValidItemType(value: unknown): value is ValidItemType {
   return (
     typeof value === "string" &&
     VALID_ITEM_TYPES.includes(value as ValidItemType)
@@ -52,18 +52,6 @@ export type ShowItem = BaseItem & {
 };
 
 export type TypedItem = BookItem | MovieItem | ShowItem;
-
-export function isBookItem(item: BaseItem): item is BookItem {
-  return item.itemtype === "Book";
-}
-
-export function isMovieItem(item: BaseItem): item is MovieItem {
-  return item.itemtype === "Movie";
-}
-
-export function isShowItem(item: BaseItem): item is ShowItem {
-  return item.itemtype === "Show";
-}
 
 /**
  * Helper to convert database item to typed item with validation

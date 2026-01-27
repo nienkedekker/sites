@@ -1,4 +1,4 @@
-import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
+import type { ValidItemType } from "@/types/shared";
 
 /**
  * Category configuration for displaying items grouped by type.
@@ -27,9 +27,6 @@ export const TAB_VALUES = {
 } as const;
 
 export type TabValue = (typeof TAB_VALUES)[keyof typeof TAB_VALUES];
-
-// Re-export from shared types for consistency
-export { VALID_ITEM_TYPES };
 
 export const CHART_CONFIG = {
   [ITEM_TYPES.BOOK]: {
