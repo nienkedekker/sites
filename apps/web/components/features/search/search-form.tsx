@@ -5,7 +5,7 @@ import { searchItems, type SearchState } from "@/app/actions/search";
 import { SearchResultsSkeleton } from "@/components/features/skeletons/search-skeleton";
 import { SearchControls } from "@/components/features/search/search-controls";
 import { SearchResults } from "@/components/features/search/search-results";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 
 type SearchFormData = {
@@ -24,10 +24,9 @@ export default function SearchForm() {
     results: [],
     initial: true,
   });
-  const [isSearching, setIsSearching] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
   const [filterType, setFilterType] = useState("all");
-  const [isPendingTransition, startTransition] = useTransition();
+  const [isSearching, startTransition] = useTransition();
 
   const onSubmit = async (data: SearchFormData) => {
     if (data.query.trim().length >= 2) {
@@ -78,10 +77,6 @@ export default function SearchForm() {
 
     return results;
   }, [searchState.results, sortBy, filterType]);
-
-  useEffect(() => {
-    setIsSearching(isPendingTransition);
-  }, [isPendingTransition]);
 
   const processedResults = sortedAndFilteredResults();
   const hasResults = processedResults.length > 0;

@@ -7,7 +7,7 @@ export function ItemsListSkeleton() {
         <div key={columnIndex} className="flex flex-col gap-6">
           <Skeleton className="h-6 w-20 -ml-4" />
           <div className="space-y-2">
-            {Array.from({ length: Math.floor(Math.random() * 5) + 1 }).map(
+            {Array.from({ length: 3 }).map(
               (_, itemIndex) => (
                 <div key={itemIndex} className="pl-2">
                   <Skeleton className="h-4 w-full mb-1" />

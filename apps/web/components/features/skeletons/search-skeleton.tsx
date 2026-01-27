@@ -7,7 +7,7 @@ export function SearchResultsSkeleton() {
         <div key={columnIndex} className="flex flex-col gap-6">
           <Skeleton className="h-6 w-24 -ml-4" />
           <div className="space-y-3">
-            {Array.from({ length: Math.floor(Math.random() * 4) + 1 }).map(
+            {Array.from({ length: 3 }).map(
               (_, itemIndex) => (
                 <div key={itemIndex} className="pl-2">
                   <div className="space-y-1">
