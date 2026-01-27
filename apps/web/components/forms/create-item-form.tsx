@@ -81,7 +81,8 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
       >
         {/* Screen reader announcements for form errors */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">
-          {hasErrors && `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}
+          {hasErrors &&
+            `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}
         </div>
 
         <div className="space-y-5">
@@ -145,7 +146,9 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
                         type="number"
                         {...field}
                         value={formatNumberInputValue(field.value as number)}
-                        onChange={(e) => field.onChange(toNumber(e.target.value))}
+                        onChange={(e) =>
+                          field.onChange(toNumber(e.target.value))
+                        }
                       />
                     </FormControl>
                     <FormMessage />

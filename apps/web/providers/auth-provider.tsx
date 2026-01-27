@@ -43,9 +43,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
     // 2) Subscribe to auth state changes
-    const { data } = supabaseBrowser.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    const { data } = supabaseBrowser.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      },
+    );
 
     return () => {
       data.subscription.unsubscribe();

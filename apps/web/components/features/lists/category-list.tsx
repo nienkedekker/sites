@@ -3,7 +3,14 @@ import DeleteItemDialog from "./delete-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
-import { BookOpen, Film, Tv, RotateCcw, Clock } from "lucide-react";
+import {
+  BookOpen,
+  Film,
+  Tv,
+  RotateCcw,
+  Clock,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/utils/ui";
 import { cardStyles, textStyles, badgeStyles } from "@/utils/styles";
 
@@ -13,20 +20,103 @@ interface CategoryListProps {
   showYearLink?: boolean;
 }
 
-/** Returns the appropriate icon component for the given item type. */
-const getIcon = (itemType: string) => {
-  switch (itemType) {
-    case "Book":
-      return <BookOpen className="w-5 h-5" />;
-    case "Movie":
-      return <Film className="w-5 h-5" />;
-    case "Show":
-      return <Tv className="w-5 h-5" />;
-    default:
-      return <BookOpen className="w-5 h-5" />;
-  }
+const ICON_MAP: Record<string, LucideIcon> = {
+  Book: BookOpen,
+  Movie: Film,
+  Show: Tv,
 };
 
+function ItemBadge({
+  icon: Icon,
+  label,
+  variant,
+  ariaLabel,
+}: {
+  icon: LucideIcon;
+  label: string;
+  variant: "progress" | "amber";
+  ariaLabel: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
+        badgeStyles[variant],
+      )}
+      aria-label={ariaLabel}
+    >
+      <Icon className="w-3 h-3" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+/** Renders the metadata line based on item type */
+function ItemMetadata({ item }: { item: Item }) {
+  switch (item.itemtype) {
+    case "Book":
+      return (
+        <>
+          {item.author && <span>by {item.author}</span>}
+          {item.published_year && <span>({item.published_year})</span>}
+        </>
+      );
+    case "Movie":
+      return (
+        <span>
+          {item.director && `dir. ${item.director}`}
+          {item.director && item.published_year && " • "}
+          {item.published_year}
+        </span>
+      );
+    case "Show":
+      return item.season ? <span>Season {item.season}</span> : null;
+    default:
+      return null;
+  }
+}
+
+/** Renders the appropriate badge(s) for an item */
+function ItemBadges({ item }: { item: Item }) {
+  // Show in progress + rewatch
+  if (item.itemtype === "Show" && item.in_progress && item.redo) {
+    return (
+      <ItemBadge
+        icon={RotateCcw}
+        label="Rewatch in progress"
+        variant="progress"
+        ariaLabel="Currently rewatching this show"
+      />
+    );
+  }
+
+  // Show in progress (not rewatch)
+  if (item.itemtype === "Show" && item.in_progress) {
+    return (
+      <ItemBadge
+        icon={Clock}
+        label="In Progress"
+        variant="progress"
+        ariaLabel="Currently watching this show"
+      />
+    );
+  }
+
+  // Redo badge (not currently in progress)
+  if (item.redo) {
+    const isBook = item.itemtype === "Book";
+    return (
+      <ItemBadge
+        icon={RotateCcw}
+        label={isBook ? "Reread" : "Rewatch"}
+        variant="amber"
+        ariaLabel={isBook ? "This was a re-read" : "This was a rewatch"}
+      />
+    );
+  }
+
+  return null;
+}
 
 export function CategoryList({
   categoryTitle,
@@ -34,13 +124,14 @@ export function CategoryList({
   showYearLink = false,
 }: CategoryListProps) {
   const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-heading`;
-  const itemType = items[0]?.itemtype || categoryTitle.slice(0, -1); // Remove 's' from plural
+  const itemType = items[0]?.itemtype || categoryTitle.slice(0, -1);
+  const Icon = ICON_MAP[itemType] || BookOpen;
 
   return (
-    <section aria-labelledby={headingId} className="space-y-6">
-      <div className="flex items-center gap-3 mb-6">
+    <section aria-labelledby={headingId}>
+      <header className="flex items-center gap-3 mb-6">
         <div className="p-2 text-gray-300 dark:text-gray-600">
-          {getIcon(itemType)}
+          <Icon className="w-5 h-5" aria-hidden="true" />
         </div>
         <div>
           <h2
@@ -53,153 +144,65 @@ export function CategoryList({
             {items.length} {items.length === 1 ? "item" : "items"}
           </p>
         </div>
-      </div>
+      </header>
 
       {items.length > 0 ? (
-        <div className="space-y-3">
+        <ul className="space-y-5">
           {items.map((item, index) => (
-            <div
-              key={item.id}
-              className={cn(
-                "group relative p-3 rounded-lg border transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-700 min-h-[85px] flex flex-col",
-                cardStyles,
-              )}
-            >
-              {/* Item Number */}
-              <div className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-600 rounded-full flex items-center justify-center text-xs font-medium">
-                {index + 1}
-              </div>
+            <li key={item.id}>
+              <article
+                className={cn(
+                  "relative p-5 rounded-lg border transition-colors hover:border-gray-300 dark:hover:border-gray-700",
+                  cardStyles,
+                )}
+              >
+                <span
+                  className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-600 rounded-full flex items-center justify-center text-xs font-medium"
+                  aria-hidden="true"
+                >
+                  {index + 1}
+                </span>
 
-              {/* Main Content */}
-              <div className="ml-5 flex-1 flex flex-col overflow-hidden justify-center">
-                <div className="flex-1 overflow-hidden flex flex-col justify-center">
-                  <div className="flex items-start justify-between mb-1">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
-                        {item.title}
-                      </h3>
-
-                      {/* Metadata */}
-                      <div
-                        className={cn(
-                          "flex flex-wrap items-center gap-1 mt-0.5 text-xs",
-                          textStyles.muted,
-                        )}
-                      >
-                        {item.itemtype === "Book" && item.author && (
-                          <span>by {item.author}</span>
-                        )}
-                        {item.itemtype === "Movie" && (
-                          <span>
-                            {item.director && `dir. ${item.director}`}
-                            {item.director && item.published_year && " • "}
-                            {item.published_year}
-                          </span>
-                        )}
-                        {item.itemtype === "Show" && item.season && (
-                          <span>Season {item.season}</span>
-                        )}
-
-                        {item.published_year && item.itemtype === "Book" && (
-                          <span className="text-xs">
-                            ({item.published_year})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="flex items-center gap-1.5">
-                      {/* Rewatch in Progress Badge - Shows only */}
-                      {item.itemtype === "Show" &&
-                        item.in_progress &&
-                        item.redo && (
-                          <div
-                            className={cn(
-                              "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-                              badgeStyles.progress,
-                            )}
-                            aria-label="Currently rewatching this show"
-                          >
-                            <RotateCcw className="w-3 h-3" />
-                            Rewatch in progress
-                          </div>
-                        )}
-
-                      {/* In Progress Badge - Shows only, not a rewatch */}
-                      {item.itemtype === "Show" &&
-                        item.in_progress &&
-                        !item.redo && (
-                          <div
-                            className={cn(
-                              "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-                              badgeStyles.progress,
-                            )}
-                            aria-label="Currently watching this show"
-                          >
-                            <Clock className="w-3 h-3" />
-                            In Progress
-                          </div>
-                        )}
-
-                      {/* Redo Badge - not in progress */}
-                      {item.redo &&
-                        !(item.itemtype === "Show" && item.in_progress) && (
-                          <div
-                            className={cn(
-                              "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-                              badgeStyles.amber,
-                            )}
-                            aria-label={
-                              item.itemtype === "Book"
-                                ? "This was a re-read"
-                                : "This was a rewatch"
-                            }
-                          >
-                            <RotateCcw className="w-3 h-3" />
-                            {item.itemtype === "Book" ? "Reread" : "Rewatch"}
-                          </div>
-                        )}
-                    </div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
+                      {item.title}
+                    </h3>
+                    <p
+                      className={cn(
+                        "flex flex-wrap items-center gap-1 mt-0.5 text-xs",
+                        textStyles.muted,
+                      )}
+                    >
+                      <ItemMetadata item={item} />
+                    </p>
                   </div>
-
-                  {/* Year Link */}
-                  {showYearLink && (
-                    <div className="pt-2 border-t border-current/10">
-                      <Link
-                        href={`/year/${item.belongs_to_year}`}
-                        className={cn(
-                          "text-xs hover:underline transition-colors",
-                          textStyles.mutedLight,
-                          "hover:text-gray-700 dark:hover:text-gray-300",
-                        )}
-                        aria-label={`View all items from ${item.belongs_to_year}`}
-                      >
-                        Added in {item.belongs_to_year}
-                      </Link>
-                    </div>
-                  )}
+                  <ItemBadges item={item} />
                 </div>
 
-                {/* Actions - Always at bottom */}
+                {showYearLink && (
+                  <div className="pt-2 mt-2 border-t border-current/10">
+                    <Link
+                      href={`/year/${item.belongs_to_year}`}
+                      className={cn(
+                        "text-xs hover:underline transition-colors",
+                        textStyles.mutedLight,
+                        "hover:text-gray-700 dark:hover:text-gray-300",
+                      )}
+                    >
+                      Added in {item.belongs_to_year}
+                    </Link>
+                  </div>
+                )}
+
                 <IsLoggedIn>
-                  <div
-                    className="flex items-center gap-1 pt-1 mt-auto"
-                    role="group"
-                    aria-label={`Actions for ${item.title}`}
-                  >
+                  <div className="flex items-center gap-2 mt-3">
                     <Button
                       asChild
-                      size="sm"
-                      variant="ghost"
-                      className="h-5 px-1.5 text-xs"
+                      variant="link"
+                      className="text-xs p-0 h-auto"
                     >
-                      <Link
-                        href={`/item/${item.id}`}
-                        aria-label={`Update ${item.title}`}
-                      >
-                        Edit
-                      </Link>
+                      <Link href={`/item/${item.id}`}>Edit</Link>
                     </Button>
                     <DeleteItemDialog
                       itemId={item.id}
@@ -207,10 +210,10 @@ export function CategoryList({
                     />
                   </div>
                 </IsLoggedIn>
-              </div>
-            </div>
+              </article>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
         <div
           className={cn(
@@ -219,7 +222,7 @@ export function CategoryList({
           )}
         >
           <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-            {getIcon(itemType)}
+            <Icon className="w-5 h-5" aria-hidden="true" />
           </div>
           <p className="text-center font-medium">
             I did not log any {categoryTitle.toLowerCase()} this year.

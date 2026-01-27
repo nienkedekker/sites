@@ -34,8 +34,8 @@ export function YearLinks({ years }: YearLinksProps) {
               aria-current={isActive ? "page" : undefined}
               className={
                 isActive
-                  ? "font-bold text-indigo-900 dark:text-white bg-indigo-200 dark:bg-indigo-800 px-2 py-0.5 rounded-md"
-                  : "font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                  ? "text-indigo-900 dark:text-white bg-indigo-200 dark:bg-indigo-800 px-2 py-0.5 rounded-md"
+                  : "text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
               }
             >
               {y}

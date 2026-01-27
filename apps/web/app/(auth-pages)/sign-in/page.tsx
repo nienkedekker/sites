@@ -22,7 +22,16 @@ import { signInActionReturnSession } from "@/app/actions/auth";
 import { supabaseBrowser } from "@/utils/supabase/browser";
 
 /** Allowed redirect paths (whitelist for security) */
-const ALLOWED_REDIRECT_PREFIXES = ["/", "/year/", "/item/", "/stats", "/search", "/about", "/export", "/create"];
+const ALLOWED_REDIRECT_PREFIXES = [
+  "/",
+  "/year/",
+  "/item/",
+  "/stats",
+  "/search",
+  "/about",
+  "/export",
+  "/create",
+];
 
 /**
  * Validates and sanitizes a redirect URL.

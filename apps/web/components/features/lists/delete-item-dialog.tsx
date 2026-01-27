@@ -29,7 +29,7 @@ export default function DeleteItemDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="link" className="text-xs p-0 cursor-pointer">
+        <Button variant="link" className="text-xs p-0 h-auto">
           Delete
         </Button>
       </DialogTrigger>

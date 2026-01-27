@@ -10,15 +10,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-      detectSessionInUrl: false,
-      flowType: "implicit",
-    },
-    global: {
-      headers: {
-        // no Authorization cookie header; anonymous RLS applies
-      },
+  auth: {
+    persistSession: false,
+    detectSessionInUrl: false,
+    flowType: "implicit",
+  },
+  global: {
+    headers: {
+      // no Authorization cookie header; anonymous RLS applies
     },
   },
-);
+});
