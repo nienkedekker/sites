@@ -17,7 +17,7 @@ export function HighlightText({ text, query, className }: HighlightTextProps) {
     <span className={className}>
       {parts.map((part, index) =>
         regex.test(part) ? (
-          <mark key={index} className="bg-movies px-0.5 text-white">
+          <mark key={index} className="bg-movies/20 px-0.5 text-inherit">
             {part}
           </mark>
         ) : (
