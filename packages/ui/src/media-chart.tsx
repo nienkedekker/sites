@@ -21,7 +21,7 @@ const MONTHS = [
   "December",
 ];
 
-function niceScale(max: number) {
+export function niceScale(max: number) {
   const step = max > 30 ? 10 : 5;
   const top = Math.max(step, Math.ceil(max / step) * step);
   const ticks = Array.from({ length: top / step + 1 }, (_, i) => i * step);

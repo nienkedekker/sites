@@ -71,126 +71,124 @@ async function getAllItems(): Promise<TypedItem[]> {
 const byLogDate = (a: TypedItem, b: TypedItem) =>
   (a.created_at ?? "").localeCompare(b.created_at ?? "");
 
-export const getStatsData = unstable_cache(
-  async (): Promise<StatsData> => {
-    const items = await getAllItems();
+export function computeStats(items: TypedItem[]): StatsData {
+  const byYear = new Map<number, TypedItem[]>();
+  for (const item of items) {
+    const list = byYear.get(item.belongs_to_year) ?? [];
+    list.push(item);
+    byYear.set(item.belongs_to_year, list);
+  }
 
-    const byYear = new Map<number, TypedItem[]>();
-    for (const item of items) {
-      const list = byYear.get(item.belongs_to_year) ?? [];
-      list.push(item);
-      byYear.set(item.belongs_to_year, list);
-    }
+  const loggedYears = [...byYear.keys()];
+  const first = Math.min(...loggedYears);
+  const last = Math.max(...loggedYears);
+  const allYears = loggedYears.length
+    ? Array.from({ length: last - first + 1 }, (_, i) => first + i)
+    : [];
 
-    const loggedYears = [...byYear.keys()];
-    const first = Math.min(...loggedYears);
-    const last = Math.max(...loggedYears);
-    const allYears = loggedYears.length
-      ? Array.from({ length: last - first + 1 }, (_, i) => first + i)
-      : [];
-
-    const years = allYears.map((year) => ({
-      year,
-      entries: [...(byYear.get(year) ?? [])]
-        .sort(
-          (a, b) =>
-            TYPE_ORDER[a.itemtype] - TYPE_ORDER[b.itemtype] || byLogDate(a, b),
-        )
-        .map(({ id, title, itemtype }) => ({ id, title, type: itemtype })),
-    }));
-
-    const people = new Map<string, Record<ItemType, number>>();
-    for (const item of items) {
-      const names =
-        item.itemtype === "Book"
-          ? splitNames(item.author)
-          : item.itemtype === "Movie"
-            ? splitNames(item.director)
-            : [];
-      for (const name of names) {
-        const counts = people.get(name) ?? { Book: 0, Movie: 0, Show: 0 };
-        counts[item.itemtype] += 1;
-        people.set(name, counts);
-      }
-    }
-
-    const topPeople = [...people]
-      .filter(([name]) => !HIDDEN_PEOPLE.has(name))
-      .map(([name, counts]) => {
-        const count = counts.Book + counts.Movie + counts.Show;
-        const type = (Object.keys(counts) as ItemType[]).reduce((a, b) =>
-          counts[b] > counts[a] ? b : a,
-        );
-        return { name, count, type };
-      })
-      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-      .slice(0, PEOPLE_COUNT);
-
-    const monthRows = allYears
-      .filter((year) => hasMonthlyData(byYear.get(year) ?? [], year))
-      .map((year) => {
-        const months: MonthCell[] = Array.from({ length: 12 }, () => ({
-          books: 0,
-          movies: 0,
-          shows: 0,
-          titles: [],
-        }));
-        for (const item of [...(byYear.get(year) ?? [])].sort(byLogDate)) {
-          const index = monthIndex(item, year);
-          if (index === null) continue;
-          const key = {
-            Book: "books",
-            Movie: "movies",
-            Show: "shows",
-          } as const;
-          months[index][key[item.itemtype]] += 1;
-          months[index].titles.push({ title: item.title, type: item.itemtype });
-        }
-        return { year, months };
-      });
-
-    const titles = new Map<
-      string,
-      { title: string; type: ItemType; redo: number; seen: Map<string, number> }
-    >();
-    for (const item of items) {
-      const makers = [
-        ...splitNames(item.itemtype === "Book" ? item.author : null),
-        ...splitNames(item.itemtype === "Movie" ? item.director : null),
-      ];
-      if (makers.some((name) => HIDDEN_PEOPLE.has(name))) continue;
-      const key = `${item.itemtype}|${item.title.trim().toLowerCase()}`;
-      const group = titles.get(key) ?? {
-        title: item.title,
-        type: item.itemtype,
-        redo: 0,
-        seen: new Map<string, number>(),
-      };
-      if (item.redo) group.redo += 1;
-      const season = item.itemtype === "Show" ? String(item.season ?? "") : "";
-      group.seen.set(season, (group.seen.get(season) ?? 0) + 1);
-      titles.set(key, group);
-    }
-
-    const mostReread = [...titles.values()]
-      .filter((group) => group.redo > 0)
-      .map(({ title, type, redo, seen }) => ({
-        title,
-        type,
-        redo,
-        times: Math.max(...seen.values()),
-      }))
+  const years = allYears.map((year) => ({
+    year,
+    entries: [...(byYear.get(year) ?? [])]
       .sort(
         (a, b) =>
-          b.times - a.times ||
-          b.redo - a.redo ||
-          a.title.localeCompare(b.title),
+          TYPE_ORDER[a.itemtype] - TYPE_ORDER[b.itemtype] || byLogDate(a, b),
       )
-      .slice(0, REVISIT_COUNT)
-      .map(({ title, type, times }) => ({ title, type, times }));
+      .map(({ id, title, itemtype }) => ({ id, title, type: itemtype })),
+  }));
 
-    return { years, people: topPeople, monthRows, mostReread };
-  },
+  const people = new Map<string, Record<ItemType, number>>();
+  for (const item of items) {
+    const names =
+      item.itemtype === "Book"
+        ? splitNames(item.author)
+        : item.itemtype === "Movie"
+          ? splitNames(item.director)
+          : [];
+    for (const name of names) {
+      const counts = people.get(name) ?? { Book: 0, Movie: 0, Show: 0 };
+      counts[item.itemtype] += 1;
+      people.set(name, counts);
+    }
+  }
+
+  const topPeople = [...people]
+    .filter(([name]) => !HIDDEN_PEOPLE.has(name))
+    .map(([name, counts]) => {
+      const count = counts.Book + counts.Movie + counts.Show;
+      const type = (Object.keys(counts) as ItemType[]).reduce((a, b) =>
+        counts[b] > counts[a] ? b : a,
+      );
+      return { name, count, type };
+    })
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+    .slice(0, PEOPLE_COUNT);
+
+  const monthRows = allYears
+    .filter((year) => hasMonthlyData(byYear.get(year) ?? [], year))
+    .map((year) => {
+      const months: MonthCell[] = Array.from({ length: 12 }, () => ({
+        books: 0,
+        movies: 0,
+        shows: 0,
+        titles: [],
+      }));
+      for (const item of [...(byYear.get(year) ?? [])].sort(byLogDate)) {
+        const index = monthIndex(item, year);
+        if (index === null) continue;
+        const key = {
+          Book: "books",
+          Movie: "movies",
+          Show: "shows",
+        } as const;
+        months[index][key[item.itemtype]] += 1;
+        months[index].titles.push({ title: item.title, type: item.itemtype });
+      }
+      return { year, months };
+    });
+
+  const titles = new Map<
+    string,
+    { title: string; type: ItemType; redo: number; seen: Map<string, number> }
+  >();
+  for (const item of items) {
+    const makers = [
+      ...splitNames(item.itemtype === "Book" ? item.author : null),
+      ...splitNames(item.itemtype === "Movie" ? item.director : null),
+    ];
+    if (makers.some((name) => HIDDEN_PEOPLE.has(name))) continue;
+    const key = `${item.itemtype}|${item.title.trim().toLowerCase()}`;
+    const group = titles.get(key) ?? {
+      title: item.title,
+      type: item.itemtype,
+      redo: 0,
+      seen: new Map<string, number>(),
+    };
+    if (item.redo) group.redo += 1;
+    const season = item.itemtype === "Show" ? String(item.season ?? "") : "";
+    group.seen.set(season, (group.seen.get(season) ?? 0) + 1);
+    titles.set(key, group);
+  }
+
+  const mostReread = [...titles.values()]
+    .filter((group) => group.redo > 0)
+    .map(({ title, type, redo, seen }) => ({
+      title,
+      type,
+      redo,
+      times: Math.max(...seen.values()),
+    }))
+    .sort(
+      (a, b) =>
+        b.times - a.times || b.redo - a.redo || a.title.localeCompare(b.title),
+    )
+    .slice(0, REVISIT_COUNT)
+    .map(({ title, type, times }) => ({ title, type, times }));
+
+  return { years, people: topPeople, monthRows, mostReread };
+}
+
+export const getStatsData = unstable_cache(
+  async (): Promise<StatsData> => computeStats(await getAllItems()),
   ["stats-data"],
   { revalidate: 3600 },
 );

@@ -1,0 +1,29 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      KV_REST_API_URL: https://ci.invalid
+      KV_REST_API_TOKEN: ci
+      WANIKANI_KEY: ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Types
+        if: ${{ !cancelled() }}
+        run: npm run check-types
+      - name: Tests
+        if: ${{ !cancelled() }}
+        run: npm test

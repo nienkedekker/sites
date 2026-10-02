@@ -20,30 +20,7 @@ import { formStyles } from "@/utils/styles";
 import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
 import { signInActionReturnSession } from "@/app/actions/auth";
 import { supabaseBrowser } from "@/utils/supabase/browser";
-
-const ALLOWED_REDIRECT_PREFIXES = [
-  "/",
-  "/year/",
-  "/stats",
-  "/search",
-  "/about",
-  "/export",
-  "/create",
-];
-
-function getSafeRedirectUrl(rawRedirect: string | null): string {
-  if (!rawRedirect) return "/";
-
-  if (!rawRedirect.startsWith("/") || rawRedirect.startsWith("//")) {
-    return "/";
-  }
-
-  const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(
-    (prefix) => rawRedirect === prefix || rawRedirect.startsWith(prefix),
-  );
-
-  return isAllowed ? rawRedirect : "/";
-}
+import { getSafeRedirectUrl } from "@/utils/auth/safe-redirect";
 
 function getQueryMessage(
   searchParams: URLSearchParams,

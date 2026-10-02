@@ -25,6 +25,9 @@
     "lint": {
       "dependsOn": ["^build"]
     },
+    "check-types": {
+      "dependsOn": ["^build"]
+    },
     "format": {
       "dependsOn": ["^build"]
     },
@@ -32,6 +35,10 @@
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "passThroughEnv": ["KV_REST_API_URL", "KV_REST_API_TOKEN", "WANIKANI_KEY"]
     }
   }
 }
