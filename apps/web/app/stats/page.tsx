@@ -39,7 +39,7 @@ async function StatsContent() {
           Total items logged across {yearsLogged} distinct years
         </p>
         <p className="text-ink-soft">
-          Displaying counts of Books, Movies, and TV Shows logged across all
+          Displaying counts of books, movies, and TV shows logged across all
           years.
         </p>
       </ItemCountBarChart>
@@ -50,7 +50,7 @@ async function StatsContent() {
       >
         <p className="font-medium">Total items logged in {currentYear}</p>
         <p className="text-ink-soft">
-          Displaying counts of Books, Movies, and TV Shows logged this year.
+          Displaying counts of books, movies, and TV shows logged this year.
         </p>
       </ItemCountBarChart>
       <div className="lg:col-span-2">
