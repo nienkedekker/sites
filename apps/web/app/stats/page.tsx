@@ -1,15 +1,26 @@
 import { Suspense } from "react";
-import { fetchStatsData } from "@/utils/fetch-stats-data";
-import { ItemCountBarChart } from "@/components/features/charts/item-count-bar-chart";
+import { fetchCumulativeCounts } from "@/utils/fetch-stats-data";
+import { getStatsData } from "@/utils/data/stats";
 import { CumulativeLineChart } from "@/components/features/charts/cumulative-line-chart";
+import { EveryEntry } from "@/components/features/stats/every-entry";
+import { MostLogged } from "@/components/features/stats/most-logged";
+import { MonthHeatmap } from "@/components/features/stats/month-heatmap";
+import { StatTile } from "@/components/features/stats/stat-tile";
+import { MostReread } from "@/components/features/stats/most-reread";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { CHART_CONFIG } from "@/utils/constants/app";
 
 async function StatsContent() {
-  const statsData = await fetchStatsData();
+  const [stats, cumulative] = await Promise.all([
+    getStatsData().catch((error) => {
+      console.error("Error building stats:", error);
+      return null;
+    }),
+    fetchCumulativeCounts(),
+  ]);
 
-  if (!statsData) {
+  if (!stats && !cumulative) {
     return (
       <div role="alert" className="card p-6 sm:p-7">
         <p className="text-danger">Unable to load chart data right now.</p>
@@ -20,45 +31,54 @@ async function StatsContent() {
     );
   }
 
-  const {
-    chartData,
-    chartDataCurrentYear,
-    chartDataCum,
-    yearsLogged,
-    currentYear,
-  } = statsData;
+  const busiest = stats?.years.reduce((a, b) =>
+    b.entries.length > a.entries.length ? b : a,
+  );
 
   return (
+    // A bento like nienke.dev's: two columns that stack their cards at their
+    // own heights, the last card in each stretching so the columns end level.
+    // Below lg the column wrappers are display: contents and cards just flow.
     <div className="grid gap-3 lg:grid-cols-2">
-      <ItemCountBarChart
-        chartData={chartData ?? []}
-        config={CHART_CONFIG}
-        title="Items over time"
-      >
-        <p className="font-medium">
-          Total items logged across {yearsLogged} distinct years
-        </p>
-        <p className="text-ink-soft">
-          Displaying counts of books, movies, and TV shows logged across all
-          years.
-        </p>
-      </ItemCountBarChart>
-      <ItemCountBarChart
-        config={CHART_CONFIG}
-        chartData={chartDataCurrentYear ?? []}
-        title={`Items in ${currentYear}`}
-      >
-        <p className="font-medium">Total items logged in {currentYear}</p>
-        <p className="text-ink-soft">
-          Displaying counts of books, movies, and TV shows logged this year.
-        </p>
-      </ItemCountBarChart>
-      <div className="lg:col-span-2">
-        <CumulativeLineChart
-          chartData={chartDataCum ?? []}
-          config={CHART_CONFIG}
-        />
-      </div>
+      {stats && (
+        <>
+          <div className="contents lg:flex lg:flex-col lg:gap-3">
+            <EveryEntry years={stats.years} />
+            <div className="grid gap-3 sm:grid-cols-5 lg:flex-1">
+              {busiest && (
+                <div className="sm:col-span-2">
+                  <StatTile
+                    title="Busiest year"
+                    value={busiest.entries.length}
+                    tag={String(busiest.year)}
+                    href={`/year/${busiest.year}`}
+                  >
+                    things logged in one year.
+                  </StatTile>
+                </div>
+              )}
+              {stats.mostReread.length > 0 && (
+                <div className="sm:col-span-3">
+                  <MostReread titles={stats.mostReread} />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="contents lg:flex lg:flex-col lg:gap-3">
+            <MostLogged people={stats.people} />
+            {stats.monthRows.length > 0 && (
+              <div className="lg:flex-1 [&>section]:h-full">
+                <MonthHeatmap rows={stats.monthRows} />
+              </div>
+            )}
+          </div>
+        </>
+      )}
+      {cumulative && (
+        <div className="lg:col-span-2">
+          <CumulativeLineChart chartData={cumulative} config={CHART_CONFIG} />
+        </div>
+      )}
     </div>
   );
 }

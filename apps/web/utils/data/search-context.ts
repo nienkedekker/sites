@@ -18,7 +18,7 @@ const PAGE_SIZE = 1000;
 const SUGGESTION_COUNT = 8;
 
 // Co-authors and co-directors are stored as "Joel Coen, Ethan Coen"
-const splitNames = (value: string | null) =>
+export const splitNames = (value: string | null) =>
   (value ?? "")
     .split(/,\s*|\s+&\s+/)
     .map((name) => name.trim())
