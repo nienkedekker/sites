@@ -5,6 +5,10 @@
 //   npx tsx --env-file=.env.local scripts/backfill-external-details.ts --only "Kafka|Runaways"
 //   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
 //     --report matches.tsv --sql backfill.sql
+// --refresh skips matching and re-checks items that are already matched but
+// still have no page count or runtime, like a season the source added later:
+//   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
+//     --refresh --sql refresh.sql
 import { writeFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
@@ -40,6 +44,7 @@ const reportPath = arg("--report");
 const sqlPath = arg("--sql");
 // e.g. --only "Kafka|Runaways" to retry a few titles
 const only = arg("--only");
+const refresh = process.argv.includes("--refresh");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -235,6 +240,39 @@ function writeSql(results: Result[], path: string) {
   return updates.length;
 }
 
+const missingDetails = (item: TypedItem) =>
+  item.itemtype === "Book" ? !item.pages : !item.runtime_minutes;
+
+async function refreshDetails(items: TypedItem[]) {
+  const updates: string[] = [];
+  for (const item of items) {
+    const details = await getExternalDetails(
+      item.itemtype,
+      item.external_id!,
+      item.season ?? null,
+    );
+    await sleep(item.itemtype === "Book" ? 600 : 150);
+    const label = `${item.itemtype.padEnd(5)} ${item.title}${
+      item.season ? ` S${item.season}` : ""
+    }`;
+    if (!details.pages && !details.runtime_minutes) {
+      console.log(`  ·  ${label}: still nothing`);
+      continue;
+    }
+    console.log(`  ✓  ${label} ${JSON.stringify(details)}`);
+    // coalesce keeps anything already filled in
+    const sets = [
+      `pages = coalesce(pages, ${sqlValue(details.pages)})`,
+      `runtime_minutes = coalesce(runtime_minutes, ${sqlValue(details.runtime_minutes)})`,
+      `based_on = coalesce(based_on, ${sqlValue(details.based_on)})`,
+    ].join(", ");
+    updates.push(
+      `update public.items set ${sets} where id = ${sqlValue(item.id)} and external_id = ${sqlValue(item.external_id)}; -- ${item.title.replace(/\n/g, " ")}`,
+    );
+  }
+  return updates;
+}
+
 function report(results: Result[], path: string) {
   const clean = (value: unknown) =>
     String(value ?? "").replace(/[\t\n]+/g, " ");
@@ -290,9 +328,23 @@ async function main() {
   const items = rows
     .map(validateAndTypeItem)
     .filter((item): item is TypedItem => item !== null)
-    .filter((item) => !item.external_id)
+    .filter((item) =>
+      refresh ? !!item.external_id && missingDetails(item) : !item.external_id,
+    )
     .filter((item) => !only || new RegExp(only, "i").test(item.title))
     .slice(0, limit);
+
+  if (refresh) {
+    const updates = await refreshDetails(items);
+    if (sqlPath) {
+      writeFileSync(sqlPath, ["begin;", ...updates, "commit;", ""].join("\n"));
+      console.log(`Wrote ${updates.length} updates to ${sqlPath}`);
+    }
+    console.log(
+      `${updates.length} of ${items.length} now have details. Nothing was saved to the database.`,
+    );
+    return;
+  }
 
   // OpenLibrary asks for gentle traffic, TMDB allows much more, so run the
   // two side by side at their own pace
