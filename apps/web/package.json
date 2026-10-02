@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "generate-supabase-types": "supabase gen types --project-id vzwinsutzsthubwvgpgr > types/database.ts",
-    "check-types": "tsc --noEmit",
+    "check-types": "next typegen && tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
