@@ -19,7 +19,7 @@ export default async function AboutPage() {
         <p>
           I (<Link href="https://nienke.dev">Nienke</Link>) like to log what I
           read and watch in a year :) find the source code for this site{" "}
-          <Link href="https://github.com/nienkedekker/what.pm">here</Link>.
+          <Link href="https://github.com/nienkedekker/sites">here</Link>.
         </p>
       </div>
     </div>
