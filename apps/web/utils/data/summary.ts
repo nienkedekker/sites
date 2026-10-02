@@ -51,3 +51,18 @@ export function summarizeYear(items: TypedItem[], year: number): YearSummary {
     url: `https://what.pm/year/${year}`,
   };
 }
+
+/**
+ * Whether a year's month-by-month counts mean anything. Older years were
+ * back-filled long after they ended, so all their log dates are later and
+ * countByMonth puts every item in December. If fewer than half of the items
+ * were logged during the year itself, treat the months as unknown.
+ */
+export function hasMonthlyData(items: TypedItem[], year: number): boolean {
+  const dated = items.filter((item) => item.created_at);
+  if (dated.length === 0) return false;
+  const loggedInYear = dated.filter(
+    (item) => Number(item.created_at!.slice(0, 4)) === year,
+  ).length;
+  return loggedInYear / dated.length >= 0.5;
+}
