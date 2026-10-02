@@ -114,3 +114,101 @@ export function rereadRhythms(
         a.title.localeCompare(b.title),
     );
 }
+
+export interface Adaptation {
+  book: { title: string; author: string; year: number };
+  screen: { title: string; type: "Movie" | "Show"; year: number };
+}
+
+export const normalizeTitle = (title: string) =>
+  title
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/^(the|a|an) /, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+// "Dune: Part Two" counts as an adaptation of "Dune", but "Dune Messiah"
+// doesn't match "Dune: Part Two"
+function titlesMatch(book: string, screen: string) {
+  const a = normalizeTitle(book);
+  const b = normalizeTitle(screen);
+  return a.length > 2 && (a === b || b.startsWith(`${a} `));
+}
+
+export function findAdaptations(items: TypedItem[]): Adaptation[] {
+  const books = items.filter((item) => item.itemtype === "Book");
+  const screens = items.filter(
+    (item) => item.itemtype !== "Book" && item.based_on,
+  );
+  const pairs = new Map<string, Adaptation>();
+
+  for (const screen of screens) {
+    const sources = new Set(splitNames(screen.based_on).map(normalizeTitle));
+    for (const book of books) {
+      if (!titlesMatch(book.title, screen.title)) continue;
+      // Pen names (James S.A. Corey) won't match the credited writers, so an
+      // identical title is enough on its own
+      const sameAuthor = splitNames(book.author).some((name) =>
+        sources.has(normalizeTitle(name)),
+      );
+      const sameTitle =
+        normalizeTitle(book.title) === normalizeTitle(screen.title);
+      if (!sameAuthor && !sameTitle) continue;
+
+      const key = `${normalizeTitle(book.title)}|${normalizeTitle(screen.title)}`;
+      const existing = pairs.get(key);
+      pairs.set(key, {
+        book: {
+          title: book.title,
+          author: book.author ?? "",
+          year: Math.min(
+            existing?.book.year ?? Infinity,
+            book.belongs_to_year,
+          ),
+        },
+        screen: {
+          title: screen.title,
+          type: screen.itemtype as "Movie" | "Show",
+          year: Math.min(
+            existing?.screen.year ?? Infinity,
+            screen.belongs_to_year,
+          ),
+        },
+      });
+    }
+  }
+
+  return [...pairs.values()].sort(
+    (a, b) =>
+      Math.max(b.book.year, b.screen.year) -
+        Math.max(a.book.year, a.screen.year) ||
+      a.book.title.localeCompare(b.book.title),
+  );
+}
+
+export interface TimeSpent {
+  pages: number;
+  booksWithPages: number;
+  books: number;
+  minutes: number;
+  screensWithRuntime: number;
+  screens: number;
+}
+
+export function timeSpent(items: TypedItem[]): TimeSpent {
+  const books = items.filter((item) => item.itemtype === "Book");
+  const screens = items.filter((item) => item.itemtype !== "Book");
+  const paged = books.filter((item) => item.pages);
+  const timed = screens.filter((item) => item.runtime_minutes);
+  return {
+    pages: paged.reduce((sum, item) => sum + (item.pages ?? 0), 0),
+    booksWithPages: paged.length,
+    books: books.length,
+    minutes: timed.reduce((sum, item) => sum + (item.runtime_minutes ?? 0), 0),
+    screensWithRuntime: timed.length,
+    screens: screens.length,
+  };
+}

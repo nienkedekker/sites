@@ -24,6 +24,7 @@ const baseItemSchema = z.object({
   belongsToYear: yearSchema,
   publishedYear: yearSchema,
   redo: z.boolean(),
+  externalId: z.string().trim().max(100).optional(),
 });
 
 export const bookItemSchema = baseItemSchema.extend({

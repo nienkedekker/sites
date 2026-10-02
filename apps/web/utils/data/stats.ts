@@ -5,8 +5,10 @@ import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
 import { HIDDEN_PEOPLE } from "@/utils/constants/app";
 import {
+  findAdaptations,
   paceYears,
   rereadRhythms,
+  type Adaptation,
   type PaceYear,
   type Rhythm,
 } from "@/utils/data/patterns";
@@ -43,6 +45,7 @@ export interface StatsData {
   mostReread: Revisit[];
   pace: PaceYear[];
   rhythms: Rhythm[];
+  adaptations: Adaptation[];
 }
 
 export interface Revisit {
@@ -206,6 +209,7 @@ export function computeStats(items: TypedItem[]): StatsData {
       new Date().getFullYear(),
       HIDDEN_PEOPLE,
     ).slice(0, RHYTHM_COUNT),
+    adaptations: findAdaptations(items),
   };
 }
 

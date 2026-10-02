@@ -4,8 +4,13 @@ import { createClientForServer } from "@/utils/supabase/server";
 import { ITEM_TYPES } from "@/utils/constants/app";
 import type { ValidItemType } from "@/types/shared";
 import type { ExternalResult, SeasonYears } from "@/types/external-api";
+import {
+  getJson,
+  openLibraryJson,
+  tmdbUrl,
+  yearOf,
+} from "@/utils/server/external-api";
 
-const TMDB = "https://api.themoviedb.org/3";
 const LIMIT = 6;
 
 async function isSignedIn() {
@@ -14,38 +19,20 @@ async function isSignedIn() {
   return Boolean(data.user);
 }
 
-const yearOf = (date?: string) =>
-  date ? Number(date.slice(0, 4)) || null : null;
-
-async function getJson<T>(url: URL, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
-  if (!res.ok) throw new Error(`${url.hostname} responded ${res.status}`);
-  return res.json();
-}
-
-function tmdbUrl(path: string, params: Record<string, string> = {}) {
-  const url = new URL(`${TMDB}${path}`);
-  url.searchParams.set("api_key", process.env.TMDB_API_KEY ?? "");
-  for (const [key, value] of Object.entries(params)) {
-    url.searchParams.set(key, value);
-  }
-  return url;
-}
-
 async function searchBooks(query: string): Promise<ExternalResult[]> {
   const url = new URL("https://openlibrary.org/search.json");
   url.searchParams.set("q", query);
   url.searchParams.set("fields", "key,title,author_name,first_publish_year");
   url.searchParams.set("limit", String(LIMIT));
 
-  const data = await getJson<{
+  const data = await openLibraryJson<{
     docs: {
       key: string;
       title: string;
       author_name?: string[];
       first_publish_year?: number;
     }[];
-  }>(url, { headers: { "User-Agent": "what.pm (https://what.pm)" } });
+  }>(url);
 
   return data.docs.map((doc) => ({
     id: doc.key,

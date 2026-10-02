@@ -21,6 +21,10 @@ export interface BaseItem {
   director?: string | null;
   season?: number | null;
   in_progress?: boolean | null;
+  external_id: string | null;
+  pages: number | null;
+  runtime_minutes: number | null;
+  based_on: string | null;
 }
 
 export type BookItem = BaseItem & {
@@ -82,6 +86,11 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
     season: typeof item.season === "number" ? item.season : null,
     in_progress:
       typeof item.in_progress === "boolean" ? item.in_progress : null,
+    external_id: typeof item.external_id === "string" ? item.external_id : null,
+    pages: typeof item.pages === "number" ? item.pages : null,
+    runtime_minutes:
+      typeof item.runtime_minutes === "number" ? item.runtime_minutes : null,
+    based_on: typeof item.based_on === "string" ? item.based_on : null,
   };
 
   switch (baseItem.itemtype) {

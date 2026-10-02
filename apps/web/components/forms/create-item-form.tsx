@@ -53,6 +53,9 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
     title: string;
     years: SeasonYears;
   } | null>(null);
+  const [picked, setPicked] = useState<{ title: string; id: string } | null>(
+    null,
+  );
   const title = form.watch("title");
   const season = form.watch("season");
 
@@ -65,6 +68,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
   const handleSelect = async (result: ExternalResult) => {
     const options = { shouldValidate: true, shouldDirty: true };
     form.setValue("title", result.title, options);
+    setPicked({ title: result.title, id: result.id });
     if (result.year) form.setValue("publishedYear", result.year, options);
     if (result.creator && activeTab === TAB_VALUES.BOOK) {
       form.setValue("author", result.creator, options);
@@ -88,6 +92,10 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
     fd.append("publishedYear", String(data.publishedYear));
     fd.append("belongsToYear", String(data.belongsToYear));
     fd.append("redo", data.redo ? "on" : "");
+    // Only keep the match if the title wasn't changed after picking it
+    if (picked && picked.title === data.title) {
+      fd.append("externalId", picked.id);
+    }
 
     if ("author" in data && data.author) fd.append("author", data.author);
     if ("director" in data && data.director)

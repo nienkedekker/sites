@@ -8,6 +8,8 @@ import { getItemsForYear } from "@/utils/data/items";
 import { hasMonthlyData, summarizeYear } from "@/utils/data/summary";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { TypeBreakdown } from "@/components/features/lists/type-breakdown";
+import { TimeSpent } from "@/components/features/lists/time-spent";
+import { timeSpent } from "@/utils/data/patterns";
 
 export default async function ItemsList({ year }: { year: number }) {
   try {
@@ -55,6 +57,7 @@ export default async function ItemsList({ year }: { year: number }) {
             ) : (
               <TypeBreakdown counts={summary.counts} />
             )}
+            <TimeSpent spent={timeSpent(validatedItems)} />
           </section>
         )}
 

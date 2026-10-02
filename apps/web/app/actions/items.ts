@@ -10,6 +10,7 @@ import {
 } from "@/utils/schemas/validation";
 import { getCurrentYear } from "@/utils/formatters/date";
 import { ItemInsert, ItemUpdate } from "@/types";
+import { getExternalDetails } from "@/utils/server/external-api";
 
 export const createItemAction = async (formData: FormData) => {
   try {
@@ -24,8 +25,18 @@ export const createItemAction = async (formData: FormData) => {
 
     const supabase = await createClientForServer();
     const currentYear = getCurrentYear();
+    const externalId = validatedData.externalId || null;
+    const details = externalId
+      ? await getExternalDetails(
+          validatedData.itemtype,
+          externalId,
+          validatedData.season ?? null,
+        )
+      : null;
 
     const newItem: ItemInsert = {
+      ...details,
+      external_id: externalId,
       title: validatedData.title,
       itemtype: validatedData.itemtype,
       belongs_to_year: currentYear,

@@ -17,42 +17,54 @@ export type Database = {
       items: {
         Row: {
           author: string | null;
+          based_on: string | null;
           belongs_to_year: number;
           created_at: string | null;
           director: string | null;
+          external_id: string | null;
           id: string;
           in_progress: boolean | null;
           itemtype: string;
+          pages: number | null;
           published_year: number;
           redo: boolean;
+          runtime_minutes: number | null;
           season: number | null;
           title: string;
           updated_at: string | null;
         };
         Insert: {
           author?: string | null;
+          based_on?: string | null;
           belongs_to_year: number;
           created_at?: string | null;
           director?: string | null;
+          external_id?: string | null;
           id?: string;
           in_progress?: boolean | null;
           itemtype: string;
+          pages?: number | null;
           published_year: number;
           redo?: boolean;
+          runtime_minutes?: number | null;
           season?: number | null;
           title: string;
           updated_at?: string | null;
         };
         Update: {
           author?: string | null;
+          based_on?: string | null;
           belongs_to_year?: number;
           created_at?: string | null;
           director?: string | null;
+          external_id?: string | null;
           id?: string;
           in_progress?: boolean | null;
           itemtype?: string;
+          pages?: number | null;
           published_year?: number;
           redo?: boolean;
+          runtime_minutes?: number | null;
           season?: number | null;
           title?: string;
           updated_at?: string | null;

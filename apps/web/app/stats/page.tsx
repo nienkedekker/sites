@@ -9,6 +9,7 @@ import { StatTile } from "@/components/features/stats/stat-tile";
 import { MostReread } from "@/components/features/stats/most-reread";
 import { Pace } from "@/components/features/stats/pace";
 import { RereadRhythm } from "@/components/features/stats/reread-rhythm";
+import { Adaptations } from "@/components/features/stats/adaptations";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
 import PageHeader from "@nienke/ui/page-header";
 import { CHART_CONFIG } from "@/utils/constants/app";
@@ -77,8 +78,15 @@ async function StatsContent() {
             </div>
           )}
           {stats.rhythms.length > 0 && (
-            <div className="lg:col-span-2">
+            <div
+              className={stats.adaptations.length > 0 ? "" : "lg:col-span-2"}
+            >
               <RereadRhythm rhythms={stats.rhythms} />
+            </div>
+          )}
+          {stats.adaptations.length > 0 && (
+            <div className={stats.rhythms.length > 0 ? "" : "lg:col-span-2"}>
+              <Adaptations pairs={stats.adaptations} />
             </div>
           )}
         </>
