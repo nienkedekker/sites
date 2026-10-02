@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getExternalDetails } from "@/utils/server/external-api";
+import {
+  getExternalDetails,
+  googleBooksPages,
+} from "@/utils/server/external-api";
 
 type Route = (url: URL) => unknown;
 
@@ -228,5 +231,90 @@ describe("getExternalDetails", () => {
       runtime_minutes: null,
       based_on: null,
     });
+  });
+});
+
+describe("googleBooksPages", () => {
+  const volume = (title: string, authors: string[], pageCount?: number) => ({
+    volumeInfo: { title, authors, pageCount },
+  });
+
+  beforeEach(() => vi.stubEnv("GOOGLE_API_KEY", "test-key"));
+
+  it("takes the median page count of editions by the same author", async () => {
+    serve({
+      "/books/v1/volumes": (url) => {
+        expect(url.searchParams.get("q")).toBe(
+          "London Falling Patrick Radden Keefe",
+        );
+        return {
+          items: [
+            volume("London Falling", ["Patrick Radden Keefe"], 385),
+            volume("London Falling", ["Patrick Radden Keefe"], 0),
+            volume(
+              "London Falling: A Mysterious Death",
+              ["Patrick Radden Keefe"],
+              400,
+            ),
+            volume("London Falling", ["Patrick Radden Keefe"], 420),
+            volume("Patrick Radden Keefe: London Falling", ["Damon Cross"], 82),
+            volume("London Falling", ["Paul Cornell"], 412),
+          ],
+        };
+      },
+    });
+
+    expect(
+      await googleBooksPages(
+        "London Falling: A Mysterious Death in a Gilded City",
+        "Patrick Radden Keefe",
+      ),
+    ).toBe(400);
+  });
+
+  it("matches authors written with other spacing or accents", async () => {
+    serve({
+      "/books/v1/volumes": () => ({
+        items: [
+          volume("The Iron Garden Sutra", ["A. D. Sui"], 401),
+          volume("Long Island", ["Colm Toibin"], 304),
+        ],
+      }),
+    });
+
+    expect(await googleBooksPages("The Iron Garden Sutra", "A.D. Sui")).toBe(
+      401,
+    );
+    expect(await googleBooksPages("Long Island", "Colm Tóibín")).toBe(304);
+  });
+
+  it("tries again once when Google Books is briefly down", async () => {
+    vi.useFakeTimers();
+    let calls = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        ++calls === 1
+          ? new Response("busy", { status: 503 })
+          : Response.json({
+              items: [volume("Slow Gods", ["Claire North"], 445)],
+            }),
+      ),
+    );
+
+    const pages = googleBooksPages("Slow Gods", "Claire North");
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(await pages).toBe(445);
+    vi.useRealTimers();
+  });
+
+  it("returns null without a key or when nothing matches", async () => {
+    const fetchMock = serve({ "/books/v1/volumes": () => ({}) });
+
+    expect(await googleBooksPages("Blacktail", "Scott Hawkins")).toBeNull();
+    vi.stubEnv("GOOGLE_API_KEY", "");
+    fetchMock.mockClear();
+    expect(await googleBooksPages("Blacktail", "Scott Hawkins")).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

@@ -34,6 +34,13 @@ export const bookItemSchema = baseItemSchema.extend({
     .trim()
     .min(1, "Author is required for books")
     .max(100, "Author must be 100 characters or less"),
+  // 0 is an empty field
+  pages: z
+    .number()
+    .int()
+    .min(0, "Pages can't be negative")
+    .max(10000, "Pages must be 10,000 or less")
+    .optional(),
   director: z.string().optional(),
   season: z.number().optional(),
 });
@@ -112,6 +119,9 @@ export function extractFormData<T>(
     }
     if ("season" in rawData && rawData.season) {
       rawData.season = Number(rawData.season);
+    }
+    if ("pages" in rawData) {
+      rawData.pages = Number(rawData.pages);
     }
     if ("redo" in rawData) {
       rawData.redo = rawData.redo === "on";

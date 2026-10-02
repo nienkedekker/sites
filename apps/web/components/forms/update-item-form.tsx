@@ -63,6 +63,7 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
     fd.append("redo", data.redo ? "on" : "");
 
     if ("author" in data && data.author) fd.append("author", data.author);
+    if ("pages" in data) fd.append("pages", String(data.pages ?? 0));
     if ("director" in data && data.director)
       fd.append("director", data.director);
     if ("season" in data && data.season)
@@ -101,19 +102,42 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
           />
 
           {item.itemtype === ITEM_TYPES.BOOK && (
-            <FormField
-              control={form.control}
-              name="author"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Author</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <>
+              <FormField
+                control={form.control}
+                name="author"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Author</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="pages"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pages</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        {...field}
+                        value={formatNumberInputValue(field.value as number)}
+                        onChange={(e) =>
+                          field.onChange(toNumber(e.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
           )}
 
           {item.itemtype === ITEM_TYPES.MOVIE && (
@@ -269,6 +293,7 @@ function getSchemaAndDefaults(item: Item) {
           publishedYear: item.published_year ?? currentYear,
           redo: !!item.redo,
           author: item.author ?? "",
+          pages: item.pages ?? 0,
         },
       };
     case ITEM_TYPES.MOVIE:

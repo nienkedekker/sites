@@ -6,6 +6,7 @@ const db = vi.hoisted(() => ({
 }));
 
 const getExternalDetails = vi.hoisted(() => vi.fn());
+const googleBooksPages = vi.hoisted(() => vi.fn());
 const revalidateTag = vi.hoisted(() => vi.fn());
 
 vi.mock("next/cache", () => ({ revalidateTag }));
@@ -21,7 +22,10 @@ vi.mock("@/utils/supabase/server", () => ({
   }),
 }));
 
-vi.mock("@/utils/server/external-api", () => ({ getExternalDetails }));
+vi.mock("@/utils/server/external-api", () => ({
+  getExternalDetails,
+  googleBooksPages,
+}));
 
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
@@ -48,10 +52,20 @@ const dune = {
   redo: "",
 };
 
+const slowGods = {
+  itemtype: "Book",
+  title: "Slow Gods",
+  author: "Claire North",
+  publishedYear: "2025",
+  belongsToYear: String(year),
+  redo: "",
+};
+
 beforeEach(() => {
   db.inserted = [];
   db.error = null;
   getExternalDetails.mockReset();
+  googleBooksPages.mockReset();
   revalidateTag.mockReset();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -106,6 +120,29 @@ describe("createItemAction", () => {
     expect(getExternalDetails).not.toHaveBeenCalled();
     expect(db.inserted[0]).toMatchObject({ title: "Dune", external_id: null });
     expect(db.inserted[0]).not.toHaveProperty("runtime_minutes");
+  });
+
+  it("asks Google Books for pages when OpenLibrary has none", async () => {
+    getExternalDetails.mockResolvedValue({
+      pages: null,
+      runtime_minutes: null,
+      based_on: null,
+    });
+    googleBooksPages.mockResolvedValue(445);
+
+    await createItemAction(
+      form({ ...slowGods, externalId: "/works/OL45246981W" }),
+    ).catch(() => {});
+
+    expect(googleBooksPages).toHaveBeenCalledWith("Slow Gods", "Claire North");
+    expect(db.inserted[0]).toMatchObject({ pages: 445 });
+  });
+
+  it("keeps pages I typed in over any lookup", async () => {
+    await createItemAction(form({ ...slowGods, pages: "450" })).catch(() => {});
+
+    expect(googleBooksPages).not.toHaveBeenCalled();
+    expect(db.inserted[0]).toMatchObject({ pages: 450 });
   });
 
   it("refreshes the cached stats once the item is saved", async () => {

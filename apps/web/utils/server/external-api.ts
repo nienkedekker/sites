@@ -1,4 +1,6 @@
 import type { ValidItemType } from "@/types/shared";
+import { splitNames } from "@/utils/data/names";
+import { normalizeTitle } from "@/utils/data/patterns";
 
 const TMDB = "https://api.themoviedb.org/3";
 const OPEN_LIBRARY_HEADERS = { "User-Agent": "what.pm (https://what.pm)" };
@@ -12,6 +14,8 @@ const SOURCE_JOBS = new Set([
   "Graphic Novel",
   "Author",
 ]);
+
+const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
 
 export const yearOf = (date?: string) =>
   date ? Number(date.slice(0, 4)) || null : null;
@@ -64,6 +68,56 @@ async function bookDetails(workKey: string): Promise<ExternalDetails> {
     .map((edition) => edition.number_of_pages)
     .filter((count): count is number => !!count && count > 0);
   return { ...NO_DETAILS, pages: median(pages) };
+}
+
+interface GoogleVolume {
+  volumeInfo: { title?: string; authors?: string[]; pageCount?: number };
+}
+
+const mainTitle = (title: string) => normalizeTitle(title.split(":")[0]);
+// "A.D. Sui" and "A. D. Sui", "Colm Tóibín" and "Colm Toibin"
+const nameKey = (name: string) =>
+  name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]/g, "");
+
+// OpenLibrary rarely has page counts for new releases, Google Books usually
+// does. Its intitle:/inauthor: filters come back empty, so this searches
+// plain text and matches the title and author itself.
+export async function googleBooksPages(
+  title: string,
+  author: string | null,
+): Promise<number | null> {
+  const key = process.env.GOOGLE_API_KEY;
+  if (!key) return null;
+  const url = new URL("https://www.googleapis.com/books/v1/volumes");
+  url.searchParams.set("q", `${title.split(":")[0]} ${author ?? ""}`.trim());
+  url.searchParams.set("printType", "books");
+  url.searchParams.set("maxResults", "20");
+  url.searchParams.set("key", key);
+
+  try {
+    // It answers 503 now and then, and a second try usually works
+    const data = await getJson<{ items?: GoogleVolume[] }>(url).catch(() =>
+      sleep(1000).then(() => getJson<{ items?: GoogleVolume[] }>(url)),
+    );
+    const authors = new Set(splitNames(author).map(nameKey));
+    const pages = (data.items ?? [])
+      .map((item) => item.volumeInfo)
+      .filter(
+        (volume) =>
+          volume.title &&
+          mainTitle(volume.title) === mainTitle(title) &&
+          volume.authors?.some((name) => authors.has(nameKey(name))),
+      )
+      .map((volume) => volume.pageCount)
+      .filter((count): count is number => !!count && count > 0);
+    return median(pages);
+  } catch (error) {
+    console.error("Google Books lookup failed:", error);
+    return null;
+  }
 }
 
 async function movieDetails(id: string): Promise<ExternalDetails> {

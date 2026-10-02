@@ -6,7 +6,8 @@
 //   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
 //     --report matches.tsv --sql backfill.sql
 // --refresh skips matching and re-checks items that are already matched but
-// still have no page count or runtime, like a season the source added later:
+// still have no page count or runtime, like a season the source added later.
+// Books without pages also try Google Books, matched or not:
 //   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
 //     --refresh --sql refresh.sql
 import { writeFileSync } from "node:fs";
@@ -17,6 +18,7 @@ import { normalizeTitle } from "@/utils/data/patterns";
 import {
   getExternalDetails,
   getJson,
+  googleBooksPages,
   openLibraryJson,
   tmdbUrl,
   yearOf,
@@ -246,11 +248,16 @@ const missingDetails = (item: TypedItem) =>
 async function refreshDetails(items: TypedItem[]) {
   const updates: string[] = [];
   for (const item of items) {
-    const details = await getExternalDetails(
-      item.itemtype,
-      item.external_id!,
-      item.season ?? null,
-    );
+    const details: ExternalDetails = item.external_id
+      ? await getExternalDetails(
+          item.itemtype,
+          item.external_id,
+          item.season ?? null,
+        )
+      : { pages: null, runtime_minutes: null, based_on: null };
+    if (item.itemtype === "Book" && !details.pages) {
+      details.pages = await googleBooksPages(item.title, item.author);
+    }
     await sleep(item.itemtype === "Book" ? 600 : 150);
     const label = `${item.itemtype.padEnd(5)} ${item.title}${
       item.season ? ` S${item.season}` : ""
@@ -267,7 +274,7 @@ async function refreshDetails(items: TypedItem[]) {
       `based_on = coalesce(based_on, ${sqlValue(details.based_on)})`,
     ].join(", ");
     updates.push(
-      `update public.items set ${sets} where id = ${sqlValue(item.id)} and external_id = ${sqlValue(item.external_id)}; -- ${item.title.replace(/\n/g, " ")}`,
+      `update public.items set ${sets} where id = ${sqlValue(item.id)} and external_id is not distinct from ${sqlValue(item.external_id)}; -- ${item.title.replace(/\n/g, " ")}`,
     );
   }
   return updates;
@@ -329,7 +336,10 @@ async function main() {
     .map(validateAndTypeItem)
     .filter((item): item is TypedItem => item !== null)
     .filter((item) =>
-      refresh ? !!item.external_id && missingDetails(item) : !item.external_id,
+      refresh
+        ? missingDetails(item) &&
+          (!!item.external_id || item.itemtype === "Book")
+        : !item.external_id,
     )
     .filter((item) => !only || new RegExp(only, "i").test(item.title))
     .slice(0, limit);

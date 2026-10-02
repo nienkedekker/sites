@@ -11,7 +11,10 @@ import {
 } from "@/utils/schemas/validation";
 import { getCurrentYear } from "@/utils/formatters/date";
 import { ItemInsert, ItemUpdate } from "@/types";
-import { getExternalDetails } from "@/utils/server/external-api";
+import {
+  getExternalDetails,
+  googleBooksPages,
+} from "@/utils/server/external-api";
 import { ITEMS_TAG } from "@/utils/constants/app";
 
 export const createItemAction = async (formData: FormData) => {
@@ -35,9 +38,16 @@ export const createItemAction = async (formData: FormData) => {
           validatedData.season ?? null,
         )
       : null;
+    const pages =
+      validatedData.itemtype === "Book"
+        ? validatedData.pages ||
+          details?.pages ||
+          (await googleBooksPages(validatedData.title, validatedData.author))
+        : null;
 
     const newItem: ItemInsert = {
       ...details,
+      pages,
       external_id: externalId,
       title: validatedData.title,
       itemtype: validatedData.itemtype,
@@ -145,6 +155,9 @@ export const updateItemAction = async (
         "inProgress" in validatedData
           ? (validatedData.inProgress ?? false)
           : null,
+      ...(validatedData.itemtype === "Book" && {
+        pages: validatedData.pages || null,
+      }),
     };
 
     const { error } = await supabase
