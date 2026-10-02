@@ -72,6 +72,13 @@ describe("getExternalDetails", () => {
 
   it("adds up a show season's episodes and lists each source author once", async () => {
     serve({
+      "/3/tv/63639": () => ({
+        seasons: [
+          { season_number: 0 },
+          { season_number: 1 },
+          { season_number: 2 },
+        ],
+      }),
       "/3/tv/63639/season/2": () => ({
         episodes: [{ runtime: 44 }, { runtime: 45 }, { runtime: null }],
       }),
@@ -88,6 +95,86 @@ describe("getExternalDetails", () => {
       pages: null,
       runtime_minutes: 89,
       based_on: "Daniel Abraham, Ty Franck",
+    });
+  });
+
+  describe("anime TMDB files as one long season", () => {
+    // My Dress-Up Darling: 12 episodes in 2022, 12 more in 2025, all "Season 1"
+    const darling = () =>
+      serve({
+        "/3/tv/123249": () => ({
+          seasons: [{ season_number: 0 }, { season_number: 1 }],
+        }),
+        "/3/tv/123249/season/1": () => ({
+          episodes: [
+            ...Array.from({ length: 12 }, (_, i) => ({
+              runtime: 24,
+              air_date: `2022-01-${String(i * 2 + 1).padStart(2, "0")}`,
+            })),
+            ...Array.from({ length: 12 }, (_, i) => ({
+              runtime: 24,
+              air_date: `2025-07-${String(i * 2 + 1).padStart(2, "0")}`,
+            })),
+          ],
+        }),
+        "/3/tv/123249/aggregate_credits": () => ({ crew: [] }),
+      });
+
+    it("counts only the first part for season 1", async () => {
+      darling();
+      expect(
+        (await getExternalDetails("Show", "123249", 1)).runtime_minutes,
+      ).toBe(288);
+    });
+
+    it("finds a later season among the parts", async () => {
+      darling();
+      expect(
+        (await getExternalDetails("Show", "123249", 2)).runtime_minutes,
+      ).toBe(288);
+    });
+
+    it("leaves a season that hasn't aired yet empty, but keeps the credits", async () => {
+      darling();
+      expect(await getExternalDetails("Show", "123249", 3)).toEqual({
+        pages: null,
+        runtime_minutes: null,
+        based_on: null,
+      });
+    });
+  });
+
+  it("doesn't split a season of a show TMDB already numbers properly", async () => {
+    serve({
+      "/3/tv/1396": () => ({
+        seasons: [{ season_number: 1 }, { season_number: 5 }],
+      }),
+      // Breaking Bad's last season aired in two halves, a year apart
+      "/3/tv/1396/season/5": () => ({
+        episodes: [
+          { runtime: 47, air_date: "2012-07-15" },
+          { runtime: 47, air_date: "2013-08-11" },
+        ],
+      }),
+      "/3/tv/1396/aggregate_credits": () => ({ crew: [] }),
+    });
+
+    expect((await getExternalDetails("Show", "1396", 5)).runtime_minutes).toBe(
+      94,
+    );
+  });
+
+  it("keeps the source author when the season can't be found", async () => {
+    serve({
+      "/3/tv/9/aggregate_credits": () => ({
+        crew: [{ name: "Anne Rice", jobs: [{ job: "Novel" }] }],
+      }),
+    });
+
+    expect(await getExternalDetails("Show", "9", 3)).toEqual({
+      pages: null,
+      runtime_minutes: null,
+      based_on: "Anne Rice",
     });
   });
 

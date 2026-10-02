@@ -82,24 +82,73 @@ async function movieDetails(id: string): Promise<ExternalDetails> {
   };
 }
 
+export interface Episode {
+  runtime?: number | null;
+  air_date?: string | null;
+}
+
+const COUR_GAP_DAYS = 180;
+
+// Splits a season into the runs that aired with more than half a year in
+// between. TMDB often files a whole anime as one long season, so its parts
+// only show up as gaps in the air dates.
+export function splitIntoCours(episodes: Episode[]): Episode[][] {
+  const cours: Episode[][] = [];
+  let lastAired: number | null = null;
+  for (const episode of episodes) {
+    const aired = episode.air_date ? Date.parse(episode.air_date) : null;
+    const gap =
+      aired !== null && lastAired !== null
+        ? (aired - lastAired) / 86_400_000
+        : 0;
+    if (cours.length === 0 || gap > COUR_GAP_DAYS) cours.push([]);
+    cours[cours.length - 1].push(episode);
+    if (aired !== null) lastAired = aired;
+  }
+  return cours;
+}
+
+const sumRuntime = (episodes: Episode[]) =>
+  episodes.reduce((sum, ep) => sum + (ep.runtime ?? 0), 0) || null;
+
+async function seasonRuntime(id: string, season: number) {
+  const show = await getJson<{ seasons: { season_number: number }[] }>(
+    tmdbUrl(`/tv/${id}`),
+  );
+  const numbers = show.seasons
+    .map((s) => s.season_number)
+    .filter((number) => number > 0);
+  const episodesOf = (number: number) =>
+    getJson<{ episodes: Episode[] }>(
+      tmdbUrl(`/tv/${id}/season/${number}`),
+    ).then((data) => data.episodes);
+
+  if (numbers.length > 1 && numbers.includes(season)) {
+    return sumRuntime(await episodesOf(season));
+  }
+
+  // A single TMDB season, or one I'm past: the season I logged is one of the
+  // parts of TMDB's last season (My Dress-Up Darling S2 is its S1, eps 13–24)
+  const last = Math.max(0, ...numbers);
+  if (last === 0) return null;
+  const part = numbers.includes(season) ? 0 : season - last;
+  const cours = splitIntoCours(await episodesOf(last));
+  return cours[part] ? sumRuntime(cours[part]) : null;
+}
+
 async function showDetails(
   id: string,
   season: number | null,
 ): Promise<ExternalDetails> {
-  const [episodes, credits] = await Promise.all([
-    season
-      ? getJson<{ episodes: { runtime?: number | null }[] }>(
-          tmdbUrl(`/tv/${id}/season/${season}`),
-        ).then((data) => data.episodes)
-      : Promise.resolve([]),
+  const [runtime, credits] = await Promise.all([
+    season ? seasonRuntime(id, season).catch(() => null) : null,
     getJson<{ crew: { name: string; jobs: { job: string }[] }[] }>(
       tmdbUrl(`/tv/${id}/aggregate_credits`),
     ),
   ]);
-  const runtime = episodes.reduce((sum, ep) => sum + (ep.runtime ?? 0), 0);
   return {
     ...NO_DETAILS,
-    runtime_minutes: runtime || null,
+    runtime_minutes: runtime,
     based_on: joinNames(
       credits.crew
         .filter((person) => person.jobs.some(({ job }) => SOURCE_JOBS.has(job)))
