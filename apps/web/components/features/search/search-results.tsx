@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { ItemBadges } from "@/components/features/lists/item-badges";
+import EditItemDialog from "@/components/features/lists/edit-item-dialog";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
@@ -18,6 +19,7 @@ interface SearchResultsProps {
   query: string;
   filterType: string;
   onClearFilter: () => void;
+  onItemSaved?: () => void;
 }
 
 function ResultMetadata({ item, query }: { item: Item; query: string }) {
@@ -57,6 +59,7 @@ export function SearchResults({
   query,
   filterType,
   onClearFilter,
+  onItemSaved,
 }: SearchResultsProps) {
   const hasResults = results.length > 0;
   const hasQuery = query.trim().length > 0;
@@ -133,12 +136,11 @@ export function SearchResults({
                       <ItemBadges item={item} className="ml-1.5" />
                     </p>
                     <IsLoggedIn>
-                      <Link
-                        href={`/item/${item.id}`}
+                      <EditItemDialog
+                        item={item}
+                        onSaved={onItemSaved}
                         className="link mt-2 inline-block font-mono text-xs text-ink-soft hover:text-ink"
-                      >
-                        Edit
-                      </Link>
+                      />
                     </IsLoggedIn>
                   </div>
 

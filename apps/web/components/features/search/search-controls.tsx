@@ -178,7 +178,7 @@ export function SearchSuggestions({
         id="search-suggestions-heading"
         className="mb-4 font-mono text-xs text-ink-soft"
       >
-        Or try someone I really like
+        Or try someone I really like:
       </h2>
       <ul className="flex flex-wrap gap-2">
         {suggestions.map(({ name, count }) => (

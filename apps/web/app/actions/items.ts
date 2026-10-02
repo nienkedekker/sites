@@ -96,21 +96,22 @@ export const deleteItemAction = async (formData: FormData) => {
   }
 };
 
-export const updateItemAction = async (formData: FormData) => {
+export const updateItemAction = async (
+  formData: FormData,
+): Promise<{ error: string | null }> => {
   try {
     const itemId = formData.get("id")?.toString();
     const itemType = formData.get("itemtype")?.toString() || "";
     const belongsToYear = Number(formData.get("belongsToYear"));
 
     if (!itemId || !itemType) {
-      return encodedRedirect("error", "/", "Invalid update request.");
+      return { error: "Invalid update request." };
     }
 
     const validation = extractFormData(formData, itemCreationSchema);
 
     if (!validation.success) {
-      const errorMessage = validation.errors.join(", ");
-      return encodedRedirect("error", `/item/update/${itemId}`, errorMessage);
+      return { error: validation.errors.join(", ") };
     }
 
     const validatedData = validation.data;
@@ -138,22 +139,12 @@ export const updateItemAction = async (formData: FormData) => {
 
     if (error) {
       console.error("Database error updating item:", error);
-      return encodedRedirect(
-        "error",
-        `/item/update/${itemId}`,
-        "Unable to update your item. Please try again.",
-      );
+      return { error: "Unable to update your item. Please try again." };
     }
 
-    return redirect(`/year/${belongsToYear}`);
+    return { error: null };
   } catch (error) {
-    if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in updateItemAction:", error);
-    const itemId = formData.get("id")?.toString();
-    return encodedRedirect(
-      "error",
-      itemId ? `/item/update/${itemId}` : "/",
-      "Something went wrong. Please try again.",
-    );
+    return { error: "Something went wrong. Please try again." };
   }
 };

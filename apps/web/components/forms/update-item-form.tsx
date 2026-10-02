@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -36,9 +37,16 @@ type AnyItemInput = BookItemInput | MovieItemInput | ShowItemInput;
 
 interface UpdateItemFormProps {
   item: Item;
+  onSaved?: () => void;
+  className?: string;
 }
 
-export default function UpdateItemForm({ item }: UpdateItemFormProps) {
+export default function UpdateItemForm({
+  item,
+  onSaved,
+  className = formStyles.container,
+}: UpdateItemFormProps) {
+  const router = useRouter();
   const { schema, defaultValues } = useMemo(
     () => getSchemaAndDefaults(item),
     [item],
@@ -69,15 +77,18 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
       fd.append("season", String(data.season));
     if ("inProgress" in data && data.inProgress) fd.append("inProgress", "on");
 
-    return updateItemAction(fd);
+    const { error } = await updateItemAction(fd);
+    if (error) {
+      form.setError("root", { message: error });
+      return;
+    }
+    if (onSaved) onSaved();
+    else router.push(`/year/${data.belongsToYear}`);
   };
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={formStyles.container}
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {hasErrors &&
             `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}
@@ -236,6 +247,11 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
         </div>
 
         <div className="mt-8 border-t border-line pt-6">
+          {form.formState.errors.root && (
+            <p role="alert" className="mb-4 text-sm text-danger">
+              {form.formState.errors.root.message}
+            </p>
+          )}
           <SubmitButton
             isSubmitting={form.formState.isSubmitting}
             className="w-full"

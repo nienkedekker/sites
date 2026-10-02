@@ -1,5 +1,6 @@
 import Link from "next/link";
 import DeleteItemDialog from "./delete-item-dialog";
+import EditItemDialog from "./edit-item-dialog";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
@@ -97,12 +98,10 @@ export function CategoryList({
 
                   <IsLoggedIn>
                     <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft">
-                      <Link
-                        href={`/item/${item.id}`}
+                      <EditItemDialog
+                        item={item}
                         className="link hover:text-ink"
-                      >
-                        Edit
-                      </Link>
+                      />
                       <DeleteItemDialog
                         itemId={item.id}
                         belongsToYear={item.belongs_to_year}

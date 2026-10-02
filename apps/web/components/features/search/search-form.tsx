@@ -190,6 +190,7 @@ export default function SearchForm({
           query={searchState.query}
           filterType={filterType}
           onClearFilter={() => setFilterType("all")}
+          onItemSaved={() => runSearch(searchState.query)}
         />
       )}
 
