@@ -29,6 +29,11 @@
     "eslint-config-next": "^15.5.2"
   },
   "overrides": {
-    "react-is": "^19.2.3"
+    "react-is": "^19.2.3",
+    "postcss": "^8.5.28",
+    "next": {
+      "postcss": "^8.5.28"
+    },
+    "path-to-regexp": "6.3.0"
   }
 }

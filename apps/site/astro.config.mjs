@@ -1,6 +1,7 @@
 import { defineConfig, envField } from "astro/config";
 import react from "@astrojs/react";
 import vercel from "@astrojs/vercel";
+import tailwindcss from "@tailwindcss/vite";
 import markdownNegotiation from "./src/integrations/markdown-negotiation.ts";
 
 export default defineConfig({
@@ -31,4 +32,7 @@ export default defineConfig({
     defaultStrategy: "viewport",
   },
   integrations: [react(), markdownNegotiation()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
