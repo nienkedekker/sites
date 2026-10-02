@@ -1,6 +1,7 @@
 ---
 import Sun from "phosphor-astro/Sun.astro";
 import Moon from "phosphor-astro/Moon.astro";
+import SiteMark from "@nienke/ui/site-mark";
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 
@@ -25,10 +26,7 @@ const navItems = [
       class="flex items-center gap-2.5 text-sm font-semibold tracking-tight"
       aria-label="Nienke Dekker, home"
     >
-      <!-- The site mark: a square in the highlight blue, like the favicon -->
-      <span class="grid size-6 place-items-center bg-ink" aria-hidden="true"
-        ><span class="size-3 bg-movies"></span></span
-      >
+      <SiteMark />
       <span class="hidden sm:inline">Nienke Dekker</span>
     </a>
 

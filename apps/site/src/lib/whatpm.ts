@@ -1,3 +1,5 @@
+import type { YearSummary } from "@nienke/ui/summary";
+
 // Client for my reading/watching log on what.pm (see /api/v1/summary in the
 // what.pm repo). Several islands use it, so the request is shared.
 
@@ -10,19 +12,8 @@ export interface Book {
   reread?: boolean;
 }
 
-export interface MonthCounts {
-  month: number;
-  books: number;
-  movies: number;
-  shows: number;
-}
-
-export interface Summary {
-  year: number;
-  counts: { books: number; movies: number; shows: number };
-  months: MonthCounts[];
+export interface Summary extends YearSummary {
   recent: { books: Book[] };
-  url: string;
 }
 
 export const whatpmUrl = WHATPM_URL;
