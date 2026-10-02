@@ -1,27 +1,15 @@
-const ALLOWED_REDIRECT_PREFIXES = [
-  "/",
-  "/year/",
-  "/stats",
-  "/search",
-  "/about",
-  "/export",
-  "/create",
-];
+// Parsing like a browser catches tricks that string checks miss, such as
+// "/\t/evil.com" (browsers drop the tab and land on //evil.com).
+const BASE = "http://localhost";
 
 export function getSafeRedirectUrl(rawRedirect: string | null): string {
-  if (!rawRedirect) return "/";
+  if (!rawRedirect?.startsWith("/")) return "/";
 
-  if (
-    !rawRedirect.startsWith("/") ||
-    rawRedirect.startsWith("//") ||
-    rawRedirect.includes("\\")
-  ) {
+  try {
+    const url = new URL(rawRedirect, BASE);
+    if (url.origin !== BASE) return "/";
+    return url.pathname + url.search + url.hash;
+  } catch {
     return "/";
   }
-
-  const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(
-    (prefix) => rawRedirect === prefix || rawRedirect.startsWith(prefix),
-  );
-
-  return isAllowed ? rawRedirect : "/";
 }
