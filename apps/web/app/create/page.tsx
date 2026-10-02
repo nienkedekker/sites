@@ -15,7 +15,7 @@ export default async function CreatePage() {
           <Suspense fallback={null}>
             <LastLogged
               limit={8}
-              className="hidden lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:grid lg:grid-rows-subgrid lg:[&>h2]:self-center lg:[&>h2]:justify-self-start lg:[&>ol]:mt-0 lg:[&>ol]:self-start"
+              className="hidden lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:grid lg:grid-rows-subgrid lg:[&>h2]:self-stretch lg:[&>h2]:px-3 lg:[&>h2]:justify-self-start lg:[&>ol]:mt-0 lg:[&>ol]:self-start"
             />
           </Suspense>
         }
