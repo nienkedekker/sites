@@ -1,0 +1,138 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Header from "../components/header.astro";
+import Footer from "../components/footer.astro";
+import { profile } from "../data/profile";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  // Path to this page's Markdown version, e.g. "/now.md"
+  markdown?: string;
+}
+
+const {
+  title = profile.name,
+  description = profile.description,
+  image,
+  markdown,
+} = Astro.props;
+
+const siteTitle = title === profile.name ? title : `${title} | ${profile.name}`;
+const canonicalURL = new URL(
+  Astro.url.pathname,
+  Astro.site || "https://nienke.dev"
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta
+      name="theme-color"
+      content="#fcfcfd"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#08090a"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@500&family=Geist+Mono:wght@400;500&family=Inter:opsz,wght@14..32,400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kosugi&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="canonical" href={canonicalURL} />
+    {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={siteTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image ?? profile.image} />
+    {!image && <meta property="og:image:alt" content={profile.imageAlt} />}
+
+    <!-- Twitter -->
+    <meta
+      name="twitter:card"
+      content={image ? "summary_large_image" : "summary"}
+    />
+    <meta name="twitter:title" content={siteTitle} />
+    <meta name="twitter:description" content={description} />
+    {image && <meta name="twitter:image" content={image} />}
+
+    <title>{siteTitle}</title>
+    <slot name="head" />
+    <ClientRouter />
+    <script is:inline>
+      function setTheme() {
+        const root = document.documentElement;
+        const theme =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        root.classList.toggle("dark", theme === "dark");
+        root.classList.add("js");
+      }
+      setTheme();
+      document.addEventListener("astro:after-swap", setTheme);
+      // Follow system theme changes live, unless the toggle saved a choice
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", setTheme);
+    </script>
+  </head>
+  <body class="min-h-screen font-sans antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2.5 focus:font-mono focus:text-xs focus:text-paper"
+      >Skip to content</a
+    >
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<script>
+  // Fade sections in as they scroll into view
+  function setupReveal() {
+    const items = document.querySelectorAll<HTMLElement>(
+      "[data-reveal]:not(.is-visible)"
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px" }
+    );
+    items.forEach((item) => observer.observe(item));
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    setupReveal();
+  });
+</script>

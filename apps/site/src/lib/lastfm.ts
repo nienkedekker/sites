@@ -1,0 +1,134 @@
+// My listening on Last.fm, for the listening card on the home page.
+// The API key is a public, read-only one.
+
+const API = "https://ws.audioscrobbler.com/2.0/";
+const USER = "shinyhats";
+export const PROFILE_URL = `https://www.last.fm/user/${USER}`;
+const KEY = "54f8f15133336606e882fdf20148d123";
+
+const DAY = 24 * 60 * 60;
+export const WEEK = 7 * DAY;
+// Weeks of history in the scrobble chart
+export const WEEKS = 12;
+
+export interface Track {
+  name: string;
+  url: string;
+  artist: { name?: string; "#text"?: string };
+  image?: { size: string; "#text": string }[];
+  date?: { uts: string };
+  "@attr"?: { nowplaying: string };
+}
+
+export interface ListeningStats {
+  total: number;
+  // The year scrobbling started
+  since: number;
+  // 7-day windows ending with today (UTC), oldest first. `start` is a unix
+  // timestamp at UTC midnight.
+  weeks: { start: number; count: number }[];
+  // Most played artist over the last 30 days, and ever
+  topArtist?: Artist;
+  topArtistAllTime?: Artist;
+}
+
+interface Artist {
+  name: string;
+  plays: number;
+  url: string;
+}
+
+interface UserInfo {
+  user: { playcount: string; registered: { unixtime?: string; "#text"?: number } };
+}
+
+interface TopArtists {
+  topartists: { artist: { name: string; playcount: string; url: string }[] };
+}
+
+interface RecentTracks {
+  recenttracks: { track: Track[]; "@attr": { total: string } };
+}
+
+async function lastfm<T>(
+  method: string,
+  params: Record<string, string | number>,
+  signal?: AbortSignal
+): Promise<T> {
+  const query = new URLSearchParams({ method, user: USER, api_key: KEY, format: "json" });
+  for (const [key, value] of Object.entries(params)) query.set(key, String(value));
+
+  const res = await fetch(`${API}?${query}`, { signal });
+  if (!res.ok) throw new Error(`Last.fm responded ${res.status} to ${method}`);
+  const data = await res.json();
+  // Last.fm reports some errors, like rate limiting, with a 200 status
+  if (data.error) throw new Error(`Last.fm error ${data.error}: ${data.message}`);
+  return data;
+}
+
+// Resolves to null when nothing has been played yet
+export async function getLatestTrack(signal?: AbortSignal): Promise<Track | null> {
+  const data = await lastfm<RecentTracks>("user.getrecenttracks", { limit: 1 }, signal);
+  return data.recenttracks.track[0] || null;
+}
+
+// A track fetched while building the page is only ever "last played": by the
+// time anyone sees it, it has probably stopped
+export function asLastPlayed(track: Track): Track {
+  const rest = { ...track };
+  delete rest["@attr"];
+  return rest;
+}
+
+// Starts of the WEEKS 7-day windows that end with today (UTC), oldest first.
+// Whole days, so each bar covers seven dates and none overlap.
+export function weekStarts(now: number) {
+  const endOfToday = (Math.floor(now / 1000 / DAY) + 1) * DAY;
+  return Array.from({ length: WEEKS }, (_, i) => endOfToday - (WEEKS - i) * WEEK);
+}
+
+const topOf = ({ topartists }: TopArtists): Artist | undefined => {
+  const artist = topartists.artist[0];
+  return artist && { name: artist.name, plays: Number(artist.playcount), url: artist.url };
+};
+
+export function summarise(
+  info: UserInfo,
+  topMonth: TopArtists,
+  topAllTime: TopArtists,
+  weekly: RecentTracks[],
+  starts: number[]
+): ListeningStats {
+  const registered = Number(info.user.registered.unixtime ?? info.user.registered["#text"]);
+
+  return {
+    total: Number(info.user.playcount),
+    since: new Date(registered * 1000).getUTCFullYear(),
+    weeks: starts.map((start, i) => ({
+      start,
+      count: Number(weekly[i].recenttracks["@attr"].total),
+    })),
+    topArtist: topOf(topMonth),
+    topArtistAllTime: topOf(topAllTime),
+  };
+}
+
+// Scrobble totals, weekly counts and top artists. That's 15 requests, so
+// this runs on the server (see /api/lastfm) and gets cached.
+export async function getListeningStats(
+  signal?: AbortSignal,
+  now = Date.now()
+): Promise<ListeningStats> {
+  const starts = weekStarts(now);
+  const [info, topMonth, topAllTime, weekly] = await Promise.all([
+    lastfm<UserInfo>("user.getinfo", {}, signal),
+    lastfm<TopArtists>("user.gettopartists", { period: "1month", limit: 1 }, signal),
+    lastfm<TopArtists>("user.gettopartists", { period: "overall", limit: 1 }, signal),
+    Promise.all(
+      starts.map((from) =>
+        lastfm<RecentTracks>("user.getrecenttracks", { from, to: from + WEEK, limit: 1 }, signal)
+      )
+    ),
+  ]);
+  return summarise(info, topMonth, topAllTime, weekly, starts);
+}

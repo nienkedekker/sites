@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ArrowLeft from "phosphor-astro/ArrowLeft.astro";
+---
+
+<BaseLayout title="Lost" description="This page flew away.">
+  <section
+    class="mx-auto flex max-w-3xl flex-col items-center px-4 pt-24 text-center sm:pt-32"
+  >
+    <h1
+      class="rise display text-ink text-[clamp(3rem,9vw,5.5rem)]"
+      style="--delay: 160ms"
+    >
+      This page flew away.
+    </h1>
+    <p class="rise mt-6 max-w-md text-lg text-ink-soft" style="--delay: 240ms">
+      Maybe it was one of my old blog posts. I retired those, but the rest of
+      the site is still here.
+    </p>
+    <a
+      href="/"
+      class="group rise mt-8 inline-flex items-center gap-1.5 text-lg text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink"
+      style="--delay: 320ms"
+    >
+      <ArrowLeft
+        class="size-4 transition-transform group-hover:-translate-x-0.5"
+      /> Back home
+    </a>
+  </section>
+</BaseLayout>

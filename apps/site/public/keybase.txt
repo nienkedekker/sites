@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/nienkedekker
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://nienke.dev
+  * I am nienkedekker (https://keybase.io/nienkedekker) on keybase.
+  * I have a public key ASChInI1Cy9KIUtBmem5TUEXyZiwLna8En8WLIMmNo6k_wo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "01018bd30a4711f45f5e7ddbb3335722197707964213264b6fdd5f445f956d95f0a00a",
+      "host": "keybase.io",
+      "kid": "0120a12272350b2f4a214b4199e9b94d4117c998b02e76bc127f162c8326368ea4ff0a",
+      "uid": "ebbb669bb09dda244e953ac165e2c719",
+      "username": "nienkedekker"
+    },
+    "merkle_root": {
+      "ctime": 1699351695,
+      "hash": "154a66a7770b97d5a0ab721dac7382d641a3b4e2ffa25d7ba2b1c72c9b2361567627b65171ab84b15125d1fd71b5ba1c5e74944f40a47c3c225c93ca938435a1",
+      "hash_meta": "84224ed65d7c0ef40d4699b48c8c8e47d7fc5238afbfc27162eda0af18b03ad8",
+      "seqno": 25116403
+    },
+    "service": {
+      "entropy": "zpEdglBDlW+PYlD2qldy3BjK",
+      "hostname": "nienke.dev",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "6.2.4"
+  },
+  "ctime": 1699351726,
+  "expire_in": 504576000,
+  "prev": "c2163b07894663812854b35817758f58703a6d43f4cd90986b38fb4ca6ac4cea",
+  "seqno": 42,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgoSJyNQsvSiFLQZnpuU1BF8mYsC52vBJ/FiyDJjaOpP8Kp3BheWxvYWTESpcCKsQgwhY7B4lGY4EoVLNYF3WPWHA6bUP0zZCYazj7TKasTOrEIIA6yZ6jia3PmOr1ZyiDOLzylt01awHxyyMxq8cc6LbNAgHCo3NpZ8RAd8r+GUDBO6ZHiqVUZBZkXuuibkxwJbcXj+ioKmdfeUGIJYxkkx2k09Z8ToMkdYYGz6fQFTPl7d085OHzz/3fCahzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIMp+Kwn6x8+i3FK1CoSzDPJDvbO3/7gqaICN92Oh4Ahuo3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/nienkedekker
+
+==================================================================
