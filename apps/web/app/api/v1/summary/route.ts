@@ -66,6 +66,7 @@ function toSummaryItem(item: TypedItem) {
         title: item.title,
         author: item.author,
         publishedYear: item.published_year,
+        reread: item.redo,
         loggedAt,
       };
     case "Movie":
