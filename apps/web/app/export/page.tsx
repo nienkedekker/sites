@@ -6,8 +6,10 @@ export default async function SettingsPage() {
   const currentYear = getCurrentYear();
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <PageHeader>Settings</PageHeader>
+    <div className="max-w-2xl">
+      <PageHeader intro="Download the whole log, or just this year, as CSV or JSON.">
+        Settings
+      </PageHeader>
       <DataExport currentYear={currentYear} />
     </div>
   );

@@ -1,65 +1,40 @@
 import Link from "next/link";
+import SiteMark from "@nienke/ui/site-mark";
 import YearNavigation from "@/components/features/lists/year-navigation";
-import { Gamja_Flower } from "next/font/google";
-import { AuthHeader } from "@/components/layouts/auth-header";
-import IsLoggedIn from "@/components/auth/is-logged-in";
-import { navStyles } from "@/utils/styles";
-
-const gamja = Gamja_Flower({
-  weight: "400",
-  subsets: ["latin"],
-});
-
-/** Navigation links configuration */
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/stats", label: "Stats" },
-  { href: "/search", label: "Search" },
-] as const;
+import { NavLinks } from "@/components/layouts/nav-links";
+import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
 /**
- * Main navigation header component.
- * Includes logo, nav links, auth controls, and year navigation.
+ * Sticky site header, the same as nienke.dev's: the mark, the menu and the
+ * theme toggle. The year row sits below it and scrolls away.
  */
 function Navigation() {
   return (
-    <header>
-      <a href="#main-content" className="sr-only skip-link">
-        Skip to main content
-      </a>
-      <div className="border-b border-b-foreground/10 flex flex-col gap-0">
-        <div className={navStyles.logo}>
+    <>
+      <header className="sticky top-0 z-40 border-b border-rule bg-paper/70 backdrop-blur-xl backdrop-saturate-150">
+        <nav
+          aria-label="Main"
+          className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4"
+        >
           <Link
             href="/"
-            aria-label="What - Home"
-            className="hover:text-indigo-100 transition-colors duration-200"
+            aria-label="what., home"
+            className="flex items-center gap-2.5"
           >
-            <span className={`${gamja.className} drop-shadow-lg`}>what.</span>
+            <SiteMark />
+            <span className="display hidden text-[1.75rem] sm:inline">
+              what.
+            </span>
           </Link>
-        </div>
-        <nav aria-label="Main navigation" className={navStyles.navbar}>
-          <ul className="flex flex-wrap gap-4 sm:gap-6 list-none">
-            {NAV_LINKS.map(({ href, label }) => (
-              <li key={href}>
-                <Link href={href} className={navStyles.link}>
-                  {label}
-                </Link>
-              </li>
-            ))}
-            <IsLoggedIn>
-              <li>
-                <Link href="/export" className={navStyles.link}>
-                  Export
-                </Link>
-              </li>
-            </IsLoggedIn>
-          </ul>
-          <AuthHeader />
+
+          <div className="flex items-center gap-1 sm:gap-2">
+            <NavLinks />
+            <ThemeToggle />
+          </div>
         </nav>
-        <YearNavigation />
-      </div>
-    </header>
+      </header>
+      <YearNavigation />
+    </>
   );
 }
 

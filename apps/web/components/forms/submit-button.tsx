@@ -43,7 +43,7 @@ export function SubmitButton({
             height={16}
             aria-hidden="true"
           />
-          <span className="ml-2">{pendingText}</span>
+          <span>{pendingText}</span>
         </>
       ) : (
         children

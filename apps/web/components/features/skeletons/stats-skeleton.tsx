@@ -1,33 +1,25 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+function ChartCardSkeleton({ chartClassName }: { chartClassName: string }) {
+  return (
+    <div className="card p-6">
+      <Skeleton className="mb-6 h-5 w-40" />
+      <Skeleton className={`${chartClassName} w-full`} />
+      <div className="mt-6 space-y-2 border-t border-line pt-5">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-3 w-3/4" />
+      </div>
+    </div>
+  );
+}
+
 export function StatsPageSkeleton() {
   return (
-    <div className="flex flex-col gap-4">
-      <Skeleton className="h-12 w-32 mb-8 -ml-6 px-6" />
-
-      <div className="grid lg:grid-cols-2 gap-4">
-        <div className="p-6 border rounded-lg">
-          <Skeleton className="h-6 w-40 mb-4" />
-          <Skeleton className="h-64 w-full mb-4" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-3 w-3/4" />
-          </div>
-        </div>
-
-        <div className="p-6 border rounded-lg">
-          <Skeleton className="h-6 w-32 mb-4" />
-          <Skeleton className="h-64 w-full mb-4" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-3 w-3/4" />
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6 border rounded-lg">
-        <Skeleton className="h-6 w-48 mb-4" />
-        <Skeleton className="h-80 w-full" />
+    <div className="grid gap-3 lg:grid-cols-2" aria-hidden="true">
+      <ChartCardSkeleton chartClassName="h-64" />
+      <ChartCardSkeleton chartClassName="h-64" />
+      <div className="lg:col-span-2">
+        <ChartCardSkeleton chartClassName="h-80" />
       </div>
     </div>
   );

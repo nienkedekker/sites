@@ -29,7 +29,7 @@ export function CumulativeLineChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Total Logged Items Over Time</CardTitle>
+        <CardTitle>Total logged over time</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={config} className="max-h-96 w-full">
@@ -38,7 +38,7 @@ export function CumulativeLineChart({
             data={chartData}
             margin={{ left: -20, right: 12 }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} stroke="var(--line)" />
             <XAxis
               dataKey="year"
               tickLine={false}
@@ -50,19 +50,20 @@ export function CumulativeLineChart({
             {categories.map((category) => (
               <Line
                 key={category}
-                type="monotone"
+                type="linear"
                 dataKey={category}
                 stroke={
                   config[category as keyof typeof config]?.color || "gray"
                 }
                 strokeWidth={2}
+                dot={false}
               />
             ))}
           </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <p className=" text-muted-foreground">
+      <CardFooter className="flex-col items-start gap-1 border-t border-line pt-5 text-sm">
+        <p className="text-ink-soft">
           Tracking cumulative logs of books, movies, and shows over the years.
         </p>
       </CardFooter>

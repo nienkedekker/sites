@@ -240,7 +240,7 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
           />
         </div>
 
-        <div className="pt-6 mt-6 border-t border-neutral-200/50 dark:border-neutral-700/50">
+        <div className="mt-8 border-t border-line pt-6">
           <SubmitButton
             isSubmitting={form.formState.isSubmitting}
             className="w-full"

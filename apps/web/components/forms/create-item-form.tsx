@@ -239,7 +239,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
           />
         </div>
 
-        <div className="pt-6 mt-6 border-t border-neutral-200/50 dark:border-neutral-700/50">
+        <div className="mt-8 border-t border-line pt-6">
           <SubmitButton
             isSubmitting={form.formState.isSubmitting}
             className="w-full"
@@ -261,32 +261,19 @@ export default function CreateItemForm() {
 
   return (
     <>
-      <PageHeader>Add New Item</PageHeader>
+      <PageHeader intro="Log a book, a movie or a season of TV.">
+        Add new item
+      </PageHeader>
 
       <Tabs
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as TabValue)}
         className="w-full"
       >
-        <TabsList className="grid w-full grid-cols-3 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg gap-1">
-          <TabsTrigger
-            value={TAB_VALUES.BOOK}
-            className="rounded-md font-semibold transition-all duration-200 data-[state=active]:bg-neutral-900 dark:data-[state=active]:bg-neutral-100 data-[state=active]:text-white dark:data-[state=active]:text-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
-          >
-            Book
-          </TabsTrigger>
-          <TabsTrigger
-            value={TAB_VALUES.MOVIE}
-            className="rounded-md font-semibold transition-all duration-200 data-[state=active]:bg-neutral-900 dark:data-[state=active]:bg-neutral-100 data-[state=active]:text-white dark:data-[state=active]:text-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
-          >
-            Movie
-          </TabsTrigger>
-          <TabsTrigger
-            value={TAB_VALUES.SHOW}
-            className="rounded-md font-semibold transition-all duration-200 data-[state=active]:bg-neutral-900 dark:data-[state=active]:bg-neutral-100 data-[state=active]:text-white dark:data-[state=active]:text-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
-          >
-            TV Show
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value={TAB_VALUES.BOOK}>Book</TabsTrigger>
+          <TabsTrigger value={TAB_VALUES.MOVIE}>Movie</TabsTrigger>
+          <TabsTrigger value={TAB_VALUES.SHOW}>TV Show</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-6">

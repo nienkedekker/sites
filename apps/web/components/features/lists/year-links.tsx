@@ -24,19 +24,16 @@ export function YearLinks({ years }: YearLinksProps) {
   const activeYear = getActiveYear();
 
   return (
-    <ul className="flex gap-4 sm:gap-6 flex-wrap tabular-nums">
+    <ul className="flex flex-wrap gap-x-1 gap-y-1.5 font-mono text-sm tabular-nums">
       {years.map((y) => {
         const isActive = y === activeYear;
         return (
           <li key={y}>
+            {/* The open year is a filled tag; the rest fill in on hover */}
             <Link
               href={y === currentYear ? "/" : `/year/${y}`}
               aria-current={isActive ? "page" : undefined}
-              className={
-                isActive
-                  ? "text-indigo-900 dark:text-white bg-indigo-200 dark:bg-indigo-800 px-2 py-0.5 rounded-md"
-                  : "text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-              }
+              className="block border border-transparent px-1.5 py-0.5 text-ink-soft transition-colors hover:border-ink hover:text-ink aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-paper"
             >
               {y}
             </Link>

@@ -20,7 +20,7 @@ export default async function UpdateItemPage(props: { params: Params }) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl">
       <PageHeader>Update item</PageHeader>
       <UpdateItemForm item={item} />
     </div>

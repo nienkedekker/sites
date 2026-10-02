@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { signOutAction } from "@/app/actions/auth";
 import { supabaseBrowser } from "@/utils/supabase/browser";
 import { ReactElement, useState } from "react";
-import { navStyles } from "@/utils/styles";
+import { linkStyles } from "@/utils/styles";
 
 export function SignOutButton(): ReactElement {
   const router = useRouter();
@@ -31,21 +31,21 @@ export function SignOutButton(): ReactElement {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <span className="flex items-center gap-2">
       <button
         type="button"
         onClick={handleClick}
         disabled={pending}
         aria-busy={pending}
-        className={navStyles.linkDisabled}
+        className={`${linkStyles.footer} cursor-pointer disabled:opacity-50`}
       >
         {pending ? "Signing out..." : "Sign out"}
       </button>
       {error && (
-        <span className="text-red-600 dark:text-red-400 text-xs" role="alert">
+        <span className="text-danger" role="alert">
           {error}
         </span>
       )}
-    </div>
+    </span>
   );
 }

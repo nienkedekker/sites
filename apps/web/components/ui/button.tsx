@@ -5,27 +5,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/utils/ui";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap font-geist text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-200 active:scale-[0.98]",
+          "border border-ink bg-ink text-paper hover:border-movies hover:bg-movies hover:text-white",
         destructive:
-          "bg-red-600 text-white hover:bg-red-700 active:scale-[0.98]",
+          "border border-danger bg-danger text-white hover:bg-transparent hover:text-danger",
         outline:
-          "border-2 border-neutral-200 dark:border-neutral-800 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700",
+          "border border-ink bg-panel text-ink hover:bg-ink hover:text-paper",
         secondary:
-          "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700",
-        ghost:
-          "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100",
-        link: "text-neutral-900 dark:text-neutral-100 underline-offset-4 hover:underline",
+          "border border-line-strong bg-panel-2 text-ink hover:border-ink",
+        ghost: "text-ink-soft hover:bg-panel-2 hover:text-ink",
+        link: "text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink",
       },
       size: {
-        default: "h-11 px-6 py-2",
-        sm: "h-9 rounded-md px-4 text-xs",
-        lg: "h-12 rounded-xl px-8",
-        icon: "h-10 w-10",
+        default: "h-10 px-5",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-12 px-7",
+        icon: "size-10",
       },
     },
     defaultVariants: {

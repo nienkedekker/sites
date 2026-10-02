@@ -31,15 +31,15 @@ export type TabValue = (typeof TAB_VALUES)[keyof typeof TAB_VALUES];
 export const CHART_CONFIG = {
   [ITEM_TYPES.BOOK]: {
     label: "Books",
-    color: "hsl(var(--chart-1))",
+    color: "var(--books)",
   },
   [ITEM_TYPES.MOVIE]: {
     label: "Movies",
-    color: "hsl(var(--chart-3))",
+    color: "var(--movies)",
   },
   [ITEM_TYPES.SHOW]: {
     label: "Shows",
-    color: "hsl(var(--chart-5))",
+    color: "var(--shows)",
   },
 } as const;
 

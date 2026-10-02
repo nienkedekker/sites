@@ -47,7 +47,7 @@ export async function fetchStatsData() {
         count: entry[key],
         fill:
           CHART_CONFIG[entry.itemtype as keyof typeof CHART_CONFIG]?.color ||
-          "hsl(var(--chart-1))",
+          "var(--books)",
       }));
 
   return {

@@ -51,17 +51,17 @@ export function DataExport({ currentYear }: DataExportProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <h4 className="font-medium text-sm">Export All Data</h4>
-        <div className="flex gap-3">
+    <div className="card divide-y divide-line px-6 sm:px-7">
+      <section className="space-y-4 py-6 sm:py-7">
+        <h2 className="font-medium tracking-[-0.01em]">Export all data</h2>
+        <div className="flex flex-wrap gap-3">
           <Button
             onClick={() => handleExport("csv")}
             disabled={isExporting}
             variant="outline"
             size="sm"
           >
-            <FileText className="h-4 w-4 mr-2" />
+            <FileText aria-hidden="true" />
             {isExporting ? "Exporting..." : "Download CSV"}
           </Button>
           <Button
@@ -70,23 +70,25 @@ export function DataExport({ currentYear }: DataExportProps) {
             variant="outline"
             size="sm"
           >
-            <Database className="h-4 w-4 mr-2" />
+            <Database aria-hidden="true" />
             {isExporting ? "Exporting..." : "Download JSON"}
           </Button>
         </div>
-      </div>
+      </section>
 
       {currentYear && (
-        <div className="space-y-3">
-          <h4 className="font-medium text-sm">Export {currentYear} Data</h4>
-          <div className="flex gap-3">
+        <section className="space-y-4 py-6 sm:py-7">
+          <h2 className="font-medium tracking-[-0.01em]">
+            Export {currentYear} data
+          </h2>
+          <div className="flex flex-wrap gap-3">
             <Button
               onClick={() => handleExport("csv", currentYear)}
               disabled={isExporting}
               variant="outline"
               size="sm"
             >
-              <Calendar className="h-4 w-4 mr-2" />
+              <Calendar aria-hidden="true" />
               {isExporting ? "Exporting..." : `${currentYear} CSV`}
             </Button>
             <Button
@@ -95,11 +97,11 @@ export function DataExport({ currentYear }: DataExportProps) {
               variant="outline"
               size="sm"
             >
-              <Calendar className="h-4 w-4 mr-2" />
+              <Calendar aria-hidden="true" />
               {isExporting ? "Exporting..." : `${currentYear} JSON`}
             </Button>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

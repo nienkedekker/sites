@@ -79,3 +79,33 @@ export async function getItemsForYear(
     };
   }
 }
+
+/**
+ * Fetch the most recently logged items across all years, newest first
+ */
+export async function getRecentItems(
+  limit: number,
+): Promise<DataResult<TypedItem[]>> {
+  const { data: rawItems, error } = await supabasePublic
+    .from("items")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Database error fetching recent items:", error);
+    return {
+      success: false,
+      data: null,
+      error: `Failed to fetch items: ${error.message}`,
+    };
+  }
+
+  return {
+    success: true,
+    data: (rawItems ?? [])
+      .map(validateAndTypeItem)
+      .filter((item): item is TypedItem => item !== null),
+    error: null,
+  };
+}

@@ -11,9 +11,9 @@ async function StatsContent() {
 
   if (!statsData) {
     return (
-      <div role="alert" className="text-center p-8">
-        <p className="text-red-600">Unable to load chart data right now.</p>
-        <p className="text-sm text-gray-500 mt-2">
+      <div role="alert" className="card p-6 sm:p-7">
+        <p className="text-danger">Unable to load chart data right now.</p>
+        <p className="mt-2 text-sm text-ink-soft">
           Please try refreshing the page.
         </p>
       </div>
@@ -29,16 +29,16 @@ async function StatsContent() {
   } = statsData;
 
   return (
-    <div className="grid lg:grid-cols-2 gap-4">
+    <div className="grid gap-3 lg:grid-cols-2">
       <ItemCountBarChart
         chartData={chartData ?? []}
         config={CHART_CONFIG}
         title="Items over time"
       >
-        <p className="flex gap-2 font-medium">
+        <p className="font-medium">
           Total items logged across {yearsLogged} distinct years
         </p>
-        <p className="text-muted-foreground">
+        <p className="text-ink-soft">
           Displaying counts of Books, Movies, and TV Shows logged across all
           years.
         </p>
@@ -48,10 +48,8 @@ async function StatsContent() {
         chartData={chartDataCurrentYear ?? []}
         title={`Items in ${currentYear}`}
       >
-        <p className="flex gap-2 font-medium">
-          Total items logged in {currentYear}
-        </p>
-        <p className="text-muted-foreground">
+        <p className="font-medium">Total items logged in {currentYear}</p>
+        <p className="text-ink-soft">
           Displaying counts of Books, Movies, and TV Shows logged this year.
         </p>
       </ItemCountBarChart>
@@ -67,8 +65,10 @@ async function StatsContent() {
 
 export default function StatsPage() {
   return (
-    <div className="space-y-6">
-      <PageHeader>Stats</PageHeader>
+    <div>
+      <PageHeader intro="Books, movies and TV seasons, counted across every year.">
+        Stats
+      </PageHeader>
       <Suspense fallback={<StatsPageSkeleton />}>
         <StatsContent />
       </Suspense>

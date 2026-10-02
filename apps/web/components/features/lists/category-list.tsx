@@ -1,18 +1,10 @@
 import Link from "next/link";
 import DeleteItemDialog from "./delete-item-dialog";
-import { Button } from "@/components/ui/button";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
-import {
-  BookOpen,
-  Film,
-  Tv,
-  RotateCcw,
-  Clock,
-  type LucideIcon,
-} from "lucide-react";
 import { cn } from "@/utils/ui";
-import { cardStyles, textStyles, badgeStyles } from "@/utils/styles";
+import { linkStyles } from "@/utils/styles";
+import { ItemBadges } from "@/components/features/lists/item-badges";
 
 interface CategoryListProps {
   categoryTitle: string;
@@ -20,36 +12,12 @@ interface CategoryListProps {
   showYearLink?: boolean;
 }
 
-const ICON_MAP: Record<string, LucideIcon> = {
-  Book: BookOpen,
-  Movie: Film,
-  Show: Tv,
+// The same swatches as the month-by-month chart's legend
+const SWATCH_MAP: Record<string, string> = {
+  Book: "bg-books",
+  Movie: "bg-movies",
+  Show: "bg-shows",
 };
-
-function ItemBadge({
-  icon: Icon,
-  label,
-  variant,
-  ariaLabel,
-}: {
-  icon: LucideIcon;
-  label: string;
-  variant: "progress" | "amber";
-  ariaLabel: string;
-}) {
-  return (
-    <span
-      className={cn(
-        "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-        badgeStyles[variant],
-      )}
-      aria-label={ariaLabel}
-    >
-      <Icon className="w-3 h-3" aria-hidden="true" />
-      {label}
-    </span>
-  );
-}
 
 /** Renders the metadata line based on item type */
 function ItemMetadata({ item }: { item: Item }) {
@@ -65,7 +33,7 @@ function ItemMetadata({ item }: { item: Item }) {
       return (
         <span>
           {item.director && `dir. ${item.director}`}
-          {item.director && item.published_year && " • "}
+          {item.director && item.published_year && " · "}
           {item.published_year}
         </span>
       );
@@ -76,48 +44,6 @@ function ItemMetadata({ item }: { item: Item }) {
   }
 }
 
-/** Renders the appropriate badge(s) for an item */
-function ItemBadges({ item }: { item: Item }) {
-  // Show in progress + rewatch
-  if (item.itemtype === "Show" && item.in_progress && item.redo) {
-    return (
-      <ItemBadge
-        icon={RotateCcw}
-        label="Rewatch in progress"
-        variant="progress"
-        ariaLabel="Currently rewatching this show"
-      />
-    );
-  }
-
-  // Show in progress (not rewatch)
-  if (item.itemtype === "Show" && item.in_progress) {
-    return (
-      <ItemBadge
-        icon={Clock}
-        label="In Progress"
-        variant="progress"
-        ariaLabel="Currently watching this show"
-      />
-    );
-  }
-
-  // Redo badge (not currently in progress)
-  if (item.redo) {
-    const isBook = item.itemtype === "Book";
-    return (
-      <ItemBadge
-        icon={RotateCcw}
-        label={isBook ? "Reread" : "Rewatch"}
-        variant="amber"
-        ariaLabel={isBook ? "This was a re-read" : "This was a rewatch"}
-      />
-    );
-  }
-
-  return null;
-}
-
 export function CategoryList({
   categoryTitle,
   items,
@@ -125,109 +51,79 @@ export function CategoryList({
 }: CategoryListProps) {
   const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-heading`;
   const itemType = items[0]?.itemtype || categoryTitle.slice(0, -1);
-  const Icon = ICON_MAP[itemType] || BookOpen;
+  const swatch = SWATCH_MAP[itemType] ?? SWATCH_MAP.Book;
 
   return (
     <section aria-labelledby={headingId}>
-      <header className="flex items-center gap-3 mb-6">
-        <div className="p-2 text-gray-300 dark:text-gray-600">
-          <Icon className="w-5 h-5" aria-hidden="true" />
-        </div>
-        <div>
-          <h2
-            id={headingId}
-            className="text-sm font-semibold uppercase text-gray-600 dark:text-gray-400"
-          >
-            {categoryTitle}
-          </h2>
-          <p className={cn("text-sm", textStyles.muted)}>
-            {items.length} {items.length === 1 ? "item" : "items"}
-          </p>
-        </div>
+      <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
+        <h2
+          id={headingId}
+          className="display flex items-center gap-3 text-ink text-[1.875rem] sm:text-[2.5rem]"
+        >
+          <span className={cn("size-3 shrink-0", swatch)} aria-hidden="true" />
+          {categoryTitle}
+        </h2>
+        <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
+          {items.length} {items.length === 1 ? "item" : "items"}
+        </p>
       </header>
 
       {items.length > 0 ? (
-        <ul className="space-y-5">
+        <ol>
           {items.map((item, index) => (
             <li key={item.id}>
-              <article
-                className={cn(
-                  "relative p-5 rounded-lg border transition-colors hover:border-gray-300 dark:hover:border-gray-700",
-                  cardStyles,
-                )}
-              >
+              <article className="flex gap-4 border-b border-line py-4">
                 <span
-                  className="absolute -left-2 -top-2 w-6 h-6 bg-white dark:bg-neutral-900 border border-gray-300 dark:border-neutral-600 rounded-full flex items-center justify-center text-xs font-medium"
+                  className="w-5 shrink-0 pt-0.5 font-mono text-xs text-ink-faint tabular-nums"
                   aria-hidden="true"
                 >
-                  {index + 1}
+                  {String(index + 1).padStart(2, "0")}
                 </span>
 
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    <p
-                      className={cn(
-                        "flex flex-wrap items-center gap-1 mt-0.5 text-xs",
-                        textStyles.muted,
-                      )}
-                    >
-                      <ItemMetadata item={item} />
-                    </p>
-                  </div>
-                  <ItemBadges item={item} />
-                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="line-clamp-2 font-medium leading-snug tracking-[-0.01em] text-ink">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-ink-soft">
+                    <ItemMetadata item={item} />
+                    <ItemBadges item={item} className="ml-1.5" />
+                  </p>
 
-                {showYearLink && (
-                  <div className="pt-2 mt-2 border-t border-current/10">
+                  {showYearLink && (
                     <Link
                       href={`/year/${item.belongs_to_year}`}
                       className={cn(
-                        "text-xs hover:underline transition-colors",
-                        textStyles.mutedLight,
-                        "hover:text-gray-700 dark:hover:text-gray-300",
+                        "mt-2 inline-block font-mono text-xs text-ink-faint",
+                        linkStyles.footer,
                       )}
                     >
                       Added in {item.belongs_to_year}
                     </Link>
-                  </div>
-                )}
+                  )}
 
-                <IsLoggedIn>
-                  <div className="flex items-center gap-2 mt-3">
-                    <Button
-                      asChild
-                      variant="link"
-                      className="text-xs p-0 h-auto"
-                    >
-                      <Link href={`/item/${item.id}`}>Edit</Link>
-                    </Button>
-                    <DeleteItemDialog
-                      itemId={item.id}
-                      belongsToYear={item.belongs_to_year}
-                    />
-                  </div>
-                </IsLoggedIn>
+                  <IsLoggedIn>
+                    <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft">
+                      <Link
+                        href={`/item/${item.id}`}
+                        className={linkStyles.footer}
+                      >
+                        Edit
+                      </Link>
+                      <DeleteItemDialog
+                        itemId={item.id}
+                        belongsToYear={item.belongs_to_year}
+                      />
+                    </div>
+                  </IsLoggedIn>
+                </div>
               </article>
             </li>
           ))}
-        </ul>
+        </ol>
       ) : (
-        <div
-          className={cn(
-            "flex flex-col items-center justify-center p-6 sm:p-12 rounded-xl border-2 border-dashed",
-            "text-gray-400 dark:text-gray-600",
-          )}
-        >
-          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-            <Icon className="w-5 h-5" aria-hidden="true" />
-          </div>
-          <p className="text-center font-medium">
-            I did not log any {categoryTitle.toLowerCase()} this year.
-          </p>
-        </div>
+        <p className="mt-6 border border-dashed border-line-strong p-6 text-ink-soft">
+          I did not log any {categoryTitle.toLowerCase()} this year.
+        </p>
       )}
     </section>
   );

@@ -29,15 +29,18 @@ export default function DeleteItemDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="link" className="text-xs p-0 h-auto">
+        <button
+          type="button"
+          className="cursor-pointer underline decoration-line-strong underline-offset-4 transition-colors hover:text-danger hover:decoration-danger"
+        >
           Delete
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent aria-describedby="delete-description">
         <DialogHeader>
           <DialogTitle>Are you sure?</DialogTitle>
         </DialogHeader>
-        <p id="delete-description" className="text-sm text-gray-600">
+        <p id="delete-description" className="text-ink-soft">
           This action cannot be undone. This will permanently delete the item.
         </p>
         <DialogFooter>

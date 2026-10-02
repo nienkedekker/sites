@@ -22,7 +22,11 @@ export default async function YearNavigation() {
     years = await getDistinctYears();
   } catch (e) {
     console.error("Error fetching years:", e);
-    return <p className="px-5 py-3 text-sm">Failed to load years.</p>;
+    return (
+      <p className="mx-auto max-w-6xl px-4 py-3 font-mono text-xs text-ink-soft">
+        Failed to load years.
+      </p>
+    );
   }
 
   if (years.length === 0) {
@@ -30,11 +34,10 @@ export default async function YearNavigation() {
   }
 
   return (
-    <nav
-      aria-label="Browse by year"
-      className="bg-indigo-50/50 dark:bg-indigo-950/30 text-sm py-5 px-6 text-foreground"
-    >
-      <YearLinks years={years} />
+    <nav aria-label="Browse by year" className="border-b border-rule">
+      <div className="mx-auto max-w-6xl px-4 py-3">
+        <YearLinks years={years} />
+      </div>
     </nav>
   );
 }

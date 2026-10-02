@@ -1,198 +1,83 @@
-"use client";
-
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-import { SubmitButton } from "@/components/forms/submit-button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-  FormLabel,
-} from "@/components/ui/form";
 import { PageHeader } from "@/components/ui/page-header";
+import { getRecentItems } from "@/utils/data/items";
+import type { TypedItem } from "@/types/shared";
+import { SignInForm } from "./sign-in-form";
 
-import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
-import { signInActionReturnSession } from "@/app/actions/auth";
-import { supabaseBrowser } from "@/utils/supabase/browser";
+const SWATCH_MAP: Record<TypedItem["itemtype"], string> = {
+  Book: "bg-books",
+  Movie: "bg-movies",
+  Show: "bg-shows",
+};
 
-/** Allowed redirect paths (whitelist for security) */
-const ALLOWED_REDIRECT_PREFIXES = [
-  "/",
-  "/year/",
-  "/item/",
-  "/stats",
-  "/search",
-  "/about",
-  "/export",
-  "/create",
-];
+const LABEL_MAP: Record<TypedItem["itemtype"], string> = {
+  Book: "Book",
+  Movie: "Movie",
+  Show: "TV",
+};
 
-/**
- * Validates and sanitizes a redirect URL.
- * Returns "/" if the URL is invalid or potentially malicious.
- */
-function getSafeRedirectUrl(rawRedirect: string | null): string {
-  if (!rawRedirect) return "/";
+const loggedDate = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
 
-  // Must start with single "/" and not be a protocol-relative URL
-  if (!rawRedirect.startsWith("/") || rawRedirect.startsWith("//")) {
-    return "/";
-  }
-
-  // Check against whitelist of allowed prefixes
-  const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(
-    (prefix) => rawRedirect === prefix || rawRedirect.startsWith(prefix),
-  );
-
-  return isAllowed ? rawRedirect : "/";
-}
-
-/**
- * Extracts and validates message from query parameters.
- * Returns null if no valid message found.
- */
-function getQueryMessage(
-  searchParams: URLSearchParams,
-): { type: "error" | "success" | "info"; text: string } | null {
-  const error = searchParams.get("error");
-  const success = searchParams.get("success");
-  const message = searchParams.get("message");
-
-  // Sanitize: only allow alphanumeric, spaces, and basic punctuation
-  const sanitize = (text: string): string => {
-    return text.replace(/[^\w\s.,!?-]/g, "").slice(0, 200);
-  };
-
-  if (error) return { type: "error", text: sanitize(error) };
-  if (success) return { type: "success", text: sanitize(success) };
-  if (message) return { type: "info", text: sanitize(message) };
-
-  return null;
-}
-
-function SignInForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const form = useForm<SignInInput>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { email: "", password: "" },
-  });
-
-  const onSubmit = async (data: SignInInput) => {
-    // Convert react-hook-form data to FormData
-    const formData = new FormData();
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-
-    // Call server action, this sets HttpOnly cookies and returns tokens
-    const res = await signInActionReturnSession(formData);
-
-    if (!res.ok) {
-      form.setError("root", { message: res.error ?? "Sign-in failed" });
-      return;
-    }
-
-    // Hydrate browser client so <AuthProvider> updates immediately
-    if (res.access_token && res.refresh_token) {
-      await supabaseBrowser.auth.setSession({
-        access_token: res.access_token,
-        refresh_token: res.refresh_token,
-      });
-    }
-
-    const redirectTo = getSafeRedirectUrl(searchParams.get("redirect"));
-
-    router.refresh();
-    router.push(redirectTo);
-  };
-
-  const queryMessage = getQueryMessage(searchParams);
-
-  const {
-    handleSubmit,
-    control,
-    formState: { isSubmitting, errors },
-  } = form;
+/** Where things left off: the last few entries, newest first */
+async function LastLogged() {
+  const result = await getRecentItems(3);
+  if (!result.success || result.data.length === 0) return null;
 
   return (
-    <div className="max-w-md mx-auto space-y-6">
-      <PageHeader>Sign in</PageHeader>
-
-      <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {queryMessage && (
-            <FormMessage
-              className={
-                queryMessage.type === "success"
-                  ? "text-green-600 dark:text-green-400"
-                  : queryMessage.type === "error"
-                    ? "text-red-600 dark:text-red-400"
-                    : undefined
-              }
-            >
-              {queryMessage.text}
-            </FormMessage>
-          )}
-          {errors.root?.message && (
-            <FormMessage>{errors.root.message}</FormMessage>
-          )}
-
-          <FormField
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="you@example.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Your password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <SubmitButton pendingText="Signing In..." disabled={isSubmitting}>
-            Sign in
-          </SubmitButton>
-        </form>
-      </Form>
-    </div>
+    <section aria-labelledby="last-logged-heading" className="mt-12">
+      <h2 id="last-logged-heading" className="tag">
+        Last logged
+      </h2>
+      <ol className="mt-4 border-t border-rule">
+        {result.data.map((item) => (
+          <li
+            key={item.id}
+            className="flex items-center gap-3 border-b border-line py-3"
+          >
+            <span
+              className={`size-2.5 shrink-0 ${SWATCH_MAP[item.itemtype]}`}
+              aria-hidden="true"
+            />
+            <span className="min-w-0 flex-1 truncate font-medium tracking-[-0.01em]">
+              {item.title}
+            </span>
+            <span className="shrink-0 font-mono text-xs text-ink-soft">
+              <span className="sr-only">{LABEL_MAP[item.itemtype]}, </span>
+              {item.created_at && loggedDate.format(new Date(item.created_at))}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <SignInForm />
-    </Suspense>
+    // Laid out like nienke.dev's home: words on the left, a framed box on
+    // the right
+    <div className="grid items-center gap-y-12 lg:grid-cols-12 lg:gap-x-16">
+      <div className="lg:col-span-7">
+        <PageHeader className="mb-0 sm:mb-0">Sign in</PageHeader>
+        <div className="max-w-md">
+          <Suspense fallback={null}>
+            <LastLogged />
+          </Suspense>
+        </div>
+      </div>
+
+      <div className="lg:col-span-5">
+        <Suspense
+          fallback={<p className="font-mono text-xs text-ink-soft">Loading…</p>}
+        >
+          <SignInForm />
+        </Suspense>
+      </div>
+    </div>
   );
 }

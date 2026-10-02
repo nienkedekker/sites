@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabasePublic } from "@/utils/supabase/public";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { getCurrentYear } from "@/utils/formatters/date";
+import { countByMonth } from "@/utils/data/summary";
 
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
@@ -25,37 +26,6 @@ function parseIntParam(value: string | null, fallback: number) {
   if (value === null) return fallback;
   const parsed = Number(value);
   return Number.isInteger(parsed) ? parsed : NaN;
-}
-
-/**
- * Counts per type for each month of the year, by the date an item was logged.
- * Items logged just after the year ended (say, a December book logged on
- * January 2nd) count towards December; items with no log date are left out.
- */
-function countByMonth(items: TypedItem[], year: number) {
-  const months = Array.from({ length: 12 }, (_, i) => ({
-    month: i + 1,
-    books: 0,
-    movies: 0,
-    shows: 0,
-  }));
-
-  for (const item of items) {
-    if (!item.created_at) continue;
-    const loggedYear = Number(item.created_at.slice(0, 4));
-    const loggedMonth = Number(item.created_at.slice(5, 7));
-    const index =
-      loggedYear < year ? 0 : loggedYear > year ? 11 : loggedMonth - 1;
-    const key =
-      item.itemtype === "Book"
-        ? "books"
-        : item.itemtype === "Movie"
-          ? "movies"
-          : "shows";
-    months[index][key] += 1;
-  }
-
-  return months;
 }
 
 function toSummaryItem(item: TypedItem) {

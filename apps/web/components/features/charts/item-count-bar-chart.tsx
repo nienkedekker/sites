@@ -60,11 +60,11 @@ export function ItemCountBarChart({
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            <Bar dataKey="count" radius={5} layout="vertical" />
+            <Bar dataKey="count" radius={0} layout="vertical" />
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
+      <CardFooter className="flex-col items-start gap-1 border-t border-line pt-5 text-sm">
         {children}
       </CardFooter>
     </Card>

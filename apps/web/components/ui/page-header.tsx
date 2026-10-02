@@ -1,16 +1,39 @@
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
+import { cn } from "@/utils/ui";
 
 interface PageHeaderProps {
   children: ReactNode;
+  /** A line of larger, softer text under the title */
+  intro?: ReactNode;
+  /** A small tag above the title, e.g. a count or a date */
+  eyebrow?: ReactNode;
   className?: string;
 }
 
-export function PageHeader({ children, className = "" }: PageHeaderProps) {
+/** Page title in the serif display face, like nienke.dev's pages */
+export function PageHeader({
+  children,
+  intro,
+  eyebrow,
+  className,
+}: PageHeaderProps) {
   return (
-    <div className={`text-left ${className}`}>
-      <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-700 via-gray-500 to-gray-700 dark:from-gray-200 dark:via-gray-100 dark:to-gray-200 bg-clip-text text-transparent leading-tight pb-1">
+    <header className={cn("mb-12 max-w-2xl sm:mb-16", className)}>
+      {eyebrow && <p className="rise tag mb-6">{eyebrow}</p>}
+      <h1
+        className="rise display text-ink text-[clamp(2.75rem,7vw,4.5rem)]"
+        style={{ "--delay": "80ms" } as CSSProperties}
+      >
         {children}
       </h1>
-    </div>
+      {intro && (
+        <p
+          className="rise mt-5 text-lg text-ink-soft sm:text-xl"
+          style={{ "--delay": "160ms" } as CSSProperties}
+        >
+          {intro}
+        </p>
+      )}
+    </header>
   );
 }
