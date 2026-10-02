@@ -10,7 +10,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className="grid size-8 shrink-0 cursor-pointer place-items-center text-ink-soft transition-colors hover:bg-panel-2 hover:text-ink"
+      className="icon-button"
       aria-label="Toggle dark mode"
     >
       <Sun className="hidden size-4 dark:block" aria-hidden="true" />

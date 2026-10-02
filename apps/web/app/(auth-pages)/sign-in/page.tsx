@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { formatDate } from "@nienke/ui/format";
 import PageHeader from "@nienke/ui/page-header";
 import { getRecentItems } from "@/utils/data/items";
 import type { TypedItem } from "@/types/shared";
@@ -15,13 +16,6 @@ const LABEL_MAP: Record<TypedItem["itemtype"], string> = {
   Movie: "Movie",
   Show: "TV",
 };
-
-const loggedDate = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
 
 async function LastLogged() {
   const result = await getRecentItems(3);
@@ -47,7 +41,12 @@ async function LastLogged() {
             </span>
             <span className="shrink-0 font-mono text-xs text-ink-soft">
               <span className="sr-only">{LABEL_MAP[item.itemtype]}, </span>
-              {item.created_at && loggedDate.format(new Date(item.created_at))}
+              {item.created_at &&
+                formatDate(new Date(item.created_at), {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
             </span>
           </li>
         ))}

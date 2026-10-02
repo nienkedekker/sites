@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
+import { formatCount, formatDate } from "@nienke/ui/format";
+import TagLink from "@nienke/ui/tag-link";
 import { PROFILE_URL, WEEK, type ListeningStats } from "../lib/lastfm";
 
 const day = (unix: number) =>
-  new Date(unix * 1000).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-
-const count = (n: number) => n.toLocaleString("en-US");
+  formatDate(new Date(unix * 1000), { month: "short", day: "numeric" });
 
 export default function ScrobblesCard({ initial }: { initial?: ListeningStats }) {
   const [stats, setStats] = useState<ListeningStats | null>(initial ?? null);
@@ -29,18 +25,7 @@ export default function ScrobblesCard({ initial }: { initial?: ListeningStats })
     <div className="flex h-full flex-col">
       <CardHead
         as="h3"
-        tag={
-          stats && (
-            <a
-              href={PROFILE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="tag whitespace-nowrap"
-            >
-              Since {stats.since} <span aria-hidden="true">↗</span>
-            </a>
-          )
-        }
+        tag={stats && <TagLink href={PROFILE_URL}>Since {stats.since}</TagLink>}
       >
         Scrobbles
       </CardHead>
@@ -65,7 +50,7 @@ function Stats({ stats }: { stats: ListeningStats }) {
     <div className="mt-auto pt-6 text-sm">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-ink-soft">Per week</span>
-        <span className="font-medium tabular-nums">{count(latest.count)}</span>
+        <span className="font-medium tabular-nums">{formatCount(latest.count)}</span>
       </div>
 
       <div
@@ -83,7 +68,7 @@ function Stats({ stats }: { stats: ListeningStats }) {
             />
             <span className="tooltip left-1/2 -translate-x-1/2 px-2 py-1">
               {day(start)} – {day(start + WEEK - 1)}:{" "}
-              <span className="font-medium tabular-nums">{count(n)}</span>
+              <span className="font-medium tabular-nums">{formatCount(n)}</span>
             </span>
           </div>
         ))}
@@ -116,12 +101,12 @@ function ArtistRow({
           href={artist.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="truncate underline decoration-line-strong underline-offset-4 hover:decoration-ink"
+          className="link truncate"
         >
           {artist.name}
         </a>
         <span className="text-ink-faint tabular-nums">
-          {count(artist.plays)}
+          {formatCount(artist.plays)}
           <span className="sr-only"> plays</span>
         </span>
       </dd>

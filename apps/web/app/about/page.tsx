@@ -4,9 +4,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import PageHeader from "@nienke/ui/page-header";
 import { getLogFacts, type LogFacts } from "@/utils/data/about";
-import { linkStyles } from "@/utils/styles";
-
-const number = new Intl.NumberFormat("en-GB");
+import { formatCount } from "@nienke/ui/format";
 
 const TYPE_ROWS = [
   { key: "books", label: "Books", swatch: "bg-books" },
@@ -21,7 +19,7 @@ function LogNumbers({ facts }: { facts: LogFacts }) {
         The log in numbers
       </h2>
       <p className="stat-figure text-7xl">
-        {number.format(facts.total)}
+        {formatCount(facts.total)}
       </p>
       <p className="mt-3 text-ink-soft">
         things logged across {facts.yearCount} years.
@@ -39,7 +37,7 @@ function LogNumbers({ facts }: { facts: LogFacts }) {
             />
             <dt className="flex-1 text-ink-soft">{label}</dt>
             <dd className="font-mono text-sm text-ink tabular-nums">
-              {number.format(facts[key])}
+              {formatCount(facts[key])}
             </dd>
           </div>
         ))}
@@ -48,7 +46,7 @@ function LogNumbers({ facts }: { facts: LogFacts }) {
           <dd className="font-mono text-sm tabular-nums">
             <Link
               href={`/year/${facts.firstYear}`}
-              className={`text-ink ${linkStyles.footer}`}
+              className="link text-ink"
             >
               {facts.firstYear}
             </Link>

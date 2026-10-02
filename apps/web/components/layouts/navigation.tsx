@@ -7,10 +7,10 @@ import { ThemeToggle } from "@/components/layouts/theme-toggle";
 function Navigation() {
   return (
     <>
-      <header className="own-grain sticky top-0 z-[102] border-b border-rule bg-paper/70 backdrop-blur-xl backdrop-saturate-150">
+      <header className="site-header own-grain">
         <nav
           aria-label="Main"
-          className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4"
+          className="site-nav"
         >
           <Link
             href="/"

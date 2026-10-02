@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { AccountLinks } from "@/components/layouts/account-links";
-import { linkStyles } from "@/utils/styles";
 
 const SITE_LINKS = [
   { href: "/stats", label: "Stats" },
@@ -36,7 +35,7 @@ export default function Footer() {
             <ul className="flex flex-wrap gap-x-4 gap-y-1">
               {SITE_LINKS.map(({ href, label }) => (
                 <li key={href}>
-                  <Link href={href} className={linkStyles.footer}>
+                  <Link href={href} className="link hover:text-ink">
                     {label}
                   </Link>
                 </li>
@@ -51,7 +50,7 @@ export default function Footer() {
                   href="https://nienke.dev"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={linkStyles.footer}
+                  className="link hover:text-ink"
                 >
                   nienke.dev
                 </a>
@@ -65,7 +64,7 @@ export default function Footer() {
                   className="group flex items-center gap-1.5 transition-colors hover:text-ink"
                 >
                   <XIcon className="size-3.5 shrink-0" />
-                  <span className="underline decoration-line-strong underline-offset-4 transition-colors group-hover:decoration-ink">
+                  <span className="link group-hover:decoration-ink">
                     @thanergic
                   </span>
                 </a>

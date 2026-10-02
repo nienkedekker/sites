@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
+import { formatCount } from "@nienke/ui/format";
 import type { YearEntries } from "@/utils/data/stats";
 
 const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
@@ -23,7 +24,7 @@ export function EveryEntry({ years }: { years: YearEntries[] }) {
     >
       <CardHead
         id="every-entry-heading"
-        note={`${total.toLocaleString("en-GB")} in ${years.length} years`}
+        note={`${formatCount(total)} in ${years.length} years`}
       >
         Every entry
       </CardHead>

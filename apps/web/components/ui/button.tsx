@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "border border-line-strong bg-panel-2 text-ink hover:border-rule",
         ghost: "text-ink-soft hover:bg-panel-2 hover:text-ink",
-        link: "text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink",
+        link: "link text-ink",
       },
       size: {
         default: "h-10 px-5",

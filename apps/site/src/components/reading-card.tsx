@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
+import TagLink from "@nienke/ui/tag-link";
 import { getSummary, whatpmUrl, type Summary } from "../lib/whatpm";
 
 const SPINES = [
@@ -31,7 +32,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
       href={summary?.url ?? whatpmUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
+      className="link text-ink"
     >
       what.pm
     </a>
@@ -42,18 +43,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
       <div className="flex flex-col sm:w-2/5">
         <CardHead
           as="h3"
-          tag={
-            summary && (
-              <a
-                href={summary.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="tag whitespace-nowrap"
-              >
-                {summary.year} <span aria-hidden="true">↗</span>
-              </a>
-            )
-          }
+          tag={summary && <TagLink href={summary.url}>{summary.year}</TagLink>}
         >
           Reading
         </CardHead>
@@ -64,7 +54,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
               {summary ? summary.counts.books : "–"}
             </p>
           ) : (
-            <div className="h-[4.5rem] w-28 animate-pulse bg-line" />
+            <div className="skeleton h-[4.5rem] w-28" />
           )}
           {summary ? (
             <p className="mt-3 text-sm text-ink-soft">books read so far.</p>

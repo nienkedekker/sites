@@ -4,6 +4,7 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/utils/ui";
+import { formatCount } from "@nienke/ui/format";
 
 const THEMES = { light: "", dark: ".dark" } as const;
 
@@ -233,7 +234,9 @@ function ChartTooltipContent({
                     </div>
                     {item.value && (
                       <span className="text-foreground font-mono font-medium tabular-nums">
-                        {item.value.toLocaleString()}
+                        {typeof item.value === "number"
+                          ? formatCount(item.value)
+                          : item.value}
                       </span>
                     )}
                   </div>

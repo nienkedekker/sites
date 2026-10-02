@@ -1,5 +1,7 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
+import { formatCount } from "@nienke/ui/format";
+import TagLink from "@nienke/ui/tag-link";
 import type { ReactNode } from "react";
 
 interface StatTileProps {
@@ -17,9 +19,9 @@ export function StatTile({ title, value, children, href, tag }: StatTileProps) {
         tag={
           tag &&
           (href ? (
-            <Link href={href} className="tag">
-              {tag} <span aria-hidden="true">↗</span>
-            </Link>
+            <TagLink as={Link} href={href}>
+              {tag}
+            </TagLink>
           ) : (
             <span className="tag">{tag}</span>
           ))
@@ -28,7 +30,7 @@ export function StatTile({ title, value, children, href, tag }: StatTileProps) {
         {title}
       </CardHead>
       <p className="stat-figure mt-auto pt-8 text-6xl">
-        {value.toLocaleString("en-GB")}
+        {formatCount(value)}
       </p>
       <p className="mt-3 text-sm text-ink-soft">{children}</p>
     </section>

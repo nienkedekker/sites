@@ -112,7 +112,7 @@ export default function MediaChart({
                         className="flex flex-1 items-end justify-center"
                       >
                         <span
-                          className="w-3/4 max-w-6 animate-pulse bg-line"
+                          className="skeleton w-3/4 max-w-6"
                           style={{ height: `${25 + ((i * 37) % 50)}%` }}
                         />
                       </div>

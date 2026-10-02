@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { SignOutButton } from "@/components/layouts/sign-out-button";
-import { linkStyles } from "@/utils/styles";
 import { useAuth } from "@/providers/auth-provider";
 
 export function AccountLinks() {
@@ -13,7 +12,7 @@ export function AccountLinks() {
   return isLoggedIn ? (
     <>
       <li>
-        <Link href="/export" className={linkStyles.footer}>
+        <Link href="/export" className="link hover:text-ink">
           Export
         </Link>
       </li>
@@ -23,7 +22,7 @@ export function AccountLinks() {
     </>
   ) : (
     <li>
-      <Link href="/sign-in" className={linkStyles.footer}>
+      <Link href="/sign-in" className="link hover:text-ink">
         Sign in
       </Link>
     </li>

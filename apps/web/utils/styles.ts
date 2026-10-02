@@ -17,10 +17,3 @@ export const formStyles = {
   container: "card p-5 sm:p-8",
   fieldGroup: "space-y-5",
 } as const;
-
-export const linkStyles = {
-  inline:
-    "text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink",
-  footer:
-    "underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink hover:decoration-ink",
-} as const;

@@ -37,7 +37,7 @@ const isWeb = (href: string) => /^https?:/.test(href);
                 <li>
                   <a
                     href={href}
-                    class="underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
+                    class="link hover:text-ink"
                     {...(isWeb(href)
                       ? { target: "_blank", rel: "noopener noreferrer" }
                       : {})}

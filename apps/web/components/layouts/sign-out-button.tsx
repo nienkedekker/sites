@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { signOutAction } from "@/app/actions/auth";
 import { supabaseBrowser } from "@/utils/supabase/browser";
 import { ReactElement, useState } from "react";
-import { linkStyles } from "@/utils/styles";
 
 export function SignOutButton(): ReactElement {
   const router = useRouter();
@@ -34,7 +33,7 @@ export function SignOutButton(): ReactElement {
         onClick={handleClick}
         disabled={pending}
         aria-busy={pending}
-        className={`${linkStyles.footer} cursor-pointer disabled:opacity-50`}
+        className="link cursor-pointer hover:text-ink disabled:opacity-50"
       >
         {pending ? "Signing out..." : "Sign out"}
       </button>

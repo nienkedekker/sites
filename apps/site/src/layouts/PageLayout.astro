@@ -1,4 +1,5 @@
 ---
+import { formatDate } from "@nienke/ui/format";
 import PageHeader from "@nienke/ui/page-header";
 import BaseLayout from "./BaseLayout.astro";
 
@@ -12,12 +13,7 @@ interface Props {
 const { title, intro, lastUpdated, markdown } = Astro.props;
 
 const formattedDate = lastUpdated
-  ? lastUpdated.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    })
+  ? formatDate(lastUpdated, { year: "numeric", month: "long", day: "numeric" })
   : null;
 ---
 

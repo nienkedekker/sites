@@ -3,7 +3,6 @@ import DeleteItemDialog from "./delete-item-dialog";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
-import { linkStyles } from "@/utils/styles";
 import { ItemBadges } from "@/components/features/lists/item-badges";
 
 interface CategoryListProps {
@@ -90,10 +89,7 @@ export function CategoryList({
                   {showYearLink && (
                     <Link
                       href={`/year/${item.belongs_to_year}`}
-                      className={cn(
-                        "mt-2 inline-block font-mono text-xs text-ink-faint",
-                        linkStyles.footer,
-                      )}
+                      className="link mt-2 inline-block font-mono text-xs text-ink-faint hover:text-ink"
                     >
                       Added in {item.belongs_to_year}
                     </Link>
@@ -103,7 +99,7 @@ export function CategoryList({
                     <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft">
                       <Link
                         href={`/item/${item.id}`}
-                        className={linkStyles.footer}
+                        className="link hover:text-ink"
                       >
                         Edit
                       </Link>

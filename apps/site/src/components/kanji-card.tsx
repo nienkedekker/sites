@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
+import { formatCount } from "@nienke/ui/format";
 import { keepShown, STAGES, type Kanji, type Progress } from "../lib/wanikani";
-
-const count = (n: number) => n.toLocaleString("en-US");
 
 const STAGE_SHADES = ["opacity-20", "opacity-40", "opacity-60", "opacity-80", "opacity-100"];
 
@@ -79,7 +78,7 @@ export default function KanjiCard({ initial }: { initial?: Progress }) {
         ) : failed ? (
           <span className="text-sm text-ink-faint">Couldn't reach WaniKani right now.</span>
         ) : (
-          <span className="size-28 animate-pulse bg-line" />
+          <span className="skeleton size-28" />
         )}
       </button>
 
@@ -98,7 +97,7 @@ function Stats({ progress }: { progress: Progress }) {
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-ink-soft">Kanji learned</span>
         <span className="whitespace-nowrap tabular-nums">
-          {count(kanji.learned)} <span className="text-ink-faint">/ {count(kanji.total)}</span>
+          {formatCount(kanji.learned)} <span className="text-ink-faint">/ {formatCount(kanji.total)}</span>
         </span>
       </div>
       <div className="mt-3 h-1 overflow-hidden bg-line">
@@ -111,12 +110,12 @@ function Stats({ progress }: { progress: Progress }) {
       <div className="mt-5 flex items-baseline justify-between gap-3">
         <span className="text-ink-soft">By stage</span>
         <span className="tabular-nums">
-          {count(items)} <span className="text-ink-faint">items</span>
+          {formatCount(items)} <span className="text-ink-faint">items</span>
         </span>
       </div>
       <div
         role="img"
-        aria-label={`Items by stage: ${STAGES.map(({ key, label }) => `${label} ${count(stages[key])}`).join(", ")}`}
+        aria-label={`Items by stage: ${STAGES.map(({ key, label }) => `${label} ${formatCount(stages[key])}`).join(", ")}`}
         className="mt-3 flex h-3 gap-[2px]"
       >
         {STAGES.map(({ key, label }, i) =>
@@ -128,7 +127,7 @@ function Stats({ progress }: { progress: Progress }) {
             >
               <span className={`block h-full bg-movies ${STAGE_SHADES[i]}`} />
               <span className="tooltip left-1/2 -translate-x-1/2 px-2 py-1">
-                {label}: <span className="font-medium tabular-nums">{count(stages[key])}</span>
+                {label}: <span className="font-medium tabular-nums">{formatCount(stages[key])}</span>
               </span>
             </div>
           ) : null
@@ -141,9 +140,9 @@ function Stats({ progress }: { progress: Progress }) {
 
       <dl className="mt-4">
         {[
-          ["Vocabulary", count(vocabulary)],
+          ["Vocabulary", formatCount(vocabulary)],
           ["Accuracy", `${accuracy.toFixed(1)}%`],
-          ["Burned", count(stages.burned)],
+          ["Burned", formatCount(stages.burned)],
         ].map(([label, value]) => (
           <div
             key={label}

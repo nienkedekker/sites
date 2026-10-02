@@ -5,7 +5,6 @@ import { ItemBadges } from "@/components/features/lists/item-badges";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
-import { linkStyles } from "@/utils/styles";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 
 const SWATCH_MAP: Record<string, string> = {
@@ -136,10 +135,7 @@ export function SearchResults({
                     <IsLoggedIn>
                       <Link
                         href={`/item/${item.id}`}
-                        className={cn(
-                          "mt-2 inline-block font-mono text-xs text-ink-soft",
-                          linkStyles.footer,
-                        )}
+                        className="link mt-2 inline-block font-mono text-xs text-ink-soft hover:text-ink"
                       >
                         Edit
                       </Link>
