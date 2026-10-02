@@ -39,43 +39,56 @@ describe("computeStats", () => {
   });
 
   it("counts co-authors and co-directors separately", () => {
-    const { people } = computeStats([
+    const { authors, directors } = computeStats([
       movie({ director: "Joel Coen, Ethan Coen" }),
       movie({ director: "Joel Coen" }),
       book({ author: "Neil Gaiman & Terry Pratchett" }),
       book({ author: "Greer Hendricks and Sarah Pekkanen" }),
     ]);
 
-    expect(people).toContainEqual({
+    expect(directors).toContainEqual({
       name: "Joel Coen",
       count: 2,
       type: "Movie",
     });
-    expect(people).toContainEqual({
+    expect(directors).toContainEqual({
       name: "Ethan Coen",
       count: 1,
       type: "Movie",
     });
-    expect(people).toContainEqual({
+    expect(authors).toContainEqual({
       name: "Terry Pratchett",
       count: 1,
       type: "Book",
     });
-    expect(people).toContainEqual({
+    expect(authors).toContainEqual({
       name: "Sarah Pekkanen",
       count: 1,
       type: "Book",
     });
   });
 
+  it("lists someone who writes and directs in both, with separate counts", () => {
+    const { authors, directors } = computeStats([
+      book({ author: "Alex Garland" }),
+      movie({ director: "Alex Garland" }),
+      movie({ director: "Alex Garland" }),
+    ]);
+
+    expect(authors).toEqual([{ name: "Alex Garland", count: 1, type: "Book" }]);
+    expect(directors).toEqual([
+      { name: "Alex Garland", count: 2, type: "Movie" },
+    ]);
+  });
+
   it("keeps Christopher Nolan out of the top lists", () => {
-    const { people, mostReread } = computeStats([
+    const { directors, mostReread } = computeStats([
       movie({ title: "Inception", director: "Christopher Nolan", redo: true }),
       movie({ title: "Inception", director: "Christopher Nolan", redo: true }),
       movie({ title: "Inception", director: "Christopher Nolan" }),
     ]);
 
-    expect(people.map((person) => person.name)).not.toContain(
+    expect(directors.map((person) => person.name)).not.toContain(
       "Christopher Nolan",
     );
     expect(mostReread).toEqual([]);
@@ -87,11 +100,12 @@ describe("computeStats", () => {
     );
     items.push(book({ author: "Author Z" }), book({ author: "Author Z" }));
 
-    const { people } = computeStats(items);
+    const { authors, directors } = computeStats(items);
 
-    expect(people).toHaveLength(10);
-    expect(people[0]).toMatchObject({ name: "Author Z", count: 2 });
-    expect(people[1].name).toBe("Author A");
+    expect(authors).toHaveLength(10);
+    expect(authors[0]).toMatchObject({ name: "Author Z", count: 2 });
+    expect(authors[1].name).toBe("Author A");
+    expect(directors).toEqual([]);
   });
 
   it("groups rereads by title and counts the most-seen season", () => {

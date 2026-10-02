@@ -65,7 +65,18 @@ async function StatsContent() {
             </div>
           </div>
           <div className="contents lg:flex lg:flex-col lg:gap-3">
-            <MostLogged people={stats.people} />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <MostLogged
+                id="most-logged-authors"
+                title="Most logged authors"
+                people={stats.authors}
+              />
+              <MostLogged
+                id="most-logged-directors"
+                title="Most logged directors"
+                people={stats.directors}
+              />
+            </div>
             {stats.monthRows.length > 0 && (
               <div className="lg:flex-1 [&>section]:h-full">
                 <MonthHeatmap rows={stats.monthRows} />
@@ -78,14 +89,12 @@ async function StatsContent() {
             </div>
           )}
           {stats.rhythms.length > 0 && (
-            <div
-              className={stats.adaptations.length > 0 ? "" : "lg:col-span-2"}
-            >
+            <div className="lg:col-span-2">
               <RereadRhythm rhythms={stats.rhythms} />
             </div>
           )}
           {stats.adaptations.length > 0 && (
-            <div className={stats.rhythms.length > 0 ? "" : "lg:col-span-2"}>
+            <div className="lg:col-span-2">
               <Adaptations pairs={stats.adaptations} />
             </div>
           )}

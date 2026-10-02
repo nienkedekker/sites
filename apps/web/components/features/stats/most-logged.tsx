@@ -4,15 +4,21 @@ import type { Person } from "@/utils/data/stats";
 
 const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
 
-export function MostLogged({ people }: { people: Person[] }) {
+interface MostLoggedProps {
+  id: string;
+  title: string;
+  people: Person[];
+}
+
+export function MostLogged({ id, title, people }: MostLoggedProps) {
   const most = Math.max(1, ...people.map((person) => person.count));
 
   return (
     <section
-      aria-labelledby="most-logged-heading"
-      className="above-grain card p-6 sm:p-7"
+      aria-labelledby={`${id}-heading`}
+      className="above-grain card h-full p-6 sm:p-7"
     >
-      <CardHead id="most-logged-heading">Most logged</CardHead>
+      <CardHead id={`${id}-heading`}>{title}</CardHead>
 
       <ol className="mt-5">
         {people.map(({ name, count, type }) => (

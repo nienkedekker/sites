@@ -115,9 +115,40 @@ export function rereadRhythms(
     );
 }
 
+// `before` means even the earliest log was a reread or rewatch, so the first
+// time happened before I started logging and its year isn't known
 export interface Adaptation {
-  book: { title: string; author: string; year: number };
-  screen: { title: string; type: "Movie" | "Show"; year: number };
+  book: { title: string; author: string; year: number; before: boolean };
+  screen: {
+    title: string;
+    type: "Movie" | "Show";
+    year: number;
+    before: boolean;
+  };
+}
+
+interface Start {
+  year: number;
+  before: boolean;
+  season: number;
+}
+
+function earliest(previous: Start | undefined, item: TypedItem): Start {
+  const start = {
+    year: item.belongs_to_year,
+    before: item.redo,
+    season: item.season ?? 0,
+  };
+  if (!previous) return start;
+  // A show starts with its first season, even if I logged a later one sooner
+  // (Game of Thrones S1 aired in 2011 but is only logged as a 2019 rewatch)
+  if (start.season !== previous.season) {
+    return start.season < previous.season ? start : previous;
+  }
+  if (start.year !== previous.year) {
+    return start.year < previous.year ? start : previous;
+  }
+  return { ...previous, before: previous.before && start.before };
 }
 
 export const normalizeTitle = (title: string) =>
@@ -150,7 +181,15 @@ export function findAdaptations(items: TypedItem[]): Adaptation[] {
   const screens = items.filter(
     (item) => item.itemtype !== "Book" && item.based_on,
   );
-  const pairs = new Map<string, Adaptation>();
+  const pairs = new Map<
+    string,
+    {
+      book: TypedItem;
+      screen: TypedItem;
+      bookStart: Start;
+      screenStart: Start;
+    }
+  >();
 
   for (const screen of screens) {
     const sources = new Set(splitNames(screen.based_on).map(normalizeTitle));
@@ -164,24 +203,32 @@ export function findAdaptations(items: TypedItem[]): Adaptation[] {
       const key = `${normalizeTitle(book.title)}|${normalizeTitle(screen.title)}`;
       const existing = pairs.get(key);
       pairs.set(key, {
-        book: {
-          title: book.title,
-          author: book.author ?? "",
-          year: Math.min(existing?.book.year ?? Infinity, book.belongs_to_year),
-        },
-        screen: {
-          title: screen.title,
-          type: screen.itemtype as "Movie" | "Show",
-          year: Math.min(
-            existing?.screen.year ?? Infinity,
-            screen.belongs_to_year,
-          ),
-        },
+        book,
+        screen,
+        bookStart: earliest(existing?.bookStart, book),
+        screenStart: earliest(existing?.screenStart, screen),
       });
     }
   }
 
-  return [...pairs.values()].sort(
+  const adaptations: Adaptation[] = [...pairs.values()].map(
+    ({ book, screen, bookStart, screenStart }) => ({
+      book: {
+        title: book.title,
+        author: book.author ?? "",
+        year: bookStart.year,
+        before: bookStart.before,
+      },
+      screen: {
+        title: screen.title,
+        type: screen.itemtype as "Movie" | "Show",
+        year: screenStart.year,
+        before: screenStart.before,
+      },
+    }),
+  );
+
+  return adaptations.sort(
     (a, b) =>
       Math.max(b.book.year, b.screen.year) -
         Math.max(a.book.year, a.screen.year) ||

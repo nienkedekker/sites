@@ -40,7 +40,8 @@ export interface MonthRow {
 
 export interface StatsData {
   years: YearEntries[];
-  people: Person[];
+  authors: Person[];
+  directors: Person[];
   monthRows: MonthRow[];
   mostReread: Revisit[];
   pace: PaceYear[];
@@ -108,32 +109,19 @@ export function computeStats(items: TypedItem[]): StatsData {
       .map(({ id, title, itemtype }) => ({ id, title, type: itemtype })),
   }));
 
-  const people = new Map<string, Record<ItemType, number>>();
-  for (const item of items) {
-    const names =
-      item.itemtype === "Book"
-        ? splitNames(item.author)
-        : item.itemtype === "Movie"
-          ? splitNames(item.director)
-          : [];
-    for (const name of names) {
-      const counts = people.get(name) ?? { Book: 0, Movie: 0, Show: 0 };
-      counts[item.itemtype] += 1;
-      people.set(name, counts);
+  const mostLogged = (type: "Book" | "Movie"): Person[] => {
+    const counts = new Map<string, number>();
+    for (const item of items) {
+      if (item.itemtype !== type) continue;
+      const names = splitNames(type === "Book" ? item.author : item.director);
+      for (const name of names) counts.set(name, (counts.get(name) ?? 0) + 1);
     }
-  }
-
-  const topPeople = [...people]
-    .filter(([name]) => !HIDDEN_PEOPLE.has(name))
-    .map(([name, counts]) => {
-      const count = counts.Book + counts.Movie + counts.Show;
-      const type = (Object.keys(counts) as ItemType[]).reduce((a, b) =>
-        counts[b] > counts[a] ? b : a,
-      );
-      return { name, count, type };
-    })
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-    .slice(0, PEOPLE_COUNT);
+    return [...counts]
+      .filter(([name]) => !HIDDEN_PEOPLE.has(name))
+      .map(([name, count]) => ({ name, count, type }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+      .slice(0, PEOPLE_COUNT);
+  };
 
   const monthRows = allYears
     .filter((year) => hasMonthlyData(byYear.get(year) ?? [], year))
@@ -200,7 +188,8 @@ export function computeStats(items: TypedItem[]): StatsData {
 
   return {
     years,
-    people: topPeople,
+    authors: mostLogged("Book"),
+    directors: mostLogged("Movie"),
     monthRows,
     mostReread,
     pace: paceYears(byYear, monthlyYears),
@@ -215,6 +204,8 @@ export function computeStats(items: TypedItem[]): StatsData {
 
 export const getStatsData = unstable_cache(
   async (): Promise<StatsData> => computeStats(await getAllItems()),
-  ["stats-data"],
+  // Bump the version whenever StatsData changes shape, so a deploy doesn't
+  // read an old cached copy
+  ["stats-data", "v2"],
   { revalidate: 3600, tags: [ITEMS_TAG] },
 );

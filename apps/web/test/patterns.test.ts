@@ -192,8 +192,18 @@ describe("findAdaptations", () => {
 
     expect(pairs).toEqual([
       {
-        book: { title: "Dune", author: "Frank Herbert", year: 2015 },
-        screen: { title: "Dune: Part Two", type: "Movie", year: 2024 },
+        book: {
+          title: "Dune",
+          author: "Frank Herbert",
+          year: 2015,
+          before: false,
+        },
+        screen: {
+          title: "Dune: Part Two",
+          type: "Movie",
+          year: 2024,
+          before: false,
+        },
       },
     ]);
   });
@@ -280,6 +290,69 @@ describe("findAdaptations", () => {
 
     expect(pair.book.year).toBe(2015);
     expect(pair.screen.year).toBe(2021);
+  });
+
+  it("notes when even the first log was a rewatch", () => {
+    const [pair] = findAdaptations([
+      book({
+        title: "Generation Kill",
+        author: "Evan Wright",
+        belongs_to_year: 2009,
+      }),
+      show({
+        title: "Generation Kill",
+        based_on: "Evan Wright",
+        belongs_to_year: 2024,
+        redo: true,
+      }),
+    ]);
+
+    expect(pair.book.before).toBe(false);
+    expect(pair.screen.before).toBe(true);
+  });
+
+  it("dates a show from its first season, even when a later one was logged sooner", () => {
+    const [pair] = findAdaptations([
+      book({
+        title: "A Game of Thrones",
+        author: "George R.R. Martin",
+        belongs_to_year: 2010,
+      }),
+      show({
+        title: "Game of Thrones",
+        based_on: "George R.R. Martin",
+        season: 2,
+        belongs_to_year: 2012,
+      }),
+      show({
+        title: "Game of Thrones",
+        based_on: "George R.R. Martin",
+        season: 1,
+        belongs_to_year: 2019,
+        redo: true,
+      }),
+    ]);
+
+    expect(pair.screen).toMatchObject({ year: 2019, before: true });
+  });
+
+  it("counts a first time if any log that year wasn't a redo", () => {
+    const [pair] = findAdaptations([
+      book({ title: "Dune", author: "Frank Herbert", belongs_to_year: 2011 }),
+      movie({
+        title: "Dune: Part One",
+        based_on: "Frank Herbert",
+        belongs_to_year: 2021,
+        redo: true,
+      }),
+      movie({
+        title: "Dune: Part One",
+        based_on: "Frank Herbert",
+        belongs_to_year: 2021,
+      }),
+    ]);
+
+    expect(pair.screen).toMatchObject({ year: 2021, before: false });
   });
 });
 
