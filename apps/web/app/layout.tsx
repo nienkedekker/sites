@@ -32,14 +32,20 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono-family",
 });
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+// Production shares should point at what.pm, not the protected deployment URL
+const host =
+  process.env.VERCEL_ENV === "production"
+    ? process.env.VERCEL_PROJECT_PRODUCTION_URL
+    : process.env.VERCEL_URL;
+const defaultUrl = host ? `https://${host}` : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "what.",
   description: "what!!!",
+  alternates: {
+    types: { "application/rss+xml": [{ url: "/feed.xml", title: "what." }] },
+  },
 };
 
 export const viewport: Viewport = {

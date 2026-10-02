@@ -4,6 +4,12 @@ import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
 import { HIDDEN_PEOPLE } from "@/utils/constants/app";
+import {
+  paceYears,
+  rereadRhythms,
+  type PaceYear,
+  type Rhythm,
+} from "@/utils/data/patterns";
 
 type ItemType = TypedItem["itemtype"];
 
@@ -35,6 +41,8 @@ export interface StatsData {
   people: Person[];
   monthRows: MonthRow[];
   mostReread: Revisit[];
+  pace: PaceYear[];
+  rhythms: Rhythm[];
 }
 
 export interface Revisit {
@@ -46,6 +54,7 @@ export interface Revisit {
 const PAGE_SIZE = 1000;
 const PEOPLE_COUNT = 10;
 const REVISIT_COUNT = 5;
+const RHYTHM_COUNT = 6;
 const TYPE_ORDER: Record<ItemType, number> = { Book: 0, Movie: 1, Show: 2 };
 
 async function getAllItems(): Promise<TypedItem[]> {
@@ -184,7 +193,20 @@ export function computeStats(items: TypedItem[]): StatsData {
     .slice(0, REVISIT_COUNT)
     .map(({ title, type, times }) => ({ title, type, times }));
 
-  return { years, people: topPeople, monthRows, mostReread };
+  const monthlyYears = monthRows.map(({ year }) => year);
+
+  return {
+    years,
+    people: topPeople,
+    monthRows,
+    mostReread,
+    pace: paceYears(byYear, monthlyYears),
+    rhythms: rereadRhythms(
+      items,
+      new Date().getFullYear(),
+      HIDDEN_PEOPLE,
+    ).slice(0, RHYTHM_COUNT),
+  };
 }
 
 export const getStatsData = unstable_cache(

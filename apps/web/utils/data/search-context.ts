@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
 import { HIDDEN_PEOPLE } from "@/utils/constants/app";
+import { splitNames } from "@/utils/data/names";
 
 export interface SearchSuggestion {
   name: string;
@@ -15,11 +16,7 @@ export interface SearchContext {
 const PAGE_SIZE = 1000;
 const SUGGESTION_COUNT = 8;
 
-export const splitNames = (value: string | null) =>
-  (value ?? "")
-    .split(/,\s*|\s+(?:&|and)\s+/)
-    .map((name) => name.trim())
-    .filter(Boolean);
+export { splitNames };
 
 export const getSearchContext = unstable_cache(
   async (): Promise<SearchContext> => {

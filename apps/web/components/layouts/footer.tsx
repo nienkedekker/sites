@@ -40,6 +40,11 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a href="/feed.xml" className="link hover:text-ink">
+                  RSS
+                </a>
+              </li>
               <AccountLinks />
             </ul>
           </nav>

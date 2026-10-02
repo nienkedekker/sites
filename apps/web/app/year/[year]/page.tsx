@@ -2,6 +2,17 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import ItemsList from "@/components/features/lists/items-list";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
+import type { Metadata } from "next";
+
+export async function generateMetadata(props: {
+  params: Promise<{ year: string }>;
+}): Promise<Metadata> {
+  const { year } = await props.params;
+  return {
+    title: `${year} · what.`,
+    description: `What I read and watched in ${year}.`,
+  };
+}
 
 export default async function YearPage(props: {
   params: Promise<{ year: string }>;

@@ -7,6 +7,8 @@ import { MostLogged } from "@/components/features/stats/most-logged";
 import { MonthHeatmap } from "@/components/features/stats/month-heatmap";
 import { StatTile } from "@/components/features/stats/stat-tile";
 import { MostReread } from "@/components/features/stats/most-reread";
+import { Pace } from "@/components/features/stats/pace";
+import { RereadRhythm } from "@/components/features/stats/reread-rhythm";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
 import PageHeader from "@nienke/ui/page-header";
 import { CHART_CONFIG } from "@/utils/constants/app";
@@ -69,6 +71,16 @@ async function StatsContent() {
               </div>
             )}
           </div>
+          {stats.pace.length > 0 && (
+            <div className="lg:col-span-2">
+              <Pace years={stats.pace} />
+            </div>
+          )}
+          {stats.rhythms.length > 0 && (
+            <div className="lg:col-span-2">
+              <RereadRhythm rhythms={stats.rhythms} />
+            </div>
+          )}
         </>
       )}
       {cumulative && (
