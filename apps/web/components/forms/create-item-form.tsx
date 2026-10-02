@@ -18,7 +18,6 @@ import {
 
 import { SubmitButton } from "./submit-button";
 import { TitleAutocomplete } from "./title-autocomplete";
-import PageHeader from "@nienke/ui/page-header";
 
 import { createItemAction } from "@/app/actions/items";
 import { getSeasonYears } from "@/app/actions/external-search";
@@ -288,27 +287,21 @@ export default function CreateItemForm() {
   const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
   return (
-    <>
-      <PageHeader intro="Log a book, a movie or a season of TV.">
-        Add new item
-      </PageHeader>
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) => setActiveTab(v as TabValue)}
+      className="w-full"
+    >
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value={TAB_VALUES.BOOK}>Book</TabsTrigger>
+        <TabsTrigger value={TAB_VALUES.MOVIE}>Movie</TabsTrigger>
+        <TabsTrigger value={TAB_VALUES.SHOW}>TV Show</TabsTrigger>
+      </TabsList>
 
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as TabValue)}
-        className="w-full"
-      >
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value={TAB_VALUES.BOOK}>Book</TabsTrigger>
-          <TabsTrigger value={TAB_VALUES.MOVIE}>Movie</TabsTrigger>
-          <TabsTrigger value={TAB_VALUES.SHOW}>TV Show</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={activeTab} className="mt-6">
-          <FormComponent key={activeTab} activeTab={activeTab} />
-        </TabsContent>
-      </Tabs>
-    </>
+      <TabsContent value={activeTab} className="mt-6">
+        <FormComponent key={activeTab} activeTab={activeTab} />
+      </TabsContent>
+    </Tabs>
   );
 }
 
