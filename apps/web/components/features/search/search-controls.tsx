@@ -1,4 +1,5 @@
 import { Ref } from "react";
+import { X } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   Select,
@@ -30,6 +31,7 @@ interface SearchInputProps {
   value: string;
   isSearching: boolean;
   onChange: (value: string) => void;
+  onClear: () => void;
 }
 
 /** The query, set large in the display serif on a single ink rule */
@@ -38,6 +40,7 @@ export function SearchInput({
   value,
   isSearching,
   onChange,
+  onClear,
 }: SearchInputProps) {
   return (
     <div className="relative flex items-end gap-4 border-b border-rule focus-within:border-movies">
@@ -50,19 +53,36 @@ export function SearchInput({
         id="search-query"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && value) {
+            e.preventDefault();
+            onClear();
+          }
+        }}
         placeholder="A title, author or director…"
         aria-describedby="search-instructions search-results-status"
         autoComplete="off"
         spellCheck={false}
-        className="display w-full min-w-0 bg-transparent pb-3 text-[clamp(2rem,6vw,3.5rem)] text-ink outline-none placeholder:text-ink-faint/50 [&::-webkit-search-cancel-button]:hidden"
+        className="display w-full min-w-0 bg-transparent pb-2.5 text-[1.875rem] text-ink sm:text-[2.25rem] outline-none placeholder:text-ink-faint/50 [&::-webkit-search-cancel-button]:hidden"
       />
       {isSearching && (
-        <span className="mb-4 shrink-0 text-ink-soft" aria-hidden="true">
+        <span className="mb-3.5 shrink-0 text-ink-soft" aria-hidden="true">
           <LoadingSpinner size={16} />
         </span>
       )}
+      {value && (
+        <button
+          type="button"
+          onClick={onClear}
+          aria-label="Clear search"
+          className="mb-1.5 grid size-9 shrink-0 cursor-pointer place-items-center text-ink-soft transition-colors hover:bg-panel-2 hover:text-ink"
+        >
+          <X className="size-5" aria-hidden="true" />
+        </button>
+      )}
       <p id="search-instructions" className="sr-only">
-        Results update as you type. Press / to jump back here.
+        Results update as you type. Press Escape to clear, or / to jump back
+        here.
       </p>
     </div>
   );
@@ -161,7 +181,7 @@ export function SearchSuggestions({
         id="search-suggestions-heading"
         className="mb-4 font-mono text-xs text-ink-soft"
       >
-        Try someone I keep coming back to
+        Or try someone I really like
       </h2>
       <ul className="flex flex-wrap gap-2">
         {suggestions.map(({ name, count }) => (

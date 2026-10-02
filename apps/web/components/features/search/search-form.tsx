@@ -67,6 +67,14 @@ export default function SearchForm({ suggestions, years }: SearchContext) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  // Back to the start: no query, all types, and the suggestions again
+  const clearSearch = () => {
+    setQuery("");
+    setFilterType("all");
+    runSearch("");
+    inputRef.current?.focus();
+  };
+
   const searchFor = (value: string) => {
     setQuery(value);
     runSearch(value);
@@ -143,6 +151,7 @@ export default function SearchForm({ suggestions, years }: SearchContext) {
           value={query}
           isSearching={isSearching}
           onChange={setQuery}
+          onClear={clearSearch}
         />
       </form>
 
