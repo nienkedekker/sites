@@ -43,6 +43,7 @@ describe("computeStats", () => {
       movie({ director: "Joel Coen, Ethan Coen" }),
       movie({ director: "Joel Coen" }),
       book({ author: "Neil Gaiman & Terry Pratchett" }),
+      book({ author: "Greer Hendricks and Sarah Pekkanen" }),
     ]);
 
     expect(people).toContainEqual({
@@ -57,6 +58,11 @@ describe("computeStats", () => {
     });
     expect(people).toContainEqual({
       name: "Terry Pratchett",
+      count: 1,
+      type: "Book",
+    });
+    expect(people).toContainEqual({
+      name: "Sarah Pekkanen",
       count: 1,
       type: "Book",
     });
