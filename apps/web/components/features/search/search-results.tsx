@@ -1,17 +1,58 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { HighlightText } from "@/components/ui/highlight-text";
+import { ItemBadges } from "@/components/features/lists/item-badges";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
-import { cardStyles, textStyles, badgeStyles } from "@/utils/styles";
+import { linkStyles } from "@/utils/styles";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
+
+// The same swatches as the year page's columns
+const SWATCH_MAP: Record<string, string> = {
+  Book: "bg-books",
+  Movie: "bg-movies",
+  Show: "bg-shows",
+};
 
 interface SearchResultsProps {
   results: Item[];
   query: string;
   filterType: string;
   onClearFilter: () => void;
+}
+
+/** The detail line under a result, with the matched part highlighted */
+function ResultMetadata({ item, query }: { item: Item; query: string }) {
+  switch (item.itemtype) {
+    case "Book":
+      return (
+        <>
+          {item.author && (
+            <span>
+              by <HighlightText text={item.author} query={query} />
+            </span>
+          )}
+          {item.published_year && <span>({item.published_year})</span>}
+        </>
+      );
+    case "Movie":
+      return (
+        <span>
+          {item.director && (
+            <>
+              dir. <HighlightText text={item.director} query={query} />
+            </>
+          )}
+          {item.director && item.published_year && " · "}
+          {item.published_year}
+        </span>
+      );
+    case "Show":
+      return item.season ? <span>Season {item.season}</span> : null;
+    default:
+      return null;
+  }
 }
 
 export function SearchResults({
@@ -26,16 +67,17 @@ export function SearchResults({
   // No results state
   if (!hasResults && hasQuery) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          No results found for "{query}"
+      <div>
+        <p className="display text-[1.875rem] text-ink-soft sm:text-[2.5rem]">
+          Nothing for “{query}”.
         </p>
         {filterType !== "all" && (
           <Button
+            type="button"
             onClick={onClearFilter}
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="text-xs"
+            className="mt-6"
           >
             Show all types
           </Button>
@@ -47,119 +89,80 @@ export function SearchResults({
   if (!hasResults) return null;
 
   return (
-    <section aria-labelledby="search-results-heading">
+    <section aria-labelledby="search-results-heading" className="space-y-14">
       <h2 id="search-results-heading" className="sr-only">
         Search Results
       </h2>
 
-      <div className="space-y-8">
-        {/* Results count */}
-        <div className={cn("text-xs", textStyles.mutedLight)}>
-          {results.length} result{results.length !== 1 ? "s" : ""}
-          {filterType !== "all" && (
-            <span> • {filterType.toLowerCase()}s only</span>
-          )}
-        </div>
+      {CATEGORY_CONFIG.map(({ title, type }) => {
+        const categoryItems = results.filter(
+          (item: Item) => item.itemtype === type,
+        );
 
-        {CATEGORY_CONFIG.map(({ title, type }) => {
-          const categoryItems = results.filter(
-            (item: Item) => item.itemtype === type,
-          );
+        if (
+          categoryItems.length === 0 ||
+          (filterType !== "all" && filterType !== type)
+        ) {
+          return null;
+        }
 
-          if (
-            categoryItems.length === 0 ||
-            (filterType !== "all" && filterType !== type)
-          ) {
-            return null;
-          }
-
-          return (
-            <div key={type} className="space-y-4">
-              <h3
-                className={cn(
-                  "text-sm font-semibold uppercase flex items-center gap-2",
-                  textStyles.muted,
-                )}
-              >
+        return (
+          <div key={type}>
+            <h3 className="flex items-end justify-between gap-4 border-b border-rule pb-3">
+              <span className="display flex items-center gap-3 text-[1.875rem] text-ink">
+                <span
+                  className={cn("size-3 shrink-0", SWATCH_MAP[type])}
+                  aria-hidden="true"
+                />
                 {title}
-                <span className="text-xs font-normal">
-                  ({categoryItems.length})
-                </span>
-              </h3>
+              </span>
+              <span className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
+                {categoryItems.length}{" "}
+                {categoryItems.length === 1 ? "match" : "matches"}
+              </span>
+            </h3>
 
-              <div className="space-y-3">
-                {categoryItems.map((item) => (
-                  <div key={item.id} className={cn("p-4 border", cardStyles)}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2 leading-tight">
-                          <HighlightText text={item.title} query={query} />
-                        </h4>
-
-                        <div
-                          className={cn(
-                            "flex flex-wrap items-center gap-1 text-xs leading-relaxed",
-                            textStyles.muted,
-                          )}
-                        >
-                          {item.itemtype === "Book" && item.author && (
-                            <span>
-                              by{" "}
-                              <HighlightText text={item.author} query={query} />
-                            </span>
-                          )}
-                          {item.itemtype === "Movie" && item.director && (
-                            <span>
-                              dir.{" "}
-                              <HighlightText
-                                text={item.director}
-                                query={query}
-                              />
-                              {item.director && item.published_year && " • "}
-                              {item.published_year}
-                            </span>
-                          )}
-                          {item.itemtype === "Show" && item.season && (
-                            <span>Season {item.season}</span>
-                          )}
-                          {item.published_year && item.itemtype === "Book" && (
-                            <span>({item.published_year})</span>
-                          )}
-                          <span>• Added {item.belongs_to_year}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-2 flex-shrink-0">
-                        {item.redo && (
-                          <div
-                            className={cn(
-                              "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium",
-                              badgeStyles.amber,
-                            )}
-                          >
-                            {item.itemtype === "Book" ? "Reread" : "Rewatch"}
-                          </div>
+            <ul>
+              {categoryItems.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex items-start justify-between gap-4 border-b border-line py-4"
+                >
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-medium leading-snug tracking-[-0.01em] text-ink">
+                      <HighlightText text={item.title} query={query} />
+                    </h4>
+                    <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-ink-soft">
+                      <ResultMetadata item={item} query={query} />
+                      <ItemBadges item={item} className="ml-1.5" />
+                    </p>
+                    <IsLoggedIn>
+                      <Link
+                        href={`/item/${item.id}`}
+                        className={cn(
+                          "mt-2 inline-block font-mono text-xs text-ink-soft",
+                          linkStyles.footer,
                         )}
-
-                        <IsLoggedIn>
-                          <Button
-                            asChild
-                            size="sm"
-                            variant="ghost"
-                            className="h-6 px-2 text-xs"
-                          >
-                            <Link href={`/item/${item.id}`}>Edit</Link>
-                          </Button>
-                        </IsLoggedIn>
-                      </div>
-                    </div>
+                      >
+                        Edit
+                      </Link>
+                    </IsLoggedIn>
                   </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+
+                  {/* The year it was logged, linking to that year's list */}
+                  <Link
+                    href={`/year/${item.belongs_to_year}`}
+                    className="tag shrink-0 tabular-nums"
+                    aria-label={`Logged in ${item.belongs_to_year}`}
+                  >
+                    {item.belongs_to_year}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </section>
   );
 }

@@ -1,51 +1,92 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { searchItems, type SearchState } from "@/app/actions/search";
 import { SearchResultsSkeleton } from "@/components/features/skeletons/search-skeleton";
-import { SearchControls } from "@/components/features/search/search-controls";
+import {
+  SearchInput,
+  SearchFilters,
+  SearchSuggestions,
+} from "@/components/features/search/search-controls";
 import { SearchResults } from "@/components/features/search/search-results";
-import { useMemo, useState, useTransition } from "react";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { YearStrip } from "@/components/features/search/year-strip";
+import type { SearchContext } from "@/utils/data/search-context";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
-type SearchFormData = {
-  query: string;
-};
+const MIN_QUERY_LENGTH = 2;
+// Search as you type, once typing pauses
+const DEBOUNCE_MS = 250;
 
-export default function SearchForm() {
-  const form = useForm<SearchFormData>({
-    defaultValues: {
-      query: "",
-    },
-  });
+const INITIAL_STATE: SearchState = { query: "", results: [], initial: true };
 
-  const [searchState, setSearchState] = useState<SearchState>({
-    query: "",
-    results: [],
-    initial: true,
-  });
+export default function SearchForm({ suggestions, years }: SearchContext) {
+  const [query, setQuery] = useState("");
+  const [searchState, setSearchState] = useState<SearchState>(INITIAL_STATE);
   const [sortBy, setSortBy] = useState("relevance");
   const [filterType, setFilterType] = useState("all");
   const [isSearching, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Responses can arrive out of order; only the latest request counts
+  const latestRequest = useRef(0);
 
-  const onSubmit = async (data: SearchFormData) => {
-    if (data.query.trim().length >= 2) {
-      startTransition(async () => {
-        const formData = new FormData();
-        formData.append("query", data.query.trim());
-        const result = await searchItems(formData);
-        setSearchState(result);
-      });
-    } else if (data.query.trim().length === 0) {
-      // Clear results when search is empty
-      startTransition(async () => {
-        const formData = new FormData();
-        formData.append("query", "");
-        const result = await searchItems(formData);
-        setSearchState(result);
-      });
+  const runSearch = (rawQuery: string) => {
+    const trimmed = rawQuery.trim();
+    const request = ++latestRequest.current;
+
+    if (trimmed.length === 0) {
+      setSearchState(INITIAL_STATE);
+      return;
     }
+    if (trimmed.length < MIN_QUERY_LENGTH) return;
+
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("query", trimmed);
+      const result = await searchItems(formData);
+      if (request === latestRequest.current) setSearchState(result);
+    });
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => runSearch(query), DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [query]);
+
+  // "/" jumps to the search field from anywhere on the page
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      const typing =
+        target.isContentEditable ||
+        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+      if (event.key === "/" && !typing && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  const searchFor = (value: string) => {
+    setQuery(value);
+    runSearch(value);
+    inputRef.current?.focus();
+  };
+
+  const typeCounts = useMemo(() => {
+    const counts = {
+      all: searchState.results.length,
+      Book: 0,
+      Movie: 0,
+      Show: 0,
+    };
+    for (const item of searchState.results) {
+      if (item.itemtype in counts) {
+        counts[item.itemtype as keyof typeof counts] += 1;
+      }
+    }
+    return counts;
+  }, [searchState.results]);
 
   /**
    * Filters and sorts search results based on current filter and sort settings.
@@ -81,63 +122,77 @@ export default function SearchForm() {
 
     return results;
   }, [searchState.results, sortBy, filterType]);
+
   const hasResults = processedResults.length > 0;
   const hasQuery = searchState.query.trim().length > 0;
+  const showSuggestions =
+    searchState.initial || (!isSearching && hasQuery && !hasResults);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="query"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <SearchControls
-                  inputValue={field.value}
-                  sortBy={sortBy}
-                  filterType={filterType}
-                  isSearching={isSearching}
-                  onInputChange={(e) => field.onChange(e.target.value)}
-                  onSortChange={setSortBy}
-                  onFilterChange={setFilterType}
-                />
-              </FormControl>
-            </FormItem>
-          )}
+    <div className="space-y-12">
+      <form
+        role="search"
+        aria-label="Search for books, movies, and TV shows"
+        onSubmit={(event) => {
+          event.preventDefault();
+          runSearch(query);
+        }}
+      >
+        <SearchInput
+          ref={inputRef}
+          value={query}
+          isSearching={isSearching}
+          onChange={setQuery}
         />
-
-        {/* Status announcements for screen readers */}
-        <div
-          id="search-results-status"
-          role="status"
-          aria-live="polite"
-          className="sr-only"
-        >
-          {isSearching && "Searching through your items..."}
-          {!searchState.initial &&
-            !isSearching &&
-            hasQuery &&
-            processedResults.length === 0 &&
-            "No results found for your search."}
-          {!isSearching &&
-            hasResults &&
-            `Found ${processedResults.length} result${processedResults.length !== 1 ? "s" : ""}.`}
-        </div>
-
-        {/* Show skeleton while searching (but not on initial load) */}
-        {isSearching && hasQuery && <SearchResultsSkeleton />}
-
-        {/* Show results or no results state */}
-        {!searchState.initial && !isSearching && (
-          <SearchResults
-            results={processedResults}
-            query={searchState.query}
-            filterType={filterType}
-            onClearFilter={() => setFilterType("all")}
-          />
-        )}
       </form>
-    </Form>
+
+      {/* Status announcements for screen readers */}
+      <div
+        id="search-results-status"
+        role="status"
+        aria-live="polite"
+        className="sr-only"
+      >
+        {isSearching && "Searching through your items..."}
+        {!searchState.initial &&
+          !isSearching &&
+          hasQuery &&
+          processedResults.length === 0 &&
+          "No results found for your search."}
+        {!isSearching &&
+          hasResults &&
+          `Found ${processedResults.length} result${processedResults.length !== 1 ? "s" : ""}.`}
+      </div>
+
+      {!searchState.initial && typeCounts.all > 0 && (
+        <SearchFilters
+          counts={typeCounts}
+          filterType={filterType}
+          sortBy={sortBy}
+          onFilterChange={setFilterType}
+          onSortChange={setSortBy}
+        />
+      )}
+
+      {/* Show skeleton on the first search; later ones keep the old results */}
+      {isSearching && !hasResults && hasQuery && <SearchResultsSkeleton />}
+
+      {!searchState.initial && hasResults && (
+        <YearStrip results={processedResults} years={years} />
+      )}
+
+      {!searchState.initial && !(isSearching && !hasResults) && (
+        <SearchResults
+          results={processedResults}
+          query={searchState.query}
+          filterType={filterType}
+          onClearFilter={() => setFilterType("all")}
+        />
+      )}
+
+      {showSuggestions && (
+        <SearchSuggestions suggestions={suggestions} onPick={searchFor} />
+      )}
+    </div>
   );
 }

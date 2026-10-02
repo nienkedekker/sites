@@ -1,24 +1,27 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+/** Matches the results: a year strip, then rows under a ruled heading */
 export function SearchResultsSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-32 px-6">
-      {Array.from({ length: 3 }).map((_, columnIndex) => (
-        <div key={columnIndex} className="flex flex-col gap-6">
-          <Skeleton className="h-6 w-24 -ml-4" />
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, itemIndex) => (
-              <div key={itemIndex} className="pl-2">
-                <div className="space-y-1">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-3 w-2/3" />
-                  <Skeleton className="h-3 w-16" />
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="space-y-12" aria-hidden="true">
+      <Skeleton className="h-44 w-full" />
+      <div>
+        <div className="border-b border-rule pb-3">
+          <Skeleton className="h-8 w-32" />
         </div>
-      ))}
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-start justify-between gap-4 border-b border-line py-4"
+          >
+            <div className="flex-1">
+              <Skeleton className="mb-2 h-4 w-2/3" />
+              <Skeleton className="h-3 w-1/3" />
+            </div>
+            <Skeleton className="h-5 w-12" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
