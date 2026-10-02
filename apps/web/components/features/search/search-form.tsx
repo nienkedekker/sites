@@ -18,8 +18,12 @@ const DEBOUNCE_MS = 250;
 
 const INITIAL_STATE: SearchState = { query: "", results: [], initial: true };
 
-export default function SearchForm({ suggestions, years }: SearchContext) {
-  const [query, setQuery] = useState("");
+export default function SearchForm({
+  suggestions,
+  years,
+  initialQuery = "",
+}: SearchContext & { initialQuery?: string }) {
+  const [query, setQuery] = useState(initialQuery);
   const [searchState, setSearchState] = useState<SearchState>(INITIAL_STATE);
   const [sortBy, setSortBy] = useState("relevance");
   const [filterType, setFilterType] = useState("all");
