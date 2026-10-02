@@ -93,7 +93,7 @@ function Table({ rows, longest }: { rows: Row[]; longest: number }) {
             >
               <Link
                 href={`/search?q=${encodeURIComponent(row.title)}`}
-                className="link text-ink"
+                className="text-ink underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink"
               >
                 {row.title}
               </Link>
