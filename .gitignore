@@ -12,6 +12,7 @@ public
 yarn-error.log
 npm-debug.log
 .turbo
+**/supabase/.temp
 
 # Environment files
 .env
