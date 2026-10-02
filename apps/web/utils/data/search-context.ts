@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
+import { HIDDEN_PEOPLE } from "@/utils/constants/app";
 
 export interface SearchSuggestion {
   name: string;
@@ -55,6 +56,7 @@ export const getSearchContext = unstable_cache(
     }
 
     const suggestions = [...counts]
+      .filter(([name]) => !HIDDEN_PEOPLE.has(name))
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
       .slice(0, SUGGESTION_COUNT);

@@ -48,3 +48,8 @@ export const ITEM_TYPE_ORDER: Record<ValidItemType, number> = {
   [ITEM_TYPES.MOVIE]: 2,
   [ITEM_TYPES.SHOW]: 3,
 };
+
+/** People left out of the "most logged" lists and the search suggestions */
+export const HIDDEN_PEOPLE: ReadonlySet<string> = new Set([
+  "Christopher Nolan",
+]);

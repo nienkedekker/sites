@@ -3,6 +3,7 @@ import { supabasePublic } from "@/utils/supabase/public";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
+import { HIDDEN_PEOPLE } from "@/utils/constants/app";
 
 type ItemType = TypedItem["itemtype"];
 
@@ -124,6 +125,7 @@ export const getStatsData = unstable_cache(
     }
 
     const topPeople = [...people]
+      .filter(([name]) => !HIDDEN_PEOPLE.has(name))
       .map(([name, counts]) => {
         const count = counts.Book + counts.Movie + counts.Show;
         const type = (Object.keys(counts) as ItemType[]).reduce((a, b) =>
@@ -164,6 +166,11 @@ export const getStatsData = unstable_cache(
       { title: string; type: ItemType; redo: number; seen: Map<string, number> }
     >();
     for (const item of items) {
+      const makers = [
+        ...splitNames(item.itemtype === "Book" ? item.author : null),
+        ...splitNames(item.itemtype === "Movie" ? item.director : null),
+      ];
+      if (makers.some((name) => HIDDEN_PEOPLE.has(name))) continue;
       const key = `${item.itemtype}|${item.title.trim().toLowerCase()}`;
       const group = titles.get(key) ?? {
         title: item.title,
