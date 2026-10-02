@@ -70,6 +70,23 @@ export const overlaps = (names: string | null | undefined, others: string[]) =>
     others.some((other) => normalizeTitle(name) === normalizeTitle(other)),
   );
 
+export interface OpenLibraryDoc {
+  key: string;
+  title: string;
+  first_publish_year?: number;
+  author_name?: string[];
+}
+
+// The title alone isn't enough: OpenLibrary also has study guides, critical
+// editions and movie companions with the same title by someone else
+export function pickBook(docs: OpenLibraryDoc[], item: TypedItem) {
+  const byAuthor = docs.filter((doc) =>
+    overlaps(item.author, doc.author_name ?? []),
+  );
+  const [match] = byTitle(byAuthor, (doc) => titleScore(item.title, doc.title));
+  return match ?? null;
+}
+
 // "Dune" logged for 2021 should find Dune (2021) before Dune: Part Two. Only
 // the exact year counts here: an "Inside" logged for 2021 is Bo Burnham's,
 // not the 2023 film, so anything off by a year has to match on director

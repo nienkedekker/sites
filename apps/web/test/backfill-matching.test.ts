@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   cleanTitle,
+  pickBook,
   pickMovie,
   pickShow,
   titleScore,
   type TmdbMovie,
   type TmdbShow,
 } from "@/scripts/matching";
-import { movie, show } from "./items";
+import { book, movie, show } from "./items";
 
 describe("cleanTitle", () => {
   it("drops how I watched it and bracketed notes", () => {
@@ -37,6 +38,61 @@ describe("titleScore", () => {
 
   it("checks every candidate, like a movie's original title", () => {
     expect(titleScore("Festen", "The Celebration", "Festen")).toBe(2);
+  });
+});
+
+describe("pickBook", () => {
+  it("skips same-titled books by someone else", () => {
+    const picked = pickBook(
+      [
+        {
+          key: "/works/OL1W",
+          title: "The Stranger",
+          author_name: ["Harold Bloom"],
+        },
+        {
+          key: "/works/OL2W",
+          title: "The Stranger",
+          author_name: ["Albert Camus"],
+        },
+      ],
+      book({ title: "The Stranger", author: "Albert Camus" }),
+    );
+
+    expect(picked?.key).toBe("/works/OL2W");
+  });
+
+  it("matches any of several authors", () => {
+    const picked = pickBook(
+      [
+        {
+          key: "/works/OL3W",
+          title: "The Wife Between Us",
+          author_name: ["Greer Hendricks"],
+        },
+      ],
+      book({
+        title: "The Wife Between Us",
+        author: "Greer Hendricks and Sarah Pekkanen",
+      }),
+    );
+
+    expect(picked?.key).toBe("/works/OL3W");
+  });
+
+  it("returns null when only other authors have the title", () => {
+    expect(
+      pickBook(
+        [
+          {
+            key: "/works/OL4W",
+            title: "Kafka on the Shore",
+            author_name: ["Gale Cengage Learning"],
+          },
+        ],
+        book({ title: "Kafka on the Shore", author: "Haruki Murakami" }),
+      ),
+    ).toBeNull();
   });
 });
 

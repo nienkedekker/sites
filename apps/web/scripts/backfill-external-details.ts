@@ -19,13 +19,14 @@ import {
   type ExternalDetails,
 } from "@/utils/server/external-api";
 import {
-  byTitle,
   cleanTitle,
   overlaps,
+  pickBook,
   pickMovie,
   pickShow,
   titleScore,
   type Match,
+  type OpenLibraryDoc,
   type TmdbMovie,
   type TmdbShow,
 } from "./matching";
@@ -49,13 +50,6 @@ const supabase = createClient(url, anonKey, {
 
 const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
 
-interface OpenLibraryDoc {
-  key: string;
-  title: string;
-  first_publish_year?: number;
-  author_name?: string[];
-}
-
 async function searchOpenLibrary(params: Record<string, string>) {
   const url = new URL("https://openlibrary.org/search.json");
   for (const [name, value] of Object.entries(params)) {
@@ -77,14 +71,12 @@ async function findBook(item: TypedItem): Promise<Match | null> {
     confidence,
   });
 
-  const score = (doc: OpenLibraryDoc) => titleScore(item.title, doc.title);
-
   const byField = await searchOpenLibrary({ title, author });
-  const [exact] = byTitle(byField, score);
+  const exact = pickBook(byField, item);
   if (exact) return toMatch(exact, "exact");
 
   const broad = await searchOpenLibrary({ q: `${title} ${author}` });
-  const [broadExact] = byTitle(broad, score);
+  const broadExact = pickBook(broad, item);
   if (broadExact) return toMatch(broadExact, "exact");
 
   // Translations are often filed under the original title (海辺のカフカ for
@@ -123,8 +115,12 @@ async function findMovie(item: TypedItem): Promise<Match | null> {
     confidence,
   });
 
+  // Even the right title and year can be a different film (there's more than
+  // one Teeth and Birdman), so the director has to match too
   const picked = pickMovie(results, item);
-  if (picked) return toMatch(picked, "exact");
+  if (picked && overlaps(item.director, await directorsOf(picked.id))) {
+    return toMatch(picked, "exact");
+  }
 
   // Titles that don't line up ("Star Wars I: The Phantom Menace", "Mad Max:
   // Furiosa") or years that are off: accept a result if the director matches
