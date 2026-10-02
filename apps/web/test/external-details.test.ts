@@ -29,7 +29,7 @@ afterEach(() => {
 });
 
 describe("getExternalDetails", () => {
-  it("takes the median page count across a book's editions", async () => {
+  it("takes the median page count across a book's editions, skipping placeholders", async () => {
     serve({
       "/works/OL1W/editions.json": () => ({
         entries: [
@@ -37,6 +37,9 @@ describe("getExternalDetails", () => {
           { number_of_pages: 412 },
           {},
           { number_of_pages: 0 },
+          { number_of_pages: 1 },
+          { number_of_pages: 1 },
+          { number_of_pages: 1 },
           { number_of_pages: 380 },
         ],
       }),

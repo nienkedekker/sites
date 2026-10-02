@@ -52,6 +52,12 @@ const NO_DETAILS: ExternalDetails = {
   based_on: null,
 };
 
+// Some editions list 1 page, or 8, as a placeholder. Enough of them drag the
+// median down to that, so anything this short doesn't count
+const MIN_PAGES = 20;
+const isPageCount = (count?: number): count is number =>
+  !!count && count >= MIN_PAGES;
+
 function median(values: number[]) {
   if (values.length === 0) return null;
   const sorted = [...values].sort((a, b) => a - b);
@@ -67,7 +73,7 @@ async function bookDetails(workKey: string): Promise<ExternalDetails> {
   }>(new URL(`https://openlibrary.org${workKey}/editions.json?limit=50`));
   const pages = data.entries
     .map((edition) => edition.number_of_pages)
-    .filter((count): count is number => !!count && count > 0);
+    .filter(isPageCount);
   return { ...NO_DETAILS, pages: median(pages) };
 }
 
@@ -113,7 +119,7 @@ export async function googleBooksPages(
           volume.authors?.some((name) => authors.has(nameKey(name))),
       )
       .map((volume) => volume.pageCount)
-      .filter((count): count is number => !!count && count > 0);
+      .filter(isPageCount);
     return median(pages);
   } catch (error) {
     console.error("Google Books lookup failed:", error);
@@ -128,8 +134,10 @@ async function googleVolumeDetails(id: string): Promise<ExternalDetails> {
     volumeInfo: { pageCount?: number; printedPageCount?: number };
   }>(url);
   // Search results often leave pageCount out when the volume itself has it
-  const pages = volumeInfo.pageCount || volumeInfo.printedPageCount || null;
-  return { ...NO_DETAILS, pages };
+  const pages = [volumeInfo.pageCount, volumeInfo.printedPageCount].find(
+    isPageCount,
+  );
+  return { ...NO_DETAILS, pages: pages ?? null };
 }
 
 async function movieDetails(id: string): Promise<ExternalDetails> {
