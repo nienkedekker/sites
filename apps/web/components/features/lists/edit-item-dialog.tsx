@@ -51,7 +51,7 @@ export default function EditItemDialog({
             {item.title}
           </DialogDescription>
         </DialogHeader>
-        <UpdateItemForm item={item} className="" onSaved={handleSaved} />
+        <UpdateItemForm item={item} onSaved={handleSaved} />
       </DialogContent>
     </Dialog>
   );

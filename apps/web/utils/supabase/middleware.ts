@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const protectedPaths = ["/create", "/item", "/export"];
+const protectedPaths = ["/create", "/export"];
 
 function isProtectedPathname(pathname: string) {
   return protectedPaths.some((path) => pathname.startsWith(path));

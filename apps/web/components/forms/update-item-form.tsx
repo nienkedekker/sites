@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -28,7 +27,6 @@ import {
   type ShowItemInput,
 } from "@/utils/schemas/validation";
 import { ITEM_TYPES } from "@/utils/constants/app";
-import { formStyles } from "@/utils/styles";
 import { getCurrentYear } from "@/utils/formatters/date";
 import { toNumber, formatNumberInputValue } from "@/utils/form";
 import type { Item } from "@/types";
@@ -37,16 +35,10 @@ type AnyItemInput = BookItemInput | MovieItemInput | ShowItemInput;
 
 interface UpdateItemFormProps {
   item: Item;
-  onSaved?: () => void;
-  className?: string;
+  onSaved: () => void;
 }
 
-export default function UpdateItemForm({
-  item,
-  onSaved,
-  className = formStyles.container,
-}: UpdateItemFormProps) {
-  const router = useRouter();
+export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
   const { schema, defaultValues } = useMemo(
     () => getSchemaAndDefaults(item),
     [item],
@@ -82,13 +74,12 @@ export default function UpdateItemForm({
       form.setError("root", { message: error });
       return;
     }
-    if (onSaved) onSaved();
-    else router.push(`/year/${data.belongsToYear}`);
+    onSaved();
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {hasErrors &&
             `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}

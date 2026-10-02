@@ -29,5 +29,3 @@ export interface ItemCountEntry {
   total_count: number;
   current_year_count: number;
 }
-
-export type Params = Promise<{ id: string }>;

@@ -24,7 +24,6 @@ import { supabaseBrowser } from "@/utils/supabase/browser";
 const ALLOWED_REDIRECT_PREFIXES = [
   "/",
   "/year/",
-  "/item/",
   "/stats",
   "/search",
   "/about",
