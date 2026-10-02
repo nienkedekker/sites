@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
+import { ITEMS_TAG } from "@/utils/constants/app";
 
 export interface LogFacts {
   total: number;
@@ -63,5 +64,5 @@ export const getLogFacts = unstable_cache(
     };
   },
   ["log-facts"],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: [ITEMS_TAG] },
 );

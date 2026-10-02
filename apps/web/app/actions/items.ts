@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/server/redirects";
 import { isNextRedirect } from "@/utils/server/error-handling";
 import { createClientForServer } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
 import {
   itemCreationSchema,
   extractFormData,
@@ -11,6 +12,7 @@ import {
 import { getCurrentYear } from "@/utils/formatters/date";
 import { ItemInsert, ItemUpdate } from "@/types";
 import { getExternalDetails } from "@/utils/server/external-api";
+import { ITEMS_TAG } from "@/utils/constants/app";
 
 export const createItemAction = async (formData: FormData) => {
   try {
@@ -62,6 +64,7 @@ export const createItemAction = async (formData: FormData) => {
       );
     }
 
+    revalidateTag(ITEMS_TAG);
     return redirect(`/year/${currentYear}`);
   } catch (error) {
     if (isNextRedirect(error)) throw error;
@@ -95,6 +98,7 @@ export const deleteItemAction = async (formData: FormData) => {
       );
     }
 
+    revalidateTag(ITEMS_TAG);
     return redirect(`/year/${belongsToYear}`);
   } catch (error) {
     if (isNextRedirect(error)) throw error;
@@ -153,6 +157,7 @@ export const updateItemAction = async (
       return { error: "Unable to update your item. Please try again." };
     }
 
+    revalidateTag(ITEMS_TAG);
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in updateItemAction:", error);

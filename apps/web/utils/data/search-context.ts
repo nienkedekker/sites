@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
-import { HIDDEN_PEOPLE } from "@/utils/constants/app";
+import { HIDDEN_PEOPLE, ITEMS_TAG } from "@/utils/constants/app";
 import { splitNames } from "@/utils/data/names";
 
 export interface SearchSuggestion {
@@ -64,5 +64,5 @@ export const getSearchContext = unstable_cache(
     return { suggestions, years };
   },
   ["search-context"],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: [ITEMS_TAG] },
 );

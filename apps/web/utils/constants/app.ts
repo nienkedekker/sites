@@ -44,6 +44,9 @@ export const ITEM_TYPE_ORDER: Record<ValidItemType, number> = {
   [ITEM_TYPES.SHOW]: 3,
 };
 
+// Cached reads of the log carry this tag, so saving an item can refresh them
+export const ITEMS_TAG = "items";
+
 export const HIDDEN_PEOPLE: ReadonlySet<string> = new Set([
   "Christopher Nolan",
 ]);

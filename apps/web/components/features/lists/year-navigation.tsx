@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
+import { ITEMS_TAG } from "@/utils/constants/app";
 import { YearLinks } from "./year-links";
 
 const getDistinctYears = unstable_cache(
@@ -13,7 +14,7 @@ const getDistinctYears = unstable_cache(
     return (data ?? []).map((r) => r.belongs_to_year as number);
   },
   ["distinct-years"],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: [ITEMS_TAG] },
 );
 
 export default async function YearNavigation() {

@@ -3,7 +3,7 @@ import { supabasePublic } from "@/utils/supabase/public";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
-import { HIDDEN_PEOPLE } from "@/utils/constants/app";
+import { HIDDEN_PEOPLE, ITEMS_TAG } from "@/utils/constants/app";
 import {
   findAdaptations,
   paceYears,
@@ -216,5 +216,5 @@ export function computeStats(items: TypedItem[]): StatsData {
 export const getStatsData = unstable_cache(
   async (): Promise<StatsData> => computeStats(await getAllItems()),
   ["stats-data"],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: [ITEMS_TAG] },
 );

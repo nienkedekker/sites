@@ -2,16 +2,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const db = vi.hoisted(() => ({
   inserted: [] as Record<string, unknown>[],
+  error: null as { message: string } | null,
 }));
 
 const getExternalDetails = vi.hoisted(() => vi.fn());
+const revalidateTag = vi.hoisted(() => vi.fn());
+
+vi.mock("next/cache", () => ({ revalidateTag }));
 
 vi.mock("@/utils/supabase/server", () => ({
   createClientForServer: async () => ({
     from: () => ({
       insert: async (row: Record<string, unknown>) => {
         db.inserted.push(row);
-        return { error: null };
+        return { error: db.error };
       },
     }),
   }),
@@ -46,7 +50,10 @@ const dune = {
 
 beforeEach(() => {
   db.inserted = [];
+  db.error = null;
   getExternalDetails.mockReset();
+  revalidateTag.mockReset();
+  vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 describe("createItemAction", () => {
@@ -99,5 +106,20 @@ describe("createItemAction", () => {
     expect(getExternalDetails).not.toHaveBeenCalled();
     expect(db.inserted[0]).toMatchObject({ title: "Dune", external_id: null });
     expect(db.inserted[0]).not.toHaveProperty("runtime_minutes");
+  });
+
+  it("refreshes the cached stats once the item is saved", async () => {
+    await createItemAction(form(dune)).catch(() => {});
+
+    expect(revalidateTag).toHaveBeenCalledWith("items");
+  });
+
+  it("leaves the cache alone when saving fails", async () => {
+    db.error = { message: "nope" };
+
+    await expect(createItemAction(form(dune))).rejects.toMatchObject({
+      digest: expect.stringContaining("/create?error="),
+    });
+    expect(revalidateTag).not.toHaveBeenCalled();
   });
 });
