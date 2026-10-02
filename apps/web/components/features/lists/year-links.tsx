@@ -33,7 +33,7 @@ export function YearLinks({ years }: YearLinksProps) {
             <Link
               href={y === currentYear ? "/" : `/year/${y}`}
               aria-current={isActive ? "page" : undefined}
-              className="block border border-transparent px-1.5 py-0.5 text-ink-soft transition-colors hover:border-ink hover:text-ink aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-paper"
+              className="block border border-transparent px-1.5 py-0.5 text-ink-soft transition-colors hover:border-rule hover:text-ink aria-[current=page]:border-ink aria-[current=page]:bg-ink aria-[current=page]:text-paper"
             >
               {y}
             </Link>

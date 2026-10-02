@@ -27,7 +27,7 @@ export function CumulativeLineChart({
   const categories = Object.keys(config);
 
   return (
-    <Card>
+    <Card className="above-grain">
       <CardHeader>
         <CardTitle>Total logged over time</CardTitle>
       </CardHeader>

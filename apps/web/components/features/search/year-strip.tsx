@@ -50,7 +50,10 @@ export function YearStrip({ results, years }: YearStripProps) {
   const yearsWithMatches = matchYears.length;
 
   return (
-    <section aria-labelledby="year-strip-heading" className="card p-6 sm:p-7">
+    <section
+      aria-labelledby="year-strip-heading"
+      className="above-grain card p-6 sm:p-7"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id="year-strip-heading" className="font-medium tracking-[-0.01em]">
           Across the years

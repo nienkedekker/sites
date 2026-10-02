@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/layouts/theme-toggle";
 function Navigation() {
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-rule bg-paper/70 backdrop-blur-xl backdrop-saturate-150">
+      <header className="own-grain sticky top-0 z-[102] border-b border-rule bg-paper/70 backdrop-blur-xl backdrop-saturate-150">
         <nav
           aria-label="Main"
           className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4"

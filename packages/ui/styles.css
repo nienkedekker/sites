@@ -24,6 +24,8 @@
   --ink-faint: #6c7078; /* 4.6:1 or more on every surface (WCAG AA) */
   --line: #e8e8ec;
   --line-strong: #d5d6dc;
+  /* Boxes, rules and offset shadows: full ink in light mode */
+  --rule: #0b0c0e;
   --accent: #5e6ad2;
   /* Media series (chart and book spines): black, one deep blue, grey.
      Checked with the dataviz palette validator in both themes: colour-blind
@@ -44,6 +46,9 @@
   --ink-faint: #7d8086; /* 4.6:1 or more on every surface (WCAG AA) */
   --line: rgb(255 255 255 / 0.08);
   --line-strong: rgb(255 255 255 / 0.15);
+  /* Full-white boxes and shadows glare on the dark paper, so they step down
+     to grey; text stays bright. 6:1 on the dark panels */
+  --rule: #8a8f98;
   --accent: #7c85f5;
   --books: #f7f8f8;
   /* #3242a8 is 2.3:1 on the dark cards; this lighter tint reaches 3:1 */
@@ -73,7 +78,7 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   /* Full-strength rules for boxes and dividers; --line stays for gridlines */
-  --color-rule: var(--ink);
+  --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-books: var(--books);
   --color-movies: var(--movies);
@@ -95,6 +100,10 @@
     overflow-x: clip;
   }
 
+  :root {
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -0.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
   /* Film grain over everything, text included */
   body::after {
     content: "";
@@ -102,7 +111,7 @@
     inset: 0;
     z-index: 100;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -0.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: var(--grain);
     opacity: 0.09;
   }
 
@@ -201,7 +210,7 @@
 @layer components {
   .card {
     background: var(--panel);
-    border: 1px solid var(--ink);
+    border: 1px solid var(--rule);
   }
 
   /* Headings: a narrow serif with tight line height */
@@ -218,12 +227,36 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    border: 1px solid var(--ink);
+    border: 1px solid var(--rule);
     padding: 0.125rem 0.4rem;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     line-height: 1.4;
     color: var(--ink);
+  }
+
+  /* Sits above the film grain, for images that should stay crisp */
+  .above-grain {
+    position: relative;
+    z-index: 101;
+  }
+
+  /* Its own film grain, for a bar that has to sit above .above-grain
+     elements (z-index over 101). Needs a positioned element. Lines up with
+     the page's grain while the element is at the top-left of the viewport,
+     as a sticky header is */
+  .own-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--grain);
+    opacity: 0.09;
+  }
+
+  .dark .own-grain::after {
+    filter: invert(1);
+    opacity: 0.06;
   }
 
   /* A tag that links somewhere fills in on hover */

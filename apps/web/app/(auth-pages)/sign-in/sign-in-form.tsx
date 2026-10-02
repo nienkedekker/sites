@@ -125,7 +125,7 @@ export function SignInForm() {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className={`${formStyles.container} rise w-full max-w-md space-y-6 shadow-[6px_6px_0_var(--ink)] lg:max-w-none`}
+        className={`${formStyles.container} rise w-full max-w-md space-y-6 shadow-[6px_6px_0_var(--rule)] lg:max-w-none`}
         style={{ "--delay": "200ms" } as CSSProperties}
       >
         {queryMessage && (

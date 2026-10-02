@@ -44,7 +44,7 @@ export default async function ItemsList({ year }: { year: number }) {
 
         <section
           aria-labelledby="month-by-month-heading"
-          className="rise card flex flex-col p-6 sm:p-7"
+          className="rise above-grain card flex flex-col p-6 sm:p-7"
           style={{ "--delay": "240ms" } as CSSProperties}
         >
           <h2

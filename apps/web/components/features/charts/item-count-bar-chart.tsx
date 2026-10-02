@@ -31,7 +31,7 @@ export function ItemCountBarChart({
   config,
 }: BarChartProps) {
   return (
-    <Card>
+    <Card className="above-grain">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

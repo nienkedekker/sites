@@ -66,7 +66,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="@thanergic on X"
-                  className="group inline-flex items-center gap-1.5 transition-colors hover:text-ink"
+                  className="group flex items-center gap-1.5 transition-colors hover:text-ink"
                 >
                   <XIcon className="size-3.5 shrink-0" />
                   <span className="underline decoration-line-strong underline-offset-4 transition-colors group-hover:decoration-ink">
