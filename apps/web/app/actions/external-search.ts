@@ -65,13 +65,48 @@ async function directorsOf(id: number) {
   return names.length > 0 ? names.join(", ") : null;
 }
 
+type Movie = { id: number; title: string; release_date?: string };
+
+async function moviesDirectedBy(query: string): Promise<Movie[]> {
+  const words = query.toLowerCase().split(/\s+/);
+  const people = await getJson<{ results: { id: number; name: string }[] }>(
+    tmdbUrl("/search/person", { query, include_adult: "false" }),
+  );
+  const person = people.results.find((result) =>
+    words.every((word) => result.name.toLowerCase().includes(word)),
+  );
+  if (!person) return [];
+
+  const credits = await getJson<{
+    crew: (Movie & { job: string; popularity: number })[];
+  }>(tmdbUrl(`/person/${person.id}/movie_credits`));
+  const today = new Date().toISOString().slice(0, 10);
+
+  return credits.crew
+    .filter(
+      (movie) =>
+        movie.job === "Director" &&
+        movie.release_date &&
+        movie.release_date <= today,
+    )
+    .filter((movie, i, all) => all.findIndex((m) => m.id === movie.id) === i)
+    .sort((a, b) => b.popularity - a.popularity);
+}
+
 async function searchMovies(query: string): Promise<ExternalResult[]> {
-  const data = await getJson<{
-    results: { id: number; title: string; release_date?: string }[];
-  }>(tmdbUrl("/search/movie", { query, include_adult: "false" }));
+  const [byTitle, byDirector] = await Promise.all([
+    getJson<{ results: Movie[] }>(
+      tmdbUrl("/search/movie", { query, include_adult: "false" }),
+    ).then((data) => data.results),
+    moviesDirectedBy(query).catch(() => []),
+  ]);
+  const exactTitle = byTitle.some(
+    (movie) => movie.title.toLowerCase() === query.toLowerCase(),
+  );
+  const movies = byDirector.length > 0 && !exactTitle ? byDirector : byTitle;
 
   return Promise.all(
-    data.results.slice(0, LIMIT).map(async (movie) => ({
+    movies.slice(0, LIMIT).map(async (movie) => ({
       id: String(movie.id),
       title: movie.title,
       year: yearOf(movie.release_date),
