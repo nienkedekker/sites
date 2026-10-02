@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 /** The year page's shape: header, chart card, three columns of rows */
 export function ItemsListSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Loading items">
+    <div role="status" aria-busy="true" aria-label="Loading items">
       <div className="mb-12 max-w-2xl sm:mb-16">
         <Skeleton className="mb-6 h-5 w-24" />
         <Skeleton className="h-16 w-48" />

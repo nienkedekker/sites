@@ -43,7 +43,7 @@ export function SearchInput({
   onClear,
 }: SearchInputProps) {
   return (
-    <div className="relative flex items-end gap-4 border-b border-rule focus-within:border-movies">
+    <div className="relative flex items-end gap-4 border-b border-rule focus-within:border-movies focus-within:shadow-[0_1px_0_var(--movies)]">
       <label htmlFor="search-query" className="sr-only">
         Search items
       </label>
@@ -63,7 +63,7 @@ export function SearchInput({
         aria-describedby="search-instructions search-results-status"
         autoComplete="off"
         spellCheck={false}
-        className="display w-full min-w-0 bg-transparent pb-2.5 text-[1.875rem] text-ink sm:text-[2.25rem] outline-none placeholder:text-ink-faint/50 [&::-webkit-search-cancel-button]:hidden"
+        className="display w-full min-w-0 bg-transparent pb-2.5 text-[1.875rem] text-ink sm:text-[2.25rem] outline-none placeholder:text-ink-faint [&::-webkit-search-cancel-button]:hidden"
       />
       {isSearching && (
         <span className="mb-3.5 shrink-0 text-ink-soft" aria-hidden="true">

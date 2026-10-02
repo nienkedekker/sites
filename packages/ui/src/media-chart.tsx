@@ -134,7 +134,7 @@ export default function MediaChart({
                   return (
                     <div
                       key={name}
-                      className="group relative flex flex-1 items-end justify-center outline-none"
+                      className="group relative flex flex-1 items-end justify-center"
                       role={upcoming ? undefined : "img"}
                       tabIndex={upcoming ? undefined : 0}
                       aria-label={
@@ -166,7 +166,17 @@ export default function MediaChart({
 
                       {/* Hover / focus tooltip */}
                       {!upcoming && (
-                        <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 border border-line bg-panel px-3 py-2 text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                        <div
+                          className={`pointer-events-none absolute bottom-full z-10 mb-2 w-max border ${
+                            // Edge months anchor to the chart's sides so the
+                            // tooltip stays on screen
+                            i < 2
+                              ? "left-0"
+                              : i > 9
+                                ? "right-0"
+                                : "left-1/2 -translate-x-1/2"
+                          } border-line bg-panel px-3 py-2 text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100`}
+                        >
                           <p className="mb-1 font-medium">{name}</p>
                           {SERIES.map(({ key, label, swatch }) => (
                             <p key={key} className="flex items-center gap-2">
@@ -204,32 +214,36 @@ export default function MediaChart({
       )}
 
       {/* Table view for screen readers */}
+      {/* The wrapper is the sr-only box: a table ignores width: 1px and would
+          stretch the page on phones */}
       {summary && (
-        <table className="sr-only">
-          <caption>
-            Books, movies and TV seasons logged per month in {summary.year}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Month</th>
-              {SERIES.map(({ key, label }) => (
-                <th key={key} scope="col">
-                  {label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {months.slice(0, lastMonth).map((month, i) => (
-              <tr key={month.month}>
-                <th scope="row">{MONTHS[i]}</th>
-                {SERIES.map(({ key }) => (
-                  <td key={key}>{month[key]}</td>
+        <div className="sr-only">
+          <table>
+            <caption>
+              Books, movies and TV seasons logged per month in {summary.year}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Month</th>
+                {SERIES.map(({ key, label }) => (
+                  <th key={key} scope="col">
+                    {label}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {months.slice(0, lastMonth).map((month, i) => (
+                <tr key={month.month}>
+                  <th scope="row">{MONTHS[i]}</th>
+                  {SERIES.map(({ key }) => (
+                    <td key={key}>{month[key]}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );

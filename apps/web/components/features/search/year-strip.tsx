@@ -65,7 +65,7 @@ export function YearStrip({ results, years }: YearStripProps) {
       </div>
 
       <ol className="mt-10 flex h-24 items-end gap-[3px] border-b border-line-strong">
-        {range.map((year) => {
+        {range.map((year, i) => {
           const counts = byYear.get(year);
           const sum = total(counts);
 
@@ -110,7 +110,16 @@ export function YearStrip({ results, years }: YearStripProps) {
                 </span>
 
                 {/* Hover / focus tooltip */}
-                <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 border border-line bg-panel px-3 py-2 text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                {/* Edge years anchor to the chart's sides, to stay on screen */}
+                <span
+                  className={`pointer-events-none absolute bottom-full z-10 mb-2 w-max border border-line bg-panel px-3 py-2 text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 ${
+                    i < 3
+                      ? "left-0"
+                      : i > range.length - 4
+                        ? "right-0"
+                        : "left-1/2 -translate-x-1/2"
+                  }`}
+                >
                   <span className="mb-1 block font-medium">{year}</span>
                   {SERIES.filter(({ type }) => counts[type] > 0).map(
                     ({ type, label, swatch }) => (

@@ -179,13 +179,13 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
                       role="img"
                       tabIndex={0}
                       aria-label={`${label}: ${describe(cell)}`}
-                      className={`group relative h-full w-full outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent ${count === 0 ? "bg-line" : ""}`}
+                      className={`group relative h-full w-full ${count === 0 ? "bg-line" : ""}`}
                       style={cellStyle(count, max)}
                     >
                       <CellTooltip
                         label={label}
                         cell={cell}
-                        align={i < 3 ? "start" : i > 8 ? "end" : "center"}
+                        align={i < 4 ? "start" : i > 6 ? "end" : "center"}
                       />
                     </div>
                   </td>

@@ -15,7 +15,7 @@ function describe(entries: YearEntries["entries"]) {
 
 /**
  * The whole log: one row per year, one square per book, movie or TV season,
- * three squares high. Hovering a square shows its title; each year links to
+ * three squares high (five on phones, to fit). Hovering a square shows its title; each year links to
  * its page.
  */
 export function EveryEntry({ years }: { years: YearEntries[] }) {
@@ -48,7 +48,7 @@ export function EveryEntry({ years }: { years: YearEntries[] }) {
                   {year}
                 </span>
                 <span
-                  className="grid grid-flow-col grid-rows-[repeat(3,5px)] auto-cols-[5px] gap-[2px]"
+                  className="grid grid-flow-col grid-rows-[repeat(5,5px)] sm:grid-rows-[repeat(3,5px)] auto-cols-[5px] gap-[2px]"
                   aria-hidden="true"
                 >
                   {entries.map((entry) => (
