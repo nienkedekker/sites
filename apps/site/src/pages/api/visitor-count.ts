@@ -9,9 +9,9 @@ const json = (body: unknown, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
-export const POST: APIRoute = async () => {
+export const POST: APIRoute = async ({ clientAddress }) => {
   try {
-    return json({ count: await incrementHits() });
+    return json({ count: await incrementHits(clientAddress) });
   } catch (error) {
     console.error("Hit counter error:", error);
     return json({ error: "Failed to update counter" }, 500);
