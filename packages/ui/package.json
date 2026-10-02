@@ -1,0 +1,23 @@
+{
+  "name": "@nienke/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Design system shared by nienke.dev and what.pm",
+  "exports": {
+    "./styles.css": "./styles.css",
+    "./media-chart": "./src/media-chart.tsx",
+    "./site-mark": "./src/site-mark.tsx",
+    "./summary": "./src/summary.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "typescript": "^5.7.2"
+  }
+}

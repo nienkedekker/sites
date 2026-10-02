@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Shared design system, published as TypeScript source
+  transpilePackages: ["@nienke/ui"],
   async headers() {
     return [
       {
