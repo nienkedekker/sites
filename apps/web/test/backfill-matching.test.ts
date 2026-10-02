@@ -59,7 +59,7 @@ describe("pickMovie", () => {
     expect(picked?.id).toBe(2);
   });
 
-  it("picks the release from the right year, allowing a year or two off", () => {
+  it("picks the release from the right year", () => {
     const results = [
       result(1, "Dune", "1984-12-14"),
       result(2, "Dune", "2021-09-15"),
@@ -69,11 +69,17 @@ describe("pickMovie", () => {
       pickMovie(results, movie({ title: "Dune", published_year: 1984 }))?.id,
     ).toBe(1);
     expect(
-      pickMovie(results, movie({ title: "Dune", published_year: 2022 }))?.id,
+      pickMovie(results, movie({ title: "Dune", published_year: 2021 }))?.id,
     ).toBe(2);
-    expect(
-      pickMovie(results, movie({ title: "Dune", published_year: 2000 })),
-    ).toBeNull();
+  });
+
+  it("leaves a year that's off for the director check", () => {
+    const picked = pickMovie(
+      [result(958196, "Inside", "2023-03-10")],
+      movie({ title: "Inside", director: "Bo Burnham", published_year: 2021 }),
+    );
+
+    expect(picked).toBeNull();
   });
 
   it("matches a movie logged under its original title", () => {

@@ -70,22 +70,19 @@ export const overlaps = (names: string | null | undefined, others: string[]) =>
     others.some((other) => normalizeTitle(name) === normalizeTitle(other)),
   );
 
-// "Dune" logged for 2021 should find Dune (2021) before Dune: Part Two, and
-// a year that's slightly off still counts
+// "Dune" logged for 2021 should find Dune (2021) before Dune: Part Two. Only
+// the exact year counts here: an "Inside" logged for 2021 is Bo Burnham's,
+// not the 2023 film, so anything off by a year has to match on director
 export function pickMovie(results: TmdbMovie[], item: TypedItem) {
   const score = (movie: TmdbMovie) =>
     titleScore(item.title, movie.title, movie.original_title);
   for (const level of [2, 1]) {
-    const titled = results.filter((movie) => score(movie) === level);
-    for (const tolerance of [0, 1, 2]) {
-      const match = titled.find((movie) => {
-        const year = yearOf(movie.release_date);
-        return (
-          year !== null && Math.abs(year - item.published_year) <= tolerance
-        );
-      });
-      if (match) return match;
-    }
+    const match = results.find(
+      (movie) =>
+        score(movie) === level &&
+        yearOf(movie.release_date) === item.published_year,
+    );
+    if (match) return match;
   }
   return null;
 }
