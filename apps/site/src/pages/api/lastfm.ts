@@ -1,5 +1,3 @@
-// Listening stats for the scrobbles card on the home page. Building them
-// takes 15 Last.fm requests, so responses are cached at the edge for an hour.
 import type { APIRoute } from "astro";
 import { getListeningStats } from "../../lib/lastfm";
 

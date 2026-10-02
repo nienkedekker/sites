@@ -1,9 +1,9 @@
 import Link from "next/link";
+import CardHead from "@nienke/ui/card-head";
 import type { Person } from "@/utils/data/stats";
 
 const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
 
-/** The authors and directors logged most, each linking to a search */
 export function MostLogged({ people }: { people: Person[] }) {
   const most = Math.max(1, ...people.map((person) => person.count));
 
@@ -12,9 +12,7 @@ export function MostLogged({ people }: { people: Person[] }) {
       aria-labelledby="most-logged-heading"
       className="above-grain card p-6 sm:p-7"
     >
-      <h2 id="most-logged-heading" className="font-medium tracking-[-0.01em]">
-        Most logged
-      </h2>
+      <CardHead id="most-logged-heading">Most logged</CardHead>
 
       <ol className="mt-5">
         {people.map(({ name, count, type }) => (

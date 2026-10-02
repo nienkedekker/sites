@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
+import CardHead from "@nienke/ui/card-head";
 import { getLatestTrack, type Track } from "../lib/lastfm";
 
-// `initial` is fetched while the page is built (undefined if that failed);
-// the card refreshes it on load and every 30 seconds
 export default function NowPlaying({ initial }: { initial?: Track | null }) {
   const [track, setTrack] = useState<Track | null>(initial ?? null);
   const [loading, setLoading] = useState(initial === undefined);
@@ -29,28 +28,30 @@ export default function NowPlaying({ initial }: { initial?: Track | null }) {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Tag under the title, like the kanji card */}
-      <div className="flex flex-col items-start gap-2">
-        <h3 className="font-medium tracking-[-0.01em]">Listening</h3>
-        {track && (
-          <span className="tag whitespace-nowrap">
-            {isNowPlaying && (
-              <span className="flex h-2.5 items-end gap-[2px]" aria-hidden="true">
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    className="w-[2px] animate-[eq_900ms_ease-in-out_infinite_alternate] rounded-full bg-accent"
-                    style={{ animationDelay: `${i * 180}ms`, height: "100%" }}
-                  />
-                ))}
-              </span>
-            )}
-            {isNowPlaying ? "Now playing" : "Last played"}
-          </span>
-        )}
-      </div>
+      <CardHead
+        as="h3"
+        tag={
+          track && (
+            <span className="tag whitespace-nowrap">
+              {isNowPlaying && (
+                <span className="flex h-2.5 items-end gap-[2px]" aria-hidden="true">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="w-[2px] animate-[eq_900ms_ease-in-out_infinite_alternate] rounded-full bg-accent"
+                      style={{ animationDelay: `${i * 180}ms`, height: "100%" }}
+                    />
+                  ))}
+                </span>
+              )}
+              {isNowPlaying ? "Now playing" : "Last played"}
+            </span>
+          )
+        }
+      >
+        Listening
+      </CardHead>
 
-      {/* Record sleeve with the vinyl peeking out */}
       <div className="py-5">
         <div className="relative aspect-square w-[45%] max-w-28">
           <div

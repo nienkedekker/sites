@@ -1,7 +1,7 @@
 import Link from "next/link";
+import CardHead from "@nienke/ui/card-head";
 import type { YearEntries } from "@/utils/data/stats";
 
-// The same swatches as every other chart
 const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
 const NOUN = { Book: "books", Movie: "movies", Show: "TV seasons" };
 
@@ -13,11 +13,6 @@ function describe(entries: YearEntries["entries"]) {
     .join(", ");
 }
 
-/**
- * The whole log: one row per year, one square per book, movie or TV season,
- * three squares high (five on phones, to fit). Hovering a square shows its title; each year links to
- * its page.
- */
 export function EveryEntry({ years }: { years: YearEntries[] }) {
   const total = years.reduce((sum, { entries }) => sum + entries.length, 0);
 
@@ -26,14 +21,12 @@ export function EveryEntry({ years }: { years: YearEntries[] }) {
       aria-labelledby="every-entry-heading"
       className="above-grain card p-6 sm:p-7"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id="every-entry-heading" className="font-medium tracking-[-0.01em]">
-          Every entry
-        </h2>
-        <p className="font-mono text-xs text-ink-soft tabular-nums">
-          {total.toLocaleString("en-GB")} in {years.length} years
-        </p>
-      </div>
+      <CardHead
+        id="every-entry-heading"
+        note={`${total.toLocaleString("en-GB")} in ${years.length} years`}
+      >
+        Every entry
+      </CardHead>
 
       <ol className="mt-6 space-y-2">
         {years.map(({ year, entries }) => (
@@ -64,7 +57,6 @@ export function EveryEntry({ years }: { years: YearEntries[] }) {
                 </span>
               </Link>
             ) : (
-              // Years with nothing logged keep their place, as a hairline
               <span className="flex items-center gap-3">
                 <span className="w-10 shrink-0 font-mono text-xs text-ink-faint tabular-nums">
                   {year}

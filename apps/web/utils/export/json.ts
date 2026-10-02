@@ -1,7 +1,3 @@
-/**
- * JSON export utility for items data
- */
-
 import type { TypedItem } from "@/types/shared";
 
 interface ExportData {
@@ -18,9 +14,6 @@ interface ExportData {
   items: TypedItem[];
 }
 
-/**
- * Convert items to structured JSON export format (internal use only)
- */
 function itemsToJSON(items: TypedItem[]): ExportData {
   const now = new Date().toISOString();
 
@@ -54,7 +47,7 @@ function itemsToJSON(items: TypedItem[]): ExportData {
 }
 
 export function generateJSONFilename(prefix = "whatpm-export"): string {
-  const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const timestamp = new Date().toISOString().split("T")[0];
   return `${prefix}-${timestamp}.json`;
 }
 

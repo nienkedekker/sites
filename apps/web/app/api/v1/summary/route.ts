@@ -1,11 +1,3 @@
-/**
- * Public, read-only summary of a year's log: counts per type, counts per
- * month, and the most recently logged items. Used by nienke.dev.
- *
- * GET /api/v1/summary?year=2026&limit=5
- *   year  - belongs_to_year to summarise (defaults to the current year)
- *   limit - recent items per type, 1–20 (defaults to 5)
- */
 import { NextRequest, NextResponse } from "next/server";
 import { supabasePublic } from "@/utils/supabase/public";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
@@ -16,7 +8,6 @@ const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
 const FIRST_YEAR = 1900;
 
-// Public data, so any site may read it. Cached at the edge for an hour.
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
@@ -112,7 +103,6 @@ export async function GET(request: NextRequest) {
         shows: shows.length,
       },
       months: countByMonth(items, year),
-      // Newest first
       recent: {
         books: books.slice(0, limit).map(toSummaryItem),
         movies: movies.slice(0, limit).map(toSummaryItem),

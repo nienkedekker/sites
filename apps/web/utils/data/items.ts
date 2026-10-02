@@ -1,16 +1,10 @@
 import { supabasePublic } from "@/utils/supabase/public";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 
-/**
- * Result type for data operations
- */
 export type DataResult<T> =
   | { success: true; data: T; error: null }
   | { success: false; data: null; error: string };
 
-/**
- * Fetch and validate items for a specific year
- */
 export async function getItemsForYear(
   year: number,
 ): Promise<DataResult<TypedItem[]>> {
@@ -30,7 +24,6 @@ export async function getItemsForYear(
       };
     }
 
-    // Validate and type all items, tracking failures
     const validationResults = (rawItems || []).map((item) => ({
       original: item,
       validated: validateAndTypeItem(item),
@@ -40,7 +33,6 @@ export async function getItemsForYear(
       .map((r) => r.validated)
       .filter((item): item is TypedItem => item !== null);
 
-    // Log if any items failed validation
     const invalidCount = validationResults.length - validatedItems.length;
     if (invalidCount > 0) {
       const invalidItems = validationResults
@@ -80,9 +72,6 @@ export async function getItemsForYear(
   }
 }
 
-/**
- * Fetch the most recently logged items across all years, newest first
- */
 export async function getRecentItems(
   limit: number,
 ): Promise<DataResult<TypedItem[]>> {

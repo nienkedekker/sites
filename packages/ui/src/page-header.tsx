@@ -1,24 +1,20 @@
-import { CSSProperties, ReactNode } from "react";
-import { cn } from "@/utils/ui";
+import type { CSSProperties, ReactNode } from "react";
 
 interface PageHeaderProps {
   children: ReactNode;
-  /** A line of larger, softer text under the title */
   intro?: ReactNode;
-  /** A small tag above the title, e.g. a count or a date */
   eyebrow?: ReactNode;
   className?: string;
 }
 
-/** Page title in the serif display face, like nienke.dev's pages */
-export function PageHeader({
+export default function PageHeader({
   children,
   intro,
   eyebrow,
-  className,
+  className = "mb-12 sm:mb-16",
 }: PageHeaderProps) {
   return (
-    <header className={cn("mb-12 max-w-2xl sm:mb-16", className)}>
+    <header className={`max-w-2xl ${className}`}>
       {eyebrow && <p className="rise tag mb-6">{eyebrow}</p>}
       <h1
         className="rise display text-ink text-[clamp(2.75rem,7vw,4.5rem)]"

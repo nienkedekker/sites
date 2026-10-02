@@ -9,7 +9,6 @@ const json = (body: unknown, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
-// A new visit: count it and return the new total
 export const POST: APIRoute = async () => {
   try {
     return json({ count: await incrementHits() });
@@ -19,7 +18,6 @@ export const POST: APIRoute = async () => {
   }
 };
 
-// A returning visitor this session: just read the total
 export const GET: APIRoute = async () => {
   try {
     return json({ count: await getHits() });

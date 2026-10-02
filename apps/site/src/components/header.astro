@@ -60,7 +60,6 @@ const navItems = [
 </header>
 
 <script>
-  // The header persists across page transitions, so keep aria-current in sync
   function syncActiveLink() {
     const path = location.pathname.replace(/\/$/, "") || "/";
     document

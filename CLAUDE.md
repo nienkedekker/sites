@@ -6,7 +6,7 @@ Turbo monorepo with npm workspaces:
 - `apps/site`: nienke.dev, an Astro site (imported with history via `git subtree`)
 - `packages/ui` (`@nienke/ui`): the design system both share. It holds tokens,
   base styles, `.card`/`.display`/`.tag`, and motion in `styles.css`, plus React
-  components (`media-chart`, `site-mark`). It's published as TypeScript source,
+  components (`card-head`, `media-chart`, `page-header`, `site-mark`). It's published as TypeScript source,
   with no build step. Change the look here, not in either app.
 
 what.pm is a Next.js 15 app with:

@@ -21,7 +21,6 @@ import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
 import { signInActionReturnSession } from "@/app/actions/auth";
 import { supabaseBrowser } from "@/utils/supabase/browser";
 
-/** Allowed redirect paths (whitelist for security) */
 const ALLOWED_REDIRECT_PREFIXES = [
   "/",
   "/year/",
@@ -33,19 +32,13 @@ const ALLOWED_REDIRECT_PREFIXES = [
   "/create",
 ];
 
-/**
- * Validates and sanitizes a redirect URL.
- * Returns "/" if the URL is invalid or potentially malicious.
- */
 function getSafeRedirectUrl(rawRedirect: string | null): string {
   if (!rawRedirect) return "/";
 
-  // Must start with single "/" and not be a protocol-relative URL
   if (!rawRedirect.startsWith("/") || rawRedirect.startsWith("//")) {
     return "/";
   }
 
-  // Check against whitelist of allowed prefixes
   const isAllowed = ALLOWED_REDIRECT_PREFIXES.some(
     (prefix) => rawRedirect === prefix || rawRedirect.startsWith(prefix),
   );
@@ -53,10 +46,6 @@ function getSafeRedirectUrl(rawRedirect: string | null): string {
   return isAllowed ? rawRedirect : "/";
 }
 
-/**
- * Extracts and validates message from query parameters.
- * Returns null if no valid message found.
- */
 function getQueryMessage(
   searchParams: URLSearchParams,
 ): { type: "error" | "success" | "info"; text: string } | null {
@@ -64,7 +53,6 @@ function getQueryMessage(
   const success = searchParams.get("success");
   const message = searchParams.get("message");
 
-  // Sanitize: only allow alphanumeric, spaces, and basic punctuation
   const sanitize = (text: string): string => {
     return text.replace(/[^\w\s.,!?-]/g, "").slice(0, 200);
   };
@@ -86,12 +74,10 @@ export function SignInForm() {
   });
 
   const onSubmit = async (data: SignInInput) => {
-    // Convert react-hook-form data to FormData
     const formData = new FormData();
     formData.append("email", data.email);
     formData.append("password", data.password);
 
-    // Call server action, this sets HttpOnly cookies and returns tokens
     const res = await signInActionReturnSession(formData);
 
     if (!res.ok) {
@@ -99,7 +85,6 @@ export function SignInForm() {
       return;
     }
 
-    // Hydrate browser client so <AuthProvider> updates immediately
     if (res.access_token && res.refresh_token) {
       await supabaseBrowser.auth.setSession({
         access_token: res.access_token,

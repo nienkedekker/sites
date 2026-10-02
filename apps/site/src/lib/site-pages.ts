@@ -7,10 +7,8 @@ export interface SitePage extends MarkdownPage {
   slug: string;
 }
 
-// Same order as the site navigation
 const order = ["now", "uses", "links", "colophon"];
 
-// Every page besides home, as Markdown
 export async function getSitePages(): Promise<SitePage[]> {
   const entries = await getCollection("pages", ({ id }) => id !== "home");
 

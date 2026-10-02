@@ -54,9 +54,7 @@ test("weekStarts gives 12 back-to-back weeks of whole days ending today", () => 
   const now = Date.UTC(2026, 9, 2, 12, 34, 56);
   const starts = weekStarts(now);
   assert.equal(starts.length, WEEKS);
-  // The last week runs to the end of today (UTC)...
   assert.equal(starts.at(-1)! + WEEK, Date.UTC(2026, 9, 3) / 1000);
-  // ...so it starts at midnight six days ago
   assert.equal(starts.at(-1), Date.UTC(2026, 8, 26) / 1000);
   for (let i = 1; i < starts.length; i++) assert.equal(starts[i] - starts[i - 1], WEEK);
 });
@@ -109,14 +107,14 @@ test("countAssignments groups SRS stages and counts what's learned", () => {
   });
   const counts = countAssignments([
     a("radical", 1),
-    a("kanji", 4), // apprentice: not learned yet
+    a("kanji", 4),
     a("kanji", 5),
     a("kanji", 9),
     a("vocabulary", 6),
     a("kana_vocabulary", 7),
     a("vocabulary", 8),
     a("vocabulary", 2),
-    a("kanji", 0), // unlocked but not started: no group
+    a("kanji", 0),
   ]);
 
   assert.deepEqual(counts.stages, { apprentice: 3, guru: 2, master: 1, enlightened: 1, burned: 1 });
@@ -132,9 +130,7 @@ test("accuracyOf is the share of correct meaning and reading answers", () => {
     reading_correct: rc,
     reading_incorrect: ri,
   });
-  // 17 right out of 20
   assert.equal(accuracyOf([stat(9, 1, 0, 0), stat(4, 1, 4, 1)]), 85);
-  // One decimal
   assert.equal(accuracyOf([stat(2, 1, 0, 0)]), 66.7);
   assert.equal(accuracyOf([]), 0);
 });

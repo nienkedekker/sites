@@ -1,7 +1,7 @@
 import Link from "next/link";
+import CardHead from "@nienke/ui/card-head";
 import { Item } from "@/types";
 
-// Same order and colours as the month-by-month chart
 const SERIES = [
   { type: "Book", label: "Books", noun: "books", swatch: "bg-books" },
   { type: "Movie", label: "Movies", noun: "movies", swatch: "bg-movies" },
@@ -12,14 +12,9 @@ type Counts = Record<(typeof SERIES)[number]["type"], number>;
 
 interface YearStripProps {
   results: Item[];
-  /** Every logged year, so years without matches show as gaps */
   years: number[];
 }
 
-/**
- * Which years the matches were logged in: one stacked column per year,
- * each linking to that year's page.
- */
 export function YearStrip({ results, years }: YearStripProps) {
   const byYear = new Map<number, Counts>();
   for (const item of results) {
@@ -32,7 +27,6 @@ export function YearStrip({ results, years }: YearStripProps) {
     byYear.set(item.belongs_to_year, counts);
   }
 
-  // Fall back to the matches' own range if the full range didn't load
   const matchYears = [...byYear.keys()];
   const range =
     years.length > 0
@@ -54,15 +48,17 @@ export function YearStrip({ results, years }: YearStripProps) {
       aria-labelledby="year-strip-heading"
       className="above-grain card p-6 sm:p-7"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id="year-strip-heading" className="font-medium tracking-[-0.01em]">
-          Across the years
-        </h2>
-        <p className="font-mono text-xs text-ink-soft">
-          {results.length} {results.length === 1 ? "match" : "matches"} in{" "}
-          {yearsWithMatches} {yearsWithMatches === 1 ? "year" : "years"}
-        </p>
-      </div>
+      <CardHead
+        id="year-strip-heading"
+        note={
+          <>
+            {results.length} {results.length === 1 ? "match" : "matches"} in{" "}
+            {yearsWithMatches} {yearsWithMatches === 1 ? "year" : "years"}
+          </>
+        }
+      >
+        Across the years
+      </CardHead>
 
       <ol className="mt-10 flex h-24 items-end gap-[3px] border-b border-line-strong">
         {range.map((year, i) => {
@@ -109,10 +105,8 @@ export function YearStrip({ results, years }: YearStripProps) {
                     ))}
                 </span>
 
-                {/* Hover / focus tooltip */}
-                {/* Edge years anchor to the chart's sides, to stay on screen */}
                 <span
-                  className={`pointer-events-none absolute bottom-full z-10 mb-2 w-max border border-line bg-panel px-3 py-2 text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 ${
+                  className={`tooltip ${
                     i < 3
                       ? "left-0"
                       : i > range.length - 4

@@ -1,6 +1,3 @@
-// Markdown versions of the site's pages, served to agents that ask for
-// text/markdown (see src/integrations/markdown-negotiation.ts).
-
 export interface MarkdownPage {
   title: string;
   description?: string;
@@ -26,14 +23,10 @@ export interface HomeContent {
 
 export const formatDate = (date: Date) => date.toISOString().slice(0, 10);
 
-// Page Markdown is written for the site, so make it stand on its own: absolute
-// links, and no images that only exist after Astro processes them
 export function cleanMarkdown(body: string, site: string) {
   return (
     body
-      // Decorative inline images, like the kaomoji on /now
       .replace(/[ \t]*<img\b[^>]*\balt=""[^>]*>/g, "")
-      // Images bundled from src/ have no public URL of their own
       .replace(/!\[([^\]]*)\]\(\.{1,2}\/[^)]*\)/g, (_, alt: string) =>
         alt ? `(Photo: ${alt})` : ""
       )
@@ -77,8 +70,6 @@ export function renderHome(home: HomeContent) {
   });
 }
 
-// llms.txt, following the format at https://llmstxt.org: an H1, a blockquote
-// summary, free-form notes without headings, then H2 sections of links
 export function renderLlmsTxt(home: HomeContent, optional: PageLink[]) {
   return `${[
     `# ${home.name}`,

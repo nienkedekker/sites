@@ -1,6 +1,3 @@
-// My listening on Last.fm, for the listening card on the home page.
-// The API key is a public, read-only one.
-
 const API = "https://ws.audioscrobbler.com/2.0/";
 const USER = "shinyhats";
 export const PROFILE_URL = `https://www.last.fm/user/${USER}`;
@@ -8,7 +5,6 @@ const KEY = "54f8f15133336606e882fdf20148d123";
 
 const DAY = 24 * 60 * 60;
 export const WEEK = 7 * DAY;
-// Weeks of history in the scrobble chart
 export const WEEKS = 12;
 
 export interface Track {
@@ -22,12 +18,8 @@ export interface Track {
 
 export interface ListeningStats {
   total: number;
-  // The year scrobbling started
   since: number;
-  // 7-day windows ending with today (UTC), oldest first. `start` is a unix
-  // timestamp at UTC midnight.
   weeks: { start: number; count: number }[];
-  // Most played artist over the last 30 days, and ever
   topArtist?: Artist;
   topArtistAllTime?: Artist;
 }
@@ -66,22 +58,17 @@ async function lastfm<T>(
   return data;
 }
 
-// Resolves to null when nothing has been played yet
 export async function getLatestTrack(signal?: AbortSignal): Promise<Track | null> {
   const data = await lastfm<RecentTracks>("user.getrecenttracks", { limit: 1 }, signal);
   return data.recenttracks.track[0] || null;
 }
 
-// A track fetched while building the page is only ever "last played": by the
-// time anyone sees it, it has probably stopped
 export function asLastPlayed(track: Track): Track {
   const rest = { ...track };
   delete rest["@attr"];
   return rest;
 }
 
-// Starts of the WEEKS 7-day windows that end with today (UTC), oldest first.
-// Whole days, so each bar covers seven dates and none overlap.
 export function weekStarts(now: number) {
   const endOfToday = (Math.floor(now / 1000 / DAY) + 1) * DAY;
   return Array.from({ length: WEEKS }, (_, i) => endOfToday - (WEEKS - i) * WEEK);
@@ -113,8 +100,6 @@ export function summarise(
   };
 }
 
-// Scrobble totals, weekly counts and top artists. That's 15 requests, so
-// this runs on the server (see /api/lastfm) and gets cached.
 export async function getListeningStats(
   signal?: AbortSignal,
   now = Date.now()

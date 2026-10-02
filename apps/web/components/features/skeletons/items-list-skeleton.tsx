@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** The year page's shape: header, chart card, three columns of rows */
 export function ItemsListSkeleton() {
   return (
     <div role="status" aria-busy="true" aria-label="Loading items">

@@ -2,7 +2,6 @@
 import { getCollection, render } from "astro:content";
 import PageLayout from "../layouts/PageLayout.astro";
 
-// Every Markdown page except home.md, which is the home page intro
 export async function getStaticPaths() {
   const pages = await getCollection("pages", ({ id }) => id !== "home");
   return pages.map((page) => ({ params: { slug: page.id }, props: { page } }));

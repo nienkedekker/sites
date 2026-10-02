@@ -10,14 +10,9 @@ const NAV_LINKS = [
   { href: "/about", label: "About" },
 ] as const;
 
-// Underlined until you're on the page, like nienke.dev's menu
 export const navLinkClass =
   "block px-2 py-1.5 text-ink underline decoration-1 underline-offset-4 aria-[current=page]:no-underline sm:px-3";
 
-/**
- * The menu. Create shows once signed in; signing in and out, and the
- * export, live in the footer.
- */
 export function NavLinks() {
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();

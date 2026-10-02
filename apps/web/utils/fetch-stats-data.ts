@@ -1,6 +1,5 @@
 import { createClientForServer } from "@/utils/supabase/server";
 
-/** Running totals per type, year by year, for the line chart */
 export async function fetchCumulativeCounts() {
   const supabase = await createClientForServer();
   const { data, error } = await supabase.rpc("get_cumulative_item_counts");

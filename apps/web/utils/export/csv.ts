@@ -1,11 +1,5 @@
-/**
- * CSV export utility for items data
- */
 import type { TypedItem } from "@/types/shared";
 
-/**
- * Convert items to CSV format
- */
 export function itemsToCSV(items: TypedItem[]): string {
   if (items.length === 0) {
     return "No items to export";
@@ -46,11 +40,10 @@ export function itemsToCSV(items: TypedItem[]): string {
 }
 
 function escapeCSVField(field: string): string {
-  // Replace quotes with double quotes and handle other special characters
   return field.replace(/"/g, '""').replace(/\n/g, " ").replace(/\r/g, " ");
 }
 
 export function generateCSVFilename(prefix = "whatpm-export"): string {
-  const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const timestamp = new Date().toISOString().split("T")[0];
   return `${prefix}-${timestamp}.csv`;
 }

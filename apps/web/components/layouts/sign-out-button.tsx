@@ -16,11 +16,8 @@ export function SignOutButton(): ReactElement {
     setError(null);
 
     try {
-      // 1) trigger client signout so AuthProvider updates immediately
       await supabaseBrowser.auth.signOut({ scope: "local" });
-      // 2) call server action to clear server cookies
       await signOutAction();
-      // 3) force RSC refresh
       router.refresh();
     } catch (err) {
       console.error("Sign out failed:", err);

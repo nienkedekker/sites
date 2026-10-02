@@ -13,7 +13,6 @@ import type { SearchContext } from "@/utils/data/search-context";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 const MIN_QUERY_LENGTH = 2;
-// Search as you type, once typing pauses
 const DEBOUNCE_MS = 250;
 
 const INITIAL_STATE: SearchState = { query: "", results: [], initial: true };
@@ -29,7 +28,6 @@ export default function SearchForm({
   const [filterType, setFilterType] = useState("all");
   const [isSearching, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
-  // Responses can arrive out of order; only the latest request counts
   const latestRequest = useRef(0);
 
   const runSearch = (rawQuery: string) => {
@@ -55,7 +53,6 @@ export default function SearchForm({
     return () => clearTimeout(timeout);
   }, [query]);
 
-  // "/" jumps to the search field from anywhere on the page
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
@@ -71,7 +68,6 @@ export default function SearchForm({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // Back to the start: no query, all types, and the suggestions again
   const clearSearch = () => {
     setQuery("");
     setFilterType("all");
@@ -100,10 +96,6 @@ export default function SearchForm({
     return counts;
   }, [searchState.results]);
 
-  /**
-   * Filters and sorts search results based on current filter and sort settings.
-   * Memoized to avoid recomputing on every render.
-   */
   const processedResults = useMemo(() => {
     let results = [...searchState.results];
 
@@ -128,7 +120,7 @@ export default function SearchForm({
           (a, b) => (a.published_year || 0) - (b.published_year || 0),
         );
         break;
-      default: // relevance - keep original order
+      default:
         break;
     }
 
@@ -159,7 +151,6 @@ export default function SearchForm({
         />
       </form>
 
-      {/* Status announcements for screen readers */}
       <div
         id="search-results-status"
         role="status"
@@ -187,7 +178,6 @@ export default function SearchForm({
         />
       )}
 
-      {/* Show skeleton on the first search; later ones keep the old results */}
       {isSearching && !hasResults && hasQuery && <SearchResultsSkeleton />}
 
       {!searchState.initial && hasResults && (

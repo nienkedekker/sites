@@ -1,16 +1,10 @@
-// Turns the home page photo into 1-bit Atkinson-dithered dots (the classic Mac
-// look). Dots are in the site's highlight blue, everything else is
-// transparent; the page puts it on a light background. Run with:
-// node scripts/dither-photo.mjs
 import { Buffer } from "node:buffer";
 import process from "node:process";
 import sharp from "sharp";
 
 const SOURCE = "public/nienke.jpg";
 const OUTPUT = "public/nienke-dither.png";
-// Pixels across; the page shows it larger, so each dot stays visible
 const WIDTH = 320;
-// The highlight blue (--movies in global.css)
 const INK = [0x32, 0x42, 0xa8];
 
 const { data, info } = await sharp(SOURCE)
@@ -23,7 +17,6 @@ const { data, info } = await sharp(SOURCE)
 
 const { width, height } = info;
 const pixels = Float32Array.from(data);
-// Atkinson spreads 6/8 of the error to six neighbours, which keeps contrast high
 const spread = [
   [1, 0],
   [2, 0],

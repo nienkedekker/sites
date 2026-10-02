@@ -14,8 +14,6 @@ import { getHomeSnapshot } from "../lib/home-snapshot";
 const home = await getEntry("pages", "home");
 const now = await getEntry("pages", "now");
 const { Content: HomeIntro } = await render(home!);
-// The cards' live data as of this build, so the page has real content
-// without JavaScript. The cards refresh it in the browser.
 const { summary, progress, track, stats } = await getHomeSnapshot();
 
 const nowUpdated = now?.data.lastUpdated?.toLocaleDateString("en-US", {
@@ -24,7 +22,6 @@ const nowUpdated = now?.data.lastUpdated?.toLocaleDateString("en-US", {
   timeZone: "UTC",
 });
 
-// Who this site is about, for search engines and agents (schema.org Person)
 const personSchema = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -56,7 +53,6 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
     set:html={JSON.stringify(personSchema).replace(/</g, "\\u003c")}
   />
 
-  <!-- ─────────────── Hero ─────────────── -->
   <section
     class="mx-auto grid max-w-6xl items-center gap-y-16 px-4 pt-16 sm:pt-28 lg:grid-cols-12 lg:gap-x-16"
   >
@@ -68,7 +64,6 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
         Hoi, I'm Nienke.
       </h1>
 
-      <!-- The first paragraph is a larger, darker lede; the rest stays smaller -->
       <div
         class="rise mt-6 max-w-lg text-base leading-[1.55] text-ink-soft [&_a]:text-ink [&_a]:underline [&_a]:decoration-line-strong [&_a]:underline-offset-4 [&_a:hover]:decoration-ink [&_p:first-child]:text-[1.5rem] [&_p:first-child]:leading-[1.3] [&_p:first-child]:tracking-[-0.01em] [&_p:first-child]:text-ink [&_p+p]:mt-5"
         style="--delay: 200ms"
@@ -81,8 +76,6 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
       class="group rise relative w-full max-w-sm border border-rule shadow-[6px_6px_0_var(--rule)] sm:max-w-md lg:col-span-5 lg:max-w-none"
       style="--delay: 200ms"
     >
-      <!-- Dithered by scripts/dither-photo.mjs: blue dots on transparent,
-           over a fixed light background so it looks the same in both themes -->
       <img
         src="/nienke-dither.png"
         alt="Nienke gazing out over the port of Hydra"
@@ -90,7 +83,6 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
         width="320"
         height="548"
       />
-      <!-- The original photo shows through on hover -->
       <img
         src="/nienke.jpg"
         alt=""
@@ -106,7 +98,6 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
     </figure>
   </section>
 
-  <!-- ─────────────── Right now ─────────────── -->
   <section
     class="mx-auto mt-32 max-w-6xl px-4 sm:mt-44"
     aria-labelledby="now-heading"
@@ -127,45 +118,35 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
       </a>
     </div>
 
-    <!--
-      Bento: on desktop each column stacks its cards at their own height, so
-      the splits don't line up across columns. Below that the column wrappers
-      are display: contents and the cards flow in the grid as usual.
-    -->
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <div class="contents lg:col-span-2 lg:flex lg:flex-col lg:gap-3">
-        <!-- This year in media, live from what.pm -->
         <article data-reveal class="above-grain card p-6 sm:col-span-2 sm:p-7">
           <MediaChart client:visible initial={summary} />
         </article>
 
-        <!-- Reading, live from what.pm -->
-        <article data-reveal class="card p-6 sm:col-span-2 sm:p-7 lg:flex-1">
+        <article data-reveal class="above-grain card p-6 sm:col-span-2 sm:p-7 lg:flex-1">
           <ReadingCard client:visible initial={summary} />
         </article>
       </div>
 
       <div class="contents lg:flex lg:flex-col lg:gap-3">
-        <!-- Now playing, live from Last.fm -->
-        <article data-reveal style="--delay: 60ms" class="card p-6 sm:p-7">
+        <article data-reveal style="--delay: 60ms" class="above-grain card p-6 sm:p-7">
           <NowPlaying client:load initial={track} />
         </article>
 
-        <!-- Scrobbles over time, live from Last.fm -->
         <article
           data-reveal
           style="--delay: 60ms"
-          class="card p-6 sm:p-7 lg:flex-1"
+          class="above-grain card p-6 sm:p-7 lg:flex-1"
         >
           <ScrobblesCard client:visible initial={stats} />
         </article>
       </div>
 
-      <!-- Japanese, live from WaniKani -->
       <article
         data-reveal
         style="--delay: 120ms"
-        class="card p-6 sm:col-span-2 sm:p-7 lg:col-span-1"
+        class="above-grain card p-6 sm:col-span-2 sm:p-7 lg:col-span-1"
       >
         <KanjiCard client:visible initial={progress} />
       </article>

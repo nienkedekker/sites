@@ -1,6 +1,6 @@
 import { DataExport } from "@/components/features/data-export";
 import { getCurrentYear } from "@/utils/formatters/date";
-import { PageHeader } from "@/components/ui/page-header";
+import PageHeader from "@nienke/ui/page-header";
 
 export default async function SettingsPage() {
   const currentYear = getCurrentYear();

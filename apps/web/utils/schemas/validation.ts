@@ -3,9 +3,6 @@ import { VALID_ITEM_TYPES } from "@/types/shared";
 import { ITEM_TYPES } from "@/utils/constants/app";
 import { getCurrentYear } from "@/utils/formatters/date";
 
-/**
- * Year validation schema
- */
 const yearSchema = z
   .number()
   .int()
@@ -15,9 +12,6 @@ const yearSchema = z
     `Year must be ${getCurrentYear() + 10} or earlier`,
   );
 
-/**
- * Base item schema with common fields
- */
 const baseItemSchema = z.object({
   title: z
     .string()
@@ -32,9 +26,6 @@ const baseItemSchema = z.object({
   redo: z.boolean(),
 });
 
-/**
- * Book-specific schema
- */
 export const bookItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.BOOK),
   author: z
@@ -46,9 +37,6 @@ export const bookItemSchema = baseItemSchema.extend({
   season: z.number().optional(),
 });
 
-/**
- * Movie-specific schema
- */
 export const movieItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.MOVIE),
   director: z
@@ -60,9 +48,6 @@ export const movieItemSchema = baseItemSchema.extend({
   season: z.number().optional(),
 });
 
-/**
- * Show-specific schema
- */
 export const showItemSchema = baseItemSchema.extend({
   itemtype: z.literal(ITEM_TYPES.SHOW),
   season: z
@@ -75,36 +60,24 @@ export const showItemSchema = baseItemSchema.extend({
   inProgress: z.boolean().optional(),
 });
 
-/**
- * Discriminated union for item creation
- */
 export const itemCreationSchema = z.discriminatedUnion("itemtype", [
   bookItemSchema,
   movieItemSchema,
   showItemSchema,
 ]);
 
-/**
- * Email validation schema (internal use only)
- */
 const emailSchema = z
   .string()
   .trim()
   .min(1, "Email is required")
   .email("Please enter a valid email address");
 
-/**
- * Password validation schema (internal use only)
- */
 const passwordSchema = z
   .string()
   .min(1, "Password is required")
   .min(8, "Password must be at least 8 characters long")
   .max(128, "Password must be 128 characters or less");
 
-/**
- * Search query validation schema
- */
 export const searchQuerySchema = z
   .string()
   .trim()
@@ -112,17 +85,11 @@ export const searchQuerySchema = z
   .min(2, "Search query must be at least 2 characters long")
   .max(100, "Search query must be 100 characters or less");
 
-/**
- * Form data schemas for server actions
- */
 export const signInSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
 });
 
-/**
- * Type exports for use in components
- */
 export type BookItemInput = z.infer<typeof bookItemSchema>;
 export type MovieItemInput = z.infer<typeof movieItemSchema>;
 export type ShowItemInput = z.infer<typeof showItemSchema>;

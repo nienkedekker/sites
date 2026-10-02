@@ -9,7 +9,6 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
-  // Path to this page's Markdown version, e.g. "/now.md"
   markdown?: string;
 }
 
@@ -59,7 +58,6 @@ const canonicalURL = new URL(
     <link rel="canonical" href={canonicalURL} />
     {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={siteTitle} />
@@ -67,7 +65,6 @@ const canonicalURL = new URL(
     <meta property="og:image" content={image ?? profile.image} />
     {!image && <meta property="og:image:alt" content={profile.imageAlt} />}
 
-    <!-- Twitter -->
     <meta
       name="twitter:card"
       content={image ? "summary_large_image" : "summary"}
@@ -92,7 +89,6 @@ const canonicalURL = new URL(
       }
       setTheme();
       document.addEventListener("astro:after-swap", setTheme);
-      // Follow system theme changes live, unless the toggle saved a choice
       window
         .matchMedia("(prefers-color-scheme: dark)")
         .addEventListener("change", setTheme);
@@ -113,7 +109,6 @@ const canonicalURL = new URL(
 </html>
 
 <script>
-  // Fade sections in as they scroll into view
   function setupReveal() {
     const items = document.querySelectorAll<HTMLElement>(
       "[data-reveal]:not(.is-visible)"

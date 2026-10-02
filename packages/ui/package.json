@@ -6,7 +6,9 @@
   "description": "Design system shared by nienke.dev and what.pm",
   "exports": {
     "./styles.css": "./styles.css",
+    "./card-head": "./src/card-head.tsx",
     "./media-chart": "./src/media-chart.tsx",
+    "./page-header": "./src/page-header.tsx",
     "./site-mark": "./src/site-mark.tsx",
     "./summary": "./src/summary.ts"
   },

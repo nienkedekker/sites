@@ -1,6 +1,3 @@
-// Who this site is about. Shared by the page metadata, the JSON-LD on the home
-// page and the machine-readable files (llms.txt, the Markdown page versions).
-
 export const site = "https://nienke.dev";
 
 export const profile = {
@@ -15,7 +12,6 @@ export const profile = {
   country: "NL",
   employer: { name: "Versiro", url: "https://versiro.com" },
   skills: ["React", "TypeScript", "Python", "Data visualization"],
-  // Profiles that are the same person, used for schema.org sameAs
   profiles: [
     { label: "GitHub", href: "https://github.com/nienkedekker" },
     {

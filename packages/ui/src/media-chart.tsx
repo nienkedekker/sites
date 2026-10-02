@@ -1,7 +1,5 @@
 import type { MonthCounts, YearSummary } from "./summary";
 
-// Categorical order is fixed: books, movies, TV. The colours are theme tokens
-// in styles.css, validated for colour-blind separation and contrast there.
 export const SERIES = [
   { key: "books", label: "Books", noun: "books", swatch: "bg-books" },
   { key: "movies", label: "Movies", noun: "movies", swatch: "bg-movies" },
@@ -23,7 +21,6 @@ const MONTHS = [
   "December",
 ];
 
-// Round the y-axis up to a clean number, with a tick every 5 (or 10)
 function niceScale(max: number) {
   const step = max > 30 ? 10 : 5;
   const top = Math.max(step, Math.ceil(max / step) * step);
@@ -36,17 +33,11 @@ function describe(month: MonthCounts) {
 }
 
 interface MediaChartProps {
-  // null while loading: the legend stays, the bars pulse
   summary: YearSummary | null;
   failed?: boolean;
   failedMessage?: string;
 }
 
-/**
- * Stacked bars of books, movies and TV seasons logged per month, with a
- * legend of the year's totals. Renders a fragment: place it in a flex column
- * so the bars can sit at the bottom (`mt-auto`).
- */
 export default function MediaChart({
   summary,
   failed = false,
@@ -62,7 +53,6 @@ export default function MediaChart({
 
   return (
     <>
-      {/* Legend: always present, with this year's totals */}
       <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
         {SERIES.map(({ key, label, swatch }) => (
           <li key={key} className="flex items-center gap-2">
@@ -81,7 +71,6 @@ export default function MediaChart({
         <p className="mt-auto pt-8 text-ink-soft">{failedMessage}</p>
       ) : (
         <div className="mt-auto flex gap-3 pt-8">
-          {/* Y-axis */}
           <div className="relative h-40 w-5 shrink-0 text-right text-[0.7rem] text-ink-faint tabular-nums">
             {summary &&
               ticks.map((tick) => (
@@ -97,7 +86,6 @@ export default function MediaChart({
 
           <div className="flex-1">
             <div className="relative h-40">
-              {/* Hairline gridlines */}
               {summary &&
                 ticks.map((tick) => (
                   <span
@@ -164,18 +152,15 @@ export default function MediaChart({
                         ))}
                       </div>
 
-                      {/* Hover / focus tooltip */}
                       {!upcoming && (
                         <div
-                          className={`pointer-events-none absolute bottom-full z-10 mb-2 w-max border ${
-                            // Edge months anchor to the chart's sides so the
-                            // tooltip stays on screen
+                          className={`tooltip ${
                             i < 2
                               ? "left-0"
                               : i > 9
                                 ? "right-0"
                                 : "left-1/2 -translate-x-1/2"
-                          } border-line bg-panel px-3 py-2 text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100`}
+                          }`}
                         >
                           <p className="mb-1 font-medium">{name}</p>
                           {SERIES.map(({ key, label, swatch }) => (
@@ -195,7 +180,6 @@ export default function MediaChart({
               </div>
             </div>
 
-            {/* Month labels */}
             <div
               className="mt-2 flex text-[0.7rem] text-ink-faint"
               aria-hidden="true"
@@ -213,7 +197,6 @@ export default function MediaChart({
         </div>
       )}
 
-      {/* Table view for screen readers */}
       {/* The wrapper is the sr-only box: a table ignores width: 1px and would
           stretch the page on phones */}
       {summary && (

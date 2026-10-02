@@ -12,8 +12,8 @@ const getDistinctYears = unstable_cache(
     if (error) throw new Error(error.message);
     return (data ?? []).map((r) => r.belongs_to_year as number);
   },
-  ["distinct-years"], // cache key
-  { revalidate: 3600 }, // 1 hour cache
+  ["distinct-years"],
+  { revalidate: 3600 },
 );
 
 export default async function YearNavigation() {

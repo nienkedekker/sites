@@ -1,4 +1,3 @@
-// Upstash Redis: the only runtime data on the site, the visitor counter.
 import { Redis } from "@upstash/redis";
 import { KV_REST_API_TOKEN, KV_REST_API_URL } from "astro:env/server";
 

@@ -19,16 +19,11 @@ interface AuthState {
 
 const AuthCtx = createContext<AuthState | null>(null);
 
-/**
- * Provides authentication state to the app.
- * Handles initial auth check and subscribes to auth state changes.
- */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1) Initial auth check with error handling
     supabaseBrowser.auth
       .getUser()
       .then(({ data }) => {
@@ -42,7 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       });
 
-    // 2) Subscribe to auth state changes
     const { data } = supabaseBrowser.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
@@ -62,10 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
 
-/**
- * Hook to access authentication state.
- * Must be used within an AuthProvider.
- */
 export function useAuth(): AuthState {
   const ctx = useContext(AuthCtx);
   if (!ctx) {

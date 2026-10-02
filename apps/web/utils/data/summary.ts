@@ -1,11 +1,6 @@
 import type { MonthCounts, YearSummary } from "@nienke/ui/summary";
 import type { TypedItem } from "@/types/shared";
 
-/**
- * Which month of `year` an item counts towards, 0 for January, by the date it
- * was logged. Items logged just after the year ended (say, a December book
- * logged on January 2nd) count towards December; null if there's no date.
- */
 export function monthIndex(item: TypedItem, year: number): number | null {
   if (!item.created_at) return null;
   const loggedYear = Number(item.created_at.slice(0, 4));
@@ -13,10 +8,6 @@ export function monthIndex(item: TypedItem, year: number): number | null {
   return loggedYear < year ? 0 : loggedYear > year ? 11 : loggedMonth - 1;
 }
 
-/**
- * Counts per type for each month of the year, by the date an item was logged
- * (see monthIndex). Items with no log date are left out.
- */
 export function countByMonth(items: TypedItem[], year: number): MonthCounts[] {
   const months = Array.from({ length: 12 }, (_, i) => ({
     month: i + 1,
@@ -40,10 +31,6 @@ export function countByMonth(items: TypedItem[], year: number): MonthCounts[] {
   return months;
 }
 
-/**
- * The year's counts per type and per month, as the summary API returns them
- * and the shared month-by-month chart reads them.
- */
 export function summarizeYear(items: TypedItem[], year: number): YearSummary {
   const count = (type: TypedItem["itemtype"]) =>
     items.filter((item) => item.itemtype === type).length;
@@ -60,12 +47,6 @@ export function summarizeYear(items: TypedItem[], year: number): YearSummary {
   };
 }
 
-/**
- * Whether a year's month-by-month counts mean anything. Older years were
- * back-filled long after they ended, so all their log dates are later and
- * countByMonth puts every item in December. If fewer than half of the items
- * were logged during the year itself, treat the months as unknown.
- */
 export function hasMonthlyData(items: TypedItem[], year: number): boolean {
   const dated = items.filter((item) => item.created_at);
   if (dated.length === 0) return false;

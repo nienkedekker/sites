@@ -6,16 +6,10 @@ import { useFormStatus } from "react-dom";
 import { LoaderCircle } from "lucide-react";
 
 type Props = ComponentProps<typeof Button> & {
-  /** Text to display while form is submitting */
   pendingText?: string;
-  /** For React Hook Form compatibility - combines with native form pending state */
   isSubmitting?: boolean;
 };
 
-/**
- * Submit button that shows loading state during form submission.
- * Works with both native form actions and React Hook Form.
- */
 export function SubmitButton({
   children,
   pendingText = "Submitting...",
@@ -24,7 +18,6 @@ export function SubmitButton({
 }: Props) {
   const { pending } = useFormStatus();
 
-  // Combine native form pending state with RHF isSubmitting
   const isPending = pending || isSubmitting;
 
   return (

@@ -2,9 +2,6 @@
 @import "@nienke/ui/styles.css";
 @plugin "@tailwindcss/typography";
 
-/* Tokens, base styles, prose, .card/.display/.tag and motion live in
-   packages/ui, shared with what.pm. Only what nienke.dev alone uses is here. */
-
 /* IBM PS/55 screen font from The Ultimate Oldschool PC Font Pack by VileR
    (int10h.org), CC BY-SA 4.0; licence in public/fonts */
 @font-face {
@@ -14,13 +11,10 @@
 }
 
 @theme inline {
-  /* Old IBM screen font for the kanji card's meanings (it has no kanji) */
   --font-pc: "IBM PS/55", "Geist Mono", ui-monospace, monospace;
-  /* Plain system gothic, like old Japanese Windows/Mac (MS Gothic, Osaka) */
   --font-jp: "Kosugi", sans-serif;
 }
 
-/* The little GIFs next to headings on /now */
 .prose img.kaomoji {
   display: inline-block;
   margin: 0 0 0 0.35em;

@@ -1,5 +1,3 @@
-// My WaniKani progress for the kanji card on the home page.
-// The token stays on the server; responses are cached at the edge for an hour.
 import type { APIRoute } from "astro";
 import { WANIKANI_KEY } from "astro:env/server";
 import { getProgress } from "../../lib/wanikani";

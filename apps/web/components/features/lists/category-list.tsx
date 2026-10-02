@@ -12,14 +12,12 @@ interface CategoryListProps {
   showYearLink?: boolean;
 }
 
-// The same swatches as the month-by-month chart's legend
 const SWATCH_MAP: Record<string, string> = {
   Book: "bg-books",
   Movie: "bg-movies",
   Show: "bg-shows",
 };
 
-/** Renders the metadata line based on item type */
 function ItemMetadata({ item }: { item: Item }) {
   switch (item.itemtype) {
     case "Book":

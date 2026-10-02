@@ -1,7 +1,3 @@
-/**
- * Data export API endpoint
- * Supports both CSV and JSON export formats with authentication
- */
 import { NextRequest, NextResponse } from "next/server";
 import { createClientForServer } from "@/utils/supabase/server";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";

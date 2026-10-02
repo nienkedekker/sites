@@ -2,7 +2,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { addMarkdownRoutes, MARKDOWN_TYPE, type Route } from "../src/lib/markdown-routes.ts";
 
-// The shape @astrojs/vercel writes to .vercel/output/config.json
 const adapterRoutes: Route[] = [
   { src: "^/guestbook$", headers: { Location: "/" }, status: 301 },
   { handle: "filesystem" },
@@ -44,7 +43,6 @@ test("pages vary on Accept whichever version is served", () => {
   assert.equal(vary.has, undefined);
   for (const path of ["/", "/now", "/now/"]) assert.ok(matches(vary, path), path);
   assert.ok(!matches(vary, "/uses"));
-  // It has to run before the rewrites, which stop route matching
   assert.ok(before.indexOf(vary) < before.findIndex(accept));
 });
 
@@ -68,7 +66,6 @@ test("unknown paths get a Markdown 404 for Markdown requests and HTML otherwise"
   assert.equal(notFound[1].dest, "/404.html");
   assert.equal(accept(notFound[1]), undefined);
   for (const route of notFound) assert.equal(route.headers?.Vary, "Accept");
-  // The catch-alls stay last, after the adapter's function routes
   assert.deepEqual(routes.slice(-2), notFound);
   assert.deepEqual(after[0], { src: "^/api/wanikani/?$", dest: "_render" });
 });

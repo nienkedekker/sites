@@ -38,9 +38,6 @@ interface UpdateItemFormProps {
   item: Item;
 }
 
-/**
- * Form for updating an existing item. Adapts fields based on item type.
- */
 export default function UpdateItemForm({ item }: UpdateItemFormProps) {
   const { schema, defaultValues } = useMemo(
     () => getSchemaAndDefaults(item),
@@ -56,7 +53,6 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
   const formErrors = Object.values(form.formState.errors);
   const hasErrors = formErrors.length > 0;
 
-  /** Builds FormData from validated form data and submits to server action */
   const onSubmit = async (data: AnyItemInput) => {
     const fd = new FormData();
     fd.append("id", item.id);
@@ -82,7 +78,6 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className={formStyles.container}
       >
-        {/* Screen reader announcements for form errors */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {hasErrors &&
             `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}
@@ -253,9 +248,6 @@ export default function UpdateItemForm({ item }: UpdateItemFormProps) {
   );
 }
 
-/**
- * Returns the appropriate Zod schema and default values for the given item.
- */
 function getSchemaAndDefaults(item: Item) {
   const currentYear = getCurrentYear();
 

@@ -1,4 +1,3 @@
-// The site mark: a square in the highlight blue, like the favicon
 export default function SiteMark({ className = "" }: { className?: string }) {
   return (
     <span

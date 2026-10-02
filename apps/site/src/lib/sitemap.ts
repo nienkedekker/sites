@@ -1,5 +1,3 @@
-// XML sitemap, following https://www.sitemaps.org/protocol.html
-
 export interface SitemapEntry {
   loc: string;
   lastmod?: Date;

@@ -1,35 +1,18 @@
-/* Shared design system for nienke.dev and what.pm.
-
-   Import after Tailwind in each app's global CSS:
-     @import "tailwindcss";
-     @import "@nienke/ui/styles.css";
-
-   Fonts: Inter, Instrument Serif, Geist and Geist Mono. An app can load them
-   from Google Fonts by name, or with next/font and the --font-*-family
-   variables below. */
-
 @source "./src";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ---------------------------------------------------------------------------
-   Tokens — flat surfaces, hard hairlines, film grain, one indigo accent.
-   --------------------------------------------------------------------------- */
 :root {
   --paper: #fcfcfd;
   --panel: #ffffff;
   --panel-2: #f6f6f8;
   --ink: #0b0c0e;
   --ink-soft: #5d626c;
-  --ink-faint: #6c7078; /* 4.6:1 or more on every surface (WCAG AA) */
+  --ink-faint: #6c7078;
   --line: #e8e8ec;
   --line-strong: #d5d6dc;
-  /* Boxes, rules and offset shadows: full ink in light mode */
   --rule: #0b0c0e;
   --accent: #5e6ad2;
-  /* Media series (chart and book spines): black, one deep blue, grey.
-     Checked with the dataviz palette validator in both themes: colour-blind
-     and normal-vision separation pass, and every mark is 3:1 on the cards. */
   --books: #0b0c0e;
   --movies: #3242a8;
   --shows: #8b909a;
@@ -43,15 +26,12 @@
   --panel-2: #151619;
   --ink: #f7f8f8;
   --ink-soft: #8a8f98;
-  --ink-faint: #7d8086; /* 4.6:1 or more on every surface (WCAG AA) */
+  --ink-faint: #7d8086;
   --line: rgb(255 255 255 / 0.08);
   --line-strong: rgb(255 255 255 / 0.15);
-  /* Full-white boxes and shadows glare on the dark paper, so they step down
-     to grey; text stays bright. 6:1 on the dark panels */
   --rule: #8a8f98;
   --accent: #7c85f5;
   --books: #f7f8f8;
-  /* #3242a8 is 2.3:1 on the dark cards; this lighter tint reaches 3:1 */
   --movies: #5360b6;
   --shows: #6c7078;
 
@@ -65,7 +45,6 @@
     var(--font-geist-mono-family, "Geist Mono"), ui-monospace, monospace;
   --font-display:
     var(--font-instrument-serif-family, "Instrument Serif"), serif;
-  /* The menu, after alpinetable.com */
   --font-geist:
     var(--font-geist-family, "Geist"), ui-sans-serif, system-ui, sans-serif;
 
@@ -77,7 +56,6 @@
   --color-ink-faint: var(--ink-faint);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
-  /* Full-strength rules for boxes and dividers; --line stays for gridlines */
   --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-books: var(--books);
@@ -87,7 +65,6 @@
 
 @layer base {
   html {
-    /* 15px by default; a percentage keeps the visitor's own text size setting */
     font-size: 93.75%;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
@@ -104,7 +81,6 @@
     --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -0.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* Film grain over everything, text included */
   body::after {
     content: "";
     position: fixed;
@@ -120,7 +96,6 @@
     opacity: 0.06;
   }
 
-  /* The blue from the books and chart; white text is 5.6:1 or more on it */
   ::selection {
     background: var(--movies);
     color: #fff;
@@ -132,9 +107,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
-   Prose — the Markdown pages. Unlayered so it beats the typography plugin.
-   --------------------------------------------------------------------------- */
 .prose {
   --tw-prose-body: var(--ink-soft);
   --tw-prose-headings: var(--ink);
@@ -171,7 +143,6 @@
   text-decoration-color: var(--ink);
 }
 
-/* Same as .display, a bit larger, since the serif runs small next to Inter */
 .prose h2,
 .prose h3 {
   font-family: var(--font-display);
@@ -204,16 +175,12 @@
   border: 1px solid var(--line);
 }
 
-/* ---------------------------------------------------------------------------
-   Pieces
-   --------------------------------------------------------------------------- */
 @layer components {
   .card {
     background: var(--panel);
     border: 1px solid var(--rule);
   }
 
-  /* Headings: a narrow serif with tight line height */
   .display {
     font-family: var(--font-display);
     font-weight: 400;
@@ -222,7 +189,46 @@
     font-feature-settings: normal;
   }
 
-  /* Small boxed label, e.g. "Updated …" or "Last played" */
+  .card-title {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .stat-figure {
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tooltip {
+    pointer-events: none;
+    position: absolute;
+    bottom: 100%;
+    z-index: 10;
+    width: max-content;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    line-height: calc(1 / 0.75);
+    color: var(--ink);
+    opacity: 0;
+    transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @media (hover: hover) {
+    .group:hover .tooltip {
+      opacity: 1;
+    }
+  }
+
+  .group:focus-visible .tooltip {
+    opacity: 1;
+  }
+
   .tag {
     display: inline-flex;
     align-items: center;
@@ -235,16 +241,11 @@
     color: var(--ink);
   }
 
-  /* Sits above the film grain, for images that should stay crisp */
   .above-grain {
     position: relative;
     z-index: 101;
   }
 
-  /* Its own film grain, for a bar that has to sit above .above-grain
-     elements (z-index over 101). Needs a positioned element. Lines up with
-     the page's grain while the element is at the top-left of the viewport,
-     as a sticky header is */
   .own-grain::after {
     content: "";
     position: absolute;
@@ -259,7 +260,6 @@
     opacity: 0.06;
   }
 
-  /* A tag that links somewhere fills in on hover */
   a.tag {
     transition:
       background-color 150ms,
@@ -272,9 +272,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
-   Motion
-   --------------------------------------------------------------------------- */
 @keyframes eq {
   from {
     transform: scaleY(0.25);
@@ -307,7 +304,6 @@
   animation-delay: var(--delay, 0ms);
 }
 
-/* Reveal on scroll: script adds .is-visible. Only hides content once JS runs. */
 .js [data-reveal] {
   opacity: 0;
   transform: translateY(16px);

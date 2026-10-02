@@ -75,15 +75,12 @@ test("renderLlmsTxt follows the llms.txt structure", () => {
   const txt = renderLlmsTxt(home, [{ title: "Sitemap", href: `${site}/sitemap.xml` }]);
   const lines = txt.split("\n");
 
-  // H1, then a blockquote summary
   assert.equal(lines[0], "# Ada");
   assert.equal(lines[2], "> Ada builds things.");
-  // Exactly one H1, and notes before the first H2 contain no headings
   assert.equal(lines.filter((line) => line.startsWith("# ")).length, 1);
   const notes = txt.slice(txt.indexOf("\n> "), txt.indexOf("\n## "));
   assert.doesNotMatch(notes, /^#/m);
   assert.match(notes, /\*\*When to use this site:\*\*/);
-  // Every H2 section is a list of links
   for (const section of txt.split(/^## .*$/m).slice(1)) {
     for (const line of section.trim().split("\n")) {
       assert.match(line, /^- \[[^\]]+\]\([^)]+\)(: .+)?$/);

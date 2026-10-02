@@ -8,7 +8,7 @@ import { MonthHeatmap } from "@/components/features/stats/month-heatmap";
 import { StatTile } from "@/components/features/stats/stat-tile";
 import { MostReread } from "@/components/features/stats/most-reread";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
-import { PageHeader } from "@/components/ui/page-header";
+import PageHeader from "@nienke/ui/page-header";
 import { CHART_CONFIG } from "@/utils/constants/app";
 
 async function StatsContent() {
@@ -36,9 +36,6 @@ async function StatsContent() {
   );
 
   return (
-    // A bento like nienke.dev's: two columns that stack their cards at their
-    // own heights, the last card in each stretching so the columns end level.
-    // Below lg the column wrappers are display: contents and cards just flow.
     <div className="grid gap-3 lg:grid-cols-2">
       {stats && (
         <>

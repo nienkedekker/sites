@@ -9,14 +9,12 @@ type ItemType = TypedItem["itemtype"];
 
 export interface YearEntries {
   year: number;
-  /** Books, then movies, then TV seasons, each in the order logged */
   entries: { id: string; title: string; type: ItemType }[];
 }
 
 export interface Person {
   name: string;
   count: number;
-  /** What they're mostly logged for, for the bar colour */
   type: ItemType;
 }
 
@@ -24,30 +22,24 @@ export interface MonthCell {
   books: number;
   movies: number;
   shows: number;
-  /** What was logged, in order, for the tooltip */
   titles: { title: string; type: ItemType }[];
 }
 
 export interface MonthRow {
   year: number;
-  /** One cell per month, January first */
   months: MonthCell[];
 }
 
 export interface StatsData {
-  /** Every year from the first to the last, empty years included */
   years: YearEntries[];
   people: Person[];
-  /** Only years with real log dates (2019 on), oldest first */
   monthRows: MonthRow[];
-  /** The titles gone back to most, with how many times each was logged */
   mostReread: Revisit[];
 }
 
 export interface Revisit {
   title: string;
   type: ItemType;
-  /** Times read or watched; for shows, of the season seen most often */
   times: number;
 }
 
@@ -79,7 +71,6 @@ async function getAllItems(): Promise<TypedItem[]> {
 const byLogDate = (a: TypedItem, b: TypedItem) =>
   (a.created_at ?? "").localeCompare(b.created_at ?? "");
 
-/** Everything the stats page draws, from one pass over the whole log */
 export const getStatsData = unstable_cache(
   async (): Promise<StatsData> => {
     const items = await getAllItems();
@@ -108,7 +99,6 @@ export const getStatsData = unstable_cache(
         .map(({ id, title, itemtype }) => ({ id, title, type: itemtype })),
     }));
 
-    // Authors and directors, counting co-authors separately
     const people = new Map<string, Record<ItemType, number>>();
     for (const item of items) {
       const names =
@@ -159,8 +149,6 @@ export const getStatsData = unstable_cache(
         return { year, months };
       });
 
-    // Titles with at least one reread or rewatch. Shows are logged per
-    // season, so count the season seen most often rather than all entries
     const titles = new Map<
       string,
       { title: string; type: ItemType; redo: number; seen: Map<string, number> }

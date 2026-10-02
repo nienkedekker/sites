@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import CardHead from "@nienke/ui/card-head";
 import type { MonthCell, MonthRow } from "@/utils/data/stats";
 
 const MONTHS = [
@@ -16,7 +17,6 @@ const MONTHS = [
   "December",
 ];
 
-// The highlight blue at rising strength; empty months stay a hairline grey
 const LEVELS = [18, 38, 60, 82, 100];
 
 function cellStyle(count: number, max: number): CSSProperties | undefined {
@@ -36,7 +36,6 @@ const SERIES = [
   { key: "shows", label: "TV seasons", noun: "TV seasons", swatch: "bg-shows" },
 ] as const;
 const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
-// Titles listed in a tooltip before "and N more"
 const TITLE_LIMIT = 4;
 
 const total = (cell: MonthCell) => cell.books + cell.movies + cell.shows;
@@ -49,7 +48,6 @@ function describe(cell: MonthCell) {
     .join(", ")}`;
 }
 
-/** The popup over a cell: counts per type and the first few titles */
 function CellTooltip({
   label,
   cell,
@@ -64,7 +62,7 @@ function CellTooltip({
 
   return (
     <div
-      className={`pointer-events-none absolute bottom-full z-10 mb-2 w-max max-w-64 border border-line bg-panel px-3 py-2 text-left text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 ${
+      className={`tooltip max-w-64 text-left ${
         align === "start"
           ? "left-0"
           : align === "end"
@@ -109,10 +107,6 @@ function CellTooltip({
   );
 }
 
-/**
- * Items logged per month, one row per year. Only years with real log dates
- * appear: earlier years were back-filled, so their months aren't known.
- */
 export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
   const now = new Date();
   const max = Math.max(1, ...rows.flatMap((row) => row.months.map(total)));
@@ -122,25 +116,17 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
       aria-labelledby="month-heatmap-heading"
       className="above-grain card p-6 sm:p-7"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2
-          id="month-heatmap-heading"
-          className="font-medium tracking-[-0.01em]"
-        >
-          When I log
-        </h2>
-        {rows.length > 0 && (
-          <p className="font-mono text-xs text-ink-soft">
-            since {rows[0].year}
-          </p>
-        )}
-      </div>
+      <CardHead
+        id="month-heatmap-heading"
+        note={rows.length > 0 && `since ${rows[0].year}`}
+      >
+        When I log
+      </CardHead>
 
       <table className="mt-5 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]">
         <caption className="sr-only">Items logged per month, by year</caption>
         <thead>
           <tr>
-            {/* Fixed width for the year labels; the months share the rest */}
             <th scope="col" className="w-10">
               <span className="sr-only">Year</span>
             </th>
@@ -196,7 +182,6 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
         </tbody>
       </table>
 
-      {/* Key */}
       <div
         className="mt-4 flex items-center justify-end gap-1 font-mono text-[0.7rem] text-ink-faint"
         aria-hidden="true"

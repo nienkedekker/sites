@@ -1,10 +1,6 @@
 import { SERIES } from "@nienke/ui/media-chart";
 import type { YearSummary } from "@nienke/ui/summary";
 
-/**
- * How a year splits into books, movies and TV seasons: one bar per type,
- * scaled to the largest, with the count and its share of the year.
- */
 export function TypeBreakdown({ counts }: { counts: YearSummary["counts"] }) {
   const total = counts.books + counts.movies + counts.shows;
   const largest = Math.max(1, counts.books, counts.movies, counts.shows);

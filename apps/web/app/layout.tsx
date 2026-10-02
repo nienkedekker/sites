@@ -7,7 +7,6 @@ import Footer from "@/components/layouts/footer";
 import { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/providers/auth-provider";
 
-// The same faces as nienke.dev; packages/ui reads them from these variables
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",

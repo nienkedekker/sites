@@ -7,18 +7,14 @@ export interface SearchSuggestion {
   count: number;
 }
 
-/** What the search page shows before anything is typed */
 export interface SearchContext {
-  /** The authors and directors logged most often */
   suggestions: SearchSuggestion[];
-  /** Every year from the first logged one to the last, gaps included */
   years: number[];
 }
 
 const PAGE_SIZE = 1000;
 const SUGGESTION_COUNT = 8;
 
-// Co-authors and co-directors are stored as "Joel Coen, Ethan Coen"
 export const splitNames = (value: string | null) =>
   (value ?? "")
     .split(/,\s*|\s+&\s+/)

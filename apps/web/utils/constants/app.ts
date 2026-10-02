@@ -1,9 +1,5 @@
 import type { ValidItemType } from "@/types/shared";
 
-/**
- * Category configuration for displaying items grouped by type.
- * Single source of truth used by item lists and search results.
- */
 export const CATEGORY_CONFIG: ReadonlyArray<{
   title: string;
   type: ValidItemType;
@@ -19,7 +15,6 @@ export const ITEM_TYPES = {
   SHOW: "Show",
 } as const;
 
-// Tab values (lowercase for UI tabs)
 export const TAB_VALUES = {
   BOOK: "book",
   MOVIE: "movie",
@@ -49,7 +44,6 @@ export const ITEM_TYPE_ORDER: Record<ValidItemType, number> = {
   [ITEM_TYPES.SHOW]: 3,
 };
 
-/** People left out of the "most logged" lists and the search suggestions */
 export const HIDDEN_PEOPLE: ReadonlySet<string> = new Set([
   "Christopher Nolan",
 ]);

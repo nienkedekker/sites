@@ -34,7 +34,6 @@ interface SearchInputProps {
   onClear: () => void;
 }
 
-/** The query, set large in the display serif on a single ink rule */
 export function SearchInput({
   ref,
   value,
@@ -96,7 +95,6 @@ interface SearchFiltersProps {
   onSortChange: (value: string) => void;
 }
 
-/** Type toggles with live counts, and the sort order */
 export function SearchFilters({
   counts,
   filterType,
@@ -168,7 +166,6 @@ interface SearchSuggestionsProps {
   onPick: (name: string) => void;
 }
 
-/** The people logged most, as a place to start */
 export function SearchSuggestions({
   suggestions,
   onPick,

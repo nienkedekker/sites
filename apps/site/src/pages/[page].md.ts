@@ -3,9 +3,6 @@ import { site } from "../data/profile";
 import { renderHome, renderNotFound, renderPage } from "../lib/markdown";
 import { getHomeContent, getSitePages } from "../lib/site-pages";
 
-// Markdown versions of the pages: /index.md for home, /now.md for /now, and
-// /404.md for paths that don't exist. Agents asking for text/markdown are
-// routed here by src/integrations/markdown-negotiation.ts.
 export const getStaticPaths = (async () => {
   const pages = await getSitePages();
   return [

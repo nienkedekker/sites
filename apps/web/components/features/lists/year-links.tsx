@@ -11,10 +11,6 @@ export function YearLinks({ years }: YearLinksProps) {
   const pathname = usePathname();
   const currentYear = new Date().getFullYear();
 
-  /**
-   * Extracts the active year from the current URL pathname.
-   * Returns the current year for the home page, or parses the year from /year/:year routes.
-   */
   const getActiveYear = (): number | null => {
     if (pathname === "/") return currentYear;
     const match = pathname.match(/^\/year\/(\d+)$/);
@@ -29,7 +25,6 @@ export function YearLinks({ years }: YearLinksProps) {
         const isActive = y === activeYear;
         return (
           <li key={y}>
-            {/* The open year is a filled tag; the rest fill in on hover */}
             <Link
               href={y === currentYear ? "/" : `/year/${y}`}
               aria-current={isActive ? "page" : undefined}

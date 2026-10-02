@@ -25,7 +25,6 @@ function ItemBadge({
   );
 }
 
-/** Renders the appropriate badge(s) for an item */
 export function ItemBadges({
   item,
   className,
@@ -33,7 +32,6 @@ export function ItemBadges({
   item: Item;
   className?: string;
 }) {
-  // Show in progress + rewatch
   if (item.itemtype === "Show" && item.in_progress && item.redo) {
     return (
       <ItemBadge
@@ -46,7 +44,6 @@ export function ItemBadges({
     );
   }
 
-  // Show in progress (not rewatch)
   if (item.itemtype === "Show" && item.in_progress) {
     return (
       <ItemBadge
@@ -59,7 +56,6 @@ export function ItemBadges({
     );
   }
 
-  // Redo badge (not currently in progress)
   if (item.redo) {
     const isBook = item.itemtype === "Book";
     return (

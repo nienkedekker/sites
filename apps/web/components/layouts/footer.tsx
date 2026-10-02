@@ -8,10 +8,6 @@ const SITE_LINKS = [
   { href: "/about", label: "About" },
 ] as const;
 
-/**
- * The X logo, drawn like the lucide icons used elsewhere (24px grid, 2px
- * round strokes), since lucide has no brand icons. After Phosphor's XLogo.
- */
 function XIcon({ className }: { className?: string }) {
   return (
     <svg

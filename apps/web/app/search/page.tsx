@@ -1,5 +1,5 @@
 import SearchForm from "@/components/features/search/search-form";
-import { PageHeader } from "@/components/ui/page-header";
+import PageHeader from "@nienke/ui/page-header";
 import {
   getSearchContext,
   type SearchContext,
@@ -8,11 +8,9 @@ import {
 export default async function SearchPage(props: {
   searchParams: Promise<{ q?: string | string[] }>;
 }) {
-  // ?q= starts a search straight away, e.g. from the stats page
   const { q } = await props.searchParams;
   const initialQuery = (Array.isArray(q) ? q[0] : q)?.slice(0, 100) ?? "";
 
-  // Search still works without suggestions or the year range
   let context: SearchContext = { suggestions: [], years: [] };
   try {
     context = await getSearchContext();

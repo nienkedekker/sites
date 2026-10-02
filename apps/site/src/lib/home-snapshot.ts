@@ -12,17 +12,12 @@ import { fetchSummary, type Summary } from "./whatpm";
 export interface HomeSnapshot {
   summary?: Summary;
   progress?: Progress;
-  // null: Last.fm answered, but nothing has been played
   track?: Track | null;
   stats?: ListeningStats;
 }
 
 const TIMEOUT = 8000;
 
-// Data for the home page cards, fetched while the page is built so it has real
-// content before any JavaScript runs. The cards still refresh it in the
-// browser. A source that fails or is slow is left out, and its card starts
-// in the loading state instead.
 export async function getHomeSnapshot(): Promise<HomeSnapshot> {
   const attempt = <T>(source: string, load: (signal: AbortSignal) => Promise<T>) =>
     load(AbortSignal.timeout(TIMEOUT)).catch((error) => {

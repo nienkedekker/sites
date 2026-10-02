@@ -3,10 +3,6 @@
 @plugin 'tailwindcss-animate';
 @plugin "@tailwindcss/typography";
 
-/* Tokens, base styles, .card/.display/.tag and motion come from packages/ui,
-   shared with nienke.dev. The shadcn-style names the Radix components use
-   are mapped onto those tokens here. */
-
 @theme inline {
   --color-border: var(--line);
   --color-input: var(--ink);
@@ -36,12 +32,10 @@
 }
 
 :root {
-  /* Only what.pm deletes things; 5.3:1 on paper, white text 5.5:1 on it */
   --danger: #c4321f;
 }
 
 .dark {
-  /* 6.5:1 on the dark panels */
   --danger: #f0705e;
 }
 

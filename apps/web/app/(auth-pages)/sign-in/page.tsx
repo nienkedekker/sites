@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PageHeader } from "@/components/ui/page-header";
+import PageHeader from "@nienke/ui/page-header";
 import { getRecentItems } from "@/utils/data/items";
 import type { TypedItem } from "@/types/shared";
 import { SignInForm } from "./sign-in-form";
@@ -23,7 +23,6 @@ const loggedDate = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-/** Where things left off: the last few entries, newest first */
 async function LastLogged() {
   const result = await getRecentItems(3);
   if (!result.success || result.data.length === 0) return null;
@@ -59,11 +58,9 @@ async function LastLogged() {
 
 export default function SignInPage() {
   return (
-    // Laid out like nienke.dev's home: words on the left, a framed box on
-    // the right
     <div className="grid items-center gap-y-12 lg:grid-cols-12 lg:gap-x-16">
       <div className="lg:col-span-7">
-        <PageHeader className="mb-0 sm:mb-0">Sign in</PageHeader>
+        <PageHeader className="mb-0">Sign in</PageHeader>
         <div className="max-w-md">
           <Suspense fallback={null}>
             <LastLogged />

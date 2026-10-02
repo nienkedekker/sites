@@ -1,6 +1,3 @@
-/**
- * These should match exactly what's stored in the database
- */
 export const VALID_ITEM_TYPES = ["Book", "Movie", "Show"] as const;
 export type ValidItemType = (typeof VALID_ITEM_TYPES)[number];
 
@@ -14,13 +11,12 @@ function isValidItemType(value: unknown): value is ValidItemType {
 export interface BaseItem {
   id: string;
   title: string;
-  itemtype: ValidItemType; // Strongly typed, not just string
+  itemtype: ValidItemType;
   published_year: number;
   belongs_to_year: number;
   redo: boolean;
   created_at: string | null;
   updated_at: string | null;
-  // Optional type-specific fields
   author?: string | null;
   director?: string | null;
   season?: number | null;
@@ -53,9 +49,6 @@ export type ShowItem = BaseItem & {
 
 export type TypedItem = BookItem | MovieItem | ShowItem;
 
-/**
- * Helper to convert database item to typed item with validation
- */
 export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
   if (!dbItem || typeof dbItem !== "object") {
     return null;
@@ -63,7 +56,6 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
 
   const item = dbItem as Record<string, unknown>;
 
-  // Basic validation
   if (
     typeof item.id !== "string" ||
     typeof item.title !== "string" ||
@@ -92,7 +84,6 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
       typeof item.in_progress === "boolean" ? item.in_progress : null,
   };
 
-  // Type-specific validation and typing
   switch (baseItem.itemtype) {
     case "Book":
       if (!baseItem.author) {

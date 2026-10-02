@@ -1,12 +1,7 @@
-// My WaniKani progress, for the kanji card on the home page. Server-only: it
-// needs the API token. Used by /api/wanikani and when building the home page.
-
 const API = "https://api.wanikani.com/v2";
-// SRS stage 5 is "Guru" — WaniKani's own "learned" threshold. 9 is "Burned".
 const LEARNED_STAGE = 5;
 const SAMPLE_SIZE = 12;
 
-// WaniKani's named SRS groups, in order, by the stage numbers they cover
 export const STAGES = [
   { key: "apprentice", label: "Apprentice", from: 1, to: 4 },
   { key: "guru", label: "Guru", from: 5, to: 6 },
@@ -26,11 +21,8 @@ export interface Kanji {
 export interface Progress {
   level: number;
   kanji: { learned: number; burned: number; total: number };
-  // Vocabulary at Guru or above, kana-only words included
   vocabulary: number;
-  // Items (radicals, kanji and vocabulary) in each SRS group
   stages: Record<StageKey, number>;
-  // Share of review answers that were right, as a percentage (one decimal)
   accuracy: number;
   sample: Kanji[];
 }
@@ -60,8 +52,6 @@ interface KanjiSubject {
   readings: { reading: string; primary: boolean }[];
 }
 
-// Counts by SRS group and of learned kanji and vocabulary, from every started
-// assignment
 export function countAssignments(assignments: Assignment[]) {
   const stages = Object.fromEntries(STAGES.map(({ key }) => [key, 0])) as Record<StageKey, number>;
   let kanji = 0;
@@ -83,7 +73,6 @@ export function countAssignments(assignments: Assignment[]) {
   return { stages, kanji, kanjiBurned, vocabulary };
 }
 
-// Percentage of all meaning and reading answers that were correct
 export function accuracyOf(stats: ReviewStatistic[]) {
   let correct = 0;
   let total = 0;
@@ -98,8 +87,6 @@ function pickRandom<T>(items: T[], count: number) {
   return [...items].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-// A full fetch is about 19 requests and WaniKani allows 60 a minute, so one
-// result is reused for a while; callers in the meantime share it.
 const CACHE_MS = 10 * 60 * 1000;
 let cache: { at: number; progress: Promise<Progress> } | undefined;
 
@@ -108,7 +95,6 @@ export function getProgress(key: string, signal?: AbortSignal): Promise<Progress
 
   const progress = loadProgress(key, signal);
   cache = { at: Date.now(), progress };
-  // Don't hold on to a failure
   progress.catch(() => {
     if (cache?.progress === progress) cache = undefined;
   });
@@ -128,7 +114,6 @@ async function loadProgress(key: string, signal?: AbortSignal): Promise<Progress
     return res.json();
   }
 
-  // Follow pagination so counts and samples cover every page
   async function allPages<T>(url: string) {
     const items: Collection<T>["data"] = [];
     let next: string | null = url;
@@ -144,7 +129,6 @@ async function loadProgress(key: string, signal?: AbortSignal): Promise<Progress
     wanikani<{ data: { level: number } }>("/user"),
     allPages<Assignment>("/assignments?started=true"),
     allPages<ReviewStatistic>("/review_statistics"),
-    // Only the total is needed; the first page carries total_count
     wanikani<Collection<KanjiSubject>>("/subjects?types=kanji"),
   ]);
 
@@ -175,8 +159,6 @@ async function loadProgress(key: string, signal?: AbortSignal): Promise<Progress
   };
 }
 
-// Swap in fresh progress without changing the kanji on screen: it moves to the
-// front of the new sample, so the card doesn't flicker after loading
 export function keepShown(fresh: Progress, shown?: Kanji): Progress {
   if (!shown) return fresh;
   return {

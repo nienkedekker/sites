@@ -1,7 +1,3 @@
-/**
- * Vercel Cron function for automated data export
- * Runs every 3 days to backup data to R2
- */
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { createClientForServer } from "@/utils/supabase/server";
@@ -20,14 +16,13 @@ const r2Client = new S3Client({
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify this is coming from Vercel Cron
     const authHeader = request.headers.get("authorization");
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const supabase = await createClientForServer();
-    const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const timestamp = new Date().toISOString().split("T")[0];
 
     const { data: rawItems, error } = await supabase
       .from("items")

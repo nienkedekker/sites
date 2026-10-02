@@ -8,7 +8,6 @@ import { cn } from "@/utils/ui";
 import { linkStyles } from "@/utils/styles";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 
-// The same swatches as the year page's columns
 const SWATCH_MAP: Record<string, string> = {
   Book: "bg-books",
   Movie: "bg-movies",
@@ -22,7 +21,6 @@ interface SearchResultsProps {
   onClearFilter: () => void;
 }
 
-/** The detail line under a result, with the matched part highlighted */
 function ResultMetadata({ item, query }: { item: Item; query: string }) {
   switch (item.itemtype) {
     case "Book":
@@ -64,7 +62,6 @@ export function SearchResults({
   const hasResults = results.length > 0;
   const hasQuery = query.trim().length > 0;
 
-  // No results state
   if (!hasResults && hasQuery) {
     return (
       <div>
@@ -149,7 +146,6 @@ export function SearchResults({
                     </IsLoggedIn>
                   </div>
 
-                  {/* The year it was logged, linking to that year's list */}
                   <Link
                     href={`/year/${item.belongs_to_year}`}
                     className="tag shrink-0 tabular-nums"

@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Matches the results: a year strip, then rows under a ruled heading */
 export function SearchResultsSkeleton() {
   return (
     <div className="space-y-12" aria-hidden="true">

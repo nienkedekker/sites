@@ -1,19 +1,17 @@
 import Link from "next/link";
+import CardHead from "@nienke/ui/card-head";
 import type { Revisit } from "@/utils/data/stats";
 
 const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
 const VERB = { Book: "read", Movie: "watched", Show: "watched" };
 
-/** The books, movies and shows gone back to most, each linking to a search */
 export function MostReread({ titles }: { titles: Revisit[] }) {
   return (
     <section
       aria-labelledby="most-reread-heading"
-      className="card flex h-full flex-col p-6 sm:p-7"
+      className="above-grain card flex h-full flex-col p-6 sm:p-7"
     >
-      <h2 id="most-reread-heading" className="font-medium tracking-[-0.01em]">
-        Most reread &amp; rewatched
-      </h2>
+      <CardHead id="most-reread-heading">Most reread &amp; rewatched</CardHead>
 
       <ol className="mt-auto pt-6">
         {titles.map(({ title, type, times }) => (

@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Shared design system, published as TypeScript source
   transpilePackages: ["@nienke/ui"],
   async headers() {
     return [
@@ -10,19 +9,19 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "X-Frame-Options",
-            value: "DENY", // Prevents embedding in iframes
+            value: "DENY",
           },
           {
             key: "X-Content-Type-Options",
-            value: "nosniff", // Prevents MIME sniffing
+            value: "nosniff",
           },
           {
             key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin", // Limits referrer info
+            value: "strict-origin-when-cross-origin",
           },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()", // Restricts browser APIs
+            value: "camera=(), microphone=(), geolocation=()",
           },
         ],
       },

@@ -1,18 +1,14 @@
 import type { CSSProperties } from "react";
+import CardHead from "@nienke/ui/card-head";
 import MediaChart from "@nienke/ui/media-chart";
+import PageHeader from "@nienke/ui/page-header";
 import { CategoryList } from "@/components/features/lists/category-list";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
-import { PageHeader } from "@/components/ui/page-header";
 import { getItemsForYear } from "@/utils/data/items";
 import { hasMonthlyData, summarizeYear } from "@/utils/data/summary";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { TypeBreakdown } from "@/components/features/lists/type-breakdown";
 
-/**
- * Server component that fetches and displays items for a given year:
- * a month-by-month chart (or, for back-filled years, the split by type),
- * then the items grouped by category (Books, Movies, TV Shows).
- */
 export default async function ItemsList({ year }: { year: number }) {
   try {
     const itemsResult = await getItemsForYear(year);
@@ -24,8 +20,6 @@ export default async function ItemsList({ year }: { year: number }) {
     const validatedItems = itemsResult.data;
     const isCurrentYear = year === new Date().getFullYear();
     const summary = summarizeYear(validatedItems, year);
-    // Back-filled years have no real log dates, so they get the split by
-    // type instead of the month-by-month chart
     const byMonth = hasMonthlyData(validatedItems, year);
 
     const categoryData = CATEGORY_CONFIG.map(({ title, type }) => ({
@@ -53,12 +47,9 @@ export default async function ItemsList({ year }: { year: number }) {
             className="rise above-grain card flex flex-col p-6 sm:p-7"
             style={{ "--delay": "240ms" } as CSSProperties}
           >
-            <h2
-              id="year-chart-heading"
-              className="mb-5 font-medium tracking-[-0.01em]"
-            >
+            <CardHead id="year-chart-heading" className="mb-5">
               {byMonth ? "Month by month" : "By type"}
-            </h2>
+            </CardHead>
             {byMonth ? (
               <MediaChart summary={summary} />
             ) : (

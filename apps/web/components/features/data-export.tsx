@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CardHead from "@nienke/ui/card-head";
 import { Button } from "@/components/ui/button";
 import { FileText, Database, Calendar } from "lucide-react";
 
@@ -28,13 +29,11 @@ export function DataExport({ currentYear }: DataExportProps) {
         throw new Error(error.error || "Export failed");
       }
 
-      // Get filename from Content-Disposition header or generate default
       const contentDisposition = response.headers.get("Content-Disposition");
       const filename = contentDisposition
         ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
         : `whatpm-export.${format}`;
 
-      // Create download
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -53,7 +52,7 @@ export function DataExport({ currentYear }: DataExportProps) {
   return (
     <div className="card divide-y divide-line px-6 sm:px-7">
       <section className="space-y-4 py-6 sm:py-7">
-        <h2 className="font-medium tracking-[-0.01em]">Export all data</h2>
+        <CardHead>Export all data</CardHead>
         <div className="flex flex-wrap gap-3">
           <Button
             onClick={() => handleExport("csv")}
@@ -78,9 +77,7 @@ export function DataExport({ currentYear }: DataExportProps) {
 
       {currentYear && (
         <section className="space-y-4 py-6 sm:py-7">
-          <h2 className="font-medium tracking-[-0.01em]">
-            Export {currentYear} data
-          </h2>
+          <CardHead>Export {currentYear} data</CardHead>
           <div className="flex flex-wrap gap-3">
             <Button
               onClick={() => handleExport("csv", currentYear)}

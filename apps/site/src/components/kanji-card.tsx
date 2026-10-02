@@ -1,15 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import CardHead from "@nienke/ui/card-head";
 import { keepShown, STAGES, type Kanji, type Progress } from "../lib/wanikani";
 
 const count = (n: number) => n.toLocaleString("en-US");
 
-// SRS groups run in order, so they share one colour, the highlight blue, that
-// strengthens from Apprentice to Burned. The faint ends rely on the hover
-// labels and the chart's description, not on colour alone.
 const STAGE_SHADES = ["opacity-20", "opacity-40", "opacity-60", "opacity-80", "opacity-100"];
 
-// Live from /api/wanikani: kanji I've actually learned on WaniKani. `initial`
-// is fetched while the page is built; the card refreshes it on load.
 export default function KanjiCard({ initial }: { initial?: Progress }) {
   const [progress, setProgress] = useState<Progress | null>(initial ?? null);
   const [failed, setFailed] = useState(false);
@@ -51,11 +47,12 @@ export default function KanjiCard({ initial }: { initial?: Progress }) {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Tag under the title, like the listening card */}
-      <div className="flex flex-col items-start gap-2">
-        <h3 className="font-medium tracking-[-0.01em]">Learning Japanese</h3>
-        {progress && <span className="tag whitespace-nowrap">WaniKani lvl. {progress.level}</span>}
-      </div>
+      <CardHead
+        as="h3"
+        tag={progress && <span className="tag whitespace-nowrap">WaniKani lvl. {progress.level}</span>}
+      >
+        Learning Japanese
+      </CardHead>
 
       <button
         type="button"
@@ -86,7 +83,6 @@ export default function KanjiCard({ initial }: { initial?: Progress }) {
         )}
       </button>
 
-      {/* Responses cached before the stats existed don't have them */}
       {progress?.stages && <Stats progress={progress} />}
     </div>
   );
@@ -131,7 +127,7 @@ function Stats({ progress }: { progress: Progress }) {
               style={{ flexGrow: stages[key], flexBasis: 0 }}
             >
               <span className={`block h-full bg-movies ${STAGE_SHADES[i]}`} />
-              <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 border border-line bg-panel px-2 py-1 text-xs opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="tooltip left-1/2 -translate-x-1/2 px-2 py-1">
                 {label}: <span className="font-medium tabular-nums">{count(stages[key])}</span>
               </span>
             </div>
@@ -143,7 +139,6 @@ function Stats({ progress }: { progress: Progress }) {
         <span>Burned</span>
       </div>
 
-      {/* Label left, value right, like the scrobbles card */}
       <dl className="mt-4">
         {[
           ["Vocabulary", count(vocabulary)],

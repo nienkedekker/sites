@@ -2,27 +2,25 @@ import Image from "next/image";
 import tumblr from "./tumblr.png";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { PageHeader } from "@/components/ui/page-header";
+import PageHeader from "@nienke/ui/page-header";
 import { getLogFacts, type LogFacts } from "@/utils/data/about";
 import { linkStyles } from "@/utils/styles";
 
 const number = new Intl.NumberFormat("en-GB");
 
-// Same order and swatches as the charts
 const TYPE_ROWS = [
   { key: "books", label: "Books", swatch: "bg-books" },
   { key: "movies", label: "Movies", swatch: "bg-movies" },
   { key: "shows", label: "TV seasons", swatch: "bg-shows" },
 ] as const;
 
-/** The whole log in numbers: a big total, then per type and where it began */
 function LogNumbers({ facts }: { facts: LogFacts }) {
   return (
     <section aria-labelledby="log-numbers-heading">
       <h2 id="log-numbers-heading" className="sr-only">
         The log in numbers
       </h2>
-      <p className="text-7xl leading-none font-semibold tracking-[-0.05em] text-ink tabular-nums">
+      <p className="stat-figure text-7xl">
         {number.format(facts.total)}
       </p>
       <p className="mt-3 text-ink-soft">
@@ -75,7 +73,6 @@ function LogNumbers({ facts }: { facts: LogFacts }) {
 }
 
 export default async function AboutPage() {
-  // The page still works if the numbers can't be loaded
   let facts: LogFacts | null = null;
   try {
     facts = await getLogFacts();
@@ -84,11 +81,9 @@ export default async function AboutPage() {
   }
 
   return (
-    // Two columns like the sign-in page. The screenshot is a wide strip, so
-    // it gets twice the width of the text
     <div className="grid items-start gap-y-14 lg:grid-cols-[1fr_2fr] lg:gap-x-14">
       <div>
-        <PageHeader className="mb-0 sm:mb-0">About</PageHeader>
+        <PageHeader className="mb-0">About</PageHeader>
         <div
           className="rise prose mt-8"
           style={{ "--delay": "160ms" } as CSSProperties}
@@ -109,8 +104,6 @@ export default async function AboutPage() {
         )}
       </div>
 
-      {/* Framed like the photo on nienke.dev; lines up with the text under
-          the title */}
       <figure
         className="rise above-grain w-full border border-rule shadow-[6px_6px_0_var(--rule)] lg:mt-24"
         style={{ "--delay": "200ms" } as CSSProperties}

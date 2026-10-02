@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import CardHead from "@nienke/ui/card-head";
 import { PROFILE_URL, WEEK, type ListeningStats } from "../lib/lastfm";
 
-// UTC, so the server-rendered dates match the browser's
 const day = (unix: number) =>
   new Date(unix * 1000).toLocaleDateString("en-US", {
     month: "short",
@@ -11,8 +11,6 @@ const day = (unix: number) =>
 
 const count = (n: number) => n.toLocaleString("en-US");
 
-// Live from /api/lastfm. `initial` is fetched while the page is built; the
-// card refreshes it once on load.
 export default function ScrobblesCard({ initial }: { initial?: ListeningStats }) {
   const [stats, setStats] = useState<ListeningStats | null>(initial ?? null);
   const [failed, setFailed] = useState(false);
@@ -29,20 +27,23 @@ export default function ScrobblesCard({ initial }: { initial?: ListeningStats })
 
   return (
     <div className="flex h-full flex-col">
-      {/* Tag under the title, like the other cards. It links to my profile. */}
-      <div className="flex flex-col items-start gap-2">
-        <h3 className="font-medium tracking-[-0.01em]">Scrobbles</h3>
-        {stats && (
-          <a
-            href={PROFILE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="tag whitespace-nowrap"
-          >
-            Since {stats.since} <span aria-hidden="true">↗</span>
-          </a>
-        )}
-      </div>
+      <CardHead
+        as="h3"
+        tag={
+          stats && (
+            <a
+              href={PROFILE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tag whitespace-nowrap"
+            >
+              Since {stats.since} <span aria-hidden="true">↗</span>
+            </a>
+          )
+        }
+      >
+        Scrobbles
+      </CardHead>
 
       {stats ? (
         <Stats stats={stats} />
@@ -80,7 +81,7 @@ function Stats({ stats }: { stats: ListeningStats }) {
               className="w-full bg-books transition-opacity group-hover:opacity-80"
               style={{ height: `${Math.max(2, (n / max) * 100)}%` }}
             />
-            <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 border border-line bg-panel px-2 py-1 text-xs opacity-0 transition-opacity group-hover:opacity-100">
+            <span className="tooltip left-1/2 -translate-x-1/2 px-2 py-1">
               {day(start)} – {day(start + WEEK - 1)}:{" "}
               <span className="font-medium tabular-nums">{count(n)}</span>
             </span>
@@ -92,7 +93,6 @@ function Stats({ stats }: { stats: ListeningStats }) {
         <span>last 7 days</span>
       </div>
 
-      {/* Label left, value right, like the per-week row above the chart */}
       <dl className="mt-5">
         {topArtist && <ArtistRow label="Top this month" artist={topArtist} />}
         {topArtistAllTime && <ArtistRow label="Top all time" artist={topArtistAllTime} />}

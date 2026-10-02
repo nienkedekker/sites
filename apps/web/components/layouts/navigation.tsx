@@ -4,10 +4,6 @@ import YearNavigation from "@/components/features/lists/year-navigation";
 import { NavLinks } from "@/components/layouts/nav-links";
 import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
-/**
- * Sticky site header, the same as nienke.dev's: the mark, the menu and the
- * theme toggle. The year row sits below it and scrolls away.
- */
 function Navigation() {
   return (
     <>

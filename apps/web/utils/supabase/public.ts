@@ -16,8 +16,6 @@ export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
     flowType: "implicit",
   },
   global: {
-    headers: {
-      // no Authorization cookie header; anonymous RLS applies
-    },
+    headers: {},
   },
 });

@@ -3,10 +3,6 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
-/**
- * Flips between light and dark. Until it's clicked the theme follows the
- * system. The icons switch in CSS, so there's no flash before hydration.
- */
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
 

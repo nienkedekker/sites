@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 
 import { SubmitButton } from "./submit-button";
-import { PageHeader } from "@/components/ui/page-header";
+import PageHeader from "@nienke/ui/page-header";
 
 import { createItemAction } from "@/app/actions/items";
 import {
@@ -35,10 +35,6 @@ import { toNumber, formatNumberInputValue } from "@/utils/form";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
-/**
- * Internal form component that renders fields based on the active tab/item type.
- * Re-mounts when tab changes to reset form state.
- */
 function FormComponent({ activeTab }: { activeTab: TabValue }) {
   const { schema, defaults } = useMemo(
     () => getSchemaAndDefaults(activeTab),
@@ -54,7 +50,6 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
   const formErrors = Object.values(form.formState.errors);
   const hasErrors = formErrors.length > 0;
 
-  /** Builds FormData from validated form data and submits to server action */
   const onSubmit = async (data: AnyCreateInput) => {
     const fd = new FormData();
     fd.append("itemtype", data.itemtype);
@@ -79,7 +74,6 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
         onSubmit={form.handleSubmit(onSubmit)}
         className={formStyles.container}
       >
-        {/* Screen reader announcements for form errors */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {hasErrors &&
             `Form has ${formErrors.length} error${formErrors.length > 1 ? "s" : ""}. Please fix them before submitting.`}
@@ -100,7 +94,6 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
             )}
           />
 
-          {/* Discriminated fields */}
           {activeTab === TAB_VALUES.BOOK && (
             <FormField
               control={form.control}
@@ -175,7 +168,6 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
             </>
           )}
 
-          {/* Common fields */}
           <FormField
             control={form.control}
             name="publishedYear"
@@ -277,7 +269,6 @@ export default function CreateItemForm() {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-6">
-          {/* key={activeTab} forces a fresh form instance when switching tabs */}
           <FormComponent key={activeTab} activeTab={activeTab} />
         </TabsContent>
       </Tabs>
@@ -285,9 +276,6 @@ export default function CreateItemForm() {
   );
 }
 
-/**
- * Returns the appropriate Zod schema and default values for a given tab/item type.
- */
 function getSchemaAndDefaults(tab: TabValue) {
   const year = getCurrentYear();
 

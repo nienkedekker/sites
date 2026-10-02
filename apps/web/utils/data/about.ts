@@ -21,7 +21,6 @@ const countOf = async (itemtype?: string) => {
   return count ?? 0;
 };
 
-/** Totals for the about page: how much, since when, and where it began */
 export const getLogFacts = unstable_cache(
   async (): Promise<LogFacts> => {
     const [total, books, movies, shows, years, first] = await Promise.all([

@@ -2,7 +2,7 @@ import { createClientForServer } from "@/utils/supabase/server";
 import UpdateItemForm from "@/components/forms/update-item-form";
 import { notFound } from "next/navigation";
 import { Params } from "@/types";
-import { PageHeader } from "@/components/ui/page-header";
+import PageHeader from "@nienke/ui/page-header";
 
 export default async function Page(props: { params: Params }) {
   const params = await props.params;

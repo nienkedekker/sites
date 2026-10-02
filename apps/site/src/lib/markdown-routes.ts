@@ -1,8 +1,3 @@
-// Markdown content negotiation for the static pages, as Vercel Build Output API
-// routes (https://vercel.com/docs/build-output-api/configuration#routes).
-// A request with `Accept: text/markdown` is rewritten to the page's Markdown
-// twin (/now -> /now.md, / -> /index.md); everything else keeps getting HTML.
-
 export interface Route {
   src?: string;
   dest?: string;
@@ -19,7 +14,6 @@ const acceptsMarkdown = [{ type: "header", key: "accept", value: ".*text/markdow
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// "/" or "/now", matched with or without a trailing slash
 const pathPattern = (path: string) => (path === "/" ? "^/$" : `^${escapeRegex(path)}/?$`);
 
 export const markdownFile = (path: string) => (path === "/" ? "/index.md" : `${path}.md`);
@@ -28,12 +22,10 @@ export function addMarkdownRoutes(routes: Route[], pagePaths: string[]): Route[]
   const filesystem = routes.findIndex((route) => route.handle === "filesystem");
   if (filesystem === -1) throw new Error("No filesystem phase in the routes");
 
-  // The adapter sends every unmatched path to the static 404 page
   const notFound = routes.findIndex((route) => route.status === 404 && route.dest === "/404.html");
   if (notFound === -1) throw new Error("No 404 catch-all in the routes");
 
   const negotiation: Route[] = [
-    // Caches must key these pages on Accept, whichever version they get
     {
       src: `(?:${pagePaths.map(pathPattern).join("|")})`,
       headers: { Vary: "Accept" },
