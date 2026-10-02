@@ -18,6 +18,17 @@ import {
   yearOf,
   type ExternalDetails,
 } from "@/utils/server/external-api";
+import {
+  byTitle,
+  cleanTitle,
+  overlaps,
+  pickMovie,
+  pickShow,
+  titleScore,
+  type Match,
+  type TmdbMovie,
+  type TmdbShow,
+} from "./matching";
 
 const arg = (name: string) => {
   const index = process.argv.indexOf(name);
@@ -37,54 +48,6 @@ const supabase = createClient(url, anonKey, {
 });
 
 const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
-
-interface Match {
-  id: string;
-  title: string;
-  year: number | null;
-  // "loose" matches are worth a look before trusting them
-  confidence: "exact" | "loose";
-}
-
-// Logged titles sometimes carry how I watched it ("3D", "IMAX", "(The Final
-// Cut)") or a note ("(Q&A)"), which the sources don't have
-const cleanTitle = (title: string) =>
-  title
-    .replace(/\([^)]*\)/g, " ")
-    .replace(/\b(IMAX|3D)\b/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-// 2 for the same title, 1 when the source only adds a subtitle ("Wolf Hall:
-// A Novel"), 0 otherwise. A logged "Mistborn: The Hero of Ages" never
-// matches plain "Mistborn"
-function titleScore(logged: string, ...candidates: (string | undefined)[]) {
-  const wanted = normalizeTitle(cleanTitle(logged));
-  let score = 0;
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-    if (normalizeTitle(candidate) === wanted) return 2;
-    // "Marvel's Runaways", "Tom Clancy's Jack Ryan"
-    if (normalizeTitle(candidate.replace(/^[^:]*?['’]s\s+/, "")) === wanted) {
-      return 2;
-    }
-    if (normalizeTitle(candidate.split(":")[0]) === wanted) score = 1;
-  }
-  return score;
-}
-
-// Full-title matches first, keeping the source's own ranking within each
-function byTitle<T>(items: T[], score: (item: T) => number) {
-  return [
-    ...items.filter((item) => score(item) === 2),
-    ...items.filter((item) => score(item) === 1),
-  ];
-}
-
-const overlaps = (names: string | null | undefined, others: string[]) =>
-  splitNames(names ?? null).some((name) =>
-    others.some((other) => normalizeTitle(name) === normalizeTitle(other)),
-  );
 
 interface OpenLibraryDoc {
   key: string;
@@ -134,13 +97,6 @@ async function findBook(item: TypedItem): Promise<Match | null> {
   return byAuthor ? toMatch(byAuthor, "loose") : null;
 }
 
-interface TmdbMovie {
-  id: number;
-  title: string;
-  original_title?: string;
-  release_date?: string;
-}
-
 async function searchMovies(query: string) {
   const data = await getJson<{ results: TmdbMovie[] }>(
     tmdbUrl("/search/movie", { query, include_adult: "false" }),
@@ -167,22 +123,8 @@ async function findMovie(item: TypedItem): Promise<Match | null> {
     confidence,
   });
 
-  const score = (movie: TmdbMovie) =>
-    titleScore(item.title, movie.title, movie.original_title);
-
-  // "Dune" logged for 2021 should find Dune (2021) before Dune: Part Two
-  for (const level of [2, 1]) {
-    const titled = results.filter((movie) => score(movie) === level);
-    for (const tolerance of [0, 1, 2]) {
-      const match = titled.find((movie) => {
-        const year = yearOf(movie.release_date);
-        return (
-          year !== null && Math.abs(year - item.published_year) <= tolerance
-        );
-      });
-      if (match) return toMatch(match, "exact");
-    }
-  }
+  const picked = pickMovie(results, item);
+  if (picked) return toMatch(picked, "exact");
 
   // Titles that don't line up ("Star Wars I: The Phantom Menace", "Mad Max:
   // Furiosa") or years that are off: accept a result if the director matches
@@ -197,7 +139,8 @@ async function findMovie(item: TypedItem): Promise<Match | null> {
 
   for (const movie of candidates.values()) {
     const year = yearOf(movie.release_date);
-    const sameTitle = score(movie) > 0;
+    const sameTitle =
+      titleScore(item.title, movie.title, movie.original_title) > 0;
     const closeYear =
       year !== null && Math.abs(year - item.published_year) <= 1;
     if (!sameTitle && !closeYear) continue;
@@ -209,47 +152,18 @@ async function findMovie(item: TypedItem): Promise<Match | null> {
 }
 
 async function findShow(item: TypedItem): Promise<Match | null> {
-  const data = await getJson<{
-    results: {
-      id: number;
-      name: string;
-      original_name?: string;
-      first_air_date?: string;
-    }[];
-  }>(
+  const data = await getJson<{ results: TmdbShow[] }>(
     tmdbUrl("/search/tv", {
       query: cleanTitle(item.title),
       include_adult: "false",
     }),
   );
-  // A season can't air before its show started. Only full titles count, so a
-  // spin-off ("The Expanse: One Ship") can't stand in for the show, and the
-  // exact spelling wins over one that only differs by "The" (Runaways 2017,
-  // not The Runaways 1978). Otherwise TMDB's popularity order decides.
-  const wanted = cleanTitle(item.title).toLowerCase();
-  const eligible = data.results
-    .map((show) => ({ ...show, year: yearOf(show.first_air_date) }))
-    .filter(
-      (show) =>
-        titleScore(item.title, show.name, show.original_name) === 2 &&
-        show.year !== null &&
-        show.year <= item.published_year + 1,
-    );
-  const prefer = (shows: typeof eligible) =>
-    shows.find((show) => show.name.toLowerCase() === wanted) ?? shows[0];
-  // A first season airs the year the show starts
-  const starting =
-    item.season === 1
-      ? eligible.filter(
-          (show) => Math.abs(show.year! - item.published_year) <= 1,
-        )
-      : [];
-  const match = prefer(starting.length > 0 ? starting : eligible);
+  const match = pickShow(data.results, item);
   return match
     ? {
         id: String(match.id),
         title: match.name,
-        year: match.year,
+        year: yearOf(match.first_air_date),
         confidence: "exact",
       }
     : null;

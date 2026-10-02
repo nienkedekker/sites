@@ -16,6 +16,10 @@ export function book(overrides: Partial<TypedItem> = {}): TypedItem {
     redo: false,
     created_at: "2026-03-15T12:00:00Z",
     updated_at: null,
+    external_id: null,
+    pages: null,
+    runtime_minutes: null,
+    based_on: null,
     ...overrides,
   } as TypedItem;
 }

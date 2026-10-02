@@ -130,12 +130,19 @@ export const normalizeTitle = (title: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-// "Dune: Part Two" counts as an adaptation of "Dune", but "Dune Messiah"
-// doesn't match "Dune: Part Two"
+const withoutBrackets = (title: string) => title.replace(/\([^)]*\)/g, " ");
+
+// "Dune: Part Two" is an adaptation of "Dune", but "The Hunger Games:
+// Catching Fire" is the next book's film, not the first one's
 function titlesMatch(book: string, screen: string) {
-  const a = normalizeTitle(book);
-  const b = normalizeTitle(screen);
-  return a.length > 2 && (a === b || b.startsWith(`${a} `));
+  const a = normalizeTitle(withoutBrackets(book));
+  const b = normalizeTitle(withoutBrackets(screen));
+  if (a.length < 3) return false;
+  if (a === b) return true;
+  return (
+    b.startsWith(`${a} `) &&
+    /^(part|chapter|volume|vol) /.test(b.slice(a.length + 1))
+  );
 }
 
 export function findAdaptations(items: TypedItem[]): Adaptation[] {
@@ -149,14 +156,10 @@ export function findAdaptations(items: TypedItem[]): Adaptation[] {
     const sources = new Set(splitNames(screen.based_on).map(normalizeTitle));
     for (const book of books) {
       if (!titlesMatch(book.title, screen.title)) continue;
-      // Pen names (James S.A. Corey) won't match the credited writers, so an
-      // identical title is enough on its own
       const sameAuthor = splitNames(book.author).some((name) =>
         sources.has(normalizeTitle(name)),
       );
-      const sameTitle =
-        normalizeTitle(book.title) === normalizeTitle(screen.title);
-      if (!sameAuthor && !sameTitle) continue;
+      if (!sameAuthor) continue;
 
       const key = `${normalizeTitle(book.title)}|${normalizeTitle(screen.title)}`;
       const existing = pairs.get(key);
@@ -164,10 +167,7 @@ export function findAdaptations(items: TypedItem[]): Adaptation[] {
         book: {
           title: book.title,
           author: book.author ?? "",
-          year: Math.min(
-            existing?.book.year ?? Infinity,
-            book.belongs_to_year,
-          ),
+          year: Math.min(existing?.book.year ?? Infinity, book.belongs_to_year),
         },
         screen: {
           title: screen.title,
