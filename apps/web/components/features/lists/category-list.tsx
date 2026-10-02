@@ -5,6 +5,7 @@ import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
 import { ItemBadges } from "@/components/features/lists/item-badges";
+import { ItemSource } from "@/components/features/lists/item-source";
 
 interface CategoryListProps {
   categoryTitle: string;
@@ -106,6 +107,7 @@ export function CategoryList({
                         itemId={item.id}
                         belongsToYear={item.belongs_to_year}
                       />
+                      <ItemSource item={item} />
                     </div>
                   </IsLoggedIn>
                 </div>

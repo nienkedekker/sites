@@ -1,6 +1,7 @@
 import type { ValidItemType } from "@/types/shared";
 import { splitNames } from "@/utils/data/names";
 import { normalizeTitle } from "@/utils/data/patterns";
+import { isGoogleVolumeId, isOpenLibraryKey } from "@/utils/data/external-ids";
 
 const TMDB = "https://api.themoviedb.org/3";
 const OPEN_LIBRARY_HEADERS = { "User-Agent": "what.pm (https://what.pm)" };
@@ -120,6 +121,17 @@ export async function googleBooksPages(
   }
 }
 
+async function googleVolumeDetails(id: string): Promise<ExternalDetails> {
+  const url = new URL(`https://www.googleapis.com/books/v1/volumes/${id}`);
+  url.searchParams.set("key", process.env.GOOGLE_API_KEY ?? "");
+  const { volumeInfo } = await getJson<{
+    volumeInfo: { pageCount?: number; printedPageCount?: number };
+  }>(url);
+  // Search results often leave pageCount out when the volume itself has it
+  const pages = volumeInfo.pageCount || volumeInfo.printedPageCount || null;
+  return { ...NO_DETAILS, pages };
+}
+
 async function movieDetails(id: string): Promise<ExternalDetails> {
   const data = await getJson<{
     runtime?: number;
@@ -218,8 +230,11 @@ export async function getExternalDetails(
 ): Promise<ExternalDetails> {
   try {
     if (type === "Book") {
-      if (!/^\/works\/OL\d+W$/.test(externalId)) return NO_DETAILS;
-      return await bookDetails(externalId);
+      if (isOpenLibraryKey(externalId)) return await bookDetails(externalId);
+      if (isGoogleVolumeId(externalId) && process.env.GOOGLE_API_KEY) {
+        return await googleVolumeDetails(externalId);
+      }
+      return NO_DETAILS;
     }
     if (!/^\d+$/.test(externalId) || !process.env.TMDB_API_KEY) {
       return NO_DETAILS;

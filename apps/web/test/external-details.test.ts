@@ -49,6 +49,21 @@ describe("getExternalDetails", () => {
     });
   });
 
+  it("reads pages from a linked Google Books volume", async () => {
+    vi.stubEnv("GOOGLE_API_KEY", "test-key");
+    serve({
+      "/books/v1/volumes/4oePEQAAQBAJ": () => ({
+        volumeInfo: { printedPageCount: 352 },
+      }),
+    });
+
+    expect(await getExternalDetails("Book", "4oePEQAAQBAJ")).toEqual({
+      pages: 352,
+      runtime_minutes: null,
+      based_on: null,
+    });
+  });
+
   it("gets a movie's runtime and who wrote the book behind it", async () => {
     serve({
       "/3/movie/438631": (url) => {

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { ItemBadges } from "@/components/features/lists/item-badges";
 import EditItemDialog from "@/components/features/lists/edit-item-dialog";
+import { ItemSource } from "@/components/features/lists/item-source";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
@@ -136,11 +137,14 @@ export function SearchResults({
                       <ItemBadges item={item} className="ml-1.5" />
                     </p>
                     <IsLoggedIn>
-                      <EditItemDialog
-                        item={item}
-                        onSaved={onItemSaved}
-                        className="link mt-2 inline-block font-mono text-xs text-ink-soft hover:text-ink"
-                      />
+                      <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft">
+                        <EditItemDialog
+                          item={item}
+                          onSaved={onItemSaved}
+                          className="link hover:text-ink"
+                        />
+                        <ItemSource item={item} />
+                      </div>
                     </IsLoggedIn>
                   </div>
 

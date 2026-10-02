@@ -29,7 +29,7 @@ export async function searchItems(formData: FormData): Promise<SearchState> {
   const { data, error } = await supabase
     .from("items")
     .select(
-      "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo",
+      "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo, in_progress, external_id, pages, runtime_minutes",
     )
     .or(
       `title.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%,director.ilike.%${escapedQuery}%`,
