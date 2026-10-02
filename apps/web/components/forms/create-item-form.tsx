@@ -283,24 +283,26 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
   );
 }
 
-export default function CreateItemForm() {
+export default function CreateItemForm({ aside }: { aside?: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
   return (
     <Tabs
       value={activeTab}
       onValueChange={(v) => setActiveTab(v as TabValue)}
-      className="w-full"
+      className="grid w-full gap-y-8 lg:grid-cols-[minmax(0,42rem)_1fr] lg:gap-x-16"
     >
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-3 lg:col-start-1">
         <TabsTrigger value={TAB_VALUES.BOOK}>Book</TabsTrigger>
         <TabsTrigger value={TAB_VALUES.MOVIE}>Movie</TabsTrigger>
         <TabsTrigger value={TAB_VALUES.SHOW}>TV Show</TabsTrigger>
       </TabsList>
 
-      <TabsContent value={activeTab} className="mt-6">
+      <TabsContent value={activeTab} className="lg:col-start-1">
         <FormComponent key={activeTab} activeTab={activeTab} />
       </TabsContent>
+
+      {aside}
     </Tabs>
   );
 }

@@ -10,14 +10,16 @@ export default async function CreatePage() {
         Add new item
       </PageHeader>
 
-      <div className="grid gap-x-16 lg:grid-cols-[minmax(0,42rem)_1fr]">
-        <CreateItemForm />
-        <aside className="hidden self-start lg:sticky lg:top-24 lg:block">
+      <CreateItemForm
+        aside={
           <Suspense fallback={null}>
-            <LastLogged limit={8} />
+            <LastLogged
+              limit={8}
+              className="hidden lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:grid lg:grid-rows-subgrid lg:[&>h2]:self-center lg:[&>h2]:justify-self-start lg:[&>ol]:mt-0 lg:[&>ol]:self-start"
+            />
           </Suspense>
-        </aside>
-      </div>
+        }
+      />
     </>
   );
 }
