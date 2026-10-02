@@ -14,6 +14,6 @@ export const badgeStyles = {
 } as const;
 
 export const formStyles = {
-  container: "card p-5 sm:p-8",
+  container: "above-grain card p-5 sm:p-8",
   fieldGroup: "space-y-5",
 } as const;

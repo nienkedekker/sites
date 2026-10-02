@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -17,9 +17,12 @@ import {
 } from "@/components/ui/form";
 
 import { SubmitButton } from "./submit-button";
+import { TitleAutocomplete } from "./title-autocomplete";
 import PageHeader from "@nienke/ui/page-header";
 
 import { createItemAction } from "@/app/actions/items";
+import { getSeasonYears } from "@/app/actions/external-search";
+import type { ExternalResult, SeasonYears } from "@/types/external-api";
 import {
   bookItemSchema,
   movieItemSchema,
@@ -46,6 +49,35 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
     defaultValues: defaults,
     mode: "onBlur",
   });
+
+  const [seasonYears, setSeasonYears] = useState<{
+    title: string;
+    years: SeasonYears;
+  } | null>(null);
+  const title = form.watch("title");
+  const season = form.watch("season");
+
+  useEffect(() => {
+    if (!seasonYears || seasonYears.title !== title || !season) return;
+    const year = seasonYears.years[season];
+    if (year) form.setValue("publishedYear", year, { shouldValidate: true });
+  }, [seasonYears, title, season, form]);
+
+  const handleSelect = async (result: ExternalResult) => {
+    const options = { shouldValidate: true, shouldDirty: true };
+    form.setValue("title", result.title, options);
+    if (result.year) form.setValue("publishedYear", result.year, options);
+    if (result.creator && activeTab === TAB_VALUES.BOOK) {
+      form.setValue("author", result.creator, options);
+    }
+    if (result.creator && activeTab === TAB_VALUES.MOVIE) {
+      form.setValue("director", result.creator, options);
+    }
+    if (activeTab === TAB_VALUES.SHOW) {
+      const years = await getSeasonYears(result.id);
+      setSeasonYears({ title: result.title, years });
+    }
+  };
 
   const formErrors = Object.values(form.formState.errors);
   const hasErrors = formErrors.length > 0;
@@ -87,7 +119,11 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <TitleAutocomplete
+                    {...field}
+                    itemType={defaults.itemtype}
+                    onSelect={handleSelect}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
