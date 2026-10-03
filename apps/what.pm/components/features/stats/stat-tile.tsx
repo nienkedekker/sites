@@ -13,9 +13,12 @@ interface StatTileProps {
 }
 
 export function StatTile({ title, value, children, href, tag }: StatTileProps) {
+  const id = `${title.toLowerCase().replace(/\W+/g, "-")}-heading`;
+
   return (
-    <section className="panel h-full">
+    <section aria-labelledby={id} className="panel h-full">
       <UiStatTile
+        id={id}
         title={title}
         value={value}
         tag={

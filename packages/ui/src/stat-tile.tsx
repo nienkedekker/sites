@@ -7,6 +7,7 @@ interface StatTileProps {
   value: number | string | null;
   children: ReactNode;
   as?: "h2" | "h3";
+  id?: string;
   tag?: ReactNode;
   size?: "6xl" | "7xl";
 }
@@ -16,12 +17,13 @@ export default function StatTile({
   value,
   children,
   as,
+  id,
   tag,
   size = "6xl",
 }: StatTileProps) {
   return (
     <div className="flex h-full flex-col">
-      <CardHead as={as} tag={tag}>
+      <CardHead as={as} id={id} tag={tag}>
         {title}
       </CardHead>
       <div className="mt-auto pt-8">

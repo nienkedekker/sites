@@ -29,18 +29,24 @@ function FooterAnchor({
   link: FooterLink;
   linkAs: ElementType;
 }) {
-  const Anchor = isExternal(href) ? "a" : linkAs;
+  const external = isExternal(href);
+  const Anchor = external ? "a" : linkAs;
+  const name = ariaLabel && external ? `${ariaLabel}, opens in new tab` : ariaLabel;
+  const newTab = external && !ariaLabel && (
+    <span className="sr-only"> (opens in new tab)</span>
+  );
 
   if (icon) {
     return (
       <Anchor
         href={href}
-        aria-label={ariaLabel}
+        aria-label={name}
         className="group flex items-center gap-1.5 transition-colors hover:text-ink"
         {...externalProps(href)}
       >
         {icon}
         <span className="link group-hover:decoration-ink">{label}</span>
+        {newTab}
       </Anchor>
     );
   }
@@ -48,11 +54,12 @@ function FooterAnchor({
   return (
     <Anchor
       href={href}
-      aria-label={ariaLabel}
+      aria-label={name}
       className="link hover:text-ink"
       {...externalProps(href)}
     >
       {label}
+      {newTab}
     </Anchor>
   );
 }

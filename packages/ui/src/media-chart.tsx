@@ -133,7 +133,7 @@ export default function MediaChart({
 
                       {!upcoming && (
                         <div
-                          className={`tooltip ${tooltipAlign(
+                          className={`tooltip group-focus:opacity-100 ${tooltipAlign(
                             barCentre(i, MONTHS.length)
                           )}`}
                         >

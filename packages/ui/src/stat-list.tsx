@@ -26,10 +26,12 @@ interface StatRowProps {
 export function StatRow({ label, children, swatch, className = "py-2" }: StatRowProps) {
   return (
     <div className={`flex items-baseline gap-3 border-line ${className}`}>
-      {swatch && (
-        <span className={`size-2.5 shrink-0 self-center ${swatch}`} aria-hidden="true" />
-      )}
-      <dt className="shrink-0 text-ink-soft">{label}</dt>
+      <dt className={`shrink-0 text-ink-soft ${swatch ? "flex items-center gap-3" : ""}`}>
+        {swatch && (
+          <span className={`size-2.5 shrink-0 ${swatch}`} aria-hidden="true" />
+        )}
+        {label}
+      </dt>
       <dd className="ml-auto min-w-0 text-right tabular-nums">{children}</dd>
     </div>
   );
