@@ -72,6 +72,7 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
     </div>
 
     <figure
+      data-photo
       class="group rise relative w-full max-w-sm border border-rule shadow-[6px_6px_0_var(--rule)] sm:max-w-md lg:col-span-5 lg:max-w-none"
       style="--delay: 200ms"
     >
@@ -85,7 +86,7 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
       <img
         src="/nienke.jpg"
         alt=""
-        class="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        class="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-data-[on]:opacity-100"
         width="934"
         height="1600"
         loading="lazy"
@@ -152,3 +153,13 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Touch screens have no hover, so a tap swaps the dither for the photo.
+  function setupPhoto() {
+    const photo = document.querySelector<HTMLElement>("[data-photo]");
+    photo?.addEventListener("click", () => photo.toggleAttribute("data-on"));
+  }
+
+  document.addEventListener("astro:page-load", setupPhoto);
+</script>
