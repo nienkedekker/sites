@@ -28,7 +28,7 @@ export const oldSites: OldSite[] = [
     domain: "expage.com/harrypotterhype",
     years: "2002",
     about:
-      "A Dutch Harry Potter fan site on Expage, the free homepage builder. It had a Sorting Hat, a Quidditch quiz and a weekly newsletter you could sign up for by owl.",
+      "A Dutch Harry Potter fan site on Expage, a free homepage builder. It had a Sorting Hat, a Quidditch quiz and a weekly newsletter you could sign up for (aka Owl Mail)",
     snapshots: [
       {
         date: "2002-03-23",
@@ -40,7 +40,7 @@ export const oldSites: OldSite[] = [
           width: 800,
           height: 2150,
           caption:
-            "Rebuilt from Expage's own clip art. The wizard hat background tile wasn't saved, so it's plain grey here.",
+            "Rebuilt from Expage's own clip art. The wizard hat background tile wasn't saved so it's plain grey here.",
         },
         note: "A guestbook, a forum, a Mini Quiz, and a visitor counter at 705.",
         quote:
@@ -66,7 +66,7 @@ export const oldSites: OldSite[] = [
     domain: "foot-loose.org",
     years: "2003–2004",
     about:
-      "My first domain, bought in May 2003, using my uncle's creditcard (these were rare in the Netherlands at the time). I made a new layout every few weeks. This one is absolutely positioned on a 7pt Tahoma page (a11y was not a thing), with a Greymatter blog in an iframe. I hosted friends' sites on it too, and a collective called Discopunk. After I let the domain registry lapse, someone started using it to sell heated socks.",
+      "My first domain, bought in May 2003, using my uncle's credit card (these were rare in the Netherlands at the time). I made a new layout every few weeks. This one is absolutely positioned on a 7pt Tahoma page (a11y was not a thing), with a Greymatter blog in an iframe. I hosted friends' sites on it too, and a collective called Discopunk. After I let the domain registry lapse, someone started using it to sell heated socks.",
     snapshots: [
       {
         date: "2003-10-02",
@@ -82,8 +82,7 @@ src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
           alt: "A black page with a column of small blue blog posts in the middle, about needing a new layout and loving Doggy Fizzle Televizzle",
           width: 1024,
           height: 420,
-          caption:
-            "The header, muse.png, wasn't saved. The blog in the middle is the closest capture, from 11 October.",
+          caption: "The header (muse.png) wasn't saved.",
         },
         note: "Black page, blue links, and the blog and sidebar in two see-through iframes.",
       },
@@ -92,7 +91,7 @@ src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
         title: "....!",
         archive: wayback("20031010124104", "http://www.foot-loose.org/"),
         source: {
-          label: "Coloured scrollbars, which only Internet Explorer understood.",
+          label: "Colored scrollbars which only Internet Explorer could parse. No Chrome in 2003!",
           lang: "css",
           code: `body
 {
@@ -110,7 +109,7 @@ src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
           alt: "A plain grey page with a few lines of black Tahoma text and blue links to egotripper.org/plastic and hosting",
           width: 1024,
           height: 420,
-          caption: "Complete. There were no images.",
+          caption: "There were no images.",
         },
         quote:
           'I do not like this site anymore. My "love" for it will probably come back, but till then I will be blogging here: egotripper.org/plastic.',
@@ -120,7 +119,7 @@ src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
         title: "(W A V E103)",
         archive: wayback("20031022185346", "http://www.foot-loose.org/"),
         source: {
-          label: "The fade script, and the webcam button it ran on.",
+          label: "I used a fade script from Dynamic Drive, which survived!",
           code: `<script language="JavaScript1.2">
 
 //Gradual-Highlight image script- By Dynamic Drive
@@ -135,9 +134,9 @@ src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
           width: 1024,
           height: 573,
           caption:
-            "The WAVE103 header, background and webcam button weren't saved. The blog is the closest capture, from 30 October.",
+            "The WAVE103 header, background and webcam button weren't saved. The blog is the closest capture from 30 October.",
         },
-        note: "This one had a webcam popup that faded in on hover, thanks to a Dynamic Drive script whose credit had to stay intact.",
+        note: "This one had a webcam popup that faded in on hover, thanks to a Dynamic Drive script.",
       },
       {
         date: "2003-11-24",
@@ -145,7 +144,7 @@ src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
         archive: wayback("20031124001803", "http://www.foot-loose.org/"),
         source: {
           label:
-            "The hosting application, from August 2003. It posted to response-o-matic.com, which emailed it to the hidden address.",
+            "The hosting application form, from August 2003. It POSTed to response-o-matic.com, which emailed it to the hidden address.",
           code: `<form action="http://response-o-matic.com/cgi-bin/rom.pl"
 method="post" target="content">
 <INPUT TYPE="hidden" NAME="your_email_address"
@@ -192,14 +191,14 @@ border: 1 #000000 solid">
           caption:
             "The Billy Martin image map and background weren't saved. The blog is the closest capture, from 3 December.",
         },
-        note: "Navigation by image map, made in VisiMapperPro. Most links opened in popup windows.",
+        note: "I loved image maps. I made them in VisiMapperPro Lite which I don't think is around anymore. Most links opened in popup windows.",
       },
       {
         date: "2003-12-26",
         title: "again i go unnoticed",
         archive: wayback("20031226013728", "http://www.foot-loose.org/"),
         source: {
-          label: "The visitor counter, with its comments written as <!- … -!>.",
+          label: "The visitor counter with comments written as <!- … -!>.",
           code: `<!- Text counter Script, by Cut and Paste Scripts.  Hosted CGI, with NO adverts and FREE. http://www.cutandpastescripts.com -!>
 <script language=JavaScript src="http://www.cutandpastescripts.com/cgi-bin/textcounter/textcounter2.pl?username=footloose&page=54395"></script>
 <!- Copyright Cut and Paste Scripts -!>`,
@@ -210,7 +209,7 @@ border: 1 #000000 solid">
           width: 1024,
           height: 760,
           caption:
-            "The header survived. The little heading images and background didn't. The blog is the closest capture, from 3 December, and cropped: its iframe was 2,000 pixels tall.",
+            "Only the header survived here, but the little heading images and background are unfortunately lost. The blog is the closest capture, from 3 December, and cropped: its iframe was 2,000 pixels tall (?? I don't know why I did this)",
         },
         quote:
           "Nienke. 14. Dutch. <3 Kevin Bacon. Christian Bale. Muse. Placebo. Orgy. Will&Grace. manga. Harry Potter. Stephen King. School=hell. … This is layout #who-knows, featuring that guy from Dashboard Confessional.",
@@ -224,8 +223,7 @@ border: 1 #000000 solid">
           alt: "An empty grey page",
           width: 1024,
           height: 420,
-          caption:
-            "The page was only a moved button, and that wasn't saved, so just the grey is left.",
+          caption: "The page was only a 'I moved' button, and that wasn't saved.",
         },
         note: 'Just a "moved" button, pointing to suckerlove.org.',
       },
@@ -247,9 +245,9 @@ border: 1 #000000 solid">
           width: 1024,
           height: 778,
           caption:
-            "The image map wasn't saved. The Ravenclaw badge was, because it was hosted on nimbo.net.",
+            "Another image map, it wasn't saved. The Ravenclaw badge still exists because it was hosted on nimbo.net.",
         },
-        note: 'Gray Georgia, an image map, and a "i\'m in ravenclaw!" badge from a sorting quiz.',
+        note: "",
       },
       {
         date: "2004-04-18",
@@ -262,7 +260,6 @@ border: 1 #000000 solid">
           height: 423,
           caption: "The background and the fallapart.png header weren't saved.",
         },
-        quote: 'Gone for now. Visit my new "project" XD, Jupiter Jazz …',
       },
       {
         date: "2004-05-22",
@@ -284,7 +281,7 @@ Or me. Whatever.`,
             "The header was archived as tony.gif rather than tony.png, so that's what's used here. The cam picture and link buttons are gone.",
         },
         quote:
-          "new layout! i saw Scarface yesterday and I LOVED it, so I made a layout featuring Tony Montana, who happens to be hot sex u_u … I need a host. lol. I have 3 euros.",
+          "new layout! i saw Scarface yesterday and I LOVED it, so I made a layout featuring Tony Montana… I need a host. lol. I have 3 euros.",
       },
       {
         date: "2004-06-12",
@@ -296,7 +293,7 @@ Or me. Whatever.`,
           width: 1024,
           height: 420,
           caption:
-            "Complete. There were no images. The Brandon that's being linked to in the image was my webhost. I believe he hosted my domain on cPanel, which was all the rage at the time.",
+            "No images here. The Brandon that's being linked to in the image was my webhost. I believe he hosted my domain on cPanel, which was all the rage at the time.",
         },
         quote: "omg coming soon o_o I need to reinstall stuff (I changed hosts =D).",
       },
@@ -311,7 +308,7 @@ Or me. Whatever.`,
           height: 1318,
           caption: "The Gladiator header and the little heading images weren't saved.",
         },
-        note: "This layout featured Maximus from Gladiator. In the same month my computer crashed and I lost everything, and my online friend Daniel sent me Photoshop, Illustrator and Flash.",
+        note: "This layout featured Maximus from Gladiator. In the same month my computer crashed and I lost everything, and my online friend Daniël sent me Photoshop, Illustrator and Flash. I don't actually remember this but I guess I blogged about it.",
       },
       {
         date: "2004-09-17",
@@ -326,7 +323,7 @@ Or me. Whatever.`,
         },
         quote:
           "Yay new layout! Robert says I use that picture of Christian Bale way too much, but it's FCORE so it's ok ;)",
-        note: "The first post on the new layout. I have no idea what FCORE means..",
+        note: "The first post on the new layout. I have no idea what FCORE means..?",
       },
       {
         date: "2004-10-23",
@@ -339,7 +336,7 @@ Or me. Whatever.`,
           height: 938,
           caption: "The header and background weren't saved.",
         },
-        note: "A tiny design studio on jaloux.suckerlove.org, run with Daniël from August 2004. Layouts, LiveJournal coding and MovableType installs, paid by PayPal. I don't think we ever made a single cent.",
+        note: "A tiny '''design studio''' (lol) on jaloux.suckerlove.org, run with Daniël from August 2004. Layouts, LiveJournal coding and MovableType installs, paid by PayPal. I don't think we ever made a single cent.",
         quote:
           "We try to keep our prices the lowest of the lowest, our services will have a maximum price of $1.25, including layouts, coding and customizing.",
       },
@@ -356,6 +353,7 @@ Or me. Whatever.`,
         },
         quote:
           "15, from Amsterdam, the Netherlands. 5'6\". Lazy. Unmotivated. Loves Head Automatica, Glassjaw, The Smiths, The Robot Ate Me, The Faint, The Killers, The Postal Service.",
+        note: "I have NO idea what The Robot Ate Me is. A band? Also I had no idea I was actually listening to The Smiths in 2004 - if you'd asked me I'd tell you I didn't start listening to them until 2011 or so.",
       },
       {
         date: "2004-12-17",
@@ -421,7 +419,6 @@ Or me. Whatever.`,
           caption:
             "Rebuilt with the theme's stylesheet and the Photobucket photo. The Flickr photos and most smilies are gone.",
         },
-        quote: "Ik heb geld! Ik ga morgen de stad in! Ik ga morgen kleren kopen! Omg!",
       },
     ],
   },
@@ -649,6 +646,7 @@ Or me. Whatever.`,
         },
         quote:
           "Nienke, 18, Europe. Fan of Arrested Development, Battlestar Galactica, Dexter + The Office. Loves Hong Kong, pop culture, Stockholm, humming that watchtower song, Brick Tamland, reading.",
+        note: "I went to Hong Kong once...for less than 48 hours...",
       },
     ],
   },
@@ -725,7 +723,7 @@ Or me. Whatever.`,
           alt: "An unstyled Ghost blog post in Times New Roman about installing Ghost behind Apache, with code blocks",
           width: 1280,
           height: 1400,
-          caption: "The theme's stylesheets weren't saved, so this is the bare HTML. Cropped.",
+          caption: "The theme's stylesheets weren't saved, so this is the bare HTML.",
         },
         note: "A post about getting Ghost to run on port 80.",
       },
@@ -776,7 +774,7 @@ Or me. Whatever.`,
           width: 1280,
           height: 1600,
           caption:
-            "The stylesheet, logo and Nyan Cat background weren't saved, so this is the bare HTML. Cropped.",
+            "The stylesheet, logo, and background weren't saved, so this is the bare HTML. I vaguely remember an artist actually making us a Van Gogh inspired Nyan Cat image.",
         },
         quote:
           "Geolize.css by Nienke and Stephanie. Geolize is a lightweight CSS reset that renders standard HTML and CSS elements like it's 1999.",
@@ -867,7 +865,7 @@ Or me. Whatever.`,
     domain: "nienke.dev",
     years: "2020–now",
     about:
-      "The domain I moved to in August 2020. It was built with Nuxt, rebuilt with Next.js in November 2023, and has been Astro since December 2025, which is the version you're reading.",
+      "The domain I moved to in August 2020. It was built with Nuxt, rebuilt with Next.js in November 2023, and has been Astro since December 2025, which is the version you're reading now.",
     snapshots: [
       {
         date: "2020-08-08",
