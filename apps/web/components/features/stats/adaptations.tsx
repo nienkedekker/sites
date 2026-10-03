@@ -137,7 +137,7 @@ export function Adaptations({ pairs }: { pairs: Adaptation[] }) {
         Page to screen
       </CardHead>
 
-      <div className="mt-6 grid gap-x-10 gap-y-6 lg:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-2">
         <Table rows={rows.slice(0, half)} longest={longest} />
         {rows.length > half && (
           <Table rows={rows.slice(half)} longest={longest} />

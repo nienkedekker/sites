@@ -62,7 +62,7 @@ function CellTooltip({
 
   return (
     <div
-      className={`tooltip max-w-64 text-left ${
+      className={`tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left ${
         align === "start"
           ? "left-0"
           : align === "end"
@@ -171,7 +171,7 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
                       <CellTooltip
                         label={label}
                         cell={cell}
-                        align={i < 4 ? "start" : i > 6 ? "end" : "center"}
+                        align={i < 2 ? "start" : i > 6 ? "end" : "center"}
                       />
                     </div>
                   </td>

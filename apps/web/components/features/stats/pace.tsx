@@ -59,7 +59,7 @@ export function Pace({ years }: { years: PaceYear[] }) {
         Pace
       </CardHead>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[16rem_1fr] lg:gap-10">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr] lg:gap-10">
         <div className="flex flex-col">
           <p className="stat-figure text-6xl">{formatCount(soFar)}</p>
           <p className="mt-3 text-sm text-ink-soft">

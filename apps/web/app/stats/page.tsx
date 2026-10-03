@@ -39,12 +39,12 @@ async function StatsContent() {
   );
 
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
       {stats && (
         <>
           <div className="contents lg:flex lg:flex-col lg:gap-3">
             <EveryEntry years={stats.years} />
-            <div className="grid gap-3 sm:grid-cols-5 lg:flex-1">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-5 lg:flex-1">
               {busiest && (
                 <div className="sm:col-span-2">
                   <StatTile
@@ -65,7 +65,7 @@ async function StatsContent() {
             </div>
           </div>
           <div className="contents lg:flex lg:flex-col lg:gap-3">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <MostLogged
                 id="most-logged-authors"
                 title="Most logged authors"
