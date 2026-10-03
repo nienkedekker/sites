@@ -646,7 +646,7 @@ Or me. Whatever.`,
         },
         quote:
           "Nienke, 18, Europe. Fan of Arrested Development, Battlestar Galactica, Dexter + The Office. Loves Hong Kong, pop culture, Stockholm, humming that watchtower song, Brick Tamland, reading.",
-        note: "I went to Hong Kong once...for less than 48 hours...",
+        note: "I went to Hong Kong once...for less than 48 hours. I wish Del.icio.us was still around.",
       },
     ],
   },
