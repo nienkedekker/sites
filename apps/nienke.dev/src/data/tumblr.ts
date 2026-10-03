@@ -1,17 +1,19 @@
 export const tumblrIntro =
-  "I had two Tumblrs: vanderfield in 2010 and 2011, mostly about Lost, and sevenhells from 2011 to 2015, which I later renamed shinyhats. These are only posts I made myself, no reblogs.";
+  "I've had many Tumblrs over the past years, starting sometime in 2008 when people on LiveJournal started migrating over. I wasn't really active until 2010, and stopped posting in 2015.";
+
+export const tumblrTagsNote = "Every tag I used at least five times, reblogs included.";
 
 export const tumblrSections = [
   {
     id: "most-notes",
     title: "Most notes",
-    note: "My own posts with more than 150 notes, most first. The ones I tagged “a: my stuff” are further down.",
+    note: "My posts with more than 150 notes #tumblrfamous",
     mine: false,
   },
   {
     id: "my-stuff",
     title: "My stuff",
-    note: "Everything I tagged “a: my stuff”, all from May and June 2011.",
+    note: "So much got lost in the sands of time, but these are the ones I tagged “a: my stuff”, in the one month of 2011 I bothered to.",
     mine: true,
   },
 ];

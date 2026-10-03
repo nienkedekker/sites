@@ -1,8 +1,10 @@
 ---
 import { formatCount, formatDate } from "@nienke/ui/format";
 import ArrowUpRight from "phosphor-astro/ArrowUpRight.astro";
+import ArchiveFooter from "../components/archive-footer.astro";
 import FandomTimeline from "../components/fandom-timeline.astro";
 import PageLayout from "../layouts/PageLayout.astro";
+import TagCloud from "../components/tag-cloud.astro";
 import { tumblrIntro, tumblrSections } from "../data/tumblr";
 import { tumblrPosts } from "../data/tumblr-posts";
 
@@ -12,9 +14,16 @@ const sections = tumblrSections.map((section) => ({
 }));
 ---
 
-<PageLayout title="Tumblr" intro={tumblrIntro} markdown="/tumblr.md">
+<PageLayout
+  title="Tumblr"
+  intro={tumblrIntro}
+  markdown="/tumblr.md"
+  parent={{ href: "/archive", label: "Archive" }}
+>
   <div class="space-y-24 sm:space-y-32">
     <FandomTimeline />
+
+    <TagCloud />
 
     {
       sections.map(({ id, title, note, posts }) => (
@@ -109,6 +118,8 @@ const sections = tumblrSections.map((section) => ({
       ))
     }
   </div>
+
+  <ArchiveFooter />
 </PageLayout>
 
 <script>

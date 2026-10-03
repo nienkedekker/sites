@@ -1,5 +1,5 @@
 export const ljIconsIntro =
-  "The user icons from my LiveJournal, airings. In 2008 it was mostly Battlestar Galactica and Dexter, with picspams and fanmixes.";
+  "User icons from my LiveJournal days. I think I made all of these but I can't be a 100% sure. I used Photoshop CS2 around this time. You can tell I loved blend modes and empty space.";
 
 export const ljIconsArchive =
   "https://web.archive.org/web/20080908122629/http://airings.livejournal.com/";
@@ -72,13 +72,11 @@ export const ljIcons = [
   "airings-065.png",
   "airings-066.jpg",
   "airings-067.png",
-  "airings-068.png",
   "airings-069.jpg",
   "airings-070.jpg",
   "airings-071.png",
   "airings-072.png",
   "airings-073.jpg",
-  "airings-074.jpg",
   "airings-075.png",
   "airings-076.jpg",
   "airings-077.png",
@@ -90,7 +88,6 @@ export const ljIcons = [
   "airings-083.png",
   "airings-084.png",
   "airings-085.jpg",
-  "airings-086.jpg",
   "airings-087.jpg",
   "airings-088.png",
   "airings-089.gif",

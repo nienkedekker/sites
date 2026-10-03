@@ -6,11 +6,12 @@ from collections import Counter
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parents[1]
-BACKUP = SITE.parents[1] / "old-sites-handover/tumblr-backup"
+BACKUP = SITE.parents[1] / ".claude/tumblr-backup"
 IMAGES = SITE / "public/tumblr"
 BLOGS = ("vanderfield", "shinyhats")
 FIRST_YEAR, LAST_YEAR = 2010, 2014
 MIN_NOTES = 150
+MIN_TAG_USES = 5
 
 FANDOMS = [
     ("Lost", ["lost", "richard alpert", "team jacob", "team smokey", "omg my bff benry", "my bff benry", "benry", "my television boyfriend jack", "oh my god richard", "keamy = dreamy", "richard = my muse"]),
@@ -30,6 +31,10 @@ FANDOMS = [
     ("Sons of Anarchy", ["sons of anarchy"]),
 ]
 META_TAGS = {"photo", "text", "quote", "link", "video", "reblog", "movie", "movies"}
+
+
+def is_meta(tag):
+    return tag in META_TAGS or tag == ".gif" or re.match(r"^(a|c|type):", tag)
 
 
 def is_reblog(p):
@@ -90,6 +95,12 @@ for name, fandom_tags in FANDOMS:
         fandoms.append({"name": name, "counts": counts})
 fandoms.sort(key=lambda f: next(i for i, c in enumerate(f["counts"]) if c))
 
+tag_uses = Counter(t for p in posts for t in {t.lower() for t in tags(p)} if not is_meta(t))
+tag_cloud = sorted(
+    ({"name": t, "count": n} for t, n in tag_uses.items() if n >= MIN_TAG_USES),
+    key=lambda t: t["name"],
+)
+
 if IMAGES.exists():
     shutil.rmtree(IMAGES)
 IMAGES.mkdir(parents=True)
@@ -137,10 +148,12 @@ export const tumblrFirstYear = {FIRST_YEAR};
 
 export const fandoms: {{ name: string; counts: number[] }}[] = {json.dumps(fandoms, ensure_ascii=False)};
 
+export const tumblrTags: {{ name: string; count: number }}[] = {json.dumps(tag_cloud, ensure_ascii=False)};
+
 export const tumblrPosts: TumblrPost[] = {json.dumps(highlights, ensure_ascii=False, indent=2)};
 """
 (SITE / "src/data/tumblr-posts.ts").write_text(data)
-print(f"{len(highlights)} highlights ({sum(h['mine'] for h in highlights)} mine), {len(fandoms)} fandoms")
+print(f"{len(highlights)} highlights ({sum(h['mine'] for h in highlights)} mine), {len(fandoms)} fandoms, {len(tag_cloud)} tags")
 print("posts per blog", dict(counts), "originals", dict(originals))
 for f in fandoms:
     print(f"  {f['name']}: {sum(f['counts'])}")

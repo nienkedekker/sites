@@ -1,0 +1,321 @@
+---
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+import PageLayout from "../layouts/PageLayout.astro";
+import {
+  archiveCollections,
+  archiveEnd,
+  archiveIntro,
+  archiveStart,
+  type Era,
+} from "../data/archive";
+
+const LANE = 14;
+
+const x = (year: number) =>
+  ((year - archiveStart) / (archiveEnd - archiveStart)) * 100;
+
+const ticks = [
+  archiveStart,
+  ...Array.from(
+    { length: Math.floor(archiveEnd / 5) - Math.floor(archiveStart / 5) },
+    (_, i) => (Math.floor(archiveStart / 5) + i + 1) * 5
+  ),
+];
+
+// Overlapping eras go on separate lanes, each in the first one that's free.
+const pack = (eras: Era[]) => {
+  const lanes: number[] = [];
+  return eras.map((era) => {
+    let lane = lanes.findIndex((end) => end <= era.start);
+    if (lane === -1) lane = lanes.length;
+    lanes[lane] = era.end;
+    return { ...era, lane };
+  });
+};
+
+const rows = archiveCollections.map(({ slug, eras }) => {
+  const packed = pack(eras);
+  return {
+    slug,
+    eras: packed,
+    lanes: Math.max(...packed.map(({ lane }) => lane)) + 1,
+  };
+});
+
+const align = ({ start, end }: Era) => {
+  const middle = x((start + end) / 2);
+  return middle < 25
+    ? "left-0"
+    : middle > 75
+      ? "right-0"
+      : "left-1/2 -translate-x-1/2";
+};
+
+const fuzzyEdges =
+  "mask-image: linear-gradient(to right, transparent, black 35%, black 65%, transparent)";
+
+const COLUMNS = [
+  { key: "N", label: "Name" },
+  { key: "M", label: "Last modified" },
+  { key: "S", label: "Size" },
+  { key: "D", label: "Description" },
+];
+
+const ROW =
+  "grid grid-cols-[20px_minmax(0,1fr)] gap-x-3 gap-y-1 pt-5 md:grid-cols-[20px_9rem_10rem_3rem_minmax(0,1fr)] md:gap-x-6 md:pt-3";
+
+const folderSize = (slug: string) => {
+  const dir = join(process.cwd(), "public", slug);
+  return readdirSync(dir, { recursive: true })
+    .map((file) => statSync(join(dir, String(file))))
+    .filter((stat) => stat.isFile())
+    .reduce((total, { size }) => total + size, 0);
+};
+
+const apacheSize = (bytes: number) => {
+  const units = ["", "K", "M", "G"];
+  let size = bytes;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit++;
+  }
+  if (unit === 0) return String(size);
+  return `${size < 10 ? size.toFixed(1) : Math.round(size)}${units[unit]}`;
+};
+
+const entries = archiveCollections.map((collection) => ({
+  ...collection,
+  size: folderSize(collection.slug),
+}));
+---
+
+<PageLayout title="Archive" intro={archiveIntro} markdown="/archive.md">
+  <div class="space-y-24 sm:space-y-32">
+    <section aria-labelledby="index-heading">
+      <h2
+        id="index-heading"
+        class="display text-[2rem] text-ink sm:text-[2.5rem]"
+      >
+        Index of /archive
+      </h2>
+
+      <div
+        class="mt-8 hidden gap-x-6 border-b border-line pb-2 font-mono text-xs md:grid md:grid-cols-[20px_9rem_10rem_3rem_minmax(0,1fr)]"
+      >
+        <img src="/archive/blank.gif" alt="" width="20" height="22" />
+        {
+          COLUMNS.map(({ key, label }) => (
+            <a
+              href={`?C=${key};O=A`}
+              data-sort={key}
+              class:list={["link self-end", key === "S" && "text-right"]}
+            >
+              {label}
+            </a>
+          ))
+        }
+      </div>
+
+      <ul
+        data-index
+        class="mt-8 border-b border-line pb-4 font-mono text-sm md:mt-0"
+      >
+        <li class={ROW}>
+          <img
+            src="/archive/back.gif"
+            alt="[PARENTDIR]"
+            width="20"
+            height="22"
+            class="dark:invert"
+          />
+          <a href="/" class="link w-fit self-center">Parent Directory</a>
+          <span class="hidden md:block"></span>
+          <span class="hidden text-right md:block">-</span>
+        </li>
+        {
+          entries.map(({ slug, modified, size, items, description }) => (
+            <li
+              data-entry
+              data-n={slug}
+              data-m={modified}
+              data-s={size}
+              data-d={description}
+              class={ROW}
+            >
+              <img
+                src="/archive/folder.gif"
+                alt="[DIR]"
+                width="20"
+                height="22"
+              />
+              <a href={`/${slug}`} class="link w-fit self-center">
+                {slug}/
+              </a>
+              <span class="col-start-2 flex gap-x-6 self-center text-xs text-ink-soft md:contents md:text-sm">
+                <span class="md:self-center">{modified}</span>
+                <span class="md:self-center md:text-right">
+                  {apacheSize(size)}
+                </span>
+              </span>
+              <span class="col-start-2 self-center font-sans text-sm text-ink-soft md:col-start-auto">
+                {description}
+                <span class="text-ink-faint"> · {items}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <address class="mt-3 font-mono text-xs text-ink-faint">
+        {Astro.generator.replace(" v", "/")} Server at nienke.dev Port 443
+      </address>
+    </section>
+
+    <section aria-labelledby="timeline-heading">
+      <h2
+        id="timeline-heading"
+        class="display text-[2rem] text-ink sm:text-[2.5rem]"
+      >
+        Timeline
+      </h2>
+
+      <figure class="mt-10">
+        <figcaption class="sr-only">
+          When each site, LiveJournal and Tumblr was around
+        </figcaption>
+        <div class="space-y-6">
+          {
+            rows.map(({ slug, eras, lanes }) => (
+              <div class="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-center">
+                <p class="font-mono text-xs text-ink-faint">{slug}/</p>
+                <ul class="relative" style={`height: ${lanes * LANE}px`}>
+                  {ticks.map((year) => (
+                    <li
+                      aria-hidden="true"
+                      class="absolute -inset-y-1.5 w-px bg-line"
+                      style={`left: ${x(year)}%`}
+                    />
+                  ))}
+                  {eras.map((era) => (
+                    <li>
+                      <a
+                        href={era.href}
+                        data-era
+                        class="group absolute flex h-3 items-center outline-offset-2"
+                        style={`left: ${x(era.start)}%; width: calc(${x(era.end) - x(era.start)}% - 2px); top: ${era.lane * LANE}px`}
+                      >
+                        <span
+                          class="h-1.5 w-full bg-ink-soft transition-colors group-hover:bg-ink group-focus:bg-ink"
+                          style={era.fuzzy && fuzzyEdges}
+                        />
+                        <span class="sr-only">
+                          {era.name}, {era.years}
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          class:list={[
+                            "tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left group-focus:opacity-100",
+                            align(era),
+                          ]}
+                        >
+                          <span class="block font-medium [overflow-wrap:anywhere]">
+                            {era.name}
+                          </span>
+                          <span class="mt-1 block text-ink-soft">
+                            {era.years}
+                          </span>
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+          <div
+            aria-hidden="true"
+            class="grid grid-cols-1 gap-x-6 sm:grid-cols-[7rem_minmax(0,1fr)]"
+          >
+            <div class="relative h-4 sm:col-start-2">
+              {
+                ticks.map((year) => (
+                  <span
+                    class:list={[
+                      "absolute font-mono text-[0.7rem] text-ink-faint",
+                      year > archiveEnd - 3 && "-translate-x-full",
+                    ]}
+                    style={`left: ${x(year)}%`}
+                  >
+                    {year}
+                  </span>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </figure>
+    </section>
+  </div>
+</PageLayout>
+
+<script>
+  // On touch screens the first tap shows the tooltip, the second follows the link.
+  let armed: HTMLAnchorElement | null = null;
+
+  function setupEras() {
+    document
+      .querySelectorAll<HTMLAnchorElement>("[data-era]:not([data-bound])")
+      .forEach((era) => {
+        era.dataset.bound = "true";
+        era.addEventListener("click", (event) => {
+          if (!matchMedia("(hover: none)").matches || armed === era) return;
+          event.preventDefault();
+          armed = era;
+          era.focus();
+        });
+        era.addEventListener("blur", () => {
+          if (armed === era) armed = null;
+        });
+      });
+  }
+
+  // Apache's ?C=N;O=A sort links, done in the browser.
+  function sortIndex() {
+    const list = document.querySelector("[data-index]");
+    if (!list) return;
+    const params = new URLSearchParams(location.search.replaceAll(";", "&"));
+    const column = params.get("C") ?? "N";
+    const order = params.get("O") === "D" ? "D" : "A";
+    const key = column.toLowerCase();
+
+    const rows = [...list.querySelectorAll<HTMLElement>("[data-entry]")];
+    rows.sort(
+      (a, b) =>
+        (a.dataset[key] ?? "").localeCompare(b.dataset[key] ?? "", "en", {
+          numeric: true,
+        }) * (order === "D" ? -1 : 1)
+    );
+    list.append(...rows);
+
+    document
+      .querySelectorAll<HTMLAnchorElement>("[data-sort]")
+      .forEach((link) => {
+        const flip = link.dataset.sort === column && order === "A";
+        link.search = `?C=${link.dataset.sort};O=${flip ? "D" : "A"}`;
+        if (link.dataset.bound) return;
+        link.dataset.bound = "true";
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          history.replaceState(history.state, "", link.href);
+          sortIndex();
+        });
+      });
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    setupEras();
+    sortIndex();
+  });
+</script>

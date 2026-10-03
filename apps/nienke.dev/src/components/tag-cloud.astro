@@ -1,0 +1,37 @@
+---
+import { tumblrTagsNote } from "../data/tumblr";
+import { tumblrTags } from "../data/tumblr-posts";
+
+const counts = tumblrTags.map(({ count }) => count);
+const min = Math.min(...counts);
+const max = Math.max(...counts);
+
+// Lost dwarfs everything else, so the sizes follow a log scale.
+const level = (count: number) => Math.log(count / min) / Math.log(max / min);
+---
+
+<section aria-labelledby="tags-heading">
+  <h2 id="tags-heading" class="display text-[2rem] text-ink sm:text-[2.5rem]">
+    Tags
+  </h2>
+  <p class="mt-4 max-w-xl leading-[1.6] text-ink-soft">{tumblrTagsNote}</p>
+
+  <ul class="mt-8 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+    {
+      tumblrTags.map(({ name, count }) => (
+        <li
+          class:list={[
+            "leading-[1.15] tracking-tight",
+            level(count) > 0.4 ? "text-ink" : "text-ink-soft",
+          ]}
+          style={`font-size: calc(0.875rem + ${level(count).toFixed(3)} * (clamp(1.75rem, 6vw, 3rem) - 0.875rem))`}
+        >
+          {name}
+          <span class="ml-0.5 font-mono text-[0.625rem] text-ink-faint">
+            {count}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

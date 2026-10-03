@@ -1,5 +1,5 @@
 export const oldSitesIntro =
-  "Before this site there were others, starting when I was 12, and the Wayback Machine kept just enough of them. The titles are the page titles, which as a teenager I treated as a place for song lyrics. Each screenshot is rebuilt from the archived HTML, with whatever images and iframes the archive still has.";
+  "I've had websites since I was a kid, starting on Geocities (unfortunately lost to the sands of time) and Expage. I never kept backups but the Wayback Machine kept some of them. Each screenshot is rebuilt from the archived HTML, with whatever images and iframes the archive still has.";
 
 export interface Snapshot {
   date: string;
@@ -7,7 +7,7 @@ export interface Snapshot {
   archive: string;
   note?: string;
   quote?: string;
-  source?: { label: string; code: string };
+  source?: { label: string; code: string; lang?: "html" | "css" };
   image: { src: string; alt: string; width: number; height: number; caption: string };
 }
 
@@ -17,6 +17,8 @@ export interface OldSite {
   about: string;
   snapshots: Snapshot[];
 }
+
+export const oldSiteId = (domain: string) => domain.replace(/[./]/g, "-");
 
 const wayback = (timestamp: string, url: string) =>
   `https://web.archive.org/web/${timestamp}/${url}`;
@@ -64,7 +66,7 @@ export const oldSites: OldSite[] = [
     domain: "foot-loose.org",
     years: "2003–2004",
     about:
-      "My first domain, bought in May 2003. A new layout every few weeks, absolutely positioned on a 7pt Tahoma page, with a Greymatter blog in an iframe. I hosted friends' sites on it too, and a collective called Discopunk. After I let it go, it sold heated socks.",
+      "My first domain, bought in May 2003, using my uncle's creditcard (these were rare in the Netherlands at the time). I made a new layout every few weeks. This one is absolutely positioned on a 7pt Tahoma page (a11y was not a thing), with a Greymatter blog in an iframe. I hosted friends' sites on it too, and a collective called Discopunk. After I let the domain registry lapse, someone started using it to sell heated socks.",
     snapshots: [
       {
         date: "2003-10-02",
@@ -72,7 +74,7 @@ export const oldSites: OldSite[] = [
         archive: wayback("20031002100316", "http://www.foot-loose.org/"),
         source: {
           label: "In Internet Explorer, filter:chroma made one colour see-through.",
-          code: `<iframe name="gm" width=204 height=220 style="filter:chroma(color=#10416E);" marginwidth = "0" marginheight = "0" 
+          code: `<iframe name="gm" width=204 height=220 style="filter:chroma(color=#10416E);" marginwidth = "0" marginheight = "0"
 src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
         },
         image: {
@@ -91,16 +93,17 @@ src="http://www.foot-loose.org/cgi-bin/?" frameborder=0></iframe>`,
         archive: wayback("20031010124104", "http://www.foot-loose.org/"),
         source: {
           label: "Coloured scrollbars, which only Internet Explorer understood.",
-          code: `    body
-    {
-   scrollbar-face-color: #C1EBFF;
-scrollbar-highlight-color: #ffffff; 
-scrollbar-3dlight-color: #000000;
-scrollbar-shadow-color: #000000;
-scrollbar-darkshadow-color: #C1EBFF; 
-scrollbar-arrow-color: #000000; 
-scrollbar-track-color: #C1EBFF;
-    }`,
+          lang: "css",
+          code: `body
+{
+  scrollbar-face-color: #C1EBFF;
+  scrollbar-highlight-color: #ffffff;
+  scrollbar-3dlight-color: #000000;
+  scrollbar-shadow-color: #000000;
+  scrollbar-darkshadow-color: #C1EBFF;
+  scrollbar-arrow-color: #000000;
+  scrollbar-track-color: #C1EBFF;
+}`,
         },
         image: {
           src: "/old-sites/foot-loose-20031010.png",
@@ -134,7 +137,7 @@ scrollbar-track-color: #C1EBFF;
           caption:
             "The WAVE103 header, background and webcam button weren't saved. The blog is the closest capture, from 30 October.",
         },
-        note: "The love came back. This one had a webcam popup that faded in on hover, thanks to a Dynamic Drive script whose credit had to stay intact.",
+        note: "This one had a webcam popup that faded in on hover, thanks to a Dynamic Drive script whose credit had to stay intact.",
       },
       {
         date: "2003-11-24",
@@ -148,10 +151,10 @@ method="post" target="content">
 <INPUT TYPE="hidden" NAME="your_email_address"
 VALUE="whizkidvicious@hotmail.com">
 …
-<input name="desiredusername" value="desired username (foot-loose.org/~you)" size=50 style="background-color:transparent; color: #000000; 
+<input name="desiredusername" value="desired username (foot-loose.org/~you)" size=50 style="background-color:transparent; color: #000000;
 border: 1 #000000 solid">
 …
-<input name="howmanyspace" value="How many space do you need?" size=50 style="background-color:transparent; color: #000000; 
+<input name="howmanyspace" value="How many space do you need?" size=50 style="background-color:transparent; color: #000000;
 border: 1 #000000 solid">
 …
 <input type="submit" value="host me!">`,
@@ -232,7 +235,7 @@ border: 1 #000000 solid">
     domain: "suckerlove.org",
     years: "2004–2007",
     about:
-      "A personal blogsite, \"spreading its lameness since February '04\" and named after a line in Placebo's Every You Every Me. It started in English with a Greymatter blog and ended in Dutch on WordPress. In 2008 it became a Japanese spam site.",
+      "A personal blog, named after a line in Placebo's Every You Every Me. It started in English with a Greymatter blog, and ended up in Dutch on WordPress. After I let the domain lapse it became a Japanese spam site.",
     snapshots: [
       {
         date: "2004-03-01",
@@ -247,20 +250,6 @@ border: 1 #000000 solid">
             "The image map wasn't saved. The Ravenclaw badge was, because it was hosted on nimbo.net.",
         },
         note: 'Gray Georgia, an image map, and a "i\'m in ravenclaw!" badge from a sorting quiz.',
-      },
-      {
-        date: "2004-04-05",
-        title: "LAME; the hiphop hatelisting",
-        archive: wayback("20040405212513", "http://lame.suckerlove.org/"),
-        image: {
-          src: "/old-sites/lame-20040405.png",
-          alt: "A white page with a small welcome box in teal and black Arial: about, rules, codes, join, members",
-          width: 1024,
-          height: 478,
-          caption: "The LAME header and background weren't saved.",
-        },
-        note: "A hatelisting on lame.suckerlove.org, part of thl.org. It had 11 members.",
-        quote: "Welcome to the official hiphop hatelisting! This fanlisting is run by Nienke.",
       },
       {
         date: "2004-04-18",
@@ -306,7 +295,8 @@ Or me. Whatever.`,
           alt: "A white page with three lines of uppercase Arial Black text",
           width: 1024,
           height: 420,
-          caption: "Complete. There were no images.",
+          caption:
+            "Complete. There were no images. The Brandon that's being linked to in the image was my webhost. I believe he hosted my domain on cPanel, which was all the rage at the time.",
         },
         quote: "omg coming soon o_o I need to reinstall stuff (I changed hosts =D).",
       },
@@ -321,9 +311,7 @@ Or me. Whatever.`,
           height: 1318,
           caption: "The Gladiator header and the little heading images weren't saved.",
         },
-        quote:
-          "Nienke you suck / your layouts suck / they look like they have been raped by vicious goats / or johnny depp, for that matter",
-        note: "A simple poem written by me. This layout featured Maximus from Gladiator. Same month: my computer crashed and I lost everything, and Daniel sent me Photoshop, Illustrator and Flash.",
+        note: "This layout featured Maximus from Gladiator. In the same month my computer crashed and I lost everything, and my online friend Daniel sent me Photoshop, Illustrator and Flash.",
       },
       {
         date: "2004-09-17",
@@ -338,6 +326,7 @@ Or me. Whatever.`,
         },
         quote:
           "Yay new layout! Robert says I use that picture of Christian Bale way too much, but it's FCORE so it's ok ;)",
+        note: "The first post on the new layout. I have no idea what FCORE means..",
       },
       {
         date: "2004-10-23",
@@ -350,7 +339,7 @@ Or me. Whatever.`,
           height: 938,
           caption: "The header and background weren't saved.",
         },
-        note: "A tiny design studio on jaloux.suckerlove.org, run with Daniël from August 2004. Layouts, LiveJournal coding and MovableType installs, paid by PayPal.",
+        note: "A tiny design studio on jaloux.suckerlove.org, run with Daniël from August 2004. Layouts, LiveJournal coding and MovableType installs, paid by PayPal. I don't think we ever made a single cent.",
         quote:
           "We try to keep our prices the lowest of the lowest, our services will have a maximum price of $1.25, including layouts, coding and customizing.",
       },
@@ -586,7 +575,7 @@ Or me. Whatever.`,
     domain: "sharks.ghostanatomy.org",
     years: "2006",
     about:
-      "A subdomain Malene hosted for me, named after a Test Icicles song, with a Greymatter blog. After this one I wanted to blog in Dutch, so I bought suckerlove.org back.",
+      "A subdomain Malene hosted for me, named after a Test Icicles song, with a Greymatter blog. After this one I wanted to blog in Dutch, so I bought suckerlove.org back. The $x signs you see in front of the text are the amount of comments.",
     snapshots: [
       {
         date: "2006-08-20",
@@ -703,7 +692,7 @@ Or me. Whatever.`,
     domain: "sevenhells.tumblr.com",
     years: "2011–2015",
     about:
-      "My Tumblr, mostly reblogged gifsets from Sherlock, Game of Thrones, Battlestar Galactica, Lost and Luther. I later renamed it to shinyhats, one of my usernames, and someone else has had sevenhells since 2020. It's still up, untouched since 2015, at shinyhats.tumblr.com.",
+      "My Tumblr, mostly reblogged gifsets from Sherlock, Game of Thrones, Battlestar Galactica, Lost and Luther. I later renamed it to shinyhats, one of my usernames, and someone else has had sevenhells since 2020. I think I used the name Helena here to make it less obvious I was Dutch?",
     snapshots: [
       {
         date: "2013-03-19",
@@ -718,28 +707,6 @@ Or me. Whatever.`,
         },
         quote:
           "helena | 20s | europe | stan for a day. Cylons, gunslingers, weirwoods, browncoats, observers, (consulting) detectives, polar bears, superheroes and biker gangs",
-      },
-    ],
-  },
-  {
-    domain: "heelzwaarleven.nl",
-    years: "2015–2016",
-    about:
-      "A joke, for people with a very heavy life: Comic Sans, Pokémon gifs, a cat in a hammock, an under construction banner and an autoplaying YouTube video. By late 2017 the domain was parked.",
-    snapshots: [
-      {
-        date: "2016-01-09",
-        title: "nee",
-        archive: wayback("20160109161211", "http://www.heelzwaarleven.nl/"),
-        image: {
-          src: "/old-sites/heelzwaarleven-20160109.png",
-          alt: "A yellow star-patterned page with a cat in a hammock on a lilac banner, Oddish, Magikarp and Zubat gifs, red and blue Comic Sans text and an under construction bar",
-          width: 1280,
-          height: 980,
-          caption: "The YouTube video and the update gif are gone.",
-        },
-        note: "Unchanged since it went up in May 2015.",
-        quote: "hallo welkom op mijn webpagina voor als je een heel zwaar leven hebt!!",
       },
     ],
   },
@@ -760,8 +727,7 @@ Or me. Whatever.`,
           height: 1400,
           caption: "The theme's stylesheets weren't saved, so this is the bare HTML. Cropped.",
         },
-        note: "The blog's tagline, over a post about getting Ghost to run on port 80.",
-        quote: "if you didn't see it, how do you know it wasn't a dinosaur?",
+        note: "A post about getting Ghost to run on port 80.",
       },
       {
         date: "2016-08-04",

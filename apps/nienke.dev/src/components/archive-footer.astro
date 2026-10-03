@@ -1,0 +1,40 @@
+---
+import ArrowLeft from "phosphor-astro/ArrowLeft.astro";
+import ArrowUp from "phosphor-astro/ArrowUp.astro";
+---
+
+<div class="mt-24 flex gap-6 font-mono text-xs text-ink-faint sm:mt-32">
+  <a
+    href="/archive"
+    class="group flex items-center gap-1 transition-colors hover:text-ink"
+  >
+    <ArrowLeft
+      class="size-3 transition-transform group-hover:-translate-x-0.5"
+    />
+    Archive
+  </a>
+  <a
+    href="#top"
+    data-top
+    class="group flex items-center gap-1 transition-colors hover:text-ink"
+  >
+    <ArrowUp class="size-3 transition-transform group-hover:-translate-y-0.5" />
+    Top
+  </a>
+</div>
+
+<script>
+  function setupTop() {
+    document
+      .querySelectorAll<HTMLAnchorElement>("[data-top]:not([data-bound])")
+      .forEach((link) => {
+        link.dataset.bound = "true";
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          scrollTo({ top: 0, behavior: "instant" });
+        });
+      });
+  }
+
+  document.addEventListener("astro:page-load", setupTop);
+</script>

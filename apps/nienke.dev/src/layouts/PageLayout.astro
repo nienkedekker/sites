@@ -1,6 +1,7 @@
 ---
 import { formatDate } from "@nienke/ui/format";
 import PageHeader from "@nienke/ui/page-header";
+import ArrowLeft from "phosphor-astro/ArrowLeft.astro";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -8,9 +9,10 @@ interface Props {
   intro?: string;
   lastUpdated?: Date;
   markdown?: string;
+  parent?: { href: string; label: string };
 }
 
-const { title, intro, lastUpdated, markdown } = Astro.props;
+const { title, intro, lastUpdated, markdown, parent } = Astro.props;
 
 const formattedDate = lastUpdated
   ? formatDate(lastUpdated, { year: "numeric", month: "long", day: "numeric" })
@@ -19,6 +21,17 @@ const formattedDate = lastUpdated
 
 <BaseLayout title={title} description={intro} markdown={markdown}>
   <div class="mx-auto max-w-6xl px-4 pt-20 sm:pt-28">
+    {
+      parent && (
+        <a
+          href={parent.href}
+          class="rise group mb-8 flex w-fit items-center gap-1 font-mono text-xs text-ink-faint transition-colors hover:text-ink"
+        >
+          <ArrowLeft class="size-3 transition-transform group-hover:-translate-x-0.5" />
+          {parent.label}
+        </a>
+      )
+    }
     <PageHeader
       eyebrow={formattedDate && `Updated ${formattedDate}`}
       intro={intro}

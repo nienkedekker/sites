@@ -1,13 +1,14 @@
 ---
-import ArrowUpRight from "phosphor-astro/ArrowUpRight.astro";
+import ArchiveFooter from "../components/archive-footer.astro";
 import PageLayout from "../layouts/PageLayout.astro";
-import { ljIcons, ljIconsArchive, ljIconsIntro } from "../data/lj-icons";
+import { ljIcons, ljIconsIntro } from "../data/lj-icons";
 ---
 
 <PageLayout
   title="LiveJournal icons"
   intro={ljIconsIntro}
   markdown="/lj-icons.md"
+  parent={{ href: "/archive", label: "Archive" }}
 >
   <ul aria-label={`${ljIcons.length} icons`} class="flex flex-wrap gap-3">
     {
@@ -27,15 +28,5 @@ import { ljIcons, ljIconsArchive, ljIconsIntro } from "../data/lj-icons";
     }
   </ul>
 
-  <a
-    href={ljIconsArchive}
-    target="_blank"
-    rel="noopener noreferrer"
-    class="group mt-10 inline-flex items-center gap-1 font-mono text-xs text-ink-faint transition-colors hover:text-ink"
-  >
-    airings.livejournal.com on the Wayback Machine
-    <ArrowUpRight
-      class="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-    />
-  </a>
+  <ArchiveFooter />
 </PageLayout>

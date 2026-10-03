@@ -1,9 +1,10 @@
 import { getCollection, getEntry } from "astro:content";
+import { archiveCollections, archiveIntro } from "../data/archive";
 import { links, linksIntro } from "../data/links";
-import { ljIcons, ljIconsArchive, ljIconsIntro } from "../data/lj-icons";
+import { ljIcons, ljIconsIntro } from "../data/lj-icons";
 import { oldSites, oldSitesIntro } from "../data/old-sites";
-import { tumblrIntro, tumblrSections } from "../data/tumblr";
-import { fandoms, tumblrFirstYear, tumblrPosts } from "../data/tumblr-posts";
+import { tumblrIntro, tumblrSections, tumblrTagsNote } from "../data/tumblr";
+import { fandoms, tumblrFirstYear, tumblrPosts, tumblrTags } from "../data/tumblr-posts";
 import { profile, site } from "../data/profile";
 import { cleanMarkdown, type HomeContent, type MarkdownPage } from "./markdown";
 
@@ -11,7 +12,7 @@ export interface SitePage extends MarkdownPage {
   slug: string;
 }
 
-const order = ["now", "uses", "links", "old-sites", "lj-icons", "tumblr", "colophon"];
+const order = ["now", "uses", "links", "archive", "old-sites", "lj-icons", "tumblr", "colophon"];
 
 export async function getSitePages(): Promise<SitePage[]> {
   const entries = await getCollection("pages", ({ id }) => id !== "home");
@@ -32,6 +33,21 @@ export async function getSitePages(): Promise<SitePage[]> {
   });
 
   pages.push({
+    slug: "archive",
+    title: "Archive",
+    description: archiveIntro,
+    body: archiveCollections
+      .map(({ slug, title, years, items, description, eras }) =>
+        [
+          `## [${title}](${site}/${slug}) (${years})`,
+          `${description}. ${items}.`,
+          eras.map(({ name, years }) => `- ${name}: ${years}`).join("\n"),
+        ].join("\n\n")
+      )
+      .join("\n\n"),
+  });
+
+  pages.push({
     slug: "old-sites",
     title: "Old sites",
     description: oldSitesIntro,
@@ -40,13 +56,12 @@ export async function getSitePages(): Promise<SitePage[]> {
         [
           `## ${domain} (${years})`,
           about,
-          ...snapshots.map(({ date, title, archive, note, quote, source }) =>
+          ...snapshots.map(({ date, title, note, quote, source }) =>
             [
               `### ${date}: ${title}`,
               note,
               quote && `> ${quote}`,
               source && `${source.label}\n\n\`\`\`\n${source.code}\n\`\`\``,
-              `[Wayback Machine snapshot](${archive})`,
             ]
               .filter(Boolean)
               .join("\n\n")
@@ -60,10 +75,7 @@ export async function getSitePages(): Promise<SitePage[]> {
     slug: "lj-icons",
     title: "LiveJournal icons",
     description: ljIconsIntro,
-    body: [
-      ...ljIcons.map((src) => `![](${site}${src})`),
-      `[airings.livejournal.com on the Wayback Machine](${ljIconsArchive})`,
-    ].join("\n\n"),
+    body: ljIcons.map((src) => `![](${site}${src})`).join("\n\n"),
   });
 
   pages.push({
@@ -71,8 +83,8 @@ export async function getSitePages(): Promise<SitePage[]> {
     title: "Tumblr",
     description: tumblrIntro,
     body: [
-      "## Fandoms",
-      "Posts per fandom, going by my tags, reblogs included.",
+      "## Interests",
+      "What I posted about based on surviving tags.",
       fandoms
         .map(({ name, counts }) => {
           const years = counts
@@ -82,6 +94,9 @@ export async function getSitePages(): Promise<SitePage[]> {
           return `- ${name}: ${total} posts, ${years[0]}–${years.at(-1)}`;
         })
         .join("\n"),
+      "## Tags",
+      tumblrTagsNote,
+      tumblrTags.map(({ name, count }) => `- ${name}: ${count}`).join("\n"),
       ...tumblrSections.flatMap(({ title, note, mine }) => [
         `## ${title}`,
         note,
