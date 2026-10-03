@@ -14,6 +14,7 @@ export function SubmitButton({
   children,
   pendingText = "Submitting...",
   isSubmitting = false,
+  disabled,
   ...props
 }: Props) {
   const { pending } = useFormStatus();
@@ -23,10 +24,10 @@ export function SubmitButton({
   return (
     <Button
       type="submit"
-      disabled={isPending}
-      aria-busy={isPending}
-      aria-label={isPending ? pendingText : undefined}
       {...props}
+      disabled={isPending || disabled}
+      aria-busy={isPending}
+      aria-label={isPending ? pendingText : props["aria-label"]}
     >
       {isPending ? (
         <>

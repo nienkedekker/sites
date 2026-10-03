@@ -1,6 +1,9 @@
 const API = "https://api.wanikani.com/v2";
 const LEARNED_STAGE = 5;
 const SAMPLE_SIZE = 12;
+// The subjects endpoint has no page size, so counting kanji live costs a 1.8 MB download.
+// This is its total_count for types=kanji&hidden=false; it only moves with content updates.
+const KANJI_TOTAL = 2101;
 
 export const STAGES = [
   { key: "apprentice", label: "Apprentice", from: 1, to: 4 },
@@ -125,11 +128,10 @@ async function loadProgress(key: string, signal?: AbortSignal): Promise<Progress
     return items;
   }
 
-  const [user, assignments, reviewStats, allKanji] = await Promise.all([
+  const [user, assignments, reviewStats] = await Promise.all([
     wanikani<{ data: { level: number } }>("/user"),
     allPages<Assignment>("/assignments?started=true"),
     allPages<ReviewStatistic>("/review_statistics"),
-    wanikani<Collection<KanjiSubject>>("/subjects?types=kanji"),
   ]);
 
   const counts = countAssignments(assignments.map((a) => a.data));
@@ -146,7 +148,7 @@ async function loadProgress(key: string, signal?: AbortSignal): Promise<Progress
     kanji: {
       learned: counts.kanji,
       burned: counts.kanjiBurned,
-      total: allKanji.total_count,
+      total: KANJI_TOTAL,
     },
     vocabulary: counts.vocabulary,
     stages: counts.stages,

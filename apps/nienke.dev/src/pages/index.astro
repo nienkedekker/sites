@@ -121,7 +121,7 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <div class="contents lg:col-span-2 lg:flex lg:flex-col lg:gap-3">
         <article data-reveal class="panel sm:col-span-2">
-          <MediaChart client:visible initial={summary} />
+          <MediaChart client:visible initial={summary} builtAt={Date.now()} />
         </article>
 
         <article data-reveal class="panel sm:col-span-2 lg:flex-1">

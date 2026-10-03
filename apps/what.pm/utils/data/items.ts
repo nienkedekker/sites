@@ -1,4 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
+import { ITEMS_TAG } from "@/utils/constants/app";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 
 export type DataResult<T> =
@@ -72,27 +74,40 @@ export async function getItemsForYear(
   }
 }
 
+// Failures throw inside the cache so they're never stored
+const fetchRecentItems = unstable_cache(
+  async (limit: number) => {
+    const { data, error } = await supabasePublic
+      .from("items")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  },
+  ["recent-items"],
+  { revalidate: 3600, tags: [ITEMS_TAG] },
+);
+
 export async function getRecentItems(
   limit: number,
 ): Promise<DataResult<TypedItem[]>> {
-  const { data: rawItems, error } = await supabasePublic
-    .from("items")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) {
+  let rawItems: unknown[];
+  try {
+    rawItems = await fetchRecentItems(limit);
+  } catch (error) {
     console.error("Database error fetching recent items:", error);
     return {
       success: false,
       data: null,
-      error: `Failed to fetch items: ${error.message}`,
+      error: `Failed to fetch items: ${error instanceof Error ? error.message : "Unknown error"}`,
     };
   }
 
   return {
     success: true,
-    data: (rawItems ?? [])
+    data: rawItems
       .map(validateAndTypeItem)
       .filter((item): item is TypedItem => item !== null),
     error: null,

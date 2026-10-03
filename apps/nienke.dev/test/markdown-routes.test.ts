@@ -1,7 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  acceptsHtml,
   addMarkdownRoutes,
   MARKDOWN_TYPE,
   needsNegotiation,
@@ -36,7 +35,12 @@ const browsers = [
 test("browser Accept headers keep pages static", () => {
   for (const accept of browsers) {
     assert.ok(!fullMatch(needsNegotiation.value, accept), accept);
-    assert.ok(fullMatch(acceptsHtml.value, accept), accept);
+  }
+});
+
+test("Accept headers naming neither format keep pages static, so they get the HTML", () => {
+  for (const accept of ["application/json", "text/plain", "application/pdf", "image/*", ""]) {
+    assert.ok(!fullMatch(needsNegotiation.value, accept), accept);
   }
 });
 
@@ -53,21 +57,17 @@ test("Accept headers a static file can't answer go to the negotiate function", (
     assert.ok(fullMatch(needsNegotiation.value, accept), accept);
   }
   assert.ok(!fullMatch(needsNegotiation.value, "text/html, */*;q=0.5"));
-  for (const accept of ["application/pdf", "application/json", "image/*", ""]) {
-    assert.ok(!fullMatch(acceptsHtml.value, accept), accept);
-  }
 });
 
 test("pages are negotiated before static files are served", () => {
-  const [byHeader, unsupported] = before.filter(negotiates);
-  assert.deepEqual(byHeader.has, [needsNegotiation]);
-  assert.deepEqual(unsupported.has, [{ type: "header", key: "accept" }]);
-  assert.deepEqual(unsupported.missing, [acceptsHtml]);
-  for (const route of [byHeader, unsupported]) {
-    for (const path of ["/", "/now", "/now/"]) assert.ok(matches(route, path), path);
-    for (const path of ["/nowhere", "/now.md", "/uses"]) assert.ok(!matches(route, path), path);
-    assert.equal("/now/".replace(new RegExp(route.src!), route.dest!), "/_negotiate?path=/now/");
-  }
+  const negotiated = before.filter(negotiates);
+  assert.equal(negotiated.length, 1);
+  const [route] = negotiated;
+  assert.deepEqual(route.has, [needsNegotiation]);
+  assert.equal(route.missing, undefined);
+  for (const path of ["/", "/now", "/now/"]) assert.ok(matches(route, path), path);
+  for (const path of ["/nowhere", "/now.md", "/uses"]) assert.ok(!matches(route, path), path);
+  assert.equal("/now/".replace(new RegExp(route.src!), route.dest!), "/_negotiate?path=/now/");
 });
 
 test("pages vary on Accept and Accept-Encoding whichever version is served", () => {

@@ -2,7 +2,6 @@
 
 import { createClientForServer } from "@/utils/supabase/server";
 import { signInSchema, extractFormData } from "@/utils/schemas/validation";
-import { redirect } from "next/navigation";
 
 type SignInResult =
   | { ok: true; access_token: string | null; refresh_token: string | null }
@@ -32,7 +31,7 @@ export async function signInActionReturnSession(
   };
 }
 
-export async function signOutAction(): Promise<never> {
+export async function signOutAction(): Promise<void> {
   const supabase = await createClientForServer();
 
   try {
@@ -40,6 +39,4 @@ export async function signOutAction(): Promise<never> {
   } catch (error) {
     console.error("Server sign out failed:", error);
   }
-
-  return redirect("/sign-in");
 }

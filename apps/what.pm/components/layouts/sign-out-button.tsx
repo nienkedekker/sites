@@ -17,6 +17,7 @@ export function SignOutButton(): ReactElement {
     try {
       await supabaseBrowser.auth.signOut({ scope: "local" });
       await signOutAction();
+      router.push("/sign-in");
       router.refresh();
     } catch (err) {
       console.error("Sign out failed:", err);

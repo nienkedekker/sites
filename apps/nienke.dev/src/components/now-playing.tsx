@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import CardHead from "@nienke/ui/card-head";
 import { externalProps } from "@nienke/ui/external";
 import Tag from "@nienke/ui/tag";
-import { getLatestTrack, type Track } from "../lib/lastfm";
+import type { Track } from "../lib/lastfm-shared";
 
 export default function NowPlaying({ initial }: { initial?: Track | null }) {
   const [track, setTrack] = useState<Track | null>(initial ?? null);
@@ -11,7 +11,9 @@ export default function NowPlaying({ initial }: { initial?: Track | null }) {
   useEffect(() => {
     const fetchTrack = async () => {
       try {
-        setTrack(await getLatestTrack(AbortSignal.timeout(5000)));
+        const res = await fetch("/api/now-playing", { signal: AbortSignal.timeout(8000) });
+        if (!res.ok) throw new Error(`Now playing route responded ${res.status}`);
+        setTrack(await res.json());
       } catch {
         // Silently fail - site works fine without Last.fm
       } finally {

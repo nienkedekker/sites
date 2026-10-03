@@ -25,8 +25,14 @@ export function DataExport({ currentYear }: DataExportProps) {
       const response = await fetch(`/export/download?${params.toString()}`);
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Export failed");
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.error || `Export failed (${response.status})`);
+      }
+
+      const contentType = response.headers.get("Content-Type") ?? "";
+      const expected = format === "csv" ? "text/csv" : "application/json";
+      if (response.redirected || !contentType.includes(expected)) {
+        throw new Error("Export failed. Are you still signed in?");
       }
 
       const contentDisposition = response.headers.get("Content-Disposition");

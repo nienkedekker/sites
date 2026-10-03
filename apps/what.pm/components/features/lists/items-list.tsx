@@ -53,7 +53,7 @@ export default async function ItemsList({ year }: { year: number }) {
               {byMonth ? "Month by month" : "By type"}
             </CardHead>
             {byMonth ? (
-              <MediaChart summary={summary} />
+              <MediaChart summary={summary} now={new Date()} />
             ) : (
               <TypeBreakdown counts={summary.counts} />
             )}

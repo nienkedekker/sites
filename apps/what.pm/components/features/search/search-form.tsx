@@ -9,6 +9,7 @@ import {
 } from "@/components/features/search/search-controls";
 import { SearchResults } from "@/components/features/search/search-results";
 import { YearStrip } from "@/components/features/search/year-strip";
+import { Button } from "@/components/ui/button";
 import type { SearchContext } from "@/utils/data/search-context";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
@@ -24,6 +25,7 @@ export default function SearchForm({
 }: SearchContext & { initialQuery?: string }) {
   const [query, setQuery] = useState(initialQuery);
   const [searchState, setSearchState] = useState<SearchState>(INITIAL_STATE);
+  const [failed, setFailed] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
   const [filterType, setFilterType] = useState("all");
   const [isSearching, startTransition] = useTransition();
@@ -36,6 +38,7 @@ export default function SearchForm({
 
     if (trimmed.length === 0) {
       setSearchState(INITIAL_STATE);
+      setFailed(false);
       return;
     }
     if (trimmed.length < MIN_QUERY_LENGTH) return;
@@ -43,8 +46,16 @@ export default function SearchForm({
     startTransition(async () => {
       const formData = new FormData();
       formData.append("query", trimmed);
-      const result = await searchItems(formData);
-      if (request === latestRequest.current) setSearchState(result);
+      try {
+        const result = await searchItems(formData);
+        if (request !== latestRequest.current) return;
+        setSearchState(result);
+        setFailed(false);
+      } catch {
+        if (request !== latestRequest.current) return;
+        setSearchState({ query: trimmed, results: [], initial: false });
+        setFailed(true);
+      }
     });
   };
 
@@ -130,7 +141,8 @@ export default function SearchForm({
   const hasResults = processedResults.length > 0;
   const hasQuery = searchState.query.trim().length > 0;
   const showSuggestions =
-    searchState.initial || (!isSearching && hasQuery && !hasResults);
+    !failed &&
+    (searchState.initial || (!isSearching && hasQuery && !hasResults));
 
   return (
     <div className="space-y-12">
@@ -159,6 +171,7 @@ export default function SearchForm({
       >
         {isSearching && "Searching through your items..."}
         {!searchState.initial &&
+          !failed &&
           !isSearching &&
           hasQuery &&
           processedResults.length === 0 &&
@@ -184,7 +197,27 @@ export default function SearchForm({
         <YearStrip results={processedResults} years={years} />
       )}
 
-      {!searchState.initial && !(isSearching && !hasResults) && (
+      {failed && !isSearching && (
+        <div role="alert">
+          <p className="display text-[1.875rem] text-ink-soft sm:text-[2.5rem]">
+            Search didn’t go through.
+          </p>
+          <p className="mt-3 text-ink-soft">
+            Couldn’t reach the server. Check your connection and try again.
+          </p>
+          <Button
+            type="button"
+            onClick={() => runSearch(searchState.query)}
+            variant="outline"
+            size="sm"
+            className="mt-6"
+          >
+            Try again
+          </Button>
+        </div>
+      )}
+
+      {!failed && !searchState.initial && !(isSearching && !hasResults) && (
         <SearchResults
           results={processedResults}
           query={searchState.query}

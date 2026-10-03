@@ -66,7 +66,8 @@ test("the negotiate function is an edge function that serves the built files", a
     const unacceptable = await handler(
       new Request(`${site}/now`, { headers: { accept: "application/pdf" } })
     );
-    assert.equal(unacceptable.status, 406);
+    assert.equal(unacceptable.status, 200);
+    assert.equal(await unacceptable.text(), read(htmlFile("/now")));
   } finally {
     globalThis.fetch = realFetch;
   }
@@ -77,7 +78,7 @@ test("the routing config sends negotiable requests to the negotiate function", (
   const negotiated = routes.filter(({ dest }: { dest?: string }) =>
     dest?.startsWith("/_negotiate?path=")
   );
-  assert.equal(negotiated.length, 3);
+  assert.equal(negotiated.length, 2);
   const pageRoute = new RegExp(negotiated[0].src);
   for (const path of pages) assert.ok(pageRoute.test(path), path);
   assert.ok(!pageRoute.test("/nope"));
@@ -115,13 +116,16 @@ test("pages have canonical, lang, og:type and og:image metadata", () => {
   for (const path of pages) {
     const html = read(htmlFile(path));
     assert.match(html, /<html lang="en"/, path);
-    assert.match(html, /<link rel="canonical" href="https:\/\/nienke\.dev\//, path);
+    const canonical = html.match(/<link rel="canonical" href="([^"]+)">/)?.[1];
+    assert.equal(canonical, `${site}${path}`, path);
+    assert.match(html, new RegExp(`<meta property="og:url" content="${canonical}">`), path);
     assert.match(html, /<meta property="og:type" content="website">/, path);
     const image = html.match(/<meta property="og:image" content="([^"]+)">/)?.[1];
-    assert.ok(image?.startsWith(`${site}/`), path);
+    assert.ok(image && image.startsWith(`${site}/`), path);
     assert.ok(exists(sitePath(image).slice(1)), image);
   }
   assert.equal(read("index.html").match(/<h1[\s>]/g)?.length, 1);
+  assert.doesNotMatch(read("404.html"), /rel="canonical"|property="og:url"/);
 });
 
 test("the sitemap lists every page and robots.txt points to it", () => {

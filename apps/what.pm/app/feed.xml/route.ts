@@ -1,9 +1,9 @@
 import { getRecentItems } from "@/utils/data/items";
+import { SITE } from "@/utils/agents/negotiate";
 import type { TypedItem } from "@/types/shared";
 
 export const revalidate = 3600;
 
-const SITE = "https://what.pm";
 const LIMIT = 50;
 
 const escape = (value: string) =>
@@ -44,9 +44,8 @@ function detail(item: TypedItem) {
 
 export async function GET() {
   const result = await getRecentItems(LIMIT);
-  if (!result.success) {
-    return new Response("Feed unavailable", { status: 503 });
-  }
+  // Thrown, not answered with a 503, so ISR doesn't keep the error for an hour
+  if (!result.success) throw new Error(result.error);
 
   const entries = result.data
     .map((item) => {

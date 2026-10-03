@@ -1,6 +1,7 @@
 {
   "name": "sites",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "workspaces": [
     "apps/*",
@@ -20,7 +21,7 @@
     "prettier": "^3.5.2",
     "turbo": "^2.7.4"
   },
-  "packageManager": "npm@10.5.0",
+  "packageManager": "npm@11.12.1",
   "engines": {
     "node": ">=20"
   },
@@ -35,6 +36,8 @@
     "next": {
       "postcss": "^8.5.28"
     },
-    "path-to-regexp": "6.3.0"
+    "@vercel/routing-utils": {
+      "path-to-regexp": "6.3.0"
+    }
   }
 }

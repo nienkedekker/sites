@@ -77,23 +77,9 @@ export async function negotiate(
 ): Promise<Response> {
   const url = new URL(request.url);
   const path = pagePath(url.searchParams.get("path") ?? url.pathname);
-  const accept = request.headers.get("accept");
-  const type = preferredType(accept, [HTML, MARKDOWN]);
+  // Nothing acceptable falls back to HTML rather than a 406, which RFC 9110 §12.5.1 allows.
+  const type = preferredType(request.headers.get("accept"), [HTML, MARKDOWN]) ?? HTML;
   const isPage = pages.includes(path);
-
-  if (isPage && !type) {
-    return new Response(
-      `This page is available as:\n- ${HTML}\n- ${MARKDOWN}\n\nYou asked for: ${accept}\n`,
-      {
-        status: 406,
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Cache-Control": "no-store",
-          Vary: VARY,
-        },
-      }
-    );
-  }
 
   const markdown = type === MARKDOWN;
   const file = isPage ? (markdown ? markdownFile(path) : path) : markdown ? "/404.md" : "/404.html";

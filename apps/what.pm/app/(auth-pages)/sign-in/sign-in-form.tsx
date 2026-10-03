@@ -136,7 +136,7 @@ export function SignInForm() {
 
         <SubmitButton
           pendingText="Signing In..."
-          disabled={isSubmitting}
+          isSubmitting={isSubmitting}
           className="w-full"
         >
           Sign in

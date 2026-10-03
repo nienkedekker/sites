@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { unstable_rethrow } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -77,7 +78,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
       form.setValue("director", result.creator, options);
     }
     if (activeTab === TAB_VALUES.SHOW) {
-      const years = await getSeasonYears(result.id);
+      const years = await getSeasonYears(result.id).catch(() => ({}));
       setSeasonYears({ title: result.title, years });
     }
   };
@@ -104,7 +105,16 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
       fd.append("season", String(data.season));
     if ("inProgress" in data && data.inProgress) fd.append("inProgress", "on");
 
-    return createItemAction(fd);
+    try {
+      const { error } = await createItemAction(fd);
+      form.setError("root", { message: error });
+    } catch (error) {
+      unstable_rethrow(error);
+      form.setError("root", {
+        message:
+          "Couldn’t reach the server. Check your connection and try again.",
+      });
+    }
   };
 
   return (
@@ -275,6 +285,11 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
         </div>
 
         <div className="mt-8 border-t border-line pt-6">
+          {form.formState.errors.root && (
+            <p role="alert" className="mb-4 text-sm text-danger">
+              {form.formState.errors.root.message}
+            </p>
+          )}
           <SubmitButton
             isSubmitting={form.formState.isSubmitting}
             className="w-full"

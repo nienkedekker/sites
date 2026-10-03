@@ -3,8 +3,18 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const protectedPaths = ["/create", "/export"];
 
-function isProtectedPathname(pathname: string) {
-  return protectedPaths.some((path) => pathname.startsWith(path));
+// The download route answers its own 401, which a fetch can read; a redirect
+// would be followed and the sign-in page saved as the export
+const selfAuthenticatedPaths = ["/export/download"];
+
+const matchesPath = (pathname: string, path: string) =>
+  pathname === path || pathname.startsWith(`${path}/`);
+
+export function isProtectedPathname(pathname: string) {
+  return (
+    protectedPaths.some((path) => matchesPath(pathname, path)) &&
+    !selfAuthenticatedPaths.some((path) => matchesPath(pathname, path))
+  );
 }
 
 export async function updateSession(request: NextRequest) {

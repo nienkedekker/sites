@@ -1,6 +1,5 @@
 "use server";
 
-import { encodedRedirect } from "@/utils/server/redirects";
 import { isNextRedirect } from "@/utils/server/error-handling";
 import { createClientForServer } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
@@ -16,18 +15,30 @@ import {
 } from "@/utils/server/external-api";
 import { ITEMS_TAG } from "@/utils/constants/app";
 
-export const createItemAction = async (formData: FormData) => {
+type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
+
+const SIGNED_OUT_ERROR = "Your session has expired. Sign in again.";
+
+async function isSignedIn(supabase: SupabaseServer) {
+  const { data } = await supabase.auth.getUser();
+  return Boolean(data.user);
+}
+
+export const createItemAction = async (
+  formData: FormData,
+): Promise<{ error: string }> => {
   try {
+    const supabase = await createClientForServer();
+    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
+
     const validation = extractFormData(formData, itemCreationSchema);
 
     if (!validation.success) {
-      const errorMessage = validation.errors.join(", ");
-      return encodedRedirect("error", "/create", errorMessage);
+      return { error: validation.errors.join(", ") };
     }
 
     const validatedData = validation.data;
 
-    const supabase = await createClientForServer();
     const externalId = validatedData.externalId || null;
     const details = externalId
       ? await getExternalDetails(
@@ -69,11 +80,7 @@ export const createItemAction = async (formData: FormData) => {
 
     if (error) {
       console.error("Database error creating item:", error);
-      return encodedRedirect(
-        "error",
-        "/create",
-        "Unable to save your item. Please try again.",
-      );
+      return { error: "Unable to save your item. Please try again." };
     }
 
     revalidateTag(ITEMS_TAG);
@@ -81,33 +88,29 @@ export const createItemAction = async (formData: FormData) => {
   } catch (error) {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in createItemAction:", error);
-    return encodedRedirect(
-      "error",
-      "/create",
-      "Something went wrong. Please try again.",
-    );
+    return { error: "Something went wrong. Please try again." };
   }
 };
 
-export const deleteItemAction = async (formData: FormData) => {
+export const deleteItemAction = async (
+  formData: FormData,
+): Promise<{ error: string }> => {
   try {
-    const supabase = await createClientForServer();
     const itemId = formData.get("id")?.toString();
     const belongsToYear = Number(formData.get("belongsToYear"));
 
-    if (!itemId) {
-      return encodedRedirect("error", "/", "Item ID is required for deletion.");
+    if (!itemId || !Number.isInteger(belongsToYear) || belongsToYear < 1) {
+      return { error: "Invalid delete request." };
     }
+
+    const supabase = await createClientForServer();
+    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
 
     const { error } = await supabase.from("items").delete().eq("id", itemId);
 
     if (error) {
       console.error("Database error deleting item:", error);
-      return encodedRedirect(
-        "error",
-        "/",
-        "Unable to delete your item. Please try again.",
-      );
+      return { error: "Unable to delete your item. Please try again." };
     }
 
     revalidateTag(ITEMS_TAG);
@@ -115,11 +118,7 @@ export const deleteItemAction = async (formData: FormData) => {
   } catch (error) {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in deleteItemAction:", error);
-    return encodedRedirect(
-      "error",
-      "/",
-      "Something went wrong. Please try again.",
-    );
+    return { error: "Something went wrong. Please try again." };
   }
 };
 
@@ -144,6 +143,7 @@ export const updateItemAction = async (
     const validatedData = validation.data;
 
     const supabase = await createClientForServer();
+    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
 
     const updatedItem: ItemUpdate = {
       title: validatedData.title,

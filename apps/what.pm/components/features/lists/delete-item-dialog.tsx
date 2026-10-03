@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { unstable_rethrow } from "next/navigation";
 import { deleteItemAction } from "@/app/actions/items";
 import {
   Dialog,
@@ -20,14 +21,28 @@ export default function DeleteItemDialog({
   belongsToYear: number;
 }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (formData: FormData) => {
-    await deleteItemAction(formData);
-    setOpen(false);
+    setError(null);
+    try {
+      const result = await deleteItemAction(formData);
+      setError(result.error);
+    } catch (err) {
+      unstable_rethrow(err);
+      setError(
+        "Couldn’t reach the server. Check your connection and try again.",
+      );
+    }
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setError(null);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <button
           type="button"
@@ -43,8 +58,13 @@ export default function DeleteItemDialog({
         <p id="delete-description" className="text-ink-soft">
           This action cannot be undone. This will permanently delete the item.
         </p>
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Cancel
           </Button>
           <form action={handleSubmit}>

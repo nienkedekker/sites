@@ -5,10 +5,14 @@ import { formatCount, formatDate } from "@nienke/ui/format";
 import { StatList, StatRow } from "@nienke/ui/stat-list";
 import TagLink from "@nienke/ui/tag-link";
 import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
-import { PROFILE_URL, WEEK, type ListeningStats } from "../lib/lastfm";
+import { DAY, PROFILE_URL, WEEK, type ListeningStats } from "../lib/lastfm-shared";
 
 const day = (unix: number) =>
-  formatDate(new Date(unix * 1000), { month: "short", day: "numeric" });
+  formatDate(new Date(unix * 1000), {
+    month: "short",
+    day: "numeric",
+    timeZone: "Europe/Amsterdam",
+  });
 
 export default function ScrobblesCard({ initial }: { initial?: ListeningStats }) {
   const [stats, setStats] = useState<ListeningStats | null>(initial ?? null);
@@ -72,7 +76,7 @@ function Stats({ stats }: { stats: ListeningStats }) {
             <span
               className={`tooltip px-2 py-1 ${tooltipAlign(barCentre(i, weeks.length))}`}
             >
-              {day(start)} – {day(start + WEEK - 1)}:{" "}
+              {day(start)} – {day(start + WEEK - DAY)}:{" "}
               <span className="font-medium tabular-nums">{formatCount(n)}</span>
             </span>
           </div>

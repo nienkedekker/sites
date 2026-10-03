@@ -21,7 +21,7 @@ export const GET: APIRoute = async () => {
   }
 
   try {
-    return json(await getProgress(WANIKANI_KEY));
+    return json(await getProgress(WANIKANI_KEY, AbortSignal.timeout(8000)));
   } catch (error) {
     console.error("WaniKani error:", error);
     return json({ error: "Couldn't reach WaniKani" }, 502, false);

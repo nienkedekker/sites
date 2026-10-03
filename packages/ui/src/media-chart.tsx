@@ -11,16 +11,17 @@ export function niceScale(max: number) {
 
 interface MediaChartProps {
   summary: YearSummary | null;
+  now: Date;
   failed?: boolean;
   failedMessage?: string;
 }
 
 export default function MediaChart({
   summary,
+  now,
   failed = false,
   failedMessage = "Couldn't reach what.pm right now.",
 }: MediaChartProps) {
-  const now = new Date();
   const lastMonth =
     summary && summary.year === now.getUTCFullYear()
       ? now.getUTCMonth() + 1

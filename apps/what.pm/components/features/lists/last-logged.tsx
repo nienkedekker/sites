@@ -50,6 +50,7 @@ export async function LastLogged({
                   day: "numeric",
                   month: "short",
                   year: "numeric",
+                  timeZone: "Europe/Amsterdam",
                 })}
             </span>
           </li>

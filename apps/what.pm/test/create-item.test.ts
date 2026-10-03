@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const db = vi.hoisted(() => ({
   inserted: [] as Record<string, unknown>[],
   error: null as { message: string } | null,
+  user: { id: "nienke" } as { id: string } | null,
 }));
 
 const getExternalDetails = vi.hoisted(() => vi.fn());
@@ -13,6 +14,7 @@ vi.mock("next/cache", () => ({ revalidateTag }));
 
 vi.mock("@/utils/supabase/server", () => ({
   createClientForServer: async () => ({
+    auth: { getUser: async () => ({ data: { user: db.user } }) },
     from: () => ({
       insert: (row: Record<string, unknown>) => {
         db.inserted.push(row);
@@ -71,6 +73,7 @@ const slowGods = {
 beforeEach(() => {
   db.inserted = [];
   db.error = null;
+  db.user = { id: "nienke" };
   getExternalDetails.mockReset();
   googleBooksPages.mockReset();
   revalidateTag.mockReset();
@@ -169,9 +172,26 @@ describe("createItemAction", () => {
   it("leaves the cache alone when saving fails", async () => {
     db.error = { message: "nope" };
 
-    await expect(createItemAction(form(dune))).rejects.toMatchObject({
-      digest: expect.stringContaining("/create?error="),
+    expect(await createItemAction(form(dune))).toEqual({
+      error: "Unable to save your item. Please try again.",
     });
     expect(revalidateTag).not.toHaveBeenCalled();
+  });
+
+  it("returns validation errors instead of saving", async () => {
+    const result = await createItemAction(form({ ...dune, title: "" }));
+
+    expect(result.error).toBeTruthy();
+    expect(db.inserted).toHaveLength(0);
+  });
+
+  it("skips the lookups and the insert when I'm signed out", async () => {
+    db.user = null;
+
+    expect(
+      await createItemAction(form({ ...dune, externalId: "438631" })),
+    ).toEqual({ error: expect.stringContaining("Sign in") });
+    expect(getExternalDetails).not.toHaveBeenCalled();
+    expect(db.inserted).toHaveLength(0);
   });
 });

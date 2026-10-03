@@ -1,3 +1,5 @@
+import { formatPlural } from "./format";
+
 export type ItemType = "Book" | "Movie" | "Show";
 
 export interface SeriesCounts {
@@ -7,9 +9,9 @@ export interface SeriesCounts {
 }
 
 export const SERIES = [
-  { key: "books", type: "Book", label: "Books", noun: "books", swatch: "bg-books" },
-  { key: "movies", type: "Movie", label: "Movies", noun: "movies", swatch: "bg-movies" },
-  { key: "shows", type: "Show", label: "TV seasons", noun: "TV seasons", swatch: "bg-shows" },
+  { key: "books", type: "Book", label: "Books", noun: "book", swatch: "bg-books" },
+  { key: "movies", type: "Movie", label: "Movies", noun: "movie", swatch: "bg-movies" },
+  { key: "shows", type: "Show", label: "TV seasons", noun: "TV season", swatch: "bg-shows" },
 ] as const;
 
 export const SWATCH: Record<ItemType, string> = {
@@ -35,7 +37,7 @@ export const MONTHS = [
 
 export function describeCounts(counts: SeriesCounts, { skipZero = false } = {}) {
   return SERIES.filter(({ key }) => !skipZero || counts[key] > 0)
-    .map(({ key, noun }) => `${counts[key]} ${noun}`)
+    .map(({ key, noun }) => formatPlural(counts[key], noun))
     .join(", ");
 }
 

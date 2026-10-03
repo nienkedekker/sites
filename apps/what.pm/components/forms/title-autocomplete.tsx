@@ -52,7 +52,7 @@ export function TitleAutocomplete({
     }
 
     const timer = setTimeout(async () => {
-      const found = await searchTitles(itemType, query);
+      const found = await searchTitles(itemType, query).catch(() => null);
       if (request !== latest.current) return;
       setFailed(found === null);
       setResults(found ?? []);

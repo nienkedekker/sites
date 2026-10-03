@@ -45,10 +45,16 @@ describe("describeCounts", () => {
   const counts = { books: 3, movies: 0, shows: 1 };
 
   it("lists every series by default", () => {
-    expect(describeCounts(counts)).toBe("3 books, 0 movies, 1 TV seasons");
+    expect(describeCounts(counts)).toBe("3 books, 0 movies, 1 TV season");
   });
 
   it("can drop the empty ones", () => {
-    expect(describeCounts(counts, { skipZero: true })).toBe("3 books, 1 TV seasons");
+    expect(describeCounts(counts, { skipZero: true })).toBe("3 books, 1 TV season");
+  });
+
+  it("pluralises and groups each count", () => {
+    expect(describeCounts({ books: 1, movies: 1204, shows: 2 })).toBe(
+      "1 book, 1,204 movies, 2 TV seasons"
+    );
   });
 });

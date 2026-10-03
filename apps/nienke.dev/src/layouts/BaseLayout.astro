@@ -10,6 +10,7 @@ interface Props {
   description?: string;
   image?: string;
   markdown?: string;
+  canonical?: boolean;
 }
 
 const {
@@ -17,13 +18,16 @@ const {
   description = profile.description,
   image,
   markdown,
+  canonical = true,
 } = Astro.props;
 
 const siteTitle = title === profile.name ? title : `${title} | ${profile.name}`;
-const canonicalURL = new URL(
-  Astro.url.pathname,
-  Astro.site || "https://nienke.dev"
-);
+const canonicalURL =
+  canonical &&
+  new URL(
+    Astro.url.pathname.replace(/(.)\/$/, "$1"),
+    Astro.site || "https://nienke.dev"
+  );
 ---
 
 <!doctype html>
@@ -55,11 +59,11 @@ const canonicalURL = new URL(
       href="https://fonts.googleapis.com/css2?family=Kosugi&display=swap"
       rel="stylesheet"
     />
-    <link rel="canonical" href={canonicalURL} />
+    {canonicalURL && <link rel="canonical" href={canonicalURL} />}
     {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
 
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
+    {canonicalURL && <meta property="og:url" content={canonicalURL} />}
     <meta property="og:title" content={siteTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={image ?? profile.image} />

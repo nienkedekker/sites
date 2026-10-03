@@ -105,15 +105,20 @@ test("negotiate reads the page from the path query the route passes", async () =
   assert.equal(await response.text(), "# Now\n");
 });
 
-test("negotiate answers 406 with the available types when nothing fits", async () => {
-  const response = await call("/now", "application/pdf");
-  assert.equal(response.status, 406);
-  assert.equal(response.headers.get("content-type"), "text/plain; charset=utf-8");
-  assert.equal(response.headers.get("vary"), "Accept, Accept-Encoding");
-  assert.equal(response.headers.get("cache-control"), "no-store");
-  const body = await response.text();
-  assert.match(body, /- text\/html\n- text\/markdown/);
-  assert.match(body, /application\/pdf/);
+test("negotiate falls back to HTML instead of a 406 when nothing fits", async () => {
+  for (const accept of [
+    "application/pdf",
+    "application/json",
+    "text/plain",
+    "text/html;q=0, text/markdown;q=0",
+  ]) {
+    const response = await call("/now", accept);
+    assert.equal(response.status, 200, accept);
+    assert.equal(response.headers.get("content-type"), "text/html; charset=utf-8", accept);
+    assert.equal(response.headers.get("vary"), "Accept, Accept-Encoding", accept);
+    assert.equal(response.headers.get("content-location"), null, accept);
+    assert.equal(await response.text(), "<h1>Now</h1>", accept);
+  }
 });
 
 test("negotiate keeps the 404 status for unknown paths, in either format", async () => {

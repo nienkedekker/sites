@@ -14,17 +14,12 @@ export const VARY = "Accept, Accept-Encoding";
 export const NEGOTIATE_FUNCTION = "_negotiate";
 
 // Browsers name text/html without a q-value and never mention Markdown, so their pages stay static.
-// Everything else goes to the negotiate function, which ranks the header properly.
+// Everything else goes to the negotiate function, which ranks the header properly. Headers that
+// name neither (application/json, text/plain) get the static HTML, as RFC 9110 §12.5.1 allows.
 export const needsNegotiation = {
   type: "header",
   key: "accept",
   value: "(?i:.*(?:text/markdown|text/html\\s*;[^,]*q=|;\\s*q=0(?:\\.0*)?\\s*(?:[,;]|$)).*)",
-};
-
-export const acceptsHtml = {
-  type: "header",
-  key: "accept",
-  value: "(?i:.*(?:text/html|text/\\*|\\*/\\*).*)",
 };
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -48,12 +43,6 @@ export function addMarkdownRoutes(routes: Route[], pagePaths: string[]): Route[]
     { src: pages, headers: { Vary: VARY }, continue: true },
     { src: "^/.+\\.md$", headers: { "Content-Type": MARKDOWN_TYPE }, continue: true },
     { src: pages, has: [needsNegotiation], dest: negotiateDest },
-    {
-      src: pages,
-      has: [{ type: "header", key: "accept" }],
-      missing: [acceptsHtml],
-      dest: negotiateDest,
-    },
   ];
 
   return [

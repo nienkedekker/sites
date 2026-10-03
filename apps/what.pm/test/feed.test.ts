@@ -35,8 +35,9 @@ describe("GET /feed.xml", () => {
       "application/rss+xml",
     );
     expect(xml).toContain(
-      '<atom:link href="https://what.pm/feed.xml" rel="self"',
-    );    expect(xml).toContain("<title>what. · what.pm</title>");
+      '<atom:link href="https://www.what.pm/feed.xml" rel="self"',
+    );
+    expect(xml).toContain("<title>what. · what.pm</title>");
   });
 
   it("words each entry by type", async () => {
@@ -71,7 +72,7 @@ describe("GET /feed.xml", () => {
     expect(xml).toContain(
       "<title>Read Salt &amp; &lt;Sugar&gt; by O’Brien &amp; Sons</title>",
     );
-    expect(xml).toContain("<link>https://what.pm/year/2019</link>");
+    expect(xml).toContain("<link>https://www.what.pm/year/2019</link>");
     expect(xml).not.toContain("<Sugar>");
   });
 
@@ -85,9 +86,9 @@ describe("GET /feed.xml", () => {
     expect(xml.match(/<pubDate>/g)).toHaveLength(1);
   });
 
-  it("returns 503 when items can't be loaded", async () => {
+  it("throws when items can't be loaded, so the error isn't cached", async () => {
     recent.result = { success: false, data: null, error: "down" };
 
-    expect((await GET()).status).toBe(503);
+    await expect(GET()).rejects.toThrow("down");
   });
 });

@@ -1,34 +1,18 @@
+import {
+  DAY,
+  PROFILE_URL,
+  USER,
+  WEEK,
+  WEEKS,
+  type Artist,
+  type ListeningStats,
+  type Track,
+} from "./lastfm-shared.ts";
+
+export { PROFILE_URL, WEEK, WEEKS, type ListeningStats, type Track };
+
 const API = "https://ws.audioscrobbler.com/2.0/";
-const USER = "shinyhats";
-export const PROFILE_URL = `https://www.last.fm/user/${USER}`;
 const KEY = "54f8f15133336606e882fdf20148d123";
-
-const DAY = 24 * 60 * 60;
-export const WEEK = 7 * DAY;
-export const WEEKS = 12;
-
-export interface Track {
-  name: string;
-  url: string;
-  artist: { name?: string; "#text"?: string };
-  image?: { size: string; "#text": string }[];
-  date?: { uts: string };
-  "@attr"?: { nowplaying: string };
-}
-
-export interface ListeningStats {
-  total: number;
-  since: number;
-  weeks: { start: number; count: number }[];
-  topArtist?: Artist;
-  topArtistAllTime?: Artist;
-}
-
-interface Artist {
-  name: string;
-  plays: number;
-  url: string;
-}
 
 interface UserInfo {
   user: { playcount: string; registered: { unixtime?: string; "#text"?: number } };
