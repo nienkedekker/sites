@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useLessMotion } from "@/components/layouts/low-power";
 import {
   ChartConfig,
   ChartContainer,
@@ -25,6 +26,7 @@ export function CumulativeLineChart({
   config,
 }: CumulativeLineChartProps) {
   const categories = Object.keys(config);
+  const lessMotion = useLessMotion();
 
   return (
     <Card className="above-grain">
@@ -57,6 +59,7 @@ export function CumulativeLineChart({
                 }
                 strokeWidth={2}
                 dot={false}
+                isAnimationActive={!lessMotion}
               />
             ))}
           </LineChart>

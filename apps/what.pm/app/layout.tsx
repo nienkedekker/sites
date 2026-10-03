@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Instrument_Serif, Inter } from "next/font/google";
 import { ReactNode } from "react";
 import Navigation from "@/components/layouts/navigation";
 import Footer from "@/components/layouts/footer";
+import { LowPower } from "@/components/layouts/low-power";
 import { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/providers/auth-provider";
 
@@ -70,6 +71,7 @@ export default function RootLayout({
       className={`${inter.variable} ${instrumentSerif.variable} ${geist.variable} ${geistMono.variable}`}
     >
       <body className="min-h-screen font-sans antialiased">
+        <LowPower />
         <AuthProvider>
           <ThemeProvider
             attribute="class"

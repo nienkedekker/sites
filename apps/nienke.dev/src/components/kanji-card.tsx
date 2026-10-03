@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
 import { formatCount } from "@nienke/ui/format";
 import Meter from "@nienke/ui/meter";
+import { prefersLessMotion } from "@nienke/ui/motion";
 import { StatList, StatRow } from "@nienke/ui/stat-list";
 import Tag from "@nienke/ui/tag";
 import { tooltipAlign } from "@nienke/ui/tooltip";
@@ -39,6 +40,7 @@ export default function KanjiCard({ initial }: { initial?: Progress }) {
   const next = () => {
     if (sample.length < 2) return;
     setIndex((i) => (i + 1) % sample.length);
+    if (prefersLessMotion()) return;
     charRef.current?.animate(
       [
         { opacity: 0, filter: "blur(6px)" },

@@ -113,6 +113,18 @@ const canonicalURL =
 </html>
 
 <script>
+  import { LOW_POWER_CLASS, watchLowPower } from "@nienke/ui/motion";
+
+  let lowPower = false;
+  const applyLowPower = () =>
+    document.documentElement.classList.toggle(LOW_POWER_CLASS, lowPower);
+  watchLowPower((low) => {
+    lowPower = low;
+    applyLowPower();
+  });
+  // The router swaps in the next page's <html> attributes
+  document.addEventListener("astro:after-swap", applyLowPower);
+
   function setupReveal() {
     const items = document.querySelectorAll<HTMLElement>(
       "[data-reveal]:not(.is-visible)"

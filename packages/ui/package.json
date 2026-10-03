@@ -13,6 +13,7 @@
     "./heatmap": "./src/heatmap.tsx",
     "./media-chart": "./src/media-chart.tsx",
     "./meter": "./src/meter.tsx",
+    "./motion": "./src/motion.ts",
     "./nav-links": "./src/nav-links.tsx",
     "./page-header": "./src/page-header.tsx",
     "./series": "./src/series.tsx",
