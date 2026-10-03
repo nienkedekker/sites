@@ -1,4 +1,5 @@
 import type { MonthCounts, YearSummary } from "./summary";
+import { barCentre, tooltipAlign } from "./tooltip";
 
 export const SERIES = [
   { key: "books", label: "Books", noun: "books", swatch: "bg-books" },
@@ -154,13 +155,9 @@ export default function MediaChart({
 
                       {!upcoming && (
                         <div
-                          className={`tooltip ${
-                            i < 2
-                              ? "left-0"
-                              : i > 9
-                                ? "right-0"
-                                : "left-1/2 -translate-x-1/2"
-                          }`}
+                          className={`tooltip ${tooltipAlign(
+                            barCentre(i, MONTHS.length)
+                          )}`}
                         >
                           <p className="mb-1 font-medium">{name}</p>
                           {SERIES.map(({ key, label, swatch }) => (

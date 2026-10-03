@@ -12,7 +12,8 @@
     "./page-header": "./src/page-header.tsx",
     "./site-mark": "./src/site-mark.tsx",
     "./summary": "./src/summary.ts",
-    "./tag-link": "./src/tag-link.tsx"
+    "./tag-link": "./src/tag-link.tsx",
+    "./tooltip": "./src/tooltip.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

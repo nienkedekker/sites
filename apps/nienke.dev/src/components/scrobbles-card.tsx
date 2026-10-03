@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
 import { formatCount, formatDate } from "@nienke/ui/format";
 import TagLink from "@nienke/ui/tag-link";
+import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
 import { PROFILE_URL, WEEK, type ListeningStats } from "../lib/lastfm";
 
 const day = (unix: number) =>
@@ -67,9 +68,7 @@ function Stats({ stats }: { stats: ListeningStats }) {
               style={{ height: `${Math.max(2, (n / max) * 100)}%` }}
             />
             <span
-              className={`tooltip px-2 py-1 ${
-                i < 4 ? "left-0" : i >= weeks.length - 4 ? "right-0" : "left-1/2 -translate-x-1/2"
-              }`}
+              className={`tooltip px-2 py-1 ${tooltipAlign(barCentre(i, weeks.length))}`}
             >
               {day(start)} – {day(start + WEEK - 1)}:{" "}
               <span className="font-medium tabular-nums">{formatCount(n)}</span>

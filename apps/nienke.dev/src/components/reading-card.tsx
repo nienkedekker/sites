@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
 import TagLink from "@nienke/ui/tag-link";
+import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
 import { getSummary, whatpmUrl, type Summary } from "../lib/whatpm";
 
 const SPINES = [
@@ -85,7 +86,9 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
                 <span className="max-w-full overflow-hidden text-xs font-medium [writing-mode:vertical-rl]">
                   {book.title}
                 </span>
-                <span className="tooltip left-1/2 max-w-48 -translate-x-1/2 px-2.5 py-1.5 group-focus:opacity-100">
+                <span
+                  className={`tooltip max-w-48 px-2.5 py-1.5 group-focus:opacity-100 ${tooltipAlign(barCentre(i, books.length))}`}
+                >
                   <span className="block font-medium text-ink">{book.title}</span>
                   <span className="block text-ink-soft">
                     {book.author}

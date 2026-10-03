@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
 import { formatCount } from "@nienke/ui/format";
+import { tooltipAlign } from "@nienke/ui/tooltip";
 import { keepShown, STAGES, type Kanji, type Progress } from "../lib/wanikani";
 
 const STAGE_SHADES = ["opacity-20", "opacity-40", "opacity-60", "opacity-80", "opacity-100"];
@@ -91,7 +92,14 @@ function Stats({ progress }: { progress: Progress }) {
   const { kanji, stages, vocabulary, accuracy } = progress;
   const percent = Math.round((kanji.learned / kanji.total) * 100);
   const items = STAGES.reduce((n, { key }) => n + stages[key], 0);
-  const shown = STAGES.filter(({ key }) => stages[key]).map(({ key }) => key);
+  let before = 0;
+  const shown = STAGES.flatMap(({ key, label }, i) => {
+    const count = stages[key];
+    if (!count) return [];
+    const centre = (before + count / 2) / items;
+    before += count;
+    return [{ key, label, count, shade: STAGE_SHADES[i], centre }];
+  });
 
   return (
     <div className="text-sm">
@@ -119,28 +127,18 @@ function Stats({ progress }: { progress: Progress }) {
         aria-label={`Items by stage: ${STAGES.map(({ key, label }) => `${label} ${formatCount(stages[key])}`).join(", ")}`}
         className="mt-3 flex h-3 gap-[2px]"
       >
-        {STAGES.map(({ key, label }, i) =>
-          stages[key] ? (
-            <div
-              key={key}
-              className="group relative h-full"
-              style={{ flexGrow: stages[key], flexBasis: 0 }}
-            >
-              <span className={`block h-full bg-movies ${STAGE_SHADES[i]}`} />
-              <span
-                className={`tooltip px-2 py-1 ${
-                  key === shown[0]
-                    ? "left-0"
-                    : key === shown.at(-1)
-                      ? "right-0"
-                      : "left-1/2 -translate-x-1/2"
-                }`}
-              >
-                {label}: <span className="font-medium tabular-nums">{formatCount(stages[key])}</span>
-              </span>
-            </div>
-          ) : null
-        )}
+        {shown.map(({ key, label, count, shade, centre }) => (
+          <div
+            key={key}
+            className="group relative h-full"
+            style={{ flexGrow: count, flexBasis: 0 }}
+          >
+            <span className={`block h-full bg-movies ${shade}`} />
+            <span className={`tooltip px-2 py-1 ${tooltipAlign(centre)}`}>
+              {label}: <span className="font-medium tabular-nums">{formatCount(count)}</span>
+            </span>
+          </div>
+        ))}
       </div>
       <div className="mt-1.5 flex justify-between text-[0.7rem] text-ink-faint" aria-hidden="true">
         <span>Apprentice</span>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
+import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
 import { Item } from "@/types";
 
 const SERIES = [
@@ -106,13 +107,7 @@ export function YearStrip({ results, years }: YearStripProps) {
                 </span>
 
                 <span
-                  className={`tooltip ${
-                    i < 3
-                      ? "left-0"
-                      : i > range.length - 4
-                        ? "right-0"
-                        : "left-1/2 -translate-x-1/2"
-                  }`}
+                  className={`tooltip ${tooltipAlign(barCentre(i, range.length))}`}
                 >
                   <span className="mb-1 block font-medium">{year}</span>
                   {SERIES.filter(({ type }) => counts[type] > 0).map(
