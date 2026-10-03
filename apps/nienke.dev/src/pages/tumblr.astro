@@ -1,0 +1,131 @@
+---
+import { formatCount, formatDate } from "@nienke/ui/format";
+import ArrowUpRight from "phosphor-astro/ArrowUpRight.astro";
+import FandomTimeline from "../components/fandom-timeline.astro";
+import PageLayout from "../layouts/PageLayout.astro";
+import { tumblrIntro, tumblrSections } from "../data/tumblr";
+import { tumblrPosts } from "../data/tumblr-posts";
+
+const sections = tumblrSections.map((section) => ({
+  ...section,
+  posts: tumblrPosts.filter(({ mine }) => mine === section.mine),
+}));
+---
+
+<PageLayout title="Tumblr" intro={tumblrIntro} markdown="/tumblr.md">
+  <div class="space-y-24 sm:space-y-32">
+    <FandomTimeline />
+
+    {
+      sections.map(({ id, title, note, posts }) => (
+        <section aria-labelledby={id} class="border-t border-rule pt-10">
+          <h2 id={id} class="display text-[2rem] text-ink sm:text-[2.5rem]">
+            {title}
+          </h2>
+          <p class="mt-4 max-w-xl leading-[1.6] text-ink-soft">{note}</p>
+
+          <ul class="mt-10 grid grid-cols-1 items-start gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map(
+              ({ blog, date, url, notes, image, more, text, tags }) => (
+                <li data-reveal>
+                  {image &&
+                    (image.gif ? (
+                      <button
+                        type="button"
+                        data-gif={image.gif}
+                        aria-pressed="false"
+                        aria-label="Play GIF"
+                        class="group relative block w-full cursor-pointer border border-rule"
+                      >
+                        <img
+                          src={image.src}
+                          alt=""
+                          width={image.width}
+                          height={image.height}
+                          loading="lazy"
+                          decoding="async"
+                          class="block max-h-[32rem] w-full object-cover object-top"
+                        />
+                        <span class="tag absolute top-2 left-2 bg-paper group-aria-pressed:hidden">
+                          GIF
+                        </span>
+                      </button>
+                    ) : (
+                      <img
+                        src={image.src}
+                        alt=""
+                        width={image.width}
+                        height={image.height}
+                        loading="lazy"
+                        decoding="async"
+                        class="block max-h-[32rem] w-full border border-rule object-cover object-top"
+                      />
+                    ))}
+
+                  <div
+                    class:list={[
+                      "flex flex-wrap items-center gap-x-4 gap-y-2",
+                      image && "mt-4",
+                    ]}
+                  >
+                    <time datetime={date} class="tag">
+                      {formatDate(new Date(date), {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </time>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="group flex items-center gap-1 font-mono text-xs text-ink-faint transition-colors hover:text-ink"
+                    >
+                      {blog}
+                      <ArrowUpRight class="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </a>
+                    <span class="font-mono text-xs text-ink-faint">
+                      {formatCount(notes)} {notes === 1 ? "note" : "notes"}
+                      {more > 0 && ` · ${more + 1} images`}
+                    </span>
+                  </div>
+
+                  {text && (
+                    <p class="mt-3 text-sm leading-[1.6] text-ink-soft [overflow-wrap:anywhere]">
+                      {text}
+                    </p>
+                  )}
+
+                  {tags.length > 0 && (
+                    <p class="mt-2 font-mono text-[0.7rem] leading-[1.6] text-ink-faint [overflow-wrap:anywhere]">
+                      {tags.map((tag) => `#${tag}`).join(" ")}
+                    </p>
+                  )}
+                </li>
+              )
+            )}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</PageLayout>
+
+<script>
+  function setupGifs() {
+    document
+      .querySelectorAll<HTMLButtonElement>("[data-gif]:not([data-bound])")
+      .forEach((button) => {
+        button.dataset.bound = "true";
+        const image = button.querySelector("img")!;
+        const still = image.src;
+        button.addEventListener("click", () => {
+          const playing = button.getAttribute("aria-pressed") === "true";
+          image.src = playing ? still : button.dataset.gif!;
+          button.setAttribute("aria-pressed", String(!playing));
+        });
+      });
+  }
+
+  document.addEventListener("astro:page-load", setupGifs);
+</script>

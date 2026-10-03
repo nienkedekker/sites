@@ -20,3 +20,6 @@ npm-debug.log
 .env.development.local
 .env.test.local
 .env.production.local
+# Tumblr backups (large, personal)
+old-sites-handover/tumblr-backup/
+apps/nienke.dev/scripts/old-sites-snapshot/cache/

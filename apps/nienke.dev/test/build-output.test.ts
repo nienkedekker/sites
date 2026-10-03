@@ -7,7 +7,7 @@ const read = (path: string) => readFileSync(new URL(`static/${path}`, output), "
 const exists = (path: string) => existsSync(new URL(`static/${path}`, output));
 const site = "https://nienke.dev";
 
-const pages = ["/", "/now", "/uses", "/links", "/colophon"];
+const pages = ["/", "/now", "/uses", "/links", "/old-sites", "/lj-icons", "/tumblr", "/colophon"];
 const htmlFile = (path: string) => (path === "/" ? "index.html" : `${path.slice(1)}/index.html`);
 const markdownFile = (path: string) => (path === "/" ? "index.md" : `${path.slice(1)}.md`);
 const sitePath = (url: string) => url.replace(site, "").replace(/^\/$/, "/");

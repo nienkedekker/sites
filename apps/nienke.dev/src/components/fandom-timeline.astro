@@ -1,0 +1,143 @@
+---
+import { fandoms, tumblrFirstYear } from "../data/tumblr-posts";
+
+const QUARTERS = [
+  "January–March",
+  "April–June",
+  "July–September",
+  "October–December",
+];
+const LEVELS = [18, 38, 60, 82, 100];
+
+const quarters = fandoms[0].counts.length;
+const years = Array.from(
+  { length: quarters / 4 },
+  (_, i) => tumblrFirstYear + i
+);
+const max = Math.max(...fandoms.flatMap(({ counts }) => counts));
+
+// Lost dwarfs everything else, so the shades follow a log scale.
+const shade = (count: number) => {
+  if (count === 0) return undefined;
+  const level = Math.min(
+    LEVELS.length - 1,
+    Math.floor((Math.log(count) / Math.log(max + 1)) * LEVELS.length)
+  );
+  return `background-color: color-mix(in srgb, var(--movies) ${LEVELS[level]}%, transparent)`;
+};
+
+const align = (i: number) =>
+  i < 6
+    ? "left-0"
+    : i >= quarters - 6
+      ? "right-0"
+      : "left-1/2 -translate-x-1/2";
+
+const posts = (count: number) => `${count} ${count === 1 ? "post" : "posts"}`;
+---
+
+<section aria-labelledby="fandoms-heading">
+  <h2
+    id="fandoms-heading"
+    class="display text-[2rem] text-ink sm:text-[2.5rem]"
+  >
+    Fandoms
+  </h2>
+  <p class="mt-4 max-w-xl leading-[1.6] text-ink-soft">
+    What I posted about each quarter, going by my tags. Reblogs count here too.
+  </p>
+
+  <table
+    class="mt-8 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]"
+  >
+    <caption class="sr-only">Tumblr posts per fandom, per quarter</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="w-24 sm:w-44">
+          <span class="sr-only">Fandom</span>
+        </th>
+        {
+          years.map((year) => (
+            <th
+              scope="colgroup"
+              colspan="4"
+              class="text-left font-mono font-normal text-ink-faint"
+            >
+              {year}
+            </th>
+          ))
+        }
+        <th scope="col" class="hidden w-10 sm:table-cell">
+          <span class="sr-only">Total</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        fandoms.map(({ name, counts }) => (
+          <tr>
+            <th
+              scope="row"
+              class="truncate pr-2 text-left text-xs font-normal text-ink-soft"
+            >
+              {name}
+            </th>
+            {counts.map((count, i) => {
+              const period = `${QUARTERS[i % 4]} ${years[Math.floor(i / 4)]}`;
+              return (
+                <td class="h-5 p-0">
+                  <div
+                    role="img"
+                    tabindex="0"
+                    aria-label={`${name}, ${period}: ${posts(count)}`}
+                    class:list={[
+                      "group relative h-full w-full",
+                      count === 0 && "bg-line",
+                    ]}
+                    style={shade(count)}
+                  >
+                    <div
+                      class:list={[
+                        "tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left group-focus:opacity-100",
+                        align(i),
+                      ]}
+                      aria-hidden="true"
+                    >
+                      <p class="flex items-baseline justify-between gap-4 font-medium">
+                        {name}
+                        <span class="font-mono font-normal text-ink-soft tabular-nums">
+                          {count}
+                        </span>
+                      </p>
+                      <p class="mt-1 text-ink-soft">{period}</p>
+                    </div>
+                  </div>
+                </td>
+              );
+            })}
+            <td class="hidden text-right font-mono text-ink-faint tabular-nums sm:table-cell">
+              {counts.reduce((a, b) => a + b, 0)}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <div
+    class="mt-4 flex items-center justify-end gap-1 font-mono text-[0.7rem] text-ink-faint"
+    aria-hidden="true"
+  >
+    Fewer
+    <span class="ml-1 size-3 bg-line"></span>
+    {
+      LEVELS.map((level) => (
+        <span
+          class="size-3"
+          style={`background-color: color-mix(in srgb, var(--movies) ${level}%, transparent)`}
+        />
+      ))
+    }
+    <span class="ml-1">More</span>
+  </div>
+</section>
