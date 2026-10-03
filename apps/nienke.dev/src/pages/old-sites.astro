@@ -77,7 +77,7 @@ const snapshotDate = (date: string) =>
                     <a
                       href={image.src}
                       target="_blank"
-                      class="block max-h-[36rem] overflow-y-auto framed"
+                      class="scrollbar-visible block max-h-[36rem] overflow-y-auto framed"
                     >
                       <img
                         src={image.src}
@@ -111,15 +111,15 @@ const snapshotDate = (date: string) =>
 
                 {source && (
                   <figure class="mt-5 max-w-xl">
-                    <figcaption class="font-mono text-xs leading-[1.6] text-ink-faint">
-                      {source.label}
-                    </figcaption>
                     <Code
                       code={source.code}
                       lang={source.lang ?? "html"}
                       theme={snippetTheme}
-                      class="mt-3 border border-rule p-4 font-mono text-[0.75rem] leading-[1.65]"
+                      class="border border-rule p-4 font-mono text-[0.75rem] leading-[1.65]"
                     />
+                    <figcaption class="mt-4 font-mono text-xs leading-[1.6] text-ink-faint">
+                      {source.label}
+                    </figcaption>
                   </figure>
                 )}
               </li>

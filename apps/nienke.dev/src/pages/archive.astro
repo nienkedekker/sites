@@ -177,9 +177,66 @@ const entries = archiveCollections.map((collection) => ({
 
       <figure class="mt-10">
         <figcaption class="sr-only">
-          When each site, LiveJournal and Tumblr was around
+          When each site, LiveJournal, and Tumblr was around
         </figcaption>
-        <div class="space-y-6">
+        {/* Phones get a row per era: too narrow for the bars to say much */}
+        <div class="space-y-10 sm:hidden">
+          {
+            rows.map(({ slug, eras }) => (
+              <div>
+                <p class="font-mono text-xs text-ink-faint">{slug}/</p>
+                <ul class="mt-3 divide-y divide-line border-y border-line">
+                  {eras.map((era) => (
+                    <li>
+                      <a href={era.href} class="group block py-3">
+                        <span class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                          <span class="text-sm text-ink underline decoration-line-strong underline-offset-4 transition-colors group-hover:decoration-ink [overflow-wrap:anywhere]">
+                            {era.name}
+                          </span>
+                          <span class="font-mono text-[0.7rem] text-ink-faint">
+                            {era.years}
+                          </span>
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          class="relative mt-2.5 block h-1.5"
+                        >
+                          {ticks.map((year) => (
+                            <span
+                              class="absolute -inset-y-1 w-px bg-line"
+                              style={`left: ${x(year)}%`}
+                            />
+                          ))}
+                          <span
+                            class="absolute inset-y-0 bg-ink-soft transition-colors group-hover:bg-ink"
+                            style={`left: ${x(era.start)}%; width: ${x(era.end) - x(era.start)}%; ${era.fuzzy ? fuzzyEdges : ""}`}
+                          />
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+          <div aria-hidden="true" class="relative h-4">
+            {
+              ticks.map((year) => (
+                <span
+                  class:list={[
+                    "absolute font-mono text-[0.7rem] text-ink-faint",
+                    year > archiveEnd - 3 && "-translate-x-full",
+                  ]}
+                  style={`left: ${x(year)}%`}
+                >
+                  {year}
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="hidden space-y-6 sm:block">
           {
             rows.map(({ slug, eras, lanes }) => (
               <div class="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-center">
