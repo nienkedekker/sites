@@ -73,7 +73,7 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
 
     <figure
       data-photo
-      class="group rise relative w-full max-w-sm border border-rule shadow-[6px_6px_0_var(--rule)] sm:max-w-md lg:col-span-5 lg:max-w-none"
+      class="group rise relative w-full max-w-sm framed sm:max-w-md lg:col-span-5 lg:max-w-none"
       style="--delay: 200ms"
     >
       <img
@@ -120,24 +120,24 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
 
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <div class="contents lg:col-span-2 lg:flex lg:flex-col lg:gap-3">
-        <article data-reveal class="above-grain card p-6 sm:col-span-2 sm:p-7">
+        <article data-reveal class="panel sm:col-span-2">
           <MediaChart client:visible initial={summary} />
         </article>
 
-        <article data-reveal class="above-grain card p-6 sm:col-span-2 sm:p-7 lg:flex-1">
+        <article data-reveal class="panel sm:col-span-2 lg:flex-1">
           <ReadingCard client:visible initial={summary} />
         </article>
       </div>
 
       <div class="contents lg:flex lg:flex-col lg:gap-3">
-        <article data-reveal style="--delay: 60ms" class="above-grain card p-6 sm:p-7">
+        <article data-reveal style="--delay: 60ms" class="panel">
           <NowPlaying client:load initial={track} />
         </article>
 
         <article
           data-reveal
           style="--delay: 60ms"
-          class="above-grain card p-6 sm:p-7 lg:flex-1"
+          class="panel lg:flex-1"
         >
           <ScrobblesCard client:visible initial={stats} />
         </article>
@@ -146,7 +146,7 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
       <article
         data-reveal
         style="--delay: 120ms"
-        class="above-grain card p-6 sm:col-span-2 sm:p-7 lg:col-span-1"
+        class="panel sm:col-span-2 lg:col-span-1"
       >
         <KanjiCard client:visible initial={progress} />
       </article>

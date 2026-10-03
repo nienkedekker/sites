@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
 import { formatCount } from "@nienke/ui/format";
+import Meter from "@nienke/ui/meter";
+import { StatList, StatRow } from "@nienke/ui/stat-list";
+import Tag from "@nienke/ui/tag";
 import { tooltipAlign } from "@nienke/ui/tooltip";
 import { keepShown, STAGES, type Kanji, type Progress } from "../lib/wanikani";
 
@@ -49,7 +52,7 @@ export default function KanjiCard({ initial }: { initial?: Progress }) {
     <div className="flex h-full flex-col">
       <CardHead
         as="h3"
-        tag={progress && <span className="tag whitespace-nowrap">WaniKani lvl. {progress.level}</span>}
+        tag={progress && <Tag>WaniKani lvl. {progress.level}</Tag>}
       >
         Learning Japanese
       </CardHead>
@@ -90,7 +93,6 @@ export default function KanjiCard({ initial }: { initial?: Progress }) {
 
 function Stats({ progress }: { progress: Progress }) {
   const { kanji, stages, vocabulary, accuracy } = progress;
-  const percent = Math.round((kanji.learned / kanji.total) * 100);
   const items = STAGES.reduce((n, { key }) => n + stages[key], 0);
   let before = 0;
   const shown = STAGES.flatMap(({ key, label }, i) => {
@@ -109,12 +111,7 @@ function Stats({ progress }: { progress: Progress }) {
           {formatCount(kanji.learned)} <span className="text-ink-faint">/ {formatCount(kanji.total)}</span>
         </span>
       </div>
-      <div className="mt-3 h-1 overflow-hidden bg-line">
-        <div
-          className="h-full bg-accent transition-[width] duration-700"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
+      <Meter value={kanji.learned} max={kanji.total} className="mt-3" />
 
       <div className="mt-5 flex items-baseline justify-between gap-3">
         <span className="text-ink-soft">By stage</span>
@@ -145,21 +142,11 @@ function Stats({ progress }: { progress: Progress }) {
         <span>Burned</span>
       </div>
 
-      <dl className="mt-4">
-        {[
-          ["Vocabulary", formatCount(vocabulary)],
-          ["Accuracy", `${accuracy.toFixed(1)}%`],
-          ["Burned", formatCount(stages.burned)],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            className="flex items-baseline justify-between gap-3 border-t border-line py-2"
-          >
-            <dt className="text-ink-soft">{label}</dt>
-            <dd className="tabular-nums">{value}</dd>
-          </div>
-        ))}
-      </dl>
+      <StatList className="mt-4">
+        <StatRow label="Vocabulary">{formatCount(vocabulary)}</StatRow>
+        <StatRow label="Accuracy">{accuracy.toFixed(1)}%</StatRow>
+        <StatRow label="Burned">{formatCount(stages.burned)}</StatRow>
+      </StatList>
     </div>
   );
 }

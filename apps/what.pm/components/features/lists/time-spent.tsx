@@ -1,7 +1,5 @@
-import { formatCount } from "@nienke/ui/format";
+import { formatCount, formatPlural } from "@nienke/ui/format";
 import type { TimeSpent as Spent } from "@/utils/data/patterns";
-
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 export function TimeSpent({ spent }: { spent: Spent }) {
   const hours = Math.round(spent.minutes / 60);
@@ -19,7 +17,7 @@ export function TimeSpent({ spent }: { spent: Spent }) {
             <span className="text-sm text-ink-soft">pages</span>
           </dd>
           <dd className="mt-1 font-mono text-xs text-ink-faint">
-            from {spent.booksWithPages} of {plural(spent.books, "book")}
+            from {spent.booksWithPages} of {formatPlural(spent.books, "book")}
           </dd>
         </div>
       )}
@@ -33,8 +31,12 @@ export function TimeSpent({ spent }: { spent: Spent }) {
             </span>
           </dd>
           <dd className="mt-1 font-mono text-xs text-ink-faint">
-            from {spent.screensWithRuntime} of {spent.screens}{" "}
-            {spent.screens === 1 ? "movie or season" : "movies and seasons"}
+            from {spent.screensWithRuntime} of{" "}
+            {formatPlural(
+              spent.screens,
+              "movie or season",
+              "movies and seasons",
+            )}
           </dd>
         </div>
       )}

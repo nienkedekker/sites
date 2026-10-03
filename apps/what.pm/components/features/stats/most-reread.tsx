@@ -1,15 +1,15 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
+import { SWATCH } from "@nienke/ui/series";
 import type { Revisit } from "@/utils/data/stats";
 
-const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
 const VERB = { Book: "read", Movie: "watched", Show: "watched" };
 
 export function MostReread({ titles }: { titles: Revisit[] }) {
   return (
     <section
       aria-labelledby="most-reread-heading"
-      className="above-grain card flex h-full flex-col p-6 sm:p-7"
+      className="panel flex h-full flex-col"
     >
       <CardHead id="most-reread-heading">Most reread &amp; rewatched</CardHead>
 

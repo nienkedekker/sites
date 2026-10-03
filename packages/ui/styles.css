@@ -193,6 +193,15 @@
     font-feature-settings: normal;
   }
 
+  .panel {
+    @apply relative z-[101] border border-rule bg-panel p-6 sm:p-7;
+  }
+
+  .framed {
+    border: 1px solid var(--rule);
+    box-shadow: 6px 6px 0 var(--rule);
+  }
+
   .card-title {
     font-weight: 500;
     letter-spacing: -0.01em;

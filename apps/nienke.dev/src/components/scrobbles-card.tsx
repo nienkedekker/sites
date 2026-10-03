@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import CardHead from "@nienke/ui/card-head";
+import { externalProps } from "@nienke/ui/external";
 import { formatCount, formatDate } from "@nienke/ui/format";
+import { StatList, StatRow } from "@nienke/ui/stat-list";
 import TagLink from "@nienke/ui/tag-link";
 import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
 import { PROFILE_URL, WEEK, type ListeningStats } from "../lib/lastfm";
@@ -81,10 +83,10 @@ function Stats({ stats }: { stats: ListeningStats }) {
         <span>last 7 days</span>
       </div>
 
-      <dl className="mt-5">
+      <StatList className="mt-5">
         {topArtist && <ArtistRow label="Top this month" artist={topArtist} />}
         {topArtistAllTime && <ArtistRow label="Top all time" artist={topArtistAllTime} />}
-      </dl>
+      </StatList>
     </div>
   );
 }
@@ -97,22 +99,16 @@ function ArtistRow({
   artist: NonNullable<ListeningStats["topArtist"]>;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 border-t border-line py-2">
-      <dt className="shrink-0 text-ink-soft">{label}</dt>
-      <dd className="flex min-w-0 items-baseline gap-1.5">
-        <a
-          href={artist.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="link truncate"
-        >
+    <StatRow label={label}>
+      <span className="flex items-baseline justify-end gap-1.5">
+        <a href={artist.url} {...externalProps(artist.url)} className="link truncate">
           {artist.name}
         </a>
-        <span className="text-ink-faint tabular-nums">
+        <span className="text-ink-faint">
           {formatCount(artist.plays)}
           <span className="sr-only"> plays</span>
         </span>
-      </dd>
-    </div>
+      </span>
+    </StatRow>
   );
 }

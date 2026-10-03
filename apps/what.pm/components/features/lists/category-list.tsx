@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { formatPlural } from "@nienke/ui/format";
+import { SWATCH, type ItemType } from "@nienke/ui/series";
 import DeleteItemDialog from "./delete-item-dialog";
 import EditItemDialog from "./edit-item-dialog";
 import { Item } from "@/types";
@@ -12,12 +14,6 @@ interface CategoryListProps {
   items: Item[];
   showYearLink?: boolean;
 }
-
-const SWATCH_MAP: Record<string, string> = {
-  Book: "bg-books",
-  Movie: "bg-movies",
-  Show: "bg-shows",
-};
 
 function ItemMetadata({ item }: { item: Item }) {
   switch (item.itemtype) {
@@ -50,7 +46,7 @@ export function CategoryList({
 }: CategoryListProps) {
   const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-heading`;
   const itemType = items[0]?.itemtype || categoryTitle.slice(0, -1);
-  const swatch = SWATCH_MAP[itemType] ?? SWATCH_MAP.Book;
+  const swatch = SWATCH[itemType as ItemType] ?? SWATCH.Book;
 
   return (
     <section aria-labelledby={headingId}>
@@ -63,14 +59,14 @@ export function CategoryList({
           {categoryTitle}
         </h2>
         <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
-          {items.length} {items.length === 1 ? "item" : "items"}
+          {formatPlural(items.length, "item")}
         </p>
       </header>
 
       {items.length > 0 ? (
         <ol>
           {items.map((item, index) => (
-            <li key={item.id}>
+            <li key={item.id} id={`item-${item.id}`}>
               <article className="flex gap-4 border-b border-line py-4">
                 <span
                   className="w-5 shrink-0 pt-0.5 font-mono text-xs text-ink-faint tabular-nums"

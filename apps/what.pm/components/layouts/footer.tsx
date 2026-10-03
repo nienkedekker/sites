@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SiteFooter from "@nienke/ui/site-footer";
 import { AccountLinks } from "@/components/layouts/account-links";
 
 const SITE_LINKS = [
@@ -28,56 +29,36 @@ function XIcon({ className }: { className?: string }) {
 
 export default function Footer() {
   return (
-    <footer className="mt-32 border-t border-rule font-mono text-xs text-ink-soft">
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        <div className="flex flex-wrap justify-between gap-x-8 gap-y-2">
-          <nav aria-label="Site">
-            <ul className="flex flex-wrap gap-x-4 gap-y-1">
-              {SITE_LINKS.map(({ href, label }) => (
-                <li key={href}>
-                  <Link href={href} className="link hover:text-ink">
-                    {label}
-                  </Link>
-                </li>
-              ))}
+    <SiteFooter
+      linkAs={Link}
+      navs={[
+        {
+          label: "Site",
+          links: SITE_LINKS,
+          extra: (
+            <>
               <li>
                 <a href="/feed.xml" className="link hover:text-ink">
                   RSS
                 </a>
               </li>
               <AccountLinks />
-            </ul>
-          </nav>
-          <nav aria-label="Elsewhere">
-            <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <li>
-                <a
-                  href="https://nienke.dev"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="link hover:text-ink"
-                >
-                  nienke.dev
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://x.com/thanergic"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="@thanergic on X"
-                  className="group flex items-center gap-1.5 transition-colors hover:text-ink"
-                >
-                  <XIcon className="size-3.5 shrink-0" />
-                  <span className="link group-hover:decoration-ink">
-                    @thanergic
-                  </span>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </footer>
+            </>
+          ),
+        },
+        {
+          label: "Elsewhere",
+          links: [
+            { href: "https://nienke.dev", label: "nienke.dev" },
+            {
+              href: "https://x.com/thanergic",
+              label: "@thanergic",
+              ariaLabel: "@thanergic on X",
+              icon: <XIcon className="size-3.5 shrink-0" />,
+            },
+          ],
+        },
+      ]}
+    />
   );
 }

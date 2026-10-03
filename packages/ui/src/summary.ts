@@ -11,3 +11,31 @@ export interface YearSummary {
   months: MonthCounts[];
   url: string;
 }
+
+export interface SummaryBook {
+  title: string;
+  author: string;
+  publishedYear: number;
+  reread: boolean;
+  loggedAt: string | null;
+}
+
+export interface SummaryMovie {
+  title: string;
+  director: string;
+  releaseYear: number;
+  loggedAt: string | null;
+}
+
+export interface SummaryShow {
+  title: string;
+  season: number;
+  inProgress: boolean;
+  loggedAt: string | null;
+}
+
+export interface SummaryResponse extends YearSummary {
+  recent: { books: SummaryBook[]; movies: SummaryMovie[]; shows: SummaryShow[] };
+}
+
+export const whatpmYearUrl = (year: number) => `https://www.what.pm/year/${year}`;

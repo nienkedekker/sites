@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
 import { formatCount, formatDate } from "@nienke/ui/format";
+import { StatList, StatRow } from "@nienke/ui/stat-list";
 import { PaceChart } from "@/components/features/charts/pace-chart";
 import { dayOfYear, daysInYear, type PaceYear } from "@/utils/data/patterns";
 
@@ -31,9 +32,8 @@ export function Pace({ years }: { years: PaceYear[] }) {
   const projected = Math.round((soFar / (today + 1)) * daysInYear(thisYear));
   const difference = lastYearSoFar === null ? null : soFar - lastYearSoFar;
 
-  const points = Array.from(
-    { length: Math.ceil(366 / STEP) + 1 },
-    (_, i) => Math.min(i * STEP, 365),
+  const points = Array.from({ length: Math.ceil(366 / STEP) + 1 }, (_, i) =>
+    Math.min(i * STEP, 365),
   );
   if (!points.includes(today)) points.push(today);
   points.sort((a, b) => a - b);
@@ -51,10 +51,7 @@ export function Pace({ years }: { years: PaceYear[] }) {
   const date = formatDate(now, { month: "long", day: "numeric" });
 
   return (
-    <section
-      aria-labelledby="pace-heading"
-      className="above-grain card p-6 sm:p-7"
-    >
+    <section aria-labelledby="pace-heading" className="panel">
       <CardHead id="pace-heading" note={`as of ${date}`}>
         Pace
       </CardHead>
@@ -72,35 +69,27 @@ export function Pace({ years }: { years: PaceYear[] }) {
             {difference === 0 && ", level with last year"}.
           </p>
 
-          <dl className="mt-auto space-y-0 pt-6 font-mono text-xs">
-            <div className="flex justify-between gap-4 border-b border-line py-2">
-              <dt className="text-ink-soft">On pace for</dt>
-              <dd className="tabular-nums text-ink">
-                ~{formatCount(projected)}
-              </dd>
-            </div>
+          <StatList
+            rule="bottom"
+            className="mt-auto pt-6 font-mono text-xs text-ink [&>*:last-child]:border-b-0"
+          >
+            <StatRow label="On pace for">~{formatCount(projected)}</StatRow>
             {lastYear && lastYearSoFar !== null && (
-              <div className="flex justify-between gap-4 border-b border-line py-2">
-                <dt className="text-ink-soft">{lastYear.year} by now</dt>
-                <dd className="tabular-nums text-ink">
-                  {formatCount(lastYearSoFar)}
-                  <span className="text-ink-faint">
-                    {" "}
-                    of {formatCount(lastYear.days.length)}
-                  </span>
-                </dd>
-              </div>
+              <StatRow label={`${lastYear.year} by now`}>
+                {formatCount(lastYearSoFar)}
+                <span className="text-ink-faint">
+                  {" "}
+                  of {formatCount(lastYear.days.length)}
+                </span>
+              </StatRow>
             )}
-            <div className="flex justify-between gap-4 py-2">
-              <dt className="text-ink-soft">Best by now</dt>
-              <dd className="tabular-nums text-ink">
-                <Link href={`/year/${best.year}`} className="link">
-                  {best.year}
-                </Link>
-                , {formatCount(best.count)}
-              </dd>
-            </div>
-          </dl>
+            <StatRow label="Best by now">
+              <Link href={`/year/${best.year}`} className="link">
+                {best.year}
+              </Link>
+              , {formatCount(best.count)}
+            </StatRow>
+          </StatList>
         </div>
 
         <div>

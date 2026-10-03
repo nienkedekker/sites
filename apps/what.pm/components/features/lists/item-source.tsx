@@ -1,3 +1,4 @@
+import { externalProps } from "@nienke/ui/external";
 import { formatCount } from "@nienke/ui/format";
 import { Item } from "@/types";
 import { isOpenLibraryKey } from "@/utils/data/external-ids";
@@ -40,9 +41,8 @@ export function ItemSource({ item }: { item: Item }) {
       {source ? (
         <a
           href={source.href}
-          target="_blank"
-          rel="noreferrer"
           className="link hover:text-ink"
+          {...externalProps(source.href)}
         >
           {source.name}
         </a>

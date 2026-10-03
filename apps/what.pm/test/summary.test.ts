@@ -51,7 +51,7 @@ describe("summarizeYear", () => {
     const summary = summarizeYear([book(), book(), movie(), show()], 2026);
 
     expect(summary.counts).toEqual({ books: 2, movies: 1, shows: 1 });
-    expect(summary.url).toBe("https://what.pm/year/2026");
+    expect(summary.url).toBe("https://www.what.pm/year/2026");
   });
 });
 

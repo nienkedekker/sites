@@ -1,8 +1,8 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
+import Meter from "@nienke/ui/meter";
+import { SWATCH } from "@nienke/ui/series";
 import type { Person } from "@/utils/data/stats";
-
-const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
 
 interface MostLoggedProps {
   id: string;
@@ -14,10 +14,7 @@ export function MostLogged({ id, title, people }: MostLoggedProps) {
   const most = Math.max(1, ...people.map((person) => person.count));
 
   return (
-    <section
-      aria-labelledby={`${id}-heading`}
-      className="above-grain card h-full p-6 sm:p-7"
-    >
+    <section aria-labelledby={`${id}-heading`} className="panel h-full">
       <CardHead id={`${id}-heading`}>{title}</CardHead>
 
       <ol className="mt-5">
@@ -35,12 +32,12 @@ export function MostLogged({ id, title, people }: MostLoggedProps) {
                   {count}
                 </span>
               </span>
-              <span className="mt-1.5 block h-1 bg-line" aria-hidden="true">
-                <span
-                  className={`block h-full ${SWATCH[type]}`}
-                  style={{ width: `${(count / most) * 100}%` }}
-                />
-              </span>
+              <Meter
+                value={count}
+                max={most}
+                fill={SWATCH[type]}
+                className="mt-1.5"
+              />
             </Link>
           </li>
         ))}

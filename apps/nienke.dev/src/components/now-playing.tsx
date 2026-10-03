@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import CardHead from "@nienke/ui/card-head";
+import { externalProps } from "@nienke/ui/external";
+import Tag from "@nienke/ui/tag";
 import { getLatestTrack, type Track } from "../lib/lastfm";
 
 export default function NowPlaying({ initial }: { initial?: Track | null }) {
@@ -44,7 +46,7 @@ export default function NowPlaying({ initial }: { initial?: Track | null }) {
         as="h3"
         tag={
           track && (
-            <span className="tag whitespace-nowrap">
+            <Tag>
               {isNowPlaying && (
                 <span className="flex h-2.5 items-end gap-[2px]" aria-hidden="true">
                   {[0, 1, 2].map((i) => (
@@ -57,7 +59,7 @@ export default function NowPlaying({ initial }: { initial?: Track | null }) {
                 </span>
               )}
               {isNowPlaying ? "Now playing" : "Last played"}
-            </span>
+            </Tag>
           )
         }
       >
@@ -89,7 +91,7 @@ export default function NowPlaying({ initial }: { initial?: Track | null }) {
         {loading ? (
           <p className="text-sm text-ink-faint">Tuning in…</p>
         ) : track ? (
-          <a href={track.url} target="_blank" rel="noopener noreferrer" className="group block">
+          <a href={track.url} {...externalProps(track.url)} className="group block">
             <span className="block truncate font-medium group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-4">
               {track.name}
             </span>

@@ -10,7 +10,7 @@ interface ErrorFallbackProps {
 
 export function DataLoadingError({ error, reset }: ErrorFallbackProps) {
   return (
-    <div role="alert" className="card max-w-xl p-6 sm:p-7">
+    <div role="alert" className="panel max-w-xl">
       <AlertTriangle className="mb-4 size-6 text-danger" aria-hidden="true" />
       <h2 className="display mb-3 text-[1.875rem] text-ink">
         Unable to load items

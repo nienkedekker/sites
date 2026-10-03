@@ -1,4 +1,7 @@
 ---
+import { formatPlural } from "@nienke/ui/format";
+import { HeatCell, HeatLegend } from "@nienke/ui/heatmap";
+import { barCentre } from "@nienke/ui/tooltip";
 import { fandoms, tumblrFirstYear } from "../data/tumblr-posts";
 
 const QUARTERS = [
@@ -7,7 +10,6 @@ const QUARTERS = [
   "July–September",
   "October–December",
 ];
-const LEVELS = [18, 38, 60, 82, 100];
 
 const quarters = fandoms[0].counts.length;
 const years = Array.from(
@@ -15,25 +17,8 @@ const years = Array.from(
   (_, i) => tumblrFirstYear + i
 );
 const max = Math.max(...fandoms.flatMap(({ counts }) => counts));
-
 // Lost dwarfs everything else, so the shades follow a log scale.
-const shade = (count: number) => {
-  if (count === 0) return undefined;
-  const level = Math.min(
-    LEVELS.length - 1,
-    Math.floor((Math.log(count) / Math.log(max + 1)) * LEVELS.length)
-  );
-  return `background-color: color-mix(in srgb, var(--movies) ${LEVELS[level]}%, transparent)`;
-};
-
-const align = (i: number) =>
-  i < 6
-    ? "left-0"
-    : i >= quarters - 6
-      ? "right-0"
-      : "left-1/2 -translate-x-1/2";
-
-const posts = (count: number) => `${count} ${count === 1 ? "post" : "posts"}`;
+const scale = "log";
 ---
 
 <section aria-labelledby="fandoms-heading">
@@ -86,32 +71,16 @@ const posts = (count: number) => `${count} ${count === 1 ? "post" : "posts"}`;
               const period = `${QUARTERS[i % 4]} ${years[Math.floor(i / 4)]}`;
               return (
                 <td class="h-5 p-0">
-                  <div
-                    role="img"
-                    tabindex="0"
-                    aria-label={`${name}, ${period}: ${posts(count)}`}
-                    class:list={[
-                      "group relative h-full w-full",
-                      count === 0 && "bg-line",
-                    ]}
-                    style={shade(count)}
+                  <HeatCell
+                    count={count}
+                    max={max}
+                    scale={scale}
+                    position={barCentre(i, quarters)}
+                    label={`${name}, ${period}: ${formatPlural(count, "post")}`}
+                    title={name}
                   >
-                    <div
-                      class:list={[
-                        "tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left group-focus:opacity-100",
-                        align(i),
-                      ]}
-                      aria-hidden="true"
-                    >
-                      <p class="flex items-baseline justify-between gap-4 font-medium">
-                        {name}
-                        <span class="font-mono font-normal text-ink-soft tabular-nums">
-                          {count}
-                        </span>
-                      </p>
-                      <p class="mt-1 text-ink-soft">{period}</p>
-                    </div>
-                  </div>
+                    <p class="mt-1 text-ink-soft">{period}</p>
+                  </HeatCell>
                 </td>
               );
             })}
@@ -124,20 +93,5 @@ const posts = (count: number) => `${count} ${count === 1 ? "post" : "posts"}`;
     </tbody>
   </table>
 
-  <div
-    class="mt-4 flex items-center justify-end gap-1 font-mono text-[0.7rem] text-ink-faint"
-    aria-hidden="true"
-  >
-    Fewer
-    <span class="ml-1 size-3 bg-line"></span>
-    {
-      LEVELS.map((level) => (
-        <span
-          class="size-3"
-          style={`background-color: color-mix(in srgb, var(--movies) ${level}%, transparent)`}
-        />
-      ))
-    }
-    <span class="ml-1">More</span>
-  </div>
+  <HeatLegend />
 </section>

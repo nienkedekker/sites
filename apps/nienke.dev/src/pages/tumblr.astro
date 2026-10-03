@@ -1,5 +1,6 @@
 ---
-import { formatCount, formatDate } from "@nienke/ui/format";
+import { externalProps } from "@nienke/ui/external";
+import { formatDate, formatPlural } from "@nienke/ui/format";
 import ArrowUpRight from "phosphor-astro/ArrowUpRight.astro";
 import ArchiveFooter from "../components/archive-footer.astro";
 import FandomTimeline from "../components/fandom-timeline.astro";
@@ -86,15 +87,14 @@ const sections = tumblrSections.map((section) => ({
                     </time>
                     <a
                       href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      {...externalProps(url)}
                       class="group flex items-center gap-1 font-mono text-xs text-ink-faint transition-colors hover:text-ink"
                     >
                       {blog}
                       <ArrowUpRight class="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </a>
                     <span class="font-mono text-xs text-ink-faint">
-                      {formatCount(notes)} {notes === 1 ? "note" : "notes"}
+                      {formatPlural(notes, "note")}
                       {more > 0 && ` · ${more + 1} images`}
                     </span>
                   </div>

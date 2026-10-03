@@ -1,8 +1,8 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
+import { SWATCH } from "@nienke/ui/series";
 import type { Rhythm } from "@/utils/data/patterns";
 
-const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
 const VERB = { Book: "Read", Movie: "Watched", Show: "Watched" };
 const AGAIN = { Book: "reread", Movie: "rewatch", Show: "rewatch" };
 
@@ -32,14 +32,8 @@ export function RereadRhythm({ rhythms }: { rhythms: Rhythm[] }) {
   );
 
   return (
-    <section
-      aria-labelledby="reread-rhythm-heading"
-      className="above-grain card p-6 sm:p-7"
-    >
-      <CardHead
-        id="reread-rhythm-heading"
-        note={`${first}–${currentYear}`}
-      >
+    <section aria-labelledby="reread-rhythm-heading" className="panel">
+      <CardHead id="reread-rhythm-heading" note={`${first}–${currentYear}`}>
         Reread rhythm
       </CardHead>
 

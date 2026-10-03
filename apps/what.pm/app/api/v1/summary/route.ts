@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabasePublic } from "@/utils/supabase/public";
-import { validateAndTypeItem, type TypedItem } from "@/types/shared";
+import {
+  whatpmYearUrl,
+  type SummaryBook,
+  type SummaryMovie,
+  type SummaryResponse,
+  type SummaryShow,
+} from "@nienke/ui/summary";
+import {
+  validateAndTypeItem,
+  type BookItem,
+  type MovieItem,
+  type ShowItem,
+  type TypedItem,
+} from "@/types/shared";
 import { getCurrentYear } from "@/utils/formatters/date";
 import { countByMonth } from "@/utils/data/summary";
 
@@ -19,32 +32,32 @@ function parseIntParam(value: string | null, fallback: number) {
   return Number.isInteger(parsed) ? parsed : NaN;
 }
 
-function toSummaryItem(item: TypedItem) {
-  const loggedAt = item.created_at;
-  switch (item.itemtype) {
-    case "Book":
-      return {
-        title: item.title,
-        author: item.author,
-        publishedYear: item.published_year,
-        reread: item.redo,
-        loggedAt,
-      };
-    case "Movie":
-      return {
-        title: item.title,
-        director: item.director,
-        releaseYear: item.published_year,
-        loggedAt,
-      };
-    case "Show":
-      return {
-        title: item.title,
-        season: item.season,
-        inProgress: item.in_progress,
-        loggedAt,
-      };
-  }
+function toBook(item: BookItem): SummaryBook {
+  return {
+    title: item.title,
+    author: item.author,
+    publishedYear: item.published_year,
+    reread: item.redo,
+    loggedAt: item.created_at,
+  };
+}
+
+function toMovie(item: MovieItem): SummaryMovie {
+  return {
+    title: item.title,
+    director: item.director,
+    releaseYear: item.published_year,
+    loggedAt: item.created_at,
+  };
+}
+
+function toShow(item: ShowItem): SummaryShow {
+  return {
+    title: item.title,
+    season: item.season,
+    inProgress: item.in_progress,
+    loggedAt: item.created_at,
+  };
 }
 
 export async function GET(request: NextRequest) {
@@ -87,14 +100,11 @@ export async function GET(request: NextRequest) {
     .map(validateAndTypeItem)
     .filter((item): item is TypedItem => item !== null);
 
-  const byType = (type: TypedItem["itemtype"]) =>
-    items.filter((item) => item.itemtype === type);
+  const books = items.filter((item) => item.itemtype === "Book");
+  const movies = items.filter((item) => item.itemtype === "Movie");
+  const shows = items.filter((item) => item.itemtype === "Show");
 
-  const books = byType("Book");
-  const movies = byType("Movie");
-  const shows = byType("Show");
-
-  return NextResponse.json(
+  return NextResponse.json<SummaryResponse>(
     {
       year,
       counts: {
@@ -104,11 +114,11 @@ export async function GET(request: NextRequest) {
       },
       months: countByMonth(items, year),
       recent: {
-        books: books.slice(0, limit).map(toSummaryItem),
-        movies: movies.slice(0, limit).map(toSummaryItem),
-        shows: shows.slice(0, limit).map(toSummaryItem),
+        books: books.slice(0, limit).map(toBook),
+        movies: movies.slice(0, limit).map(toMovie),
+        shows: shows.slice(0, limit).map(toShow),
       },
-      url: `https://what.pm/year/${year}`,
+      url: whatpmYearUrl(year),
     },
     { headers: HEADERS },
   );

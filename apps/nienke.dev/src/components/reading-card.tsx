@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import CardHead from "@nienke/ui/card-head";
+import { externalProps } from "@nienke/ui/external";
+import StatTile from "@nienke/ui/stat-tile";
 import TagLink from "@nienke/ui/tag-link";
 import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
 import { getSummary, whatpmUrl, type Summary } from "../lib/whatpm";
@@ -28,45 +29,31 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
   }, []);
 
   const books = summary?.recent.books ?? [];
+  const logUrl = summary?.url ?? whatpmUrl;
   const logLink = (
-    <a
-      href={summary?.url ?? whatpmUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="link text-ink"
-    >
+    <a href={logUrl} {...externalProps(logUrl)} className="link text-ink">
       what.pm
     </a>
   );
 
   return (
     <div className="flex h-full flex-col gap-6 sm:flex-row">
-      <div className="flex flex-col sm:w-2/5">
-        <CardHead
+      <div className="sm:w-2/5">
+        <StatTile
           as="h3"
+          title="Reading"
           tag={summary && <TagLink href={summary.url}>{summary.year}</TagLink>}
+          size="7xl"
+          value={summary ? summary.counts.books : failed ? "–" : null}
         >
-          Reading
-        </CardHead>
-
-        <div className="mt-auto pt-6">
-          {summary || failed ? (
-            <p className="stat-figure text-7xl">
-              {summary ? summary.counts.books : "–"}
-            </p>
-          ) : (
-            <div className="skeleton h-[4.5rem] w-28" />
-          )}
           {summary ? (
-            <p className="mt-3 text-sm text-ink-soft">books read so far.</p>
+            "books read so far."
           ) : failed ? (
-            <p className="mt-3 text-ink-soft">
-              Couldn't reach my reading log right now. It lives on {logLink}.
-            </p>
+            <>Couldn't reach my reading log right now. It lives on {logLink}.</>
           ) : (
-            <p className="mt-3 text-ink-faint">Checking my reading log…</p>
+            <span className="text-ink-faint">Checking my reading log…</span>
           )}
-        </div>
+        </StatTile>
       </div>
 
       <div className="flex flex-1 items-end">
@@ -77,7 +64,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
           {books.map((book, i) => {
             return (
               <li
-                key={`${book.title}-${book.author}`}
+                key={i}
                 className={`group relative flex flex-1 cursor-default justify-center py-3 transition-transform duration-300 hover:-translate-y-2 ${SPINES[i % SPINES.length]}`}
                 style={{ height: `${spineHeight(book.title)}%` }}
                 tabIndex={0}

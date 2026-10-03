@@ -1,6 +1,6 @@
 import Link from "next/link";
-import CardHead from "@nienke/ui/card-head";
-import { formatCount } from "@nienke/ui/format";
+import UiStatTile from "@nienke/ui/stat-tile";
+import Tag from "@nienke/ui/tag";
 import TagLink from "@nienke/ui/tag-link";
 import type { ReactNode } from "react";
 
@@ -14,8 +14,10 @@ interface StatTileProps {
 
 export function StatTile({ title, value, children, href, tag }: StatTileProps) {
   return (
-    <section className="above-grain card flex h-full flex-col p-6 sm:p-7">
-      <CardHead
+    <section className="panel h-full">
+      <UiStatTile
+        title={title}
+        value={value}
         tag={
           tag &&
           (href ? (
@@ -23,16 +25,12 @@ export function StatTile({ title, value, children, href, tag }: StatTileProps) {
               {tag}
             </TagLink>
           ) : (
-            <span className="tag">{tag}</span>
+            <Tag>{tag}</Tag>
           ))
         }
       >
-        {title}
-      </CardHead>
-      <p className="stat-figure mt-auto pt-8 text-6xl">
-        {formatCount(value)}
-      </p>
-      <p className="mt-3 text-sm text-ink-soft">{children}</p>
+        {children}
+      </UiStatTile>
     </section>
   );
 }

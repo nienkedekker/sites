@@ -1,12 +1,7 @@
 import { formatDate } from "@nienke/ui/format";
+import { SWATCH } from "@nienke/ui/series";
 import { getRecentItems } from "@/utils/data/items";
 import type { TypedItem } from "@/types/shared";
-
-const SWATCH_MAP: Record<TypedItem["itemtype"], string> = {
-  Book: "bg-books",
-  Movie: "bg-movies",
-  Show: "bg-shows",
-};
 
 const LABEL_MAP: Record<TypedItem["itemtype"], string> = {
   Book: "Book",
@@ -36,7 +31,7 @@ export async function LastLogged({
             className="flex items-center gap-3 border-b border-line py-3"
           >
             <span
-              className={`size-2.5 shrink-0 ${SWATCH_MAP[item.itemtype]}`}
+              className={`size-2.5 shrink-0 ${SWATCH[item.itemtype]}`}
               aria-hidden="true"
             />
             <span className="min-w-0 flex-1 wrap-break-word font-medium tracking-[-0.01em]">

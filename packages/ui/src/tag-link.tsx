@@ -1,25 +1,23 @@
 import type { ElementType, ReactNode } from "react";
+import { externalProps } from "./external";
 
 interface TagLinkProps {
   href: string;
   children: ReactNode;
   as?: ElementType;
+  arrow?: boolean;
 }
 
 export default function TagLink({
   href,
   children,
   as: Anchor = "a",
+  arrow = true,
 }: TagLinkProps) {
-  const external = /^https?:/.test(href);
-
   return (
-    <Anchor
-      href={href}
-      className="tag whitespace-nowrap"
-      {...(external && { target: "_blank", rel: "noopener noreferrer" })}
-    >
-      {children} <span aria-hidden="true">↗</span>
+    <Anchor href={href} className="tag whitespace-nowrap" {...externalProps(href)}>
+      {children}
+      {arrow && <span aria-hidden="true">↗</span>}
     </Anchor>
   );
 }

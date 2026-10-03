@@ -1,27 +1,22 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
 import { formatCount } from "@nienke/ui/format";
+import { describeCounts, SERIES, SWATCH } from "@nienke/ui/series";
 import type { YearEntries } from "@/utils/data/stats";
 
-const SWATCH = { Book: "bg-books", Movie: "bg-movies", Show: "bg-shows" };
-const NOUN = { Book: "books", Movie: "movies", Show: "TV seasons" };
-
 function describe(entries: YearEntries["entries"]) {
-  const counts = { Book: 0, Movie: 0, Show: 0 };
-  for (const entry of entries) counts[entry.type] += 1;
-  return (Object.keys(counts) as (keyof typeof counts)[])
-    .map((type) => `${counts[type]} ${NOUN[type]}`)
-    .join(", ");
+  const counts = { books: 0, movies: 0, shows: 0 };
+  for (const entry of entries) {
+    counts[SERIES.find(({ type }) => type === entry.type)!.key] += 1;
+  }
+  return describeCounts(counts);
 }
 
 export function EveryEntry({ years }: { years: YearEntries[] }) {
   const total = years.reduce((sum, { entries }) => sum + entries.length, 0);
 
   return (
-    <section
-      aria-labelledby="every-entry-heading"
-      className="above-grain card p-6 sm:p-7"
-    >
+    <section aria-labelledby="every-entry-heading" className="panel">
       <CardHead
         id="every-entry-heading"
         note={`${formatCount(total)} in ${years.length} years`}

@@ -1,15 +1,14 @@
 import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
+import { formatPlural } from "@nienke/ui/format";
+import {
+  describeCounts,
+  SERIES,
+  SeriesRows,
+  type SeriesCounts,
+} from "@nienke/ui/series";
 import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
 import { Item } from "@/types";
-
-const SERIES = [
-  { type: "Book", label: "Books", noun: "books", swatch: "bg-books" },
-  { type: "Movie", label: "Movies", noun: "movies", swatch: "bg-movies" },
-  { type: "Show", label: "TV seasons", noun: "TV seasons", swatch: "bg-shows" },
-] as const;
-
-type Counts = Record<(typeof SERIES)[number]["type"], number>;
 
 interface YearStripProps {
   results: Item[];
@@ -17,14 +16,15 @@ interface YearStripProps {
 }
 
 export function YearStrip({ results, years }: YearStripProps) {
-  const byYear = new Map<number, Counts>();
+  const byYear = new Map<number, SeriesCounts>();
   for (const item of results) {
     const counts = byYear.get(item.belongs_to_year) ?? {
-      Book: 0,
-      Movie: 0,
-      Show: 0,
+      books: 0,
+      movies: 0,
+      shows: 0,
     };
-    if (item.itemtype in counts) counts[item.itemtype as keyof Counts] += 1;
+    const series = SERIES.find(({ type }) => type === item.itemtype);
+    if (series) counts[series.key] += 1;
     byYear.set(item.belongs_to_year, counts);
   }
 
@@ -39,22 +39,19 @@ export function YearStrip({ results, years }: YearStripProps) {
           (_, i) => Math.min(...matchYears) + i,
         );
 
-  const total = (counts?: Counts) =>
-    counts ? counts.Book + counts.Movie + counts.Show : 0;
+  const total = (counts?: SeriesCounts) =>
+    counts ? counts.books + counts.movies + counts.shows : 0;
   const peak = Math.max(1, ...range.map((year) => total(byYear.get(year))));
   const yearsWithMatches = matchYears.length;
 
   return (
-    <section
-      aria-labelledby="year-strip-heading"
-      className="above-grain card p-6 sm:p-7"
-    >
+    <section aria-labelledby="year-strip-heading" className="panel">
       <CardHead
         id="year-strip-heading"
         note={
           <>
-            {results.length} {results.length === 1 ? "match" : "matches"} in{" "}
-            {yearsWithMatches} {yearsWithMatches === 1 ? "year" : "years"}
+            {formatPlural(results.length, "match", "matches")} in{" "}
+            {formatPlural(yearsWithMatches, "year")}
           </>
         }
       >
@@ -70,15 +67,11 @@ export function YearStrip({ results, years }: YearStripProps) {
             return <li key={year} className="flex-1" aria-hidden="true" />;
           }
 
-          const description = SERIES.filter(({ type }) => counts[type] > 0)
-            .map(({ type, noun }) => `${counts[type]} ${noun}`)
-            .join(", ");
-
           return (
             <li key={year} className="flex h-full flex-1 items-end">
               <Link
                 href={`/year/${year}`}
-                aria-label={`${year}: ${description}`}
+                aria-label={`${year}: ${describeCounts(counts, { skipZero: true })}`}
                 className="group relative flex h-full w-full items-end justify-center"
               >
                 {sum === peak && (
@@ -96,32 +89,22 @@ export function YearStrip({ results, years }: YearStripProps) {
                 >
                   {[...SERIES]
                     .reverse()
-                    .filter(({ type }) => counts[type] > 0)
-                    .map(({ type, swatch }) => (
+                    .filter(({ key }) => counts[key] > 0)
+                    .map(({ key, swatch }) => (
                       <span
-                        key={type}
+                        key={key}
                         className={swatch}
-                        style={{ flexGrow: counts[type], flexBasis: 0 }}
+                        style={{ flexGrow: counts[key], flexBasis: 0 }}
                       />
                     ))}
                 </span>
 
-                <span
+                <div
                   className={`tooltip ${tooltipAlign(barCentre(i, range.length))}`}
                 >
-                  <span className="mb-1 block font-medium">{year}</span>
-                  {SERIES.filter(({ type }) => counts[type] > 0).map(
-                    ({ type, label, swatch }) => (
-                      <span key={type} className="flex items-center gap-2">
-                        <span className={`size-2 ${swatch}`} />
-                        {label}
-                        <span className="ml-auto pl-3 tabular-nums">
-                          {counts[type]}
-                        </span>
-                      </span>
-                    ),
-                  )}
-                </span>
+                  <p className="mb-1 font-medium">{year}</p>
+                  <SeriesRows counts={counts} skipZero />
+                </div>
               </Link>
             </li>
           );

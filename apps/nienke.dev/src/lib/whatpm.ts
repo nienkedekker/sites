@@ -1,16 +1,8 @@
-import type { YearSummary } from "@nienke/ui/summary";
+import type { SummaryResponse } from "@nienke/ui/summary";
 
 const WHATPM_URL = import.meta.env.PUBLIC_WHATPM_URL || "https://www.what.pm";
 
-export interface Book {
-  title: string;
-  author: string;
-  reread?: boolean;
-}
-
-export interface Summary extends YearSummary {
-  recent: { books: Book[] };
-}
+export type Summary = SummaryResponse;
 
 export const whatpmUrl = WHATPM_URL;
 

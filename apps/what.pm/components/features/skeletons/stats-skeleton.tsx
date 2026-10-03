@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function CardSkeleton({ height }: { height: string }) {
   return (
-    <div className="above-grain card p-6 sm:p-7">
+    <div className="panel">
       <Skeleton className="mb-6 h-5 w-32" />
       <Skeleton className={`${height} w-full`} />
     </div>

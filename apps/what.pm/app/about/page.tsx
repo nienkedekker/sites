@@ -5,12 +5,8 @@ import type { CSSProperties } from "react";
 import PageHeader from "@nienke/ui/page-header";
 import { getLogFacts, type LogFacts } from "@/utils/data/about";
 import { formatCount } from "@nienke/ui/format";
-
-const TYPE_ROWS = [
-  { key: "books", label: "Books", swatch: "bg-books" },
-  { key: "movies", label: "Movies", swatch: "bg-movies" },
-  { key: "shows", label: "TV seasons", swatch: "bg-shows" },
-] as const;
+import { SERIES } from "@nienke/ui/series";
+import { StatList, StatRow } from "@nienke/ui/stat-list";
 
 function LogNumbers({ facts }: { facts: LogFacts }) {
   return (
@@ -18,54 +14,38 @@ function LogNumbers({ facts }: { facts: LogFacts }) {
       <h2 id="log-numbers-heading" className="sr-only">
         The log in numbers
       </h2>
-      <p className="stat-figure text-7xl">
-        {formatCount(facts.total)}
-      </p>
+      <p className="stat-figure text-7xl">{formatCount(facts.total)}</p>
       <p className="mt-3 text-ink-soft">
         things logged across {facts.yearCount} years.
       </p>
 
-      <dl className="mt-8 border-t border-rule">
-        {TYPE_ROWS.map(({ key, label, swatch }) => (
-          <div
-            key={key}
-            className="flex items-center gap-3 border-b border-line py-3"
-          >
-            <span
-              className={`size-2.5 shrink-0 ${swatch}`}
-              aria-hidden="true"
-            />
-            <dt className="flex-1 text-ink-soft">{label}</dt>
-            <dd className="font-mono text-sm text-ink tabular-nums">
+      <StatList rule="bottom" className="mt-8 border-t border-rule">
+        {SERIES.map(({ key, label, swatch }) => (
+          <StatRow key={key} label={label} swatch={swatch} className="py-3">
+            <span className="font-mono text-sm text-ink">
               {formatCount(facts[key])}
-            </dd>
-          </div>
+            </span>
+          </StatRow>
         ))}
-        <div className="flex items-center gap-3 border-b border-line py-3">
-          <dt className="flex-1 text-ink-soft">Logging since</dt>
-          <dd className="font-mono text-sm tabular-nums">
-            <Link
-              href={`/year/${facts.firstYear}`}
-              className="link text-ink"
-            >
-              {facts.firstYear}
-            </Link>
-          </dd>
-        </div>
+        <StatRow label="Logging since" className="py-3">
+          <Link
+            href={`/year/${facts.firstYear}`}
+            className="link font-mono text-sm text-ink"
+          >
+            {facts.firstYear}
+          </Link>
+        </StatRow>
         {facts.firstEntry && (
-          <div className="flex items-baseline gap-3 border-b border-line py-3">
-            <dt className="shrink-0 text-ink-soft">First entry</dt>
-            <dd className="min-w-0 flex-1 truncate text-right">
-              <span className="font-medium tracking-[-0.01em] text-ink">
-                {facts.firstEntry.title}
-              </span>
-              {facts.firstEntry.by && (
-                <span className="text-ink-soft"> · {facts.firstEntry.by}</span>
-              )}
-            </dd>
-          </div>
+          <StatRow label="First entry" className="py-3">
+            <span className="wrap-break-word font-medium tracking-[-0.01em] text-ink">
+              {facts.firstEntry.title}
+            </span>
+            {facts.firstEntry.by && (
+              <span className="text-ink-soft"> · {facts.firstEntry.by}</span>
+            )}
+          </StatRow>
         )}
-      </dl>
+      </StatList>
     </section>
   );
 }
@@ -103,7 +83,7 @@ export default async function AboutPage() {
       </div>
 
       <figure
-        className="rise above-grain w-full border border-rule shadow-[6px_6px_0_var(--rule)] lg:mt-24"
+        className="rise above-grain framed w-full lg:mt-24"
         style={{ "--delay": "200ms" } as CSSProperties}
       >
         <Image

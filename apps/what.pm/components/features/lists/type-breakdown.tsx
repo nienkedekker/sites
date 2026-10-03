@@ -1,4 +1,4 @@
-import { SERIES } from "@nienke/ui/media-chart";
+import { SERIES } from "@nienke/ui/series";
 import type { YearSummary } from "@nienke/ui/summary";
 
 export function TypeBreakdown({ counts }: { counts: YearSummary["counts"] }) {

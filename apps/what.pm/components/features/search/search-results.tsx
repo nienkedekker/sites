@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { formatPlural } from "@nienke/ui/format";
+import { SWATCH } from "@nienke/ui/series";
 import { Button } from "@/components/ui/button";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { ItemBadges } from "@/components/features/lists/item-badges";
@@ -8,12 +10,6 @@ import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
-
-const SWATCH_MAP: Record<string, string> = {
-  Book: "bg-books",
-  Movie: "bg-movies",
-  Show: "bg-shows",
-};
 
 interface SearchResultsProps {
   results: Item[];
@@ -111,14 +107,13 @@ export function SearchResults({
             <h3 className="flex items-end justify-between gap-4 border-b border-rule pb-3">
               <span className="display flex items-center gap-3 text-[1.875rem] text-ink">
                 <span
-                  className={cn("size-3 shrink-0", SWATCH_MAP[type])}
+                  className={cn("size-3 shrink-0", SWATCH[type])}
                   aria-hidden="true"
                 />
                 {title}
               </span>
               <span className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
-                {categoryItems.length}{" "}
-                {categoryItems.length === 1 ? "match" : "matches"}
+                {formatPlural(categoryItems.length, "match", "matches")}
               </span>
             </h3>
 

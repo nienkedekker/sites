@@ -25,7 +25,7 @@ async function StatsContent() {
 
   if (!stats && !cumulative) {
     return (
-      <div role="alert" className="card p-6 sm:p-7">
+      <div role="alert" className="panel">
         <p className="text-danger">Unable to load chart data right now.</p>
         <p className="mt-2 text-sm text-ink-soft">
           Please try refreshing the page.

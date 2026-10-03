@@ -1,36 +1,12 @@
-import type { MonthCounts, YearSummary } from "./summary";
+import type { YearSummary } from "./summary";
+import { describeCounts, MONTHS, SERIES, SeriesRows } from "./series";
 import { barCentre, tooltipAlign } from "./tooltip";
-
-export const SERIES = [
-  { key: "books", label: "Books", noun: "books", swatch: "bg-books" },
-  { key: "movies", label: "Movies", noun: "movies", swatch: "bg-movies" },
-  { key: "shows", label: "TV seasons", noun: "TV seasons", swatch: "bg-shows" },
-] as const;
-
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
 export function niceScale(max: number) {
   const step = max > 30 ? 10 : 5;
   const top = Math.max(step, Math.ceil(max / step) * step);
   const ticks = Array.from({ length: top / step + 1 }, (_, i) => i * step);
   return { top, ticks };
-}
-
-function describe(month: MonthCounts) {
-  return SERIES.map(({ key, noun }) => `${month[key]} ${noun}`).join(", ");
 }
 
 interface MediaChartProps {
@@ -46,7 +22,9 @@ export default function MediaChart({
 }: MediaChartProps) {
   const now = new Date();
   const lastMonth =
-    summary && summary.year === now.getFullYear() ? now.getMonth() + 1 : 12;
+    summary && summary.year === now.getUTCFullYear()
+      ? now.getUTCMonth() + 1
+      : 12;
   const months = summary?.months ?? [];
   const totals = months.map((m) => m.books + m.movies + m.shows);
   const { top, ticks } = niceScale(Math.max(0, ...totals));
@@ -127,7 +105,7 @@ export default function MediaChart({
                       role={upcoming ? undefined : "img"}
                       tabIndex={upcoming ? undefined : 0}
                       aria-label={
-                        upcoming ? undefined : `${name}: ${describe(month)}`
+                        upcoming ? undefined : `${name}: ${describeCounts(month)}`
                       }
                     >
                       {i === peak && total > 0 && (
@@ -160,15 +138,7 @@ export default function MediaChart({
                           )}`}
                         >
                           <p className="mb-1 font-medium">{name}</p>
-                          {SERIES.map(({ key, label, swatch }) => (
-                            <p key={key} className="flex items-center gap-2">
-                              <span className={`size-2 ${swatch}`} />
-                              {label}
-                              <span className="ml-auto pl-3 tabular-nums">
-                                {month[key]}
-                              </span>
-                            </p>
-                          ))}
+                          <SeriesRows counts={month} />
                         </div>
                       )}
                     </div>

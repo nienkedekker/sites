@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import UiNavLinks from "@nienke/ui/nav-links";
 import { useAuth } from "@/providers/auth-provider";
 
 const NAV_LINKS = [
@@ -17,19 +18,5 @@ export function NavLinks() {
     ? [...NAV_LINKS, { href: "/create", label: "Create" }]
     : NAV_LINKS;
 
-  return (
-    <ul className="nav-links">
-      {links.map(({ href, label }) => (
-        <li key={href}>
-          <Link
-            href={href}
-            aria-current={pathname === href ? "page" : undefined}
-            className="nav-link"
-          >
-            {label}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
+  return <UiNavLinks links={links} currentPath={pathname} as={Link} />;
 }

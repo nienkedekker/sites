@@ -129,10 +129,7 @@ export function Adaptations({ pairs }: { pairs: Adaptation[] }) {
   const half = Math.ceil(rows.length / 2);
 
   return (
-    <section
-      aria-labelledby="adaptations-heading"
-      className="above-grain card p-6 sm:p-7"
-    >
+    <section aria-labelledby="adaptations-heading" className="panel">
       <CardHead id="adaptations-heading" note="longest waits">
         Page to screen
       </CardHead>

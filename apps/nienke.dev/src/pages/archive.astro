@@ -1,6 +1,7 @@
 ---
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { tooltipAlign } from "@nienke/ui/tooltip";
 import PageLayout from "../layouts/PageLayout.astro";
 import {
   archiveCollections,
@@ -43,14 +44,7 @@ const rows = archiveCollections.map(({ slug, eras }) => {
   };
 });
 
-const align = ({ start, end }: Era) => {
-  const middle = x((start + end) / 2);
-  return middle < 25
-    ? "left-0"
-    : middle > 75
-      ? "right-0"
-      : "left-1/2 -translate-x-1/2";
-};
+const align = ({ start, end }: Era) => tooltipAlign(x((start + end) / 2) / 100);
 
 const fuzzyEdges =
   "mask-image: linear-gradient(to right, transparent, black 35%, black 65%, transparent)";

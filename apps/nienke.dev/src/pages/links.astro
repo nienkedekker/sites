@@ -1,6 +1,7 @@
 ---
 import PageLayout from "../layouts/PageLayout.astro";
 import ArrowUpRight from "phosphor-astro/ArrowUpRight.astro";
+import { externalProps } from "@nienke/ui/external";
 import { links, linksIntro } from "../data/links";
 
 const hostname = (href: string) => new URL(href).hostname.replace(/^www\./, "");
@@ -19,8 +20,7 @@ const hostname = (href: string) => new URL(href).hostname.replace(/^www\./, "");
         >
           <a
             href={href}
-            target="_blank"
-            rel="noopener noreferrer"
+            {...externalProps(href)}
             class="group flex h-full items-center justify-between gap-4 bg-panel px-5 py-5 transition-colors hover:bg-panel-2"
           >
             <span class="min-w-0">

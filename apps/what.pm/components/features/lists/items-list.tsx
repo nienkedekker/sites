@@ -46,7 +46,7 @@ export default async function ItemsList({ year }: { year: number }) {
         {validatedItems.length > 0 && (
           <section
             aria-labelledby="year-chart-heading"
-            className="rise above-grain card flex flex-col p-6 sm:p-7"
+            className="rise panel flex flex-col"
             style={{ "--delay": "240ms" } as CSSProperties}
           >
             <CardHead id="year-chart-heading" className="mb-5">
