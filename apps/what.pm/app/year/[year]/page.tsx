@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import ItemsList from "@/components/features/lists/items-list";
+import { ScrollToHash } from "@/components/features/scroll-to-hash";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
 import type { Metadata } from "next";
 
@@ -27,6 +28,7 @@ export default async function YearPage(props: {
   return (
     <Suspense fallback={<ItemsListSkeleton />}>
       <ItemsList year={year} />
+      <ScrollToHash />
     </Suspense>
   );
 }

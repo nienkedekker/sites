@@ -61,7 +61,11 @@ export const createItemAction = async (formData: FormData) => {
           : null,
     };
 
-    const { error } = await supabase.from("items").insert(newItem);
+    const { data: created, error } = await supabase
+      .from("items")
+      .insert(newItem)
+      .select("id")
+      .single();
 
     if (error) {
       console.error("Database error creating item:", error);
@@ -73,7 +77,7 @@ export const createItemAction = async (formData: FormData) => {
     }
 
     revalidateTag(ITEMS_TAG);
-    return redirect(`/year/${validatedData.belongsToYear}`);
+    return redirect(`/year/${validatedData.belongsToYear}#item-${created.id}`);
   } catch (error) {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in createItemAction:", error);

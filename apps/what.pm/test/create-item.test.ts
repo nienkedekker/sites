@@ -14,9 +14,16 @@ vi.mock("next/cache", () => ({ revalidateTag }));
 vi.mock("@/utils/supabase/server", () => ({
   createClientForServer: async () => ({
     from: () => ({
-      insert: async (row: Record<string, unknown>) => {
+      insert: (row: Record<string, unknown>) => {
         db.inserted.push(row);
-        return { error: db.error };
+        return {
+          select: () => ({
+            single: async () =>
+              db.error
+                ? { data: null, error: db.error }
+                : { data: { id: 42 }, error: null },
+          }),
+        };
       },
     }),
   }),
@@ -80,7 +87,7 @@ describe("createItemAction", () => {
 
     await expect(
       createItemAction(form({ ...dune, externalId: "438631" })),
-    ).rejects.toMatchObject({ digest: `NEXT_REDIRECT;/year/${year}` });
+    ).rejects.toMatchObject({ digest: `NEXT_REDIRECT;/year/${year}#item-42` });
 
     expect(getExternalDetails).toHaveBeenCalledWith("Movie", "438631", null);
     expect(db.inserted[0]).toMatchObject({
@@ -148,7 +155,7 @@ describe("createItemAction", () => {
   it("files a backlogged item under the year I picked", async () => {
     await expect(
       createItemAction(form({ ...dune, belongsToYear: "2024" })),
-    ).rejects.toMatchObject({ digest: "NEXT_REDIRECT;/year/2024" });
+    ).rejects.toMatchObject({ digest: "NEXT_REDIRECT;/year/2024#item-42" });
 
     expect(db.inserted[0]).toMatchObject({ belongs_to_year: 2024 });
   });
