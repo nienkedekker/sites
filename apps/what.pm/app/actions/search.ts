@@ -1,6 +1,8 @@
 "use server";
 
 import { createClientForServer } from "@/utils/supabase/server";
+import { fetchAllRows } from "@/utils/data/fetch-all";
+import { ilikeAny } from "@/utils/data/search-filter";
 import { searchQuerySchema } from "@/utils/schemas/validation";
 import { Item } from "@/types";
 
@@ -24,26 +26,23 @@ export async function searchItems(formData: FormData): Promise<SearchState> {
 
   const supabase = await createClientForServer();
 
-  const escapedQuery = trimmedQuery.replace(/[%_]/g, "\\$&");
+  const filter = ilikeAny(["title", "author", "director"], trimmedQuery);
 
-  const { data, error } = await supabase
-    .from("items")
-    .select(
-      "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo, in_progress, external_id, pages, runtime_minutes",
-    )
-    .or(
-      `title.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%,director.ilike.%${escapedQuery}%`,
-    )
-    .order("created_at", { ascending: false });
-
-  if (error) {
+  try {
+    const results = await fetchAllRows((from, to) =>
+      supabase
+        .from("items")
+        .select(
+          "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo, in_progress, external_id, pages, runtime_minutes",
+        )
+        .or(filter)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    );
+    return { query: rawQuery, results: results as Item[], initial: false };
+  } catch (error) {
     console.error("Search error:", error);
     return { query: rawQuery, results: [], initial: false };
   }
-
-  return {
-    query: rawQuery,
-    results: data as Item[],
-    initial: false,
-  };
 }

@@ -9,7 +9,6 @@ import {
   itemCreationSchema,
   extractFormData,
 } from "@/utils/schemas/validation";
-import { getCurrentYear } from "@/utils/formatters/date";
 import { ItemInsert, ItemUpdate } from "@/types";
 import {
   getExternalDetails,
@@ -29,7 +28,6 @@ export const createItemAction = async (formData: FormData) => {
     const validatedData = validation.data;
 
     const supabase = await createClientForServer();
-    const currentYear = getCurrentYear();
     const externalId = validatedData.externalId || null;
     const details = externalId
       ? await getExternalDetails(
@@ -51,7 +49,7 @@ export const createItemAction = async (formData: FormData) => {
       external_id: externalId,
       title: validatedData.title,
       itemtype: validatedData.itemtype,
-      belongs_to_year: currentYear,
+      belongs_to_year: validatedData.belongsToYear,
       published_year: validatedData.publishedYear,
       redo: validatedData.redo || false,
       author: validatedData.author || null,
@@ -75,7 +73,7 @@ export const createItemAction = async (formData: FormData) => {
     }
 
     revalidateTag(ITEMS_TAG);
-    return redirect(`/year/${currentYear}`);
+    return redirect(`/year/${validatedData.belongsToYear}`);
   } catch (error) {
     if (isNextRedirect(error)) throw error;
     console.error("Unexpected error in createItemAction:", error);

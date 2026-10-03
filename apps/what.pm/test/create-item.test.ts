@@ -145,6 +145,14 @@ describe("createItemAction", () => {
     expect(db.inserted[0]).toMatchObject({ pages: 450 });
   });
 
+  it("files a backlogged item under the year I picked", async () => {
+    await expect(
+      createItemAction(form({ ...dune, belongsToYear: "2024" })),
+    ).rejects.toMatchObject({ digest: "NEXT_REDIRECT;/year/2024" });
+
+    expect(db.inserted[0]).toMatchObject({ belongs_to_year: 2024 });
+  });
+
   it("refreshes the cached stats once the item is saved", async () => {
     await createItemAction(form(dune)).catch(() => {});
 

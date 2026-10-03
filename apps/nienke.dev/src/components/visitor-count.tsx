@@ -6,20 +6,16 @@ export default function VisitorCount() {
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("counted");
 
-    if (hasVisited) {
-      fetch("/api/visitor-count")
-        .then((res) => res.json())
-        .then((data) => setCount(data.count))
-        .catch(() => setCount(0));
-    } else {
-      fetch("/api/visitor-count", { method: "POST" })
-        .then((res) => res.json())
-        .then((data) => {
-          setCount(data.count);
-          sessionStorage.setItem("counted", "true");
-        })
-        .catch(() => setCount(0));
-    }
+    fetch("/api/visitor-count", hasVisited ? undefined : { method: "POST" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Visitor count route responded ${res.status}`);
+        return res.json();
+      })
+      .then((data: { count: number }) => {
+        setCount(data.count);
+        if (!hasVisited) sessionStorage.setItem("counted", "true");
+      })
+      .catch(() => setCount(0));
   }, []);
 
   if (count === null) {

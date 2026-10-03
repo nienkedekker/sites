@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { createClientForServer } from "@/utils/supabase/server";
+import { fetchAllRows } from "@/utils/data/fetch-all";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { itemsToCSV, generateCSVFilename } from "@/utils/export/csv";
 import { createJSONDownload, generateJSONFilename } from "@/utils/export/json";
@@ -25,12 +26,17 @@ export async function GET(request: NextRequest) {
     const supabase = await createClientForServer();
     const timestamp = new Date().toISOString().split("T")[0];
 
-    const { data: rawItems, error } = await supabase
-      .from("items")
-      .select("*")
-      .order("created_at", { ascending: true });
-
-    if (error) {
+    let rawItems: unknown[];
+    try {
+      rawItems = await fetchAllRows((from, to) =>
+        supabase
+          .from("items")
+          .select("*")
+          .order("created_at", { ascending: true })
+          .order("id")
+          .range(from, to),
+      );
+    } catch (error) {
       console.error("Database error fetching items:", error);
       return NextResponse.json(
         { error: "Failed to fetch items" },
@@ -38,7 +44,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!rawItems || rawItems.length === 0) {
+    if (rawItems.length === 0) {
       return NextResponse.json({
         success: true,
         message: "No items to export",

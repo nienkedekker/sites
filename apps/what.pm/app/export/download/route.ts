@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClientForServer } from "@/utils/supabase/server";
+import { fetchAllRows } from "@/utils/data/fetch-all";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { itemsToCSV, generateCSVFilename } from "@/utils/export/csv";
 import { createJSONDownload, generateJSONFilename } from "@/utils/export/json";
@@ -30,25 +31,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let query = supabase
-      .from("items")
-      .select("*")
-      .order("created_at", { ascending: true });
-
-    if (year) {
-      const yearNum = parseInt(year);
-      if (isNaN(yearNum)) {
-        return NextResponse.json(
-          { error: "Invalid year parameter" },
-          { status: 400 },
-        );
-      }
-      query = query.eq("belongs_to_year", yearNum);
+    const yearNum = year ? parseInt(year) : null;
+    if (yearNum !== null && isNaN(yearNum)) {
+      return NextResponse.json(
+        { error: "Invalid year parameter" },
+        { status: 400 },
+      );
     }
 
-    const { data: rawItems, error } = await query;
-
-    if (error) {
+    let rawItems: unknown[];
+    try {
+      rawItems = await fetchAllRows((from, to) => {
+        let query = supabase.from("items").select("*");
+        if (yearNum !== null) query = query.eq("belongs_to_year", yearNum);
+        return query
+          .order("created_at", { ascending: true })
+          .order("id")
+          .range(from, to);
+      });
+    } catch (error) {
       console.error("Database error exporting items:", error);
       return NextResponse.json(
         { error: "Failed to fetch items for export" },
@@ -56,11 +57,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const validatedItems: TypedItem[] = (rawItems || [])
+    const validatedItems: TypedItem[] = rawItems
       .map(validateAndTypeItem)
       .filter((item): item is TypedItem => item !== null);
 
-    if (rawItems && validatedItems.length !== rawItems.length) {
+    if (validatedItems.length !== rawItems.length) {
       console.warn(
         `${rawItems.length - validatedItems.length} invalid items filtered out during export`,
       );
