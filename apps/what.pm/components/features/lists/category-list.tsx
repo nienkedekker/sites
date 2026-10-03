@@ -80,7 +80,7 @@ export function CategoryList({
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <h3 className="line-clamp-2 font-medium leading-snug tracking-[-0.01em] text-ink">
+                  <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
                     {item.title}
                   </h3>
                   <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-ink-soft">

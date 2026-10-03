@@ -24,7 +24,7 @@ export function MostReread({ titles }: { titles: Revisit[] }) {
                 className={`size-2.5 shrink-0 ${SWATCH[type]}`}
                 aria-hidden="true"
               />
-              <span className="min-w-0 flex-1 truncate text-sm text-ink underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-ink">
+              <span className="min-w-0 flex-1 wrap-break-word text-sm text-ink underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-ink">
                 {title}
               </span>
               <span className="shrink-0 font-mono text-xs text-ink-soft tabular-nums">

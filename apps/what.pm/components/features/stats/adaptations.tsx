@@ -89,7 +89,7 @@ function Table({ rows, longest }: { rows: Row[]; longest: number }) {
           <tr key={row.title} className="border-b border-line last:border-b-0">
             <th
               scope="row"
-              className="truncate py-3 text-left text-sm font-normal"
+              className="wrap-break-word py-3 text-left text-sm font-normal"
             >
               <Link
                 href={`/search?q=${encodeURIComponent(row.title)}`}

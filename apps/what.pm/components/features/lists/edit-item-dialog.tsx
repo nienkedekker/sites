@@ -47,7 +47,7 @@ export default function EditItemDialog({
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit {NOUN[item.itemtype] ?? "item"}</DialogTitle>
-          <DialogDescription className="truncate">
+          <DialogDescription className="wrap-break-word">
             {item.title}
           </DialogDescription>
         </DialogHeader>

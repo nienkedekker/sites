@@ -39,7 +39,7 @@ export async function LastLogged({
               className={`size-2.5 shrink-0 ${SWATCH_MAP[item.itemtype]}`}
               aria-hidden="true"
             />
-            <span className="min-w-0 flex-1 truncate font-medium tracking-[-0.01em]">
+            <span className="min-w-0 flex-1 wrap-break-word font-medium tracking-[-0.01em]">
               {item.title}
               {item.itemtype === "Show" && item.season && (
                 <span className="font-normal text-ink-soft">

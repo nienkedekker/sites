@@ -96,7 +96,7 @@ function CellTooltip({
             {cell.titles.slice(0, TITLE_LIMIT).map(({ title, type }, i) => (
               <li key={i} className="flex items-center gap-2">
                 <span className={`size-1.5 shrink-0 ${SWATCH[type]}`} />
-                <span className="truncate">{title}</span>
+                <span className="min-w-0 wrap-break-word">{title}</span>
               </li>
             ))}
             {more > 0 && <li className="text-ink-faint">and {more} more</li>}

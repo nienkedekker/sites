@@ -140,7 +140,7 @@ export function TitleAutocomplete({
                 i === active ? "bg-panel-2" : ""
               }`}
             >
-              <span className="block truncate text-sm font-medium text-ink">
+              <span className="block wrap-break-word text-sm font-medium text-ink">
                 {result.title}
               </span>
               {(result.year || result.creator) && (
