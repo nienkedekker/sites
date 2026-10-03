@@ -2,6 +2,7 @@ import CardHead from "@nienke/ui/card-head";
 import { HeatCell, HeatLegend } from "@nienke/ui/heatmap";
 import { describeCounts, MONTHS, SeriesRows, SWATCH } from "@nienke/ui/series";
 import { barCentre } from "@nienke/ui/tooltip";
+import { HeatGridKeys } from "./heat-grid-keys";
 import type { MonthCell, MonthRow } from "@/utils/data/stats";
 
 const TITLE_LIMIT = 4;
@@ -11,7 +12,10 @@ const total = (cell: MonthCell) => cell.books + cell.movies + cell.shows;
 function describe(cell: MonthCell) {
   const count = total(cell);
   if (count === 0) return "nothing logged";
-  return `${count} logged: ${describeCounts(cell, { skipZero: true })}`;
+  const titles = cell.titles.slice(0, TITLE_LIMIT).map(({ title }) => title);
+  const more = cell.titles.length - TITLE_LIMIT;
+  if (more > 0) titles.push(`and ${more} more`);
+  return `${count} logged: ${describeCounts(cell, { skipZero: true })}. ${titles.join(", ")}`;
 }
 
 function CellDetails({ cell }: { cell: MonthCell }) {
@@ -52,8 +56,13 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
         When I log
       </CardHead>
 
-      <table className="mt-5 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]">
-        <caption className="sr-only">Items logged per month, by year</caption>
+      <table
+        id="month-heatmap-table"
+        className="mt-5 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]">
+        <caption className="sr-only">
+          Items logged per month, by year. Use the arrow keys to move between
+          months.
+        </caption>
         <thead>
           <tr>
             <th scope="col" className="w-10">
@@ -72,7 +81,7 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ year, months }) => (
+          {rows.map(({ year, months }, row) => (
             <tr key={year}>
               <th
                 scope="row"
@@ -95,6 +104,7 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
                       position={barCentre(i, MONTHS.length)}
                       label={`${label}: ${describe(cell)}`}
                       title={label}
+                      tabbable={row === 0 && i === 0}
                     >
                       <CellDetails cell={cell} />
                     </HeatCell>
@@ -105,6 +115,7 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
           ))}
         </tbody>
       </table>
+      <HeatGridKeys tableId="month-heatmap-table" />
 
       <HeatLegend />
     </section>

@@ -1,5 +1,5 @@
 import type { ElementType, ReactNode } from "react";
-import { externalProps } from "./external";
+import { externalProps, isExternal } from "./external";
 
 interface TagLinkProps {
   href: string;
@@ -12,7 +12,7 @@ export default function TagLink({
   href,
   children,
   as: Anchor = "a",
-  arrow = true,
+  arrow = isExternal(href),
 }: TagLinkProps) {
   return (
     <Anchor href={href} className="tag whitespace-nowrap" {...externalProps(href)}>

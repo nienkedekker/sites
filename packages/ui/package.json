@@ -9,6 +9,7 @@
     "./card-head": "./src/card-head.tsx",
     "./external": "./src/external.ts",
     "./format": "./src/format.ts",
+    "./heat-grid": "./src/heat-grid.ts",
     "./heatmap": "./src/heatmap.tsx",
     "./media-chart": "./src/media-chart.tsx",
     "./meter": "./src/meter.tsx",

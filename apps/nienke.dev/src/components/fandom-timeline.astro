@@ -33,9 +33,13 @@ const scale = "log";
   </p>
 
   <table
+    data-heat-grid
     class="mt-8 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]"
   >
-    <caption class="sr-only">Tumblr posts per fandom, per quarter</caption>
+    <caption class="sr-only">
+      Tumblr posts per fandom, per quarter. Use the arrow keys to move between
+      quarters.
+    </caption>
     <thead>
       <tr>
         <th scope="col" class="w-24 sm:w-44">
@@ -59,7 +63,7 @@ const scale = "log";
     </thead>
     <tbody>
       {
-        fandoms.map(({ name, counts }) => (
+        fandoms.map(({ name, counts }, row) => (
           <tr>
             <th
               scope="row"
@@ -78,6 +82,7 @@ const scale = "log";
                     position={barCentre(i, quarters)}
                     label={`${name}, ${period}: ${formatPlural(count, "post")}`}
                     title={name}
+                    tabbable={row === 0 && i === 0}
                   >
                     <p class="mt-1 text-ink-soft">{period}</p>
                   </HeatCell>
@@ -95,3 +100,13 @@ const scale = "log";
 
   <HeatLegend />
 </section>
+
+<script>
+  import { bindHeatGrid } from "@nienke/ui/heat-grid";
+
+  document.addEventListener("astro:page-load", () => {
+    document
+      .querySelectorAll<HTMLTableElement>("table[data-heat-grid]")
+      .forEach(bindHeatGrid);
+  });
+</script>

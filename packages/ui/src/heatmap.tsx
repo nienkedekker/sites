@@ -21,6 +21,7 @@ interface HeatCellProps {
   label: string;
   title: ReactNode;
   children: ReactNode;
+  tabbable?: boolean;
 }
 
 export function HeatCell({
@@ -31,12 +32,14 @@ export function HeatCell({
   label,
   title,
   children,
+  tabbable = false,
 }: HeatCellProps) {
   return (
     <div
       role="img"
-      tabIndex={0}
+      tabIndex={tabbable ? 0 : -1}
       aria-label={label}
+      data-heat-cell
       className={`group relative h-full w-full ${count === 0 ? "bg-line" : ""}`}
       style={{ backgroundColor: heatShade(count, max, scale) }}
     >
