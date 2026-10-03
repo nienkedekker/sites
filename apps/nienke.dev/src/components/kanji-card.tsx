@@ -91,6 +91,7 @@ function Stats({ progress }: { progress: Progress }) {
   const { kanji, stages, vocabulary, accuracy } = progress;
   const percent = Math.round((kanji.learned / kanji.total) * 100);
   const items = STAGES.reduce((n, { key }) => n + stages[key], 0);
+  const shown = STAGES.filter(({ key }) => stages[key]).map(({ key }) => key);
 
   return (
     <div className="text-sm">
@@ -126,7 +127,15 @@ function Stats({ progress }: { progress: Progress }) {
               style={{ flexGrow: stages[key], flexBasis: 0 }}
             >
               <span className={`block h-full bg-movies ${STAGE_SHADES[i]}`} />
-              <span className="tooltip left-1/2 -translate-x-1/2 px-2 py-1">
+              <span
+                className={`tooltip px-2 py-1 ${
+                  key === shown[0]
+                    ? "left-0"
+                    : key === shown.at(-1)
+                      ? "right-0"
+                      : "left-1/2 -translate-x-1/2"
+                }`}
+              >
                 {label}: <span className="font-medium tabular-nums">{formatCount(stages[key])}</span>
               </span>
             </div>

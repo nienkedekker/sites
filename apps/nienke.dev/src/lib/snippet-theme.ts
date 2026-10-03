@@ -30,7 +30,7 @@ export const snippetTheme: ThemeRegistration = {
     },
     {
       scope: ["string", "constant", "support.constant.property-value", "constant.other.color"],
-      settings: { foreground: "var(--movies)" },
+      settings: { foreground: "var(--movies-text)" },
     },
   ],
 };

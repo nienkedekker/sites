@@ -34,7 +34,7 @@ const snapshotDate = (date: string) =>
             <div class="lg:sticky lg:top-24">
               <a
                 href={`#${oldSiteId(domain)}`}
-                class="font-mono text-xs text-movies underline-offset-4 hover:underline"
+                class="font-mono text-xs text-movies-text underline-offset-4 hover:underline"
               >
                 {years}
               </a>
@@ -63,7 +63,7 @@ const snapshotDate = (date: string) =>
                 />
                 <a
                   href={`#${snapshotId(domain, date)}`}
-                  class="tag border-movies text-movies hover:bg-movies hover:text-paper"
+                  class="tag border-movies-text text-movies-text hover:bg-movies-text hover:text-paper"
                 >
                   <time datetime={date}>{snapshotDate(date)}</time>
                 </a>

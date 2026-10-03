@@ -60,13 +60,17 @@ function Stats({ stats }: { stats: ListeningStats }) {
           .join(", ")}`}
         className="mt-3 flex h-20 items-end gap-[2px]"
       >
-        {weeks.map(({ start, count: n }) => (
+        {weeks.map(({ start, count: n }, i) => (
           <div key={start} className="group relative flex h-full flex-1 items-end">
             <span
               className="w-full bg-books transition-opacity group-hover:opacity-80"
               style={{ height: `${Math.max(2, (n / max) * 100)}%` }}
             />
-            <span className="tooltip left-1/2 -translate-x-1/2 px-2 py-1">
+            <span
+              className={`tooltip px-2 py-1 ${
+                i < 4 ? "left-0" : i >= weeks.length - 4 ? "right-0" : "left-1/2 -translate-x-1/2"
+              }`}
+            >
               {day(start)} – {day(start + WEEK - 1)}:{" "}
               <span className="font-medium tabular-nums">{formatCount(n)}</span>
             </span>

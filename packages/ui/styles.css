@@ -15,6 +15,8 @@
   --accent: #5e6ad2;
   --books: #0b0c0e;
   --movies: #3242a8;
+  /* --movies is too dark for small text on the dark theme */
+  --movies-text: var(--movies);
   --shows: #8b909a;
 
   color-scheme: light;
@@ -33,6 +35,7 @@
   --accent: #7c85f5;
   --books: #f7f8f8;
   --movies: #5360b6;
+  --movies-text: var(--accent);
   --shows: #6c7078;
 
   color-scheme: dark;
@@ -60,6 +63,7 @@
   --color-accent: var(--accent);
   --color-books: var(--books);
   --color-movies: var(--movies);
+  --color-movies-text: var(--movies-text);
   --color-shows: var(--shows);
 }
 
