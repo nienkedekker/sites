@@ -654,7 +654,7 @@ Or me. Whatever.`,
     domain: "chocolatebeforedinner.com",
     years: "2009–2013",
     about:
-      "Less a site than a landing page: a quote, a line about me, and links to my LiveJournal, icons, gifs and recipe lists. My LiveJournal header linked to it as Bob Loblaw Law Blog.",
+      "This was less a site than a landing page. It containeds a quote, a line about me, and links to my LiveJournal, icons, gifs and recipe lists. My LiveJournal header linked to it as Bob Loblaw Law Blog. 'Chocolate Before Dinner' is a quote from the TV show Lost.",
     snapshots: [
       {
         date: "2010-03-30",
