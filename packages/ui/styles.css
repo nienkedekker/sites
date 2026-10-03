@@ -23,18 +23,18 @@
 }
 
 .dark {
-  --paper: #08090a;
-  --panel: #0f1012;
-  --panel-2: #151619;
-  --ink: #f7f8f8;
+  --paper: #0d0e10;
+  --panel: #131416;
+  --panel-2: #191a1d;
+  --ink: #cdd0d5;
   --ink-soft: #8a8f98;
-  --ink-faint: #7d8086;
+  --ink-faint: #808389;
   --line: rgb(255 255 255 / 0.08);
   --line-strong: rgb(255 255 255 / 0.15);
   --rule: #8a8f98;
-  --accent: #7c85f5;
-  --books: #f7f8f8;
-  --movies: #5360b6;
+  --accent: #8b92e6;
+  --books: #b0b4bb;
+  --movies: #5f69aa;
   --movies-text: var(--accent);
   --shows: #6c7078;
 
