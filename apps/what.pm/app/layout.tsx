@@ -42,12 +42,12 @@ const defaultUrl = host ? `https://${host}` : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: { default: "what. · what.pm", template: "%s · what.pm" },
+  title: { default: "what.pm", template: "%s · what.pm" },
   description:
     "what!!! every book, movie and show I’ve read or watched since 2007.",
   alternates: {
     types: {
-      "application/rss+xml": [{ url: "/feed.xml", title: "what. · what.pm" }],
+      "application/rss+xml": [{ url: "/feed.xml", title: "what.pm" }],
     },
   },
 };
