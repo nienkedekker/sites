@@ -30,16 +30,63 @@ test("every page has a Markdown version that it links to", () => {
   }
 });
 
-test("the routing config sends Markdown requests to files that exist", () => {
+test("the negotiate function is an edge function that serves the built files", async () => {
+  const functionDir = new URL("functions/_negotiate.func/", output);
+  assert.deepEqual(JSON.parse(readFileSync(new URL(".vc-config.json", functionDir), "utf-8")), {
+    runtime: "edge",
+    entrypoint: "index.js",
+  });
+  const { default: handler } = await import(new URL("index.js", functionDir).href);
+
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (input: URL) => {
+    const path = new URL(input).pathname;
+    const file = path.endsWith(".md") || path.endsWith(".html") ? path.slice(1) : htmlFile(path);
+    return exists(file) ? new Response(read(file)) : new Response("missing", { status: 404 });
+  }) as typeof fetch;
+  try {
+    for (const path of pages) {
+      const markdown = await handler(
+        new Request(`${site}/_negotiate?path=${path}`, { headers: { accept: "text/markdown" } })
+      );
+      assert.equal(markdown.status, 200, path);
+      assert.equal(await markdown.text(), read(markdownFile(path)), path);
+
+      const html = await handler(
+        new Request(`${site}${path}`, { headers: { accept: "text/markdown;q=0.5, text/html" } })
+      );
+      assert.equal(html.status, 200, path);
+      assert.equal(await html.text(), read(htmlFile(path)), path);
+    }
+    const notFound = await handler(
+      new Request(`${site}/_negotiate?path=/nope`, { headers: { accept: "text/markdown" } })
+    );
+    assert.equal(notFound.status, 404);
+    assert.equal(await notFound.text(), read("404.md"));
+    const unacceptable = await handler(
+      new Request(`${site}/now`, { headers: { accept: "application/pdf" } })
+    );
+    assert.equal(unacceptable.status, 406);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test("the routing config sends negotiable requests to the negotiate function", () => {
   const { routes } = JSON.parse(readFileSync(new URL("config.json", output), "utf-8"));
-  const markdownRoutes = routes.filter((route: { has?: { key: string }[] }) =>
-    route.has?.some(({ key }) => key === "accept")
+  const negotiated = routes.filter(({ dest }: { dest?: string }) =>
+    dest?.startsWith("/_negotiate?path=")
   );
-  assert.deepEqual(
-    markdownRoutes.map(({ dest }: { dest: string }) => dest).sort(),
-    [...pages.map((path) => `/${markdownFile(path)}`), "/404.md"].sort()
-  );
-  for (const { dest } of markdownRoutes) assert.ok(exists(dest.slice(1)), dest);
+  assert.equal(negotiated.length, 3);
+  const pageRoute = new RegExp(negotiated[0].src);
+  for (const path of pages) assert.ok(pageRoute.test(path), path);
+  assert.ok(!pageRoute.test("/nope"));
+});
+
+test("the HTML 404 points to the sitemap and llms.txt", () => {
+  const html = read("404.html");
+  assert.match(html, /href="\/sitemap\.xml"/);
+  assert.match(html, /href="\/llms\.txt"/);
 });
 
 test("the Markdown 404 explains the error and points to the site index", () => {

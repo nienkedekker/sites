@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addMarkdownRoutes, MARKDOWN_TYPE, type Route } from "../src/lib/markdown-routes.ts";
+import {
+  acceptsHtml,
+  addMarkdownRoutes,
+  MARKDOWN_TYPE,
+  needsNegotiation,
+  VARY,
+  type Route,
+} from "../src/lib/markdown-routes.ts";
 
 const adapterRoutes: Route[] = [
   { src: "^/guestbook$", headers: { Location: "/" }, status: 301 },
@@ -14,36 +21,63 @@ const filesystem = routes.findIndex((route) => route.handle === "filesystem");
 const before = routes.slice(0, filesystem);
 const after = routes.slice(filesystem + 1);
 
-const accept = (route: Route) => route.has?.find(({ key }) => key === "accept");
+// Vercel matches `has` values against the whole header, like Next.js does.
+const fullMatch = (pattern: string, value: string) => new RegExp(`^${pattern}$`).test(value);
 const matches = (route: Route, path: string) => new RegExp(route.src!).test(path);
+const negotiates = (route: Route) => route.dest?.startsWith("/_negotiate?path=");
 
-test("Markdown requests for pages are rewritten before static files are served", () => {
-  const rewrites = before.filter(accept);
-  assert.deepEqual(
-    rewrites.map(({ src, dest }) => [src, dest]),
-    [
-      ["^/$", "/index.md"],
-      ["^/now/?$", "/now.md"],
-    ]
-  );
-  for (const route of rewrites) {
-    assert.equal(route.headers?.["Content-Type"], MARKDOWN_TYPE);
-    assert.ok(new RegExp(accept(route)!.value!).test("text/markdown"));
-    assert.ok(new RegExp(accept(route)!.value!).test("text/markdown, text/html;q=0.9"));
-    assert.ok(!new RegExp(accept(route)!.value!).test("text/html,application/xhtml+xml,*/*;q=0.8"));
+const browsers = [
+  "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+  "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "text/html",
+  "*/*",
+];
+
+test("browser Accept headers keep pages static", () => {
+  for (const accept of browsers) {
+    assert.ok(!fullMatch(needsNegotiation.value, accept), accept);
+    assert.ok(fullMatch(acceptsHtml.value, accept), accept);
   }
-  assert.ok(matches(rewrites[1], "/now/"));
-  assert.ok(!matches(rewrites[0], "/now"));
-  assert.ok(!matches(rewrites[1], "/nowhere"));
 });
 
-test("pages vary on Accept whichever version is served", () => {
-  const vary = before.find((route) => route.headers?.Vary === "Accept" && route.continue);
+test("Accept headers a static file can't answer go to the negotiate function", () => {
+  for (const accept of [
+    "text/markdown",
+    "Text/Markdown",
+    "text/markdown, text/html;q=0.9, */*;q=0.8",
+    "text/html, text/markdown;q=0.5",
+    "text/html;q=0.5, */*",
+    "text/html, */*;q=0",
+    "text/html, application/json;q=0.0",
+  ]) {
+    assert.ok(fullMatch(needsNegotiation.value, accept), accept);
+  }
+  assert.ok(!fullMatch(needsNegotiation.value, "text/html, */*;q=0.5"));
+  for (const accept of ["application/pdf", "application/json", "image/*", ""]) {
+    assert.ok(!fullMatch(acceptsHtml.value, accept), accept);
+  }
+});
+
+test("pages are negotiated before static files are served", () => {
+  const [byHeader, unsupported] = before.filter(negotiates);
+  assert.deepEqual(byHeader.has, [needsNegotiation]);
+  assert.deepEqual(unsupported.has, [{ type: "header", key: "accept" }]);
+  assert.deepEqual(unsupported.missing, [acceptsHtml]);
+  for (const route of [byHeader, unsupported]) {
+    for (const path of ["/", "/now", "/now/"]) assert.ok(matches(route, path), path);
+    for (const path of ["/nowhere", "/now.md", "/uses"]) assert.ok(!matches(route, path), path);
+    assert.equal("/now/".replace(new RegExp(route.src!), route.dest!), "/_negotiate?path=/now/");
+  }
+});
+
+test("pages vary on Accept and Accept-Encoding whichever version is served", () => {
+  const vary = before.find((route) => route.headers?.Vary && route.continue);
   assert.ok(vary);
+  assert.equal(vary.headers!.Vary, VARY);
   assert.equal(vary.has, undefined);
   for (const path of ["/", "/now", "/now/"]) assert.ok(matches(vary, path), path);
   assert.ok(!matches(vary, "/uses"));
-  assert.ok(before.indexOf(vary) < before.findIndex(accept));
+  assert.ok(before.indexOf(vary) < before.findIndex(negotiates));
 });
 
 test(".md files are served as text/markdown", () => {
@@ -52,28 +86,22 @@ test(".md files are served as text/markdown", () => {
   assert.equal(type.headers!["Content-Type"], MARKDOWN_TYPE);
 });
 
-test("unknown paths get a Markdown 404 for Markdown requests and HTML otherwise", () => {
-  const notFound = after.filter((route) => route.status === 404);
-  assert.equal(notFound.length, 2);
-  assert.deepEqual(
-    {
-      dest: notFound[0].dest,
-      accept: !!accept(notFound[0]),
-      type: notFound[0].headers?.["Content-Type"],
-    },
-    { dest: "/404.md", accept: true, type: MARKDOWN_TYPE }
+test("unknown paths are negotiated after the filesystem misses, before the HTML 404", () => {
+  const [negotiated, html] = routes.slice(-2);
+  assert.ok(negotiates(negotiated));
+  assert.deepEqual(negotiated.has, [needsNegotiation]);
+  assert.equal(
+    "/nope".replace(new RegExp(negotiated.src!), negotiated.dest!),
+    "/_negotiate?path=/nope"
   );
-  assert.equal(notFound[1].dest, "/404.html");
-  assert.equal(accept(notFound[1]), undefined);
-  for (const route of notFound) assert.equal(route.headers?.Vary, "Accept");
-  assert.deepEqual(routes.slice(-2), notFound);
+  assert.deepEqual(html, { src: "^/.*$", dest: "/404.html", status: 404, headers: { Vary: VARY } });
   assert.deepEqual(after[0], { src: "^/api/wanikani/?$", dest: "_render" });
 });
 
 test("the adapter's own routes are kept in order", () => {
   assert.deepEqual(routes[0], adapterRoutes[0]);
   assert.deepEqual(
-    routes.filter((r) => !accept(r) && !r.continue && r.status !== 404),
+    routes.filter((r) => !negotiates(r) && !r.continue && r.status !== 404),
     adapterRoutes.slice(0, 3)
   );
 });
