@@ -10,9 +10,17 @@ interface Props {
   lastUpdated?: Date;
   markdown?: string;
   parent?: { href: string; label: string };
+  headerClass?: string;
 }
 
-const { title, intro, lastUpdated, markdown, parent } = Astro.props;
+const {
+  title,
+  intro,
+  lastUpdated,
+  markdown,
+  parent,
+  headerClass = "mb-14 sm:mb-16",
+} = Astro.props;
 
 const formattedDate = lastUpdated
   ? formatDate(lastUpdated, { year: "numeric", month: "long", day: "numeric" })
@@ -35,7 +43,7 @@ const formattedDate = lastUpdated
     <PageHeader
       eyebrow={formattedDate && `Updated ${formattedDate}`}
       intro={intro}
-      className="mb-14 sm:mb-16"
+      className={headerClass}
     >
       {title}
     </PageHeader>

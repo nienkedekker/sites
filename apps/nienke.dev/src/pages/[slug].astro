@@ -16,8 +16,9 @@ const { Content } = await render(page);
   intro={page.data.description}
   lastUpdated={page.data.lastUpdated}
   markdown={`/${page.id}.md`}
+  headerClass="mb-10"
 >
-  <article class="prose max-w-2xl border-t border-rule pt-10">
+  <article class="prose max-w-2xl border-t border-line-strong pt-10">
     <Content />
   </article>
 </PageLayout>

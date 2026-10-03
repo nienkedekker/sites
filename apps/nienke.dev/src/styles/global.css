@@ -43,3 +43,18 @@
     scrollbar-color: var(--ink-faint) var(--line);
   }
 }
+
+/* Body copy spaced in whole lines (line height 1.75), so paragraphs, quotes
+   and headings share one rhythm */
+.prose > :where(p, blockquote, ul, ol) {
+  margin-block: 1.75em;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose blockquote {
+  --tw-prose-quotes: var(--ink-soft);
+  font-weight: 400;
+}
