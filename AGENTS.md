@@ -13,8 +13,8 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 
 Turbo monorepo with npm workspaces:
 
-- `apps/web`: what.pm, the Next.js app described below
-- `apps/site`: nienke.dev, an Astro site (imported with history via `git subtree`)
+- `apps/what.pm`: what.pm, the Next.js app described below
+- `apps/nienke.dev`: nienke.dev, an Astro site (imported with history via `git subtree`)
 - `packages/ui` (`@nienke/ui`): the design system both share. It holds tokens,
   base styles, `.card`/`.display`/`.tag`, and motion in `styles.css`, plus React
   components (`card-head`, `media-chart`, `page-header`, `site-mark`, `tag-link`) and the number and date formatters (`format`). It's published as TypeScript source,
