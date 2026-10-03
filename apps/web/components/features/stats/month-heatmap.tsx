@@ -62,7 +62,7 @@ function CellTooltip({
 
   return (
     <div
-      className={`tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left ${
+      className={`tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left group-focus:opacity-100 ${
         align === "start"
           ? "left-0"
           : align === "end"
