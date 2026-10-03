@@ -426,7 +426,7 @@ Or me. Whatever.`,
     domain: "trigger-joy.net",
     years: "2004",
     about:
-      "Justine gave me this domain for my icons and so-called art, while the blog stayed on suckerlove.org. It ran on b2 and had three layouts in two months, the last turning it into an LJ icon collective. By the end of September it said Coming up, and by December it was parked.",
+      "My online friend Justine gave me this domain for my icons and ~art~, while the blog stayed on suckerlove.org. It ran on b2 and had three layouts in two months, the last turning it into an LJ icon collective. By the end of September it said Coming up, and by December it was parked.",
     snapshots: [
       {
         date: "2004-07-30",
