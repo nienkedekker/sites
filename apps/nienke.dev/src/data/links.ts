@@ -21,4 +21,5 @@ export const links = [
   { name: "Neocities", href: "https://neocities.org/" },
   { name: "nownownow", href: "https://nownownow.com/" },
   { name: "what happens next", href: "https://whathappensnext.webcomic.ws/" },
+  { name: "evastars retrospective", href: "http://femicom.org/fun/pfft/index.html" },
 ];
