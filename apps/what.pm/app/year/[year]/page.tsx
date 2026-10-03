@@ -10,7 +10,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const { year } = await props.params;
   return {
-    title: `${year} · what.`,
+    title: `${year}`,
     description: `What I read and watched in ${year}.`,
   };
 }

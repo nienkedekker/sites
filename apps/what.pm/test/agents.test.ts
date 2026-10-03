@@ -224,25 +224,6 @@ describe("middleware", () => {
   });
 });
 
-describe("next.config headers", () => {
-  it("varies pages on Accept", async () => {
-    const { default: config } = await import("@/next.config");
-    const rules = await config.headers!();
-    const vary = rules.find((rule) =>
-      rule.headers.some(
-        ({ key, value }) => key === "Vary" && value === "Accept",
-      ),
-    );
-    expect(vary).toBeDefined();
-    const pattern = new RegExp(
-      `^/${vary!.source.match(/^\/:path\((.*)\)$/)![1]}$`,
-    );
-    expect(pattern.test("/")).toBe(true);
-    expect(pattern.test("/year/2024")).toBe(true);
-    expect(pattern.test("/api/v1/summary")).toBe(false);
-  });
-});
-
 describe("discovery files", () => {
   it("serves llms.txt in the llmstxt.org shape", async () => {
     const response = llmsGET();

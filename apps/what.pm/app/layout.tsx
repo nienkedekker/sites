@@ -41,10 +41,13 @@ const defaultUrl = host ? `https://${host}` : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "what.",
-  description: "what!!!",
+  title: { default: "what. · what.pm", template: "%s · what.pm" },
+  description:
+    "what!!! every book, movie and show I’ve read or watched since 2007.",
   alternates: {
-    types: { "application/rss+xml": [{ url: "/feed.xml", title: "what." }] },
+    types: {
+      "application/rss+xml": [{ url: "/feed.xml", title: "what. · what.pm" }],
+    },
   },
 };
 
@@ -74,10 +77,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <a
-              href="#main-content"
-              className="skip-link"
-            >
+            <a href="#main-content" className="skip-link">
               Skip to content
             </a>
             <div className="flex min-h-screen flex-col">

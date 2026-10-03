@@ -7,7 +7,7 @@ import { LastLogged } from "@/components/features/lists/last-logged";
 import { getCurrentYear } from "@/utils/formatters/date";
 
 export const metadata: Metadata = {
-  title: "Not found · what.",
+  title: "Not found",
 };
 
 export default function NotFound() {

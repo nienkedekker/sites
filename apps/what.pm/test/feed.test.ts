@@ -36,7 +36,7 @@ describe("GET /feed.xml", () => {
     );
     expect(xml).toContain(
       '<atom:link href="https://what.pm/feed.xml" rel="self"',
-    );
+    );    expect(xml).toContain("<title>what. · what.pm</title>");
   });
 
   it("words each entry by type", async () => {
