@@ -17,9 +17,21 @@ export default function NowPlaying({ initial }: { initial?: Track | null }) {
       }
     };
 
-    fetchTrack();
-    const interval = setInterval(fetchTrack, 30000);
-    return () => clearInterval(interval);
+    // Only poll while the tab is visible, and catch up when it comes back
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const sync = () => {
+      clearInterval(interval);
+      if (document.hidden) return;
+      fetchTrack();
+      interval = setInterval(fetchTrack, 30000);
+    };
+
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", sync);
+    };
   }, []);
 
   const isNowPlaying = track?.["@attr"]?.nowplaying === "true";
