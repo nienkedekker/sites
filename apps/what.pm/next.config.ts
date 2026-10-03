@@ -25,6 +25,12 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // Pages can also answer in Markdown (see middleware.ts). `next start`
+        // overwrites Vary on rendered pages; Vercel applies this at the edge.
+        source: "/:path((?!_next|api|auth|markdown).*)",
+        headers: [{ key: "Vary", value: "Accept" }],
+      },
     ];
   },
 };
