@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 import { markdownTarget, prefersMarkdown } from "@/utils/agents/negotiate";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const negotiable = markdownTarget(pathname).kind !== "skip";
 

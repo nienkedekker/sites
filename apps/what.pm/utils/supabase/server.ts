@@ -27,7 +27,7 @@ export async function createClientForServer() {
         } catch (error) {
           console.log(error);
           // The `set` method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing
+          // This can be ignored if you have the proxy refreshing
           // user sessions.
         }
       },

@@ -55,13 +55,11 @@ export function TitleAutocomplete({
   const [active, setActive] = useState(-1);
   const [failed, setFailed] = useState(false);
 
+  const trimmed = query.trim();
+  const searchable = trimmed.length >= 2 && trimmed.length <= 200;
+
   useEffect(() => {
-    const trimmed = query.trim();
-    if (trimmed.length < 2 || trimmed.length > 200) {
-      setResults([]);
-      setFailed(false);
-      return;
-    }
+    if (!searchable) return;
 
     const controller = new AbortController();
     const timer = setTimeout(async () => {
@@ -77,9 +75,9 @@ export function TitleAutocomplete({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query, itemType]);
+  }, [trimmed, searchable, itemType]);
 
-  const showList = open && results.length > 0;
+  const showList = open && searchable && results.length > 0;
 
   function choose(result: ExternalResult) {
     setOpen(false);
@@ -172,7 +170,7 @@ export function TitleAutocomplete({
         </ul>
       )}
 
-      {failed && (
+      {searchable && failed && (
         <p className="mt-1.5 font-mono text-xs text-ink-faint">
           Couldn’t reach {SOURCE[itemType]}, so fill this one in yourself.
         </p>

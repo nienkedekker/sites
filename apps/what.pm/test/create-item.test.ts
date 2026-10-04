@@ -8,9 +8,9 @@ const db = vi.hoisted(() => ({
 
 const getExternalDetails = vi.hoisted(() => vi.fn());
 const googleBooksPages = vi.hoisted(() => vi.fn());
-const revalidateTag = vi.hoisted(() => vi.fn());
+const updateTag = vi.hoisted(() => vi.fn());
 
-vi.mock("next/cache", () => ({ revalidateTag }));
+vi.mock("next/cache", () => ({ updateTag }));
 
 vi.mock("@/utils/supabase/server", () => ({
   createClientForServer: async () => ({
@@ -81,7 +81,7 @@ beforeEach(() => {
   db.user = { id: "nienke" };
   getExternalDetails.mockReset();
   googleBooksPages.mockReset();
-  revalidateTag.mockReset();
+  updateTag.mockReset();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -194,7 +194,7 @@ describe("createItemAction", () => {
   it("refreshes the cached stats once the item is saved", async () => {
     await createItemAction(form(dune)).catch(() => {});
 
-    expect(revalidateTag).toHaveBeenCalledWith("items");
+    expect(updateTag).toHaveBeenCalledWith("items");
   });
 
   it("leaves the cache alone when saving fails", async () => {
@@ -203,7 +203,7 @@ describe("createItemAction", () => {
     expect(await createItemAction(form(dune))).toEqual({
       error: "Unable to save your item. Please try again.",
     });
-    expect(revalidateTag).not.toHaveBeenCalled();
+    expect(updateTag).not.toHaveBeenCalled();
   });
 
   it("returns validation errors instead of saving", async () => {

@@ -45,7 +45,7 @@ vi.mock("@/utils/supabase/middleware", () => ({
 const { GET: markdownGET } = await import("@/app/markdown/[[...path]]/route");
 const { GET: llmsGET } = await import("@/app/llms.txt/route");
 const { GET: openapiGET } = await import("@/app/openapi.json/route");
-const { middleware } = await import("@/middleware");
+const { proxy } = await import("@/proxy");
 
 beforeEach(() => {
   state.items = [];
@@ -201,33 +201,31 @@ describe("GET /markdown", () => {
   });
 });
 
-describe("middleware", () => {
+describe("proxy", () => {
   const request = (path: string, accept: string) =>
     new NextRequest(`https://www.what.pm${path}`, { headers: { accept } });
   const rewrite = (response: Response) =>
     response.headers.get("x-middleware-rewrite");
 
   it("rewrites Markdown requests to the Markdown route", async () => {
-    expect(rewrite(await middleware(request("/", "text/markdown")))).toBe(
+    expect(rewrite(await proxy(request("/", "text/markdown")))).toBe(
       "https://www.what.pm/markdown",
     );
-    expect(
-      rewrite(await middleware(request("/year/2020", "text/markdown"))),
-    ).toBe("https://www.what.pm/markdown/year/2020");
-    expect(rewrite(await middleware(request("/nope", "text/markdown")))).toBe(
+    expect(rewrite(await proxy(request("/year/2020", "text/markdown")))).toBe(
+      "https://www.what.pm/markdown/year/2020",
+    );
+    expect(rewrite(await proxy(request("/nope", "text/markdown")))).toBe(
       "https://www.what.pm/markdown/nope",
     );
   });
 
   it("keeps serving HTML to everyone else", async () => {
-    expect(rewrite(await middleware(request("/", "text/html")))).toBeNull();
-    expect(rewrite(await middleware(request("/", "*/*")))).toBeNull();
+    expect(rewrite(await proxy(request("/", "text/html")))).toBeNull();
+    expect(rewrite(await proxy(request("/", "*/*")))).toBeNull();
   });
 
   it("leaves pages without a Markdown version alone", async () => {
-    expect(
-      rewrite(await middleware(request("/stats", "text/markdown"))),
-    ).toBeNull();
+    expect(rewrite(await proxy(request("/stats", "text/markdown")))).toBeNull();
   });
 });
 

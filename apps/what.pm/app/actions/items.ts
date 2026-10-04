@@ -2,7 +2,7 @@
 
 import { createClientForServer } from "@/utils/supabase/server";
 import { redirect, unstable_rethrow } from "next/navigation";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import {
   itemCreationSchema,
   extractFormData,
@@ -83,7 +83,7 @@ export const createItemAction = async (
       return { error: "Unable to save your item. Please try again." };
     }
 
-    revalidateTag(ITEMS_TAG);
+    updateTag(ITEMS_TAG);
     return redirect(`/year/${validatedData.belongsToYear}#item-${created.id}`);
   } catch (error) {
     unstable_rethrow(error);
@@ -113,7 +113,7 @@ export const deleteItemAction = async (
       return { error: "Unable to delete your item. Please try again." };
     }
 
-    revalidateTag(ITEMS_TAG);
+    updateTag(ITEMS_TAG);
     return redirect(`/year/${belongsToYear}`);
   } catch (error) {
     unstable_rethrow(error);
@@ -172,7 +172,7 @@ export const updateItemAction = async (
       return { error: "Unable to update your item. Please try again." };
     }
 
-    revalidateTag(ITEMS_TAG);
+    updateTag(ITEMS_TAG);
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in updateItemAction:", error);

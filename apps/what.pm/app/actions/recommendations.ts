@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { WANTED_TAG } from "@/utils/constants/app";
 import { getJson, tmdbUrl } from "@/utils/server/external-api";
 import { createClientForServer } from "@/utils/supabase/server";
@@ -157,7 +157,7 @@ export async function wantRecommendation(
       console.error("Database error clearing wanted pick:", clearError);
     }
 
-    revalidateTag(WANTED_TAG);
+    updateTag(WANTED_TAG);
     revalidatePath("/recs");
     return { error: null };
   } catch (error) {
@@ -182,7 +182,7 @@ export async function removeWanted(
       return { error: "Unable to remove that. Please try again." };
     }
 
-    revalidateTag(WANTED_TAG);
+    updateTag(WANTED_TAG);
     revalidatePath("/recs");
     revalidatePath("/up-next");
     return { error: null };
@@ -233,7 +233,7 @@ export async function addUpNext(
       return { error: "Unable to add that. Please try again." };
     }
 
-    revalidateTag(WANTED_TAG);
+    updateTag(WANTED_TAG);
     revalidatePath("/up-next");
     return { error: null };
   } catch (error) {
