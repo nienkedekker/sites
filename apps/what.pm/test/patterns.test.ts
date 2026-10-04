@@ -388,8 +388,8 @@ describe("timeSpent", () => {
       booksWithPages: 2,
       books: 3,
       minutes: 660,
-      screensWithRuntime: 2,
-      screens: 3,
+      moviesWithRuntime: 1,
+      showsWithRuntime: 1,
     });
   });
 });
