@@ -6,6 +6,8 @@ import { oldSites, oldSitesIntro } from "../data/old-sites";
 import { tumblrIntro, tumblrSections, tumblrTagsNote } from "../data/tumblr";
 import { fandoms, tumblrFirstYear, tumblrPosts, tumblrTags } from "../data/tumblr-posts";
 import { profile, site } from "../data/profile";
+import { getLiveNumbers } from "./home-snapshot";
+import { fillNumbers, hasLiveNumbers } from "./live-numbers";
 import { cleanMarkdown, type HomeContent, type MarkdownPage } from "./markdown";
 
 export interface SitePage extends MarkdownPage {
@@ -17,13 +19,18 @@ const order = ["now", "uses", "links", "archive", "old-sites", "lj-icons", "tumb
 export async function getSitePages(): Promise<SitePage[]> {
   const entries = await getCollection("pages", ({ id }) => id !== "home");
 
-  const pages: SitePage[] = entries.map(({ id, data, body = "" }) => ({
-    slug: id,
-    title: data.title,
-    description: data.description,
-    lastUpdated: data.lastUpdated,
-    body: cleanMarkdown(body, site),
-  }));
+  const pages: SitePage[] = await Promise.all(
+    entries.map(async ({ id, data, body = "" }) => ({
+      slug: id,
+      title: data.title,
+      description: data.description,
+      lastUpdated: data.lastUpdated,
+      body: cleanMarkdown(
+        hasLiveNumbers(body) ? fillNumbers(body, await getLiveNumbers()) : body,
+        site
+      ),
+    }))
+  );
 
   pages.push({
     slug: "links",

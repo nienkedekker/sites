@@ -1,6 +1,9 @@
 ---
 import { getCollection, render } from "astro:content";
 import PageLayout from "../layouts/PageLayout.astro";
+import LiveNumbers from "../components/live-numbers.astro";
+import { getLiveNumbers } from "../lib/home-snapshot";
+import { hasLiveNumbers } from "../lib/live-numbers";
 
 export async function getStaticPaths() {
   const pages = await getCollection("pages", ({ id }) => id !== "home");
@@ -9,6 +12,7 @@ export async function getStaticPaths() {
 
 const { page } = Astro.props;
 const { Content } = await render(page);
+const numbers = hasLiveNumbers(page.body ?? "") ? await getLiveNumbers() : null;
 ---
 
 <PageLayout
@@ -19,6 +23,14 @@ const { Content } = await render(page);
   headerClass="mb-10"
 >
   <article class="prose max-w-2xl border-t border-line-strong pt-10">
-    <Content />
+    {
+      numbers ? (
+        <LiveNumbers numbers={numbers}>
+          <Content />
+        </LiveNumbers>
+      ) : (
+        <Content />
+      )
+    }
   </article>
 </PageLayout>

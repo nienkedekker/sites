@@ -7,7 +7,17 @@ const read = (path: string) => readFileSync(new URL(`static/${path}`, output), "
 const exists = (path: string) => existsSync(new URL(`static/${path}`, output));
 const site = "https://nienke.dev";
 
-const pages = ["/", "/now", "/uses", "/links", "/archive", "/old-sites", "/lj-icons", "/tumblr", "/colophon"];
+const pages = [
+  "/",
+  "/now",
+  "/uses",
+  "/links",
+  "/archive",
+  "/old-sites",
+  "/lj-icons",
+  "/tumblr",
+  "/colophon",
+];
 const htmlFile = (path: string) => (path === "/" ? "index.html" : `${path.slice(1)}/index.html`);
 const markdownFile = (path: string) => (path === "/" ? "index.md" : `${path.slice(1)}.md`);
 const sitePath = (url: string) => url.replace(site, "").replace(/^\/$/, "/");
@@ -28,6 +38,13 @@ test("every page has a Markdown version that it links to", () => {
       path
     );
   }
+});
+
+test("/now fills in its live numbers, in HTML and Markdown", () => {
+  for (const file of ["now/index.html", "now.md"]) {
+    assert.doesNotMatch(read(file), /\{\{\w+\}\}/, file);
+  }
+  assert.match(read("now/index.html"), /<span data-live="books">[\d,–]+<\/span>/);
 });
 
 test("the negotiate function is an edge function that serves the built files", async () => {

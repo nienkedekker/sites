@@ -14,7 +14,7 @@ I’ve been working at [Versiro](https://versiro.com) since September 2024. I’
 
 ## Hobbies <img src="/images/now/31231a0e.gif" alt="" width="20" height="20" class="kaomoji" />
 
-I started learning Japanese in April 2024. Right now, I know 715 kanji (meanings and readings), and I’m on level 21 of WaniKani. Speaking is my weak point :( whenever I talk to a Japanese person I turn into a stuttering mess. I use [WaniKani](https://www.wanikani.com/) for kanji acquisition, and I try to immerse by watching anime and reading [Tadoku](https://tadoku.org/japanese/en/free-books-en/) books. After a six month break, I’m back in classes at the [University of Amsterdam](https://www.uvatalen.nl/japans).
+I started learning Japanese in April 2024. Right now, I know {{kanji}} kanji (meanings and readings), and I’m on level {{level}} of WaniKani. Speaking is my weak point :( whenever I talk to a Japanese person I turn into a stuttering mess. I use [WaniKani](https://www.wanikani.com/) for kanji acquisition, and I try to immerse by watching anime and reading [Tadoku](https://tadoku.org/japanese/en/free-books-en/) books. After a six month break, I’m back in classes at the [University of Amsterdam](https://www.uvatalen.nl/japans).
 
 I go to the gym for strength training three times a week.
 
@@ -28,7 +28,7 @@ _\*I set up Google Flights alert and watched a bunch of TikToks_
 
 ## Logging <img src="/images/now/1c458f86.gif" alt="" width="20" height="20" class="kaomoji" />
 
-I’m still logging everything I read and watch at [what.pm](https://www.what.pm/). So far in 2026, I’ve read 52 books, watched 31 movies, and 19 TV show seasons. You can see the live numbers on the [home page](/).
+I’m still logging everything I read and watch at [what.pm](https://www.what.pm/). So far in {{year}}, I’ve read {{books}} books, watched {{movies}} movies, and {{shows}} TV show seasons. You can see the live numbers on the [home page](/).
 
 In 2025, I read 69 books, watched 34 movies, and 12 TV show seasons. My top favorite books from that year, in no particular order:
 

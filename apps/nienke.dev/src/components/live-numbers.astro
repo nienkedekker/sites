@@ -1,0 +1,45 @@
+---
+import { fillNumbers, type LiveNumbers } from "../lib/live-numbers";
+
+interface Props {
+  numbers: LiveNumbers;
+}
+
+const html = await Astro.slots.render("default");
+const filled = fillNumbers(
+  html,
+  Astro.props.numbers,
+  (key, value) => `<span data-live="${key}">${value}</span>`
+);
+---
+
+<Fragment set:html={filled} />
+
+<script>
+  import { liveNumbers } from "../lib/live-numbers";
+  import { getSummary } from "../lib/whatpm";
+
+  // The build filled these in, but the log and WaniKani move on between deploys
+  async function refresh() {
+    const spans = [...document.querySelectorAll<HTMLElement>("[data-live]")];
+    if (spans.length === 0) return;
+    const wantsKanji = spans.some(
+      ({ dataset }) => dataset.live === "kanji" || dataset.live === "level"
+    );
+    const [summary, progress] = await Promise.all([
+      getSummary().catch(() => undefined),
+      wantsKanji
+        ? fetch("/api/wanikani")
+            .then((res) => (res.ok ? res.json() : undefined))
+            .catch(() => undefined)
+        : undefined,
+    ]);
+    const numbers = liveNumbers(summary, progress);
+    for (const span of spans) {
+      const value = numbers[span.dataset.live!];
+      if (value) span.textContent = value;
+    }
+  }
+
+  document.addEventListener("astro:page-load", refresh);
+</script>
