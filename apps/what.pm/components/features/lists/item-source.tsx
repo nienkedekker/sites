@@ -1,21 +1,20 @@
 import { externalProps } from "@nienke/ui/external";
 import { formatCount } from "@nienke/ui/format";
 import { Item } from "@/types";
-import { isOpenLibraryKey } from "@/utils/data/external-ids";
 
-function sourceOf(item: Item) {
-  if (!item.external_id) return null;
+// Goodreads has no API, so books link to a search, where the book is nearly
+// always the top result
+export function sourceOf(
+  item: Pick<Item, "itemtype" | "external_id" | "title" | "author">,
+) {
   if (item.itemtype === "Book") {
-    return isOpenLibraryKey(item.external_id)
-      ? {
-          name: "OpenLibrary",
-          href: `https://openlibrary.org${item.external_id}`,
-        }
-      : {
-          name: "Google Books",
-          href: `https://books.google.com/books?id=${item.external_id}`,
-        };
+    const query = [item.title, item.author].filter(Boolean).join(" ");
+    return {
+      name: "Goodreads",
+      href: `https://www.goodreads.com/search?q=${encodeURIComponent(query)}`,
+    };
   }
+  if (!item.external_id) return null;
   const path = item.itemtype === "Movie" ? "movie" : "tv";
   return {
     name: "TMDB",

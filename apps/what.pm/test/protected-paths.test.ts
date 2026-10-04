@@ -6,6 +6,7 @@ describe("isProtectedPathname", () => {
     expect(isProtectedPathname("/create")).toBe(true);
     expect(isProtectedPathname("/export")).toBe(true);
     expect(isProtectedPathname("/create/anything")).toBe(true);
+    expect(isProtectedPathname("/recs")).toBe(true);
   });
 
   it("matches whole path segments only", () => {

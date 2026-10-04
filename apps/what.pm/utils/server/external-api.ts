@@ -1,5 +1,5 @@
 import type { ValidItemType } from "@/types/shared";
-import { splitNames } from "@/utils/data/names";
+import { nameKey, splitNames } from "@/utils/data/names";
 import { normalizeTitle } from "@/utils/data/patterns";
 import { isGoogleVolumeId, isOpenLibraryKey } from "@/utils/data/external-ids";
 import { bookGenres } from "@/utils/data/book-genres";
@@ -7,7 +7,7 @@ import { bookGenres } from "@/utils/data/book-genres";
 const TMDB = "https://api.themoviedb.org/3";
 const OPEN_LIBRARY_HEADERS = { "User-Agent": "what.pm (https://what.pm)" };
 // TMDB writing credits that point at a book behind the movie or show
-const SOURCE_JOBS = new Set([
+export const SOURCE_JOBS = new Set([
   "Novel",
   "Book",
   "Short Story",
@@ -109,12 +109,6 @@ interface GoogleVolume {
 }
 
 const mainTitle = (title: string) => normalizeTitle(title.split(":")[0]);
-// "A.D. Sui" and "A. D. Sui", "Colm Tóibín" and "Colm Toibin"
-const nameKey = (name: string) =>
-  name
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]/g, "");
 
 // OpenLibrary rarely has page counts for new releases, Google Books usually
 // does. Its intitle:/inauthor: filters come back empty, so this searches

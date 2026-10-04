@@ -77,6 +77,102 @@ export type Database = {
         };
         Relationships: [];
       };
+      recommendations: {
+        Row: {
+          batch_at: string;
+          because: string[];
+          creator: string | null;
+          external_id: string;
+          id: string;
+          itemtype: string;
+          published_year: number | null;
+          reason: string;
+          score: number;
+          title: string;
+        };
+        Insert: {
+          batch_at?: string;
+          because?: string[];
+          creator?: string | null;
+          external_id: string;
+          id?: string;
+          itemtype: string;
+          published_year?: number | null;
+          reason: string;
+          score: number;
+          title: string;
+        };
+        Update: {
+          batch_at?: string;
+          because?: string[];
+          creator?: string | null;
+          external_id?: string;
+          id?: string;
+          itemtype?: string;
+          published_year?: number | null;
+          reason?: string;
+          score?: number;
+          title?: string;
+        };
+        Relationships: [];
+      };
+      dismissed: {
+        Row: {
+          created_at: string;
+          external_id: string;
+          itemtype: string;
+          kind: string;
+          title: string;
+        };
+        Insert: {
+          created_at?: string;
+          external_id: string;
+          itemtype: string;
+          kind: string;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          external_id?: string;
+          itemtype?: string;
+          kind?: string;
+          title?: string;
+        };
+        Relationships: [];
+      };
+      wanted: {
+        Row: {
+          because: string[];
+          created_at: string;
+          creator: string | null;
+          external_id: string;
+          itemtype: string;
+          published_year: number | null;
+          reason: string | null;
+          title: string;
+        };
+        Insert: {
+          because?: string[];
+          created_at?: string;
+          creator?: string | null;
+          external_id: string;
+          itemtype: string;
+          published_year?: number | null;
+          reason?: string | null;
+          title: string;
+        };
+        Update: {
+          because?: string[];
+          created_at?: string;
+          creator?: string | null;
+          external_id?: string;
+          itemtype?: string;
+          published_year?: number | null;
+          reason?: string | null;
+          title?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       distinct_years: {
