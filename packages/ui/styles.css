@@ -358,44 +358,6 @@
   animation: spin-slow 6s linear infinite;
 }
 
-/* what.pm's year links: the log slides like a timeline, later years in from
-   the right. The old year leaves fast so the new one isn't competing with it */
-@keyframes year-out {
-  to {
-    opacity: 0;
-    transform: translateX(var(--year-shift));
-    filter: blur(4px);
-  }
-}
-
-@keyframes year-in {
-  from {
-    opacity: 0;
-    transform: translateX(var(--year-shift));
-    filter: blur(4px);
-  }
-}
-
-::view-transition-old(.year-later),
-::view-transition-old(.year-earlier) {
-  animation: year-out 160ms ease-in both;
-}
-
-::view-transition-new(.year-later),
-::view-transition-new(.year-earlier) {
-  animation: year-in 420ms cubic-bezier(0.2, 0.7, 0.2, 1) 100ms both;
-}
-
-::view-transition-old(.year-later),
-::view-transition-new(.year-earlier) {
-  --year-shift: -40px;
-}
-
-::view-transition-new(.year-later),
-::view-transition-old(.year-earlier) {
-  --year-shift: 40px;
-}
-
 .rise {
   animation: rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
   animation-delay: var(--delay, 0ms);
