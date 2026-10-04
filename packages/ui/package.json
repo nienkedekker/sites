@@ -22,6 +22,8 @@
     "./stat-list": "./src/stat-list.tsx",
     "./stat-tile": "./src/stat-tile.tsx",
     "./summary": "./src/summary.ts",
+    "./swell": "./src/swell.ts",
+    "./swell-text": "./src/swell-text.tsx",
     "./tag": "./src/tag.tsx",
     "./tag-link": "./src/tag-link.tsx",
     "./tooltip": "./src/tooltip.ts"

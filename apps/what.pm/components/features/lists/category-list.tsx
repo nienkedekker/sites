@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatPlural } from "@nienke/ui/format";
 import { SWATCH, type ItemType } from "@nienke/ui/series";
+import SwellText from "@nienke/ui/swell-text";
 import DeleteItemDialog from "./delete-item-dialog";
 import EditItemDialog from "./edit-item-dialog";
 import { Item } from "@/types";
@@ -56,7 +57,7 @@ export function CategoryList({
           className="display flex items-center gap-3 text-ink text-[1.875rem] sm:text-[2.5rem]"
         >
           <span className={cn("size-3 shrink-0", swatch)} aria-hidden="true" />
-          {categoryTitle}
+          <SwellText>{categoryTitle}</SwellText>
         </h2>
         <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
           {formatPlural(items.length, "item")}

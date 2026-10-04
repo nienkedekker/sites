@@ -114,6 +114,7 @@ const canonicalURL =
 
 <script>
   import { LOW_POWER_CLASS, watchLowPower } from "@nienke/ui/motion";
+  import { canSwell, registerSwell, splitSwell } from "@nienke/ui/swell";
 
   let lowPower = false;
   const applyLowPower = () =>
@@ -143,7 +144,22 @@ const canonicalURL =
     items.forEach((item) => observer.observe(item));
   }
 
+  let releaseSwells: (() => void)[] = [];
+
+  function setupSwell() {
+    releaseSwells.forEach((release) => release());
+    releaseSwells = [];
+    if (!canSwell()) return;
+    document
+      .querySelectorAll<HTMLElement>("h1.display, h2.display, h3.display")
+      .forEach((heading) => {
+        splitSwell(heading);
+        releaseSwells.push(registerSwell(heading));
+      });
+  }
+
   document.addEventListener("astro:page-load", () => {
     setupReveal();
+    setupSwell();
   });
 </script>

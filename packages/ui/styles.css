@@ -198,6 +198,15 @@
     font-feature-settings: normal;
   }
 
+  .swell-w {
+    white-space: nowrap;
+  }
+
+  .swell-l {
+    display: inline-block;
+    transform-origin: 0 50%;
+  }
+
   .panel {
     @apply relative z-[101] border border-rule bg-panel p-6 sm:p-7;
   }

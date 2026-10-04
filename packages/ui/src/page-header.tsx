@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import SwellText from "./swell-text";
 
 interface PageHeaderProps {
   children: ReactNode;
@@ -20,7 +21,11 @@ export default function PageHeader({
         className="rise display text-ink text-[clamp(2.75rem,7vw,4.5rem)]"
         style={{ "--delay": "80ms" } as CSSProperties}
       >
-        {children}
+        {typeof children === "string" || typeof children === "number" ? (
+          <SwellText key={String(children)}>{String(children)}</SwellText>
+        ) : (
+          children
+        )}
       </h1>
       {intro && (
         <p
