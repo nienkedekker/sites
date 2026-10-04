@@ -13,21 +13,14 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 
 Turbo monorepo with npm workspaces:
 
-- `apps/what.pm`: what.pm, the Next.js app described below
+- `apps/what.pm`: what.pm, the Next.js app (Supabase backend)
 - `apps/nienke.dev`: nienke.dev, an Astro site (imported with history via `git subtree`)
-- `packages/ui` (`@nienke/ui`): the design system both share. It holds tokens,
-  base styles, `.card`/`.display`/`.tag`, and motion in `styles.css`, plus React
-  components (`card-head`, `media-chart`, `page-header`, `site-mark`, `tag-link`) and the number and date formatters (`format`). It's published as TypeScript source,
-  with no build step. Change the look here, not in either app.
-
-what.pm is a Next.js 15 app with:
-
-- Turbo monorepo setup
-- Next.js App Router
-- Supabase for backend/database
-- Tailwind CSS 4 + Radix UI components, styled with `@nienke/ui` tokens (`ink`, `paper`, `line`, …)
-- TypeScript support
-- Server Actions for form handling
+- `packages/ui` (`@nienke/ui`): the design system both share. `styles.css` holds
+  tokens, base styles, `.card`/`.display`/`.tag` and motion; `src/` holds the
+  shared React components (headers, cards, charts, stats, nav, footer) and
+  helpers such as the number and date formatters (`format`), each exported by
+  path in `package.json`. It's published as TypeScript source, with no build
+  step. Change the look here, not in either app.
 
 ## TODO
 - Fix pending states when submitting forms
