@@ -10,25 +10,27 @@ export function TimeSpent({ spent }: { spent: Spent }) {
       {spent.pages > 0 && (
         <div>
           <dt className="sr-only">Pages read</dt>
-          <dd className="flex items-start gap-2">
-            <span className="stat-figure text-3xl">
+          <dd>
+            <p className="stat-figure text-3xl font-medium text-ink/75">
               {formatCount(spent.pages)}
-            </span>
-            <span className="mt-0.5 text-sm leading-none text-ink-soft">
+            </p>
+            <p className="mt-2 text-sm text-ink-soft">
               pages{" "}
               <span className="text-ink-faint">
                 from {formatPlural(spent.booksWithPages, "book")}
               </span>
-            </span>
+            </p>
           </dd>
         </div>
       )}
       {hours > 0 && (
         <div>
           <dt className="sr-only">Hours watched</dt>
-          <dd className="flex items-start gap-2">
-            <span className="stat-figure text-3xl">{formatCount(hours)}</span>
-            <span className="mt-0.5 text-sm leading-none text-ink-soft">
+          <dd>
+            <p className="stat-figure text-3xl font-medium text-ink/75">
+              {formatCount(hours)}
+            </p>
+            <p className="mt-2 text-sm text-ink-soft">
               {hours === 1 ? "hour" : "hours"} watched{" "}
               <span className="text-ink-faint">
                 from{" "}
@@ -41,7 +43,7 @@ export function TimeSpent({ spent }: { spent: Spent }) {
                   .filter(Boolean)
                   .join(" and ")}
               </span>
-            </span>
+            </p>
           </dd>
         </div>
       )}
