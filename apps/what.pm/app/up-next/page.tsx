@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
 import PageHeader from "@nienke/ui/page-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
+import { TypeColumnsSkeleton } from "@/components/features/skeletons/type-columns-skeleton";
 import { AddUpNext } from "@/components/features/recs/add-up-next";
 import {
   byline,
@@ -18,7 +20,20 @@ export const metadata: Metadata = {
   description: "Books, movies, and TV shows I want to get to next.",
 };
 
-export default async function UpNextPage() {
+export default function UpNextPage() {
+  return (
+    <>
+      <PageHeader intro="Books, movies, and TV shows to read/watch">
+        Up next
+      </PageHeader>
+      <Suspense fallback={<TypeColumnsSkeleton label="Loading up next" />}>
+        <UpNext />
+      </Suspense>
+    </>
+  );
+}
+
+async function UpNext() {
   let upNext: UpNextItem[];
   let signedIn = false;
   const reasons = new Map<string, string>();
@@ -52,10 +67,6 @@ export default async function UpNextPage() {
 
   return (
     <>
-      <PageHeader intro="Books, movies, and TV shows to read/watch">
-        Up next
-      </PageHeader>
-
       {signedIn && <AddUpNext />}
 
       {upNext.length > 0 ? (

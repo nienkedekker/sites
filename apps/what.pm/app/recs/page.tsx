@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
 import { formatDate } from "@nienke/ui/format";
@@ -5,6 +6,8 @@ import PageHeader from "@nienke/ui/page-header";
 import TagLink from "@nienke/ui/tag-link";
 import Link from "next/link";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
+import { TypeColumnsSkeleton } from "@/components/features/skeletons/type-columns-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   byline,
   EntryTitle,
@@ -90,7 +93,25 @@ function RecEntry({ rec }: { rec: Rec }) {
   );
 }
 
-export default async function RecsPage() {
+export default function RecsPage() {
+  return (
+    <>
+      <PageHeader intro="Picked from the log.">Recommendations</PageHeader>
+      <Suspense
+        fallback={
+          <>
+            <Skeleton className="mb-12 h-4 w-72 max-w-full" />
+            <TypeColumnsSkeleton label="Loading recommendations" />
+          </>
+        }
+      >
+        <Recs />
+      </Suspense>
+    </>
+  );
+}
+
+async function Recs() {
   let recs: Rec[];
   let upNextCount: number;
   let madeIt: LoggedPick<Tables<"wanted">>[];
@@ -124,8 +145,6 @@ export default async function RecsPage() {
   const batchAt = recs[0]?.batch_at;
   return (
     <>
-      <PageHeader intro="Picked from the log.">Recommendations</PageHeader>
-
       <div className="mb-12 font-mono text-xs text-ink-soft">
         {batchAt && (
           <span className="mr-3">
