@@ -2,10 +2,20 @@ import { unstable_cache } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
 import { ITEMS_TAG } from "@/utils/constants/app";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
+import { fetchAllRows } from "@/utils/data/fetch-all";
 
 export type DataResult<T> =
   | { success: true; data: T; error: null }
   | { success: false; data: null; error: string };
+
+export async function getAllItems(): Promise<TypedItem[]> {
+  const rows = await fetchAllRows((from, to) =>
+    supabasePublic.from("items").select("*").order("id").range(from, to),
+  );
+  return rows
+    .map(validateAndTypeItem)
+    .filter((item): item is TypedItem => item !== null);
+}
 
 export async function getItemsForYear(
   year: number,

@@ -13,7 +13,14 @@ const HTML_ONLY = new Set([
   "/export",
   "/sign-in",
 ]);
-const SKIP_PREFIXES = ["/_next/", "/api/", "/auth/", "/export/", "/markdown"];
+const SKIP_PREFIXES = [
+  "/_next/",
+  "/api/",
+  "/auth/",
+  "/export/",
+  "/genres/",
+  "/markdown",
+];
 
 // Which Markdown version a path has. "skip" leaves the request to Next as-is;
 // "missing" is a path no page answers, so it gets a Markdown 404.

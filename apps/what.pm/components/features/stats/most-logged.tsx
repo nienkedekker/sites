@@ -3,24 +3,37 @@ import CardHead from "@nienke/ui/card-head";
 import Meter from "@nienke/ui/meter";
 import { SWATCH, type ItemType } from "@nienke/ui/series";
 
+interface Part {
+  name: string;
+  count: number;
+}
+
+const searchHref = (name: string) => `/search?q=${encodeURIComponent(name)}`;
+
 function PartList({
   label,
   parts,
+  href,
   className = "",
 }: {
   label: string;
-  parts: { name: string; count: number }[];
+  parts: Part[];
+  href: (part: string) => string;
   className?: string;
 }) {
   return (
     <ul aria-label={label} className={`space-y-1 ${className}`}>
       {parts.map((part) => (
-        <li
-          key={part.name}
-          className="flex items-baseline justify-between gap-3 text-xs text-ink-soft"
-        >
-          <span className="truncate">{part.name}</span>
-          <span className="font-mono tabular-nums">{part.count}</span>
+        <li key={part.name}>
+          <Link
+            href={href(part.name)}
+            className="flex items-baseline justify-between gap-3 text-xs text-ink-soft hover:text-ink"
+          >
+            <span className="truncate underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink">
+              {part.name}
+            </span>
+            <span className="font-mono tabular-nums">{part.count}</span>
+          </Link>
         </li>
       ))}
     </ul>
@@ -37,11 +50,11 @@ interface MostLoggedProps {
     type?: ItemType;
     // Folded away under the row, like the subgenres of literary fiction,
     // with tags that cut across them below a rule
-    parts?: { name: string; count: number }[];
-    tags?: { name: string; count: number }[];
+    parts?: Part[];
+    tags?: Part[];
   }[];
-  // Names that search can't find, like genres, aren't links
-  linked?: boolean;
+  // Where a row, or one of its parts, leads; search by default
+  href?: (name: string, part?: string) => string;
 }
 
 export function MostLogged({
@@ -49,7 +62,7 @@ export function MostLogged({
   title,
   note,
   people,
-  linked = true,
+  href = searchHref,
 }: MostLoggedProps) {
   const most = Math.max(1, ...people.map((person) => person.count));
   const row = "group block border-b border-line py-2.5 last:border-b-0";
@@ -63,9 +76,7 @@ export function MostLogged({
       <ol className="mt-5">
         {people.map(({ name, count, type, parts, tags }) => {
           const label = (
-            <span
-              className={`truncate text-sm text-ink ${linked ? "underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-ink" : ""}`}
-            >
+            <span className="truncate text-sm text-ink underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-ink">
               {name}
             </span>
           );
@@ -109,41 +120,44 @@ export function MostLogged({
                     {meter}
                   </summary>
                   <div className="mt-2.5 border-l border-line pl-3">
-                    <PartList label={`${name} by subgenre`} parts={parts} />
+                    <PartList
+                      label={`${name} by subgenre`}
+                      parts={parts}
+                      href={(part) => href(name, part)}
+                    />
                     {tags && tags.length > 0 && (
-                      <PartList
-                        label={`${name} tags`}
-                        parts={tags}
-                        className="mt-2 border-t border-line pt-2"
-                      />
+                      <div className="mt-2 border-t border-line pt-2">
+                        <p className="mb-1 font-mono text-xs text-ink-faint">
+                          also tagged
+                        </p>
+                        <PartList
+                          label={`${name} tags`}
+                          parts={tags}
+                          href={(part) => href(name, part)}
+                        />
+                      </div>
                     )}
+                    <Link
+                      href={href(name)}
+                      className="link mt-2 inline-block font-mono text-xs text-ink-faint hover:text-ink"
+                    >
+                      All {count}
+                    </Link>
                   </div>
                 </details>
               </li>
             );
           }
 
-          const content = (
-            <>
-              <span className="flex items-baseline justify-between gap-3">
-                {label}
-                {figure}
-              </span>
-              {meter}
-            </>
-          );
           return (
-            <li key={name} className={linked ? undefined : row}>
-              {linked ? (
-                <Link
-                  href={`/search?q=${encodeURIComponent(name)}`}
-                  className={row}
-                >
-                  {content}
-                </Link>
-              ) : (
-                content
-              )}
+            <li key={name}>
+              <Link href={href(name)} className={row}>
+                <span className="flex items-baseline justify-between gap-3">
+                  {label}
+                  {figure}
+                </span>
+                {meter}
+              </Link>
             </li>
           );
         })}

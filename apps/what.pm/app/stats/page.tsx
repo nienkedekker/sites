@@ -4,6 +4,7 @@ import { getStatsData } from "@/utils/data/stats";
 import { CumulativeLineChart } from "@/components/features/charts/cumulative-line-chart";
 import { EveryEntry } from "@/components/features/stats/every-entry";
 import { MostLogged } from "@/components/features/stats/most-logged";
+import { genrePath } from "@/utils/data/genres";
 import { MonthHeatmap } from "@/components/features/stats/month-heatmap";
 import { StatTile } from "@/components/features/stats/stat-tile";
 import { MostReread } from "@/components/features/stats/most-reread";
@@ -102,7 +103,7 @@ async function StatsContent() {
                 id="most-read-genres"
                 title="Most read genres"
                 people={stats.genres.books}
-                linked={false}
+                href={genrePath}
               />
             )}
             {stats.genres.screen.length > 0 && (
@@ -111,7 +112,7 @@ async function StatsContent() {
                 title="Most watched genres"
                 note="movies & TV"
                 people={stats.genres.screen}
-                linked={false}
+                href={genrePath}
               />
             )}
           </div>

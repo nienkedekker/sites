@@ -1,9 +1,15 @@
 import { unstable_cache } from "next/cache";
-import { supabasePublic } from "@/utils/supabase/public";
-import { validateAndTypeItem, type TypedItem } from "@/types/shared";
+import type { TypedItem } from "@/types/shared";
 import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
 import { HIDDEN_PEOPLE, ITEMS_TAG } from "@/utils/constants/app";
+import { getAllItems } from "@/utils/data/items";
+import {
+  GENRE_TAGS,
+  NO_SUBGENRE,
+  genresOf,
+  mainSubgenre,
+} from "@/utils/data/genres";
 import {
   findAdaptations,
   paceYears,
@@ -65,49 +71,12 @@ export interface Revisit {
   times: number;
 }
 
-const PAGE_SIZE = 1000;
 const PEOPLE_COUNT = 10;
 const GENRE_COUNT = 10;
 const REVISIT_COUNT = 5;
 const RHYTHM_COUNT = 6;
 // TMDB's TV genres lump these together, so movies are counted the same way
-// Stored with the subgenres, but they say where a book is from or who it's
-// about rather than what kind of book it is
-const GENRE_TAGS = new Set([
-  "Japanese Fiction",
-  "Korean Fiction",
-  "Queer Fiction",
-]);
-const NO_SUBGENRE = "Other";
-
-const SHARED_GENRES: Record<string, string> = {
-  Action: "Action & Adventure",
-  Adventure: "Action & Adventure",
-  "Science Fiction": "Sci-Fi & Fantasy",
-  Fantasy: "Sci-Fi & Fantasy",
-  War: "War & Politics",
-};
 const TYPE_ORDER: Record<ItemType, number> = { Book: 0, Movie: 1, Show: 2 };
-
-async function getAllItems(): Promise<TypedItem[]> {
-  // Supabase returns at most 1000 rows per request, so page through
-  const rows: unknown[] = [];
-  for (let from = 0; ; from += PAGE_SIZE) {
-    const { data, error } = await supabasePublic
-      .from("items")
-      .select("*")
-      .order("id")
-      .range(from, from + PAGE_SIZE - 1);
-
-    if (error) throw new Error(error.message);
-    rows.push(...(data ?? []));
-    if (!data || data.length < PAGE_SIZE) break;
-  }
-
-  return rows
-    .map(validateAndTypeItem)
-    .filter((item): item is TypedItem => item !== null);
-}
 
 const byLogDate = (a: TypedItem, b: TypedItem) =>
   (a.created_at ?? "").localeCompare(b.created_at ?? "");
@@ -170,16 +139,10 @@ export function computeStats(items: TypedItem[]): StatsData {
     const tags = new Map<string, Map<string, number>>();
     for (const item of items) {
       if ((item.itemtype === "Book") !== books) continue;
-      const names = new Set(
-        item.genres.map((name) =>
-          books ? name : (SHARED_GENRES[name] ?? name),
-        ),
-      );
-      // The first subgenre is the main one; a second stays in the data
-      const main = item.subgenres.find((name) => !GENRE_TAGS.has(name));
-      for (const name of names) {
+      const main = mainSubgenre(item);
+      for (const name of genresOf(item)) {
         counts.set(name, (counts.get(name) ?? 0) + 1);
-        tally(parts, name, main ?? NO_SUBGENRE);
+        tally(parts, name, main);
         for (const tag of item.subgenres.filter((t) => GENRE_TAGS.has(t))) {
           tally(tags, name, tag);
         }
