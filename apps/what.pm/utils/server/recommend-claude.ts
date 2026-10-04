@@ -1,3 +1,4 @@
+import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
@@ -97,19 +98,23 @@ export async function suggestWithClaude(
     .join("\n\n");
 
   try {
-    const client = new Anthropic();
-    const response = await client.beta.messages.parse({
-      model: "claude-opus-5-5",
-      max_tokens: 16000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: {
-        effort: "medium",
-        format: betaZodOutputFormat(SuggestionsSchema),
+    // The page gets 60 seconds, and looking up the picks takes some of them
+    const client = new Anthropic({ timeout: 40_000, maxRetries: 1 });
+    const response = await client.beta.messages.parse(
+      {
+        model: "claude-opus-5-5",
+        max_tokens: 16000,
+        betas: ["server-side-fallback-2026-07-01"],
+        fallbacks: "default",
+        output_config: {
+          effort: "low",
+          format: betaZodOutputFormat(SuggestionsSchema),
+        },
+        system: SYSTEM,
+        messages: [{ role: "user", content: prompt }],
       },
-      system: SYSTEM,
-      messages: [{ role: "user", content: prompt }],
-    });
+      { signal: AbortSignal.timeout(45_000) },
+    );
     if (response.stop_reason === "refusal" || !response.parsed_output) {
       console.error("Claude gave no usable suggestions:", response.stop_reason);
       return null;
