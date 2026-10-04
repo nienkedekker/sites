@@ -40,10 +40,11 @@ export function swellLine(
 }
 
 // Where the swell sits along a line on a touch screen: it travels from the
-// start to the end of the line as the line scrolls from the bottom of the
-// viewport to the top, and fades out near both edges.
-export function scrollSwell(centerY: number, viewportHeight: number) {
-  const progress = 1 - centerY / viewportHeight;
+// start to the end of the line as the line scrolls from `startY` to the top
+// of the viewport, and fades out near both ends. `startY` is the bottom of the
+// viewport, or where the line rests if it's on screen when the page opens.
+export function scrollSwell(centerY: number, startY: number) {
+  const progress = 1 - centerY / startY;
   const amount =
     progress > 0 && progress < 1
       ? Math.min(1, Math.sin(Math.PI * progress) * 1.6)
@@ -150,6 +151,7 @@ interface Swell {
   root: HTMLElement;
   lines: Line[];
   radius: number;
+  pageTop: number;
 }
 
 const swells = new Set<Swell>();
@@ -163,8 +165,21 @@ function reset(swell: Swell) {
   );
 }
 
+// offsetTop, unlike the bounding box, ignores transforms like the rise-in.
+function pageTop(el: HTMLElement) {
+  let y = 0;
+  for (
+    let e: HTMLElement | null = el;
+    e;
+    e = e.offsetParent as HTMLElement | null
+  )
+    y += e.offsetTop;
+  return y;
+}
+
 function measure(swell: Swell) {
   reset(swell);
+  swell.pageTop = pageTop(swell.root);
   const box = swell.root.getBoundingClientRect();
   const els = [...swell.root.querySelectorAll<HTMLElement>(".swell-l")];
   const rects = els.map((el) => el.getBoundingClientRect());
@@ -215,10 +230,10 @@ function tick() {
     const box = swell.root.getBoundingClientRect();
     for (const line of swell.lines) {
       if (!pointerMode) {
-        const top = box.top + line.top;
+        const middle = (line.top + line.bottom) / 2;
         const { progress, amount } = scrollSwell(
-          top + (line.bottom - line.top) / 2,
-          innerHeight
+          box.top + middle,
+          Math.min(innerHeight, swell.pageTop + middle)
         );
         const first = line.letters[0];
         const last = line.letters[line.letters.length - 1];
@@ -296,7 +311,7 @@ export function registerSwell(root: HTMLElement) {
   kern(root);
   if (!canSwell()) return () => {};
   listen();
-  const swell: Swell = { root, lines: [], radius: 16 };
+  const swell: Swell = { root, lines: [], radius: 16, pageTop: 0 };
   measure(swell);
   swells.add(swell);
   wake();

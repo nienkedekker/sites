@@ -57,6 +57,11 @@ describe("scrollSwell", () => {
     expect(scrollSwell(900, 800).amount).toBe(0);
   });
 
+  it("starts from where a line rests when it opens on screen", () => {
+    expect(scrollSwell(150, 150)).toEqual({ progress: 0, amount: 0 });
+    expect(scrollSwell(75, 150)).toEqual({ progress: 0.5, amount: 1 });
+  });
+
   it("fades in near the edges", () => {
     const { amount } = scrollSwell(760, 800);
     expect(amount).toBeGreaterThan(0);
