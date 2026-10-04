@@ -206,6 +206,6 @@ export const getStatsData = unstable_cache(
   async (): Promise<StatsData> => computeStats(await getAllItems()),
   // Bump the version whenever StatsData changes shape, so a deploy doesn't
   // read an old cached copy
-  ["stats-data", "v2"],
+  ["stats-data", "v3"],
   { revalidate: 3600, tags: [ITEMS_TAG] },
 );

@@ -1,23 +1,30 @@
 "use client";
 
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { formatDate } from "@nienke/ui/format";
+import { formatCount, formatDate } from "@nienke/ui/format";
 
-export interface PaceSeries {
-  year: number;
-  current: boolean;
-  previous: boolean;
+export interface PacePoint {
+  day: number;
+  current: number | null;
+  typical: number;
+  range: [number, number];
 }
 
 interface PaceChartProps {
-  data: Array<{ day: number } & Record<string, number | null>>;
-  series: PaceSeries[];
+  data: PacePoint[];
+  color: string;
 }
 
 const MONTH_STARTS = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
@@ -25,30 +32,55 @@ const MONTH_STARTS = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
 const dayLabel = (day: number, options: Intl.DateTimeFormatOptions) =>
   formatDate(new Date(Date.UTC(2001, 0, day + 1)), options);
 
-function strokeFor({ current, previous }: PaceSeries) {
-  if (current) return "var(--movies)";
-  if (previous) return "var(--ink-faint)";
-  return "var(--line-strong)";
-}
-
-export function PaceChart({ data, series }: PaceChartProps) {
-  const config: ChartConfig = Object.fromEntries(
-    series.map((s) => [
-      String(s.year),
-      { label: String(s.year), color: strokeFor(s) },
-    ]),
-  );
-  // Draw the faint years first so this year and last sit on top
-  const ordered = [...series].sort(
-    (a, b) =>
-      Number(a.current) * 2 +
-      Number(a.previous) -
-      (Number(b.current) * 2 + Number(b.previous)),
-  );
+function PaceTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: PacePoint }>;
+}) {
+  const point = payload?.[0]?.payload;
+  if (!active || !point) return null;
+  const [low, high] = point.range.map(Math.round);
 
   return (
-    <ChartContainer config={config} className="h-64 w-full">
-      <LineChart
+    <div className="grid min-w-[8rem] gap-1.5 border border-line bg-panel px-3 py-2 text-xs text-ink">
+      <p className="font-medium">
+        {dayLabel(point.day, { month: "long", day: "numeric" })}
+      </p>
+      {point.current !== null && (
+        <p className="flex justify-between gap-4">
+          <span className="text-ink-soft">This year</span>
+          <span className="font-mono tabular-nums">
+            {formatCount(point.current)}
+          </span>
+        </p>
+      )}
+      <p className="flex justify-between gap-4">
+        <span className="text-ink-soft">Typical</span>
+        <span className="font-mono tabular-nums">
+          {formatCount(Math.round(point.typical))}
+          {low !== high && (
+            <span className="text-ink-faint">
+              {" "}
+              ({formatCount(low)}–{formatCount(high)})
+            </span>
+          )}
+        </span>
+      </p>
+    </div>
+  );
+}
+
+export function PaceChart({ data, color }: PaceChartProps) {
+  const config: ChartConfig = {
+    current: { label: "This year", color },
+    typical: { label: "Typical", color: "var(--ink-faint)" },
+  };
+
+  return (
+    <ChartContainer config={config} className="h-40 w-full">
+      <ComposedChart
         accessibilityLayer
         data={data}
         margin={{ left: -20, right: 12 }}
@@ -64,33 +96,43 @@ export function PaceChart({ data, series }: PaceChartProps) {
           axisLine={false}
           tickMargin={8}
         />
-        <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          allowDecimals={false}
+        />
         <ChartTooltip
           cursor={{ stroke: "var(--line-strong)" }}
-          content={
-            <ChartTooltipContent
-              labelFormatter={(_, payload) =>
-                dayLabel(Number(payload?.[0]?.payload?.day ?? 0), {
-                  month: "long",
-                  day: "numeric",
-                })
-              }
-            />
-          }
+          content={<PaceTooltip />}
         />
-        {ordered.map((s) => (
-          <Line
-            key={s.year}
-            type="stepAfter"
-            dataKey={String(s.year)}
-            stroke={strokeFor(s)}
-            strokeWidth={s.current ? 2.5 : s.previous ? 1.5 : 1}
-            dot={false}
-            connectNulls={false}
-            isAnimationActive={false}
-          />
-        ))}
-      </LineChart>
+        <Area
+          type="linear"
+          dataKey="range"
+          stroke="none"
+          fill="var(--line-strong)"
+          fillOpacity={0.4}
+          isAnimationActive={false}
+        />
+        <Line
+          type="linear"
+          dataKey="typical"
+          stroke="var(--ink-faint)"
+          strokeWidth={1.5}
+          strokeDasharray="4 3"
+          dot={false}
+          isAnimationActive={false}
+        />
+        <Line
+          type="stepAfter"
+          dataKey="current"
+          stroke={color}
+          strokeWidth={2.5}
+          dot={false}
+          connectNulls={false}
+          isAnimationActive={false}
+        />
+      </ComposedChart>
     </ChartContainer>
   );
 }

@@ -28,17 +28,53 @@ export function dayIndex(item: TypedItem, year: number): number | null {
 
 export interface PaceYear {
   year: number;
-  days: number[];
+  days: Record<ItemType, number[]>;
 }
 
-export function paceYears(byYear: Map<number, TypedItem[]>, years: number[]) {
-  return years.map((year) => ({
-    year,
-    days: (byYear.get(year) ?? [])
-      .map((item) => dayIndex(item, year))
-      .filter((day): day is number => day !== null)
-      .sort((a, b) => a - b),
-  }));
+export function paceYears(
+  byYear: Map<number, TypedItem[]>,
+  years: number[],
+): PaceYear[] {
+  return years.map((year) => {
+    const days: Record<ItemType, number[]> = { Book: [], Movie: [], Show: [] };
+    for (const item of byYear.get(year) ?? []) {
+      const day = dayIndex(item, year);
+      if (day !== null) days[item.itemtype].push(day);
+    }
+    for (const list of Object.values(days)) list.sort((a, b) => a - b);
+    return { year, days };
+  });
+}
+
+// days is sorted, so count everything up to and including `day`
+export function countBy(days: number[], day: number) {
+  let count = 0;
+  while (count < days.length && days[count] <= day) count++;
+  return count;
+}
+
+function quantile(sorted: number[], q: number) {
+  const at = (sorted.length - 1) * q;
+  const below = Math.floor(at);
+  const above = Math.ceil(at);
+  return sorted[below] + (sorted[above] - sorted[below]) * (at - below);
+}
+
+export interface Typical {
+  low: number;
+  mid: number;
+  high: number;
+}
+
+// A typical year by `day`: the median of earlier years, with the middle half
+// of them as the range
+export function typicalBy(years: number[][], day: number): Typical {
+  const counts = years.map((days) => countBy(days, day)).sort((a, b) => a - b);
+  return {
+    low: quantile(counts, 0.25),
+    mid: quantile(counts, 0.5),
+    high: quantile(counts, 0.75),
+  };
 }
 
 export interface Rhythm {

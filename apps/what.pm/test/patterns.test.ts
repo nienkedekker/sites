@@ -7,6 +7,7 @@ import {
   normalizeTitle,
   paceYears,
   rereadRhythms,
+  typicalBy,
   timeSpent,
 } from "@/utils/data/patterns";
 import type { TypedItem } from "@/types/shared";
@@ -48,18 +49,28 @@ describe("dayIndex", () => {
 });
 
 describe("paceYears", () => {
-  it("returns each year's log days in order, ignoring undated items", () => {
+  it("returns each year's log days per type in order, ignoring undated items", () => {
     const items = [
       book({ created_at: "2026-03-01T00:00:00Z" }),
       book({ created_at: "2026-01-05T00:00:00Z" }),
+      movie({ created_at: "2026-02-01T00:00:00Z" }),
       book({ created_at: null }),
     ];
     const byYear = new Map<number, TypedItem[]>([[2026, items]]);
 
     expect(paceYears(byYear, [2026, 2025])).toEqual([
-      { year: 2026, days: [4, 59] },
-      { year: 2025, days: [] },
+      { year: 2026, days: { Book: [4, 59], Movie: [31], Show: [] } },
+      { year: 2025, days: { Book: [], Movie: [], Show: [] } },
     ]);
+  });
+});
+
+describe("typicalBy", () => {
+  it("takes the median of earlier years by that day, with the middle half as the range", () => {
+    const years = [[1, 2], [1, 2, 3, 40], [1, 2, 3, 4, 5], [1]];
+
+    expect(typicalBy(years, 10)).toEqual({ low: 1.75, mid: 2.5, high: 3.5 });
+    expect(typicalBy(years, 0)).toEqual({ low: 0, mid: 0, high: 0 });
   });
 });
 
