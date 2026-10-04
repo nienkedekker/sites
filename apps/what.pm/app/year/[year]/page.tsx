@@ -3,16 +3,16 @@ import { notFound } from "next/navigation";
 import ItemsList from "@/components/features/lists/items-list";
 import { ScrollToHash } from "@/components/features/scroll-to-hash";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
-import { isLoggedYear, parseYear } from "@/utils/data/items";
+import { getDistinctYears, isLoggedYear, parseYear } from "@/utils/data/items";
 import type { Metadata } from "next";
 
 interface YearParams {
   params: Promise<{ year: string }>;
 }
 
-// None at build time: each year renders on its first visit, then stays cached
 export async function generateStaticParams() {
-  return [];
+  const years = await getDistinctYears();
+  return years.map((year) => ({ year: String(year) }));
 }
 
 async function loadYear({ params }: YearParams) {

@@ -8,12 +8,18 @@ interface YearLinksProps {
   currentYear: number;
 }
 
-export function YearLinks({ years, currentYear }: YearLinksProps) {
-  const pathname = usePathname();
+export function YearLinks(props: YearLinksProps) {
+  return <YearLinksFor {...props} pathname={usePathname()} />;
+}
 
+export function YearLinksFor({
+  years,
+  currentYear,
+  pathname,
+}: YearLinksProps & { pathname: string | null }) {
   const getActiveYear = (): number | null => {
     if (pathname === "/") return currentYear;
-    const match = pathname.match(/^\/year\/(\d+)$/);
+    const match = pathname?.match(/^\/year\/(\d+)$/);
     return match ? parseInt(match[1], 10) : null;
   };
 

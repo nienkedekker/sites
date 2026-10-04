@@ -9,7 +9,8 @@ import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { TypeBreakdown } from "@/components/features/lists/type-breakdown";
 import { TimeSpent } from "@/components/features/lists/time-spent";
 import { timeSpent } from "@/utils/data/patterns";
-import { getCurrentYear } from "@/utils/formatters/date";
+import { renderTime } from "@/utils/server/clock";
+import { localDate } from "@/utils/formatters/date";
 
 export default async function ItemsList({ year }: { year: number }) {
   const itemsResult = await getItemsForYear(year);
@@ -17,7 +18,8 @@ export default async function ItemsList({ year }: { year: number }) {
   if (!itemsResult.success) throw new Error(itemsResult.error);
 
   const validatedItems = itemsResult.data;
-  const isCurrentYear = year === getCurrentYear();
+  const now = new Date(await renderTime());
+  const isCurrentYear = year === localDate(now).year;
   const summary = summarizeYear(validatedItems, year);
   const byMonth = hasMonthlyData(validatedItems, year);
 
@@ -50,7 +52,7 @@ export default async function ItemsList({ year }: { year: number }) {
             {byMonth ? "Month by month" : "By type"}
           </CardHead>
           {byMonth ? (
-            <MediaChart summary={summary} now={new Date()} />
+            <MediaChart summary={summary} now={now} />
           ) : (
             <TypeBreakdown counts={summary.counts} />
           )}

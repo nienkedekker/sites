@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import PageHeader from "@nienke/ui/page-header";
 import CreateItemForm from "@/components/forms/create-item-form";
 import { LastLogged } from "@/components/features/lists/last-logged";
+import { thisYear } from "@/utils/server/clock";
 
 export default async function CreatePage() {
   return (
@@ -11,6 +12,7 @@ export default async function CreatePage() {
       </PageHeader>
 
       <CreateItemForm
+        currentYear={await thisYear()}
         aside={
           <Suspense fallback={null}>
             <LastLogged

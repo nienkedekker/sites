@@ -14,8 +14,6 @@ import {
 export const alt = "Stats for every year logged on what.pm";
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const revalidate = 3600;
-
 const CHART_WIDTH = 560;
 const CHART_HEIGHT = 220;
 const GAP = 4;

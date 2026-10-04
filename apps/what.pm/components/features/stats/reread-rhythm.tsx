@@ -2,6 +2,7 @@ import Link from "next/link";
 import CardHead from "@nienke/ui/card-head";
 import { SWATCH } from "@nienke/ui/series";
 import type { Rhythm } from "@/utils/data/patterns";
+import { localDate } from "@/utils/formatters/date";
 
 const VERB = { Book: "Read", Movie: "Watched", Show: "Watched" };
 const AGAIN = { Book: "reread", Movie: "rewatch", Show: "rewatch" };
@@ -23,8 +24,14 @@ const listYears = (years: number[]) =>
     ? `${years.slice(0, -1).join(", ")} and ${years[years.length - 1]}`
     : String(years[0]);
 
-export function RereadRhythm({ rhythms }: { rhythms: Rhythm[] }) {
-  const currentYear = new Date().getFullYear();
+export function RereadRhythm({
+  rhythms,
+  now,
+}: {
+  rhythms: Rhythm[];
+  now: Date;
+}) {
+  const currentYear = localDate(now).year;
   const first = Math.min(...rhythms.map(({ years }) => years[0]));
   const span = Array.from(
     { length: currentYear - first + 1 },

@@ -7,7 +7,8 @@ const auth = vi.hoisted(() => ({
 const search = vi.hoisted(() => ({ searchItems: vi.fn() }));
 
 vi.mock("next/cache", () => ({
-  unstable_cache: <T>(lookup: T) => lookup,
+  cacheLife: () => {},
+  cacheTag: () => {},
 }));
 vi.mock("@/utils/supabase/server", () => ({
   createClientForServer: async () => ({

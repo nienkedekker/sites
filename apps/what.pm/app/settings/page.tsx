@@ -1,10 +1,10 @@
 import { DataExport } from "@/components/features/data-export";
 import { ChangePasswordForm } from "@/components/forms/change-password-form";
-import { getCurrentYear } from "@/utils/formatters/date";
+import { thisYear } from "@/utils/server/clock";
 import PageHeader from "@nienke/ui/page-header";
 
 export default async function SettingsPage() {
-  const currentYear = getCurrentYear();
+  const currentYear = await thisYear();
 
   return (
     <div className="max-w-2xl">

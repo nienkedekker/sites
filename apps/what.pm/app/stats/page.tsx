@@ -14,13 +14,16 @@ import { Adaptations } from "@/components/features/stats/adaptations";
 import { StatsPageSkeleton } from "@/components/features/skeletons/stats-skeleton";
 import PageHeader from "@nienke/ui/page-header";
 import { CHART_CONFIG } from "@/utils/constants/app";
+import { renderTime } from "@/utils/server/clock";
 
 async function StatsContent() {
   // Thrown, not shown, so ISR keeps the last good page instead of the error
-  const [stats, cumulative] = await Promise.all([
+  const [stats, cumulative, time] = await Promise.all([
     getStatsData(),
     fetchCumulativeCounts(),
+    renderTime(),
   ]);
+  const now = new Date(time);
 
   const busiest = stats.years.reduce((a, b) =>
     b.entries.length > a.entries.length ? b : a,
@@ -65,13 +68,13 @@ async function StatsContent() {
         </div>
         {stats.monthRows.length > 0 && (
           <div className="lg:flex-1 [&>section]:h-full">
-            <MonthHeatmap rows={stats.monthRows} />
+            <MonthHeatmap rows={stats.monthRows} now={now} />
           </div>
         )}
       </div>
       {stats.pace.length > 0 && (
         <div className="lg:col-span-2">
-          <Pace years={stats.pace} />
+          <Pace years={stats.pace} now={now} />
         </div>
       )}
       {/* Each genre card keeps its own height, so opening the subgenres of
@@ -97,7 +100,7 @@ async function StatsContent() {
       </div>
       {stats.rhythms.length > 0 && (
         <div className="lg:col-span-2">
-          <RereadRhythm rhythms={stats.rhythms} />
+          <RereadRhythm rhythms={stats.rhythms} now={now} />
         </div>
       )}
       {stats.adaptations.length > 0 && (

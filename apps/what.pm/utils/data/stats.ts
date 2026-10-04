@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import type { TypedItem } from "@/types/shared";
 import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
@@ -247,10 +247,9 @@ export function computeStats(items: TypedItem[]): StatsData {
   };
 }
 
-export const getStatsData = unstable_cache(
-  async (): Promise<StatsData> => computeStats(await getAllItems()),
-  // Bump the version whenever StatsData changes shape, so a deploy doesn't
-  // read an old cached copy
-  ["stats-data", "v11"],
-  { revalidate: 3600, tags: [ITEMS_TAG] },
-);
+export async function getStatsData(): Promise<StatsData> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(ITEMS_TAG);
+  return computeStats(await getAllItems());
+}

@@ -43,8 +43,7 @@ function CellDetails({ cell }: { cell: MonthCell }) {
   );
 }
 
-export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
-  const now = new Date();
+export function MonthHeatmap({ rows, now }: { rows: MonthRow[]; now: Date }) {
   const max = Math.max(1, ...rows.flatMap((row) => row.months.map(total)));
 
   return (
@@ -58,7 +57,8 @@ export function MonthHeatmap({ rows }: { rows: MonthRow[] }) {
 
       <table
         id="month-heatmap-table"
-        className="mt-5 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]">
+        className="mt-5 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]"
+      >
         <caption className="sr-only">
           Items logged per month, by year. Use the arrow keys to move between
           months.

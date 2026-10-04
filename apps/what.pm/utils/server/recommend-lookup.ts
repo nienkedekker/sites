@@ -1,5 +1,5 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
+import { cacheLife } from "next/cache";
 import { nameKey } from "@/utils/data/names";
 import { isOpenLibraryKey } from "@/utils/data/external-ids";
 import { normalizeTitle } from "@/utils/data/patterns";
@@ -13,12 +13,6 @@ import {
 } from "@/utils/server/external-api";
 
 const CONCURRENCY = 5;
-const WEEK = 7 * 24 * 60 * 60;
-
-const remember = <A extends string[], R>(
-  name: string,
-  lookup: (...args: A) => Promise<R>,
-) => unstable_cache(lookup, ["recs", name], { revalidate: WEEK });
 
 async function mapLimit<T, R>(
   values: T[],
@@ -101,67 +95,62 @@ export function matchScreen(
   return matches[0] ?? null;
 }
 
-const bookSearch = remember(
-  "book-search",
-  async (title: string, author: string) => {
-    const url = new URL("https://openlibrary.org/search.json");
-    url.searchParams.set("title", title);
-    url.searchParams.set("author", author);
-    url.searchParams.set(
-      "fields",
-      "key,title,author_name,first_publish_year,edition_count",
-    );
-    url.searchParams.set("limit", "10");
-    const data = await openLibraryJson<{ docs: OpenLibraryDoc[] }>(url);
-    return data.docs;
-  },
-);
+async function bookSearch(title: string, author: string) {
+  "use cache: remote";
+  cacheLife("weeks");
+  const url = new URL("https://openlibrary.org/search.json");
+  url.searchParams.set("title", title);
+  url.searchParams.set("author", author);
+  url.searchParams.set(
+    "fields",
+    "key,title,author_name,first_publish_year,edition_count",
+  );
+  url.searchParams.set("limit", "10");
+  const data = await openLibraryJson<{ docs: OpenLibraryDoc[] }>(url);
+  return data.docs;
+}
 
-const screenSearch = remember(
-  "screen-search",
-  async (kind: string, title: string) => {
-    const data = await getJson<{ results: TmdbResult[] }>(
-      tmdbUrl(`/search/${kind}`, { query: title }),
-    );
-    return data.results;
-  },
-);
+async function screenSearch(kind: string, title: string) {
+  "use cache: remote";
+  cacheLife("weeks");
+  const data = await getJson<{ results: TmdbResult[] }>(
+    tmdbUrl(`/search/${kind}`, { query: title }),
+  );
+  return data.results;
+}
 
 const joinNames = (names: string[]) =>
   names.length > 0 ? [...new Set(names)].join(", ") : null;
 
-const screenDetails = remember(
-  "screen-details",
-  async (itemtype: string, id: string) => {
-    if (itemtype === "Movie") {
-      const { crew } = await getJson<{
-        crew: { job: string; name: string }[];
-      }>(tmdbUrl(`/movie/${id}/credits`));
-      return {
-        creator: joinNames(
-          crew.filter(({ job }) => job === "Director").map(({ name }) => name),
-        ),
-        based_on: joinNames(
-          crew
-            .filter(({ job }) => SOURCE_JOBS.has(job))
-            .map(({ name }) => name),
-        ),
-      };
-    }
-    const show = await getJson<{
-      created_by?: { name: string }[];
-      aggregate_credits: { crew: { name: string; jobs: { job: string }[] }[] };
-    }>(tmdbUrl(`/tv/${id}`, { append_to_response: "aggregate_credits" }));
+async function screenDetails(itemtype: string, id: string) {
+  "use cache: remote";
+  cacheLife("weeks");
+  if (itemtype === "Movie") {
+    const { crew } = await getJson<{
+      crew: { job: string; name: string }[];
+    }>(tmdbUrl(`/movie/${id}/credits`));
     return {
-      creator: joinNames(show.created_by?.map(({ name }) => name) ?? []),
+      creator: joinNames(
+        crew.filter(({ job }) => job === "Director").map(({ name }) => name),
+      ),
       based_on: joinNames(
-        show.aggregate_credits.crew
-          .filter(({ jobs }) => jobs.some(({ job }) => SOURCE_JOBS.has(job)))
-          .map(({ name }) => name),
+        crew.filter(({ job }) => SOURCE_JOBS.has(job)).map(({ name }) => name),
       ),
     };
-  },
-);
+  }
+  const show = await getJson<{
+    created_by?: { name: string }[];
+    aggregate_credits: { crew: { name: string; jobs: { job: string }[] }[] };
+  }>(tmdbUrl(`/tv/${id}`, { append_to_response: "aggregate_credits" }));
+  return {
+    creator: joinNames(show.created_by?.map(({ name }) => name) ?? []),
+    based_on: joinNames(
+      show.aggregate_credits.crew
+        .filter(({ jobs }) => jobs.some(({ job }) => SOURCE_JOBS.has(job)))
+        .map(({ name }) => name),
+    ),
+  };
+}
 
 async function find(suggestion: Suggestion): Promise<Found | null> {
   if (suggestion.itemtype === "Book") {

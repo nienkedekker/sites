@@ -1,5 +1,5 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
+import { cacheLife } from "next/cache";
 import { ITEM_TYPES } from "@/utils/constants/app";
 import type { ValidItemType } from "@/types/shared";
 import type { ExternalResult, SeasonYears } from "@/types/external-api";
@@ -11,7 +11,6 @@ import {
 } from "@/utils/server/external-api";
 
 const LIMIT = 6;
-const WEEK = 7 * 24 * 60 * 60;
 
 async function searchBooks(query: string): Promise<ExternalResult[]> {
   const url = new URL("https://openlibrary.org/search.json");
@@ -36,19 +35,17 @@ async function searchBooks(query: string): Promise<ExternalResult[]> {
   }));
 }
 
-const directorsOf = unstable_cache(
-  async (id: number) => {
-    const data = await getJson<{ crew: { job: string; name: string }[] }>(
-      tmdbUrl(`/movie/${id}/credits`),
-    );
-    const names = data.crew
-      .filter((person) => person.job === "Director")
-      .map((person) => person.name);
-    return names.length > 0 ? names.join(", ") : null;
-  },
-  ["titles", "directors"],
-  { revalidate: WEEK },
-);
+async function directorsOf(id: number) {
+  "use cache: remote";
+  cacheLife("weeks");
+  const data = await getJson<{ crew: { job: string; name: string }[] }>(
+    tmdbUrl(`/movie/${id}/credits`),
+  );
+  const names = data.crew
+    .filter((person) => person.job === "Director")
+    .map((person) => person.name);
+  return names.length > 0 ? names.join(", ") : null;
+}
 
 type Movie = { id: number; title: string; release_date?: string };
 

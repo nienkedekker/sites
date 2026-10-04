@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_rethrow } from "next/navigation";
 import { createClientForServer } from "@/utils/supabase/server";
 import { fetchAllRows } from "@/utils/data/fetch-all";
 import { parseYear } from "@/utils/data/items";
@@ -96,6 +97,7 @@ export async function GET(request: NextRequest) {
       });
     }
   } catch (unexpectedError) {
+    unstable_rethrow(unexpectedError);
     console.error("Unexpected error in export API:", unexpectedError);
     return NextResponse.json(
       { error: "Internal server error" },

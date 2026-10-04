@@ -9,8 +9,13 @@ import { useAuth } from "@/providers/auth-provider";
 import { SIGNED_IN_LINKS, SITE_LINKS } from "@/components/layouts/site-links";
 import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
+// The path is unknown while a dynamic route's shell prerenders, so the
+// Suspense fallback renders these links with nothing marked current
 export function NavLinks() {
-  const pathname = usePathname();
+  return <NavLinksFor pathname={usePathname()} />;
+}
+
+export function NavLinksFor({ pathname }: { pathname: string | null }) {
   const { isLoggedIn } = useAuth();
   const [open, setOpen] = useState(false);
   const [menuPathname, setMenuPathname] = useState(pathname);
@@ -36,7 +41,7 @@ export function NavLinks() {
   return (
     <div className="flex items-center gap-1 sm:gap-2">
       <div className="hidden md:block">
-        <UiNavLinks links={links} currentPath={pathname} as={Link} />
+        <UiNavLinks links={links} currentPath={pathname ?? ""} as={Link} />
       </div>
       <ThemeToggle />
       <button

@@ -14,8 +14,6 @@ import {
 export const alt = "Every book, movie and TV season logged on what.pm";
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const revalidate = 3600;
-
 export default async function Image() {
   const facts = await getLogFacts();
   const total = formatCount(facts.total);

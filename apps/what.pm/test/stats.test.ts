@@ -3,7 +3,8 @@ import { book, movie, show } from "./items";
 
 vi.mock("@/utils/supabase/public", () => ({ supabasePublic: {} }));
 vi.mock("next/cache", () => ({
-  unstable_cache: <T>(fn: T) => fn,
+  cacheLife: () => {},
+  cacheTag: () => {},
 }));
 
 const { computeStats } = await import("@/utils/data/stats");

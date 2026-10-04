@@ -4,14 +4,14 @@ import type { Metadata } from "next";
 import PageHeader from "@nienke/ui/page-header";
 import TagLink from "@nienke/ui/tag-link";
 import { LastLogged } from "@/components/features/lists/last-logged";
-import { getCurrentYear } from "@/utils/formatters/date";
+import { thisYear } from "@/utils/server/clock";
 
 export const metadata: Metadata = {
   title: "Not found",
 };
 
-export default function NotFound() {
-  const year = getCurrentYear();
+export default async function NotFound() {
+  const year = await thisYear();
 
   return (
     <div className="grid gap-y-12 lg:grid-cols-12 lg:gap-x-16">

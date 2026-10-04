@@ -2,8 +2,6 @@ import { getRecentItems } from "@/utils/data/items";
 import { SITE } from "@/utils/agents/negotiate";
 import type { TypedItem } from "@/types/shared";
 
-export const revalidate = 3600;
-
 const LIMIT = 50;
 
 const escape = (value: string) =>

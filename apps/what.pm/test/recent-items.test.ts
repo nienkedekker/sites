@@ -19,9 +19,9 @@ vi.mock("@/utils/supabase/public", () => {
 
 const cache = vi.hoisted(() => ({ tags: [] as string[] }));
 vi.mock("next/cache", () => ({
-  unstable_cache: <T>(fn: T, _keys: string[], opts: { tags: string[] }) => {
-    cache.tags = opts.tags;
-    return fn;
+  cacheLife: () => {},
+  cacheTag: (...tags: string[]) => {
+    cache.tags = tags;
   },
 }));
 
@@ -32,7 +32,8 @@ beforeEach(() => {
 });
 
 describe("getRecentItems", () => {
-  it("is cached under the items tag", () => {
+  it("is cached under the items tag", async () => {
+    await getRecentItems(5);
     expect(cache.tags).toEqual(["items"]);
   });
 

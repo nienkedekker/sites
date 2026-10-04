@@ -14,8 +14,6 @@ import {
 export const alt = "Books, movies and TV shows I want to get to next";
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const revalidate = 3600;
-
 const SHOWN = 6;
 
 export default async function Image() {

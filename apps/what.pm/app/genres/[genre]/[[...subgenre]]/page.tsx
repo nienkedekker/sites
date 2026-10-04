@@ -4,7 +4,7 @@ import PageHeader from "@nienke/ui/page-header";
 import { describeCounts } from "@nienke/ui/series";
 import { CategoryList } from "@/components/features/lists/category-list";
 import { getCachedItems } from "@/utils/data/items";
-import { genrePath, itemsInGenre } from "@/utils/data/genres";
+import { genrePath, genreSlugs, itemsInGenre } from "@/utils/data/genres";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { OG_SIZE } from "@/utils/og";
 import type { Metadata } from "next";
@@ -13,9 +13,13 @@ interface GenreParams {
   params: Promise<{ genre: string; subgenre?: string[] }>;
 }
 
-// None at build time: each genre renders on its first visit, then stays cached
+// Unknown genres render on request, before anything is sent, so they get a
+// real 404 instead of a not-found page streamed under a 200
+export const instant = false;
+
 export async function generateStaticParams() {
-  return [];
+  const paths = genreSlugs(await getCachedItems());
+  return paths.map(([genre, ...subgenre]) => ({ genre, subgenre }));
 }
 
 async function load({ params }: GenreParams) {

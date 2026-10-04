@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { ReactNode } from "react";
+import { cacheLife } from "next/cache";
 import { formatPlural } from "@nienke/ui/format";
 
 export const OG_SIZE = { width: 1200, height: 630 };
@@ -24,11 +25,16 @@ export const SERIES = [
 type SeriesKey = (typeof SERIES)[number]["key"];
 export type Counts = Record<SeriesKey, number>;
 
-// Read from disk so the share images never depend on the network at build
+// Read from disk so the share images never depend on the network at build,
+// and cached so reading them doesn't stop the images from prerendering
 export async function loadFonts() {
+  "use cache";
+  cacheLife("max");
   const [serif, mono] = await Promise.all(
     ["InstrumentSerif-Regular.ttf", "GeistMono-Regular.ttf"].map((file) =>
-      readFile(join(process.cwd(), "assets/fonts", file)),
+      readFile(join(process.cwd(), "assets/fonts", file)).then(
+        (buffer) => new Uint8Array(buffer).buffer,
+      ),
     ),
   );
   return [

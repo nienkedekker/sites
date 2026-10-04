@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_rethrow } from "next/navigation";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { supabasePublic } from "@/utils/supabase/public";
 import { fetchAllRows } from "@/utils/data/fetch-all";
@@ -96,6 +97,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Cron export error:", error);
     return NextResponse.json(
       {

@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import ItemsList from "@/components/features/lists/items-list";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
 import { JSON_LD, jsonLdScript } from "@/utils/agents/discovery";
-import { getCurrentYear } from "@/utils/formatters/date";
+import { thisYear } from "@/utils/server/clock";
 
 export default async function Home() {
-  const currentYear = getCurrentYear();
+  const currentYear = await thisYear();
 
   return (
     <>

@@ -32,7 +32,6 @@ import {
 } from "@/utils/schemas/validation";
 import { TAB_VALUES, ITEM_TYPES, type TabValue } from "@/utils/constants/app";
 import { formStyles } from "@/utils/styles";
-import { getCurrentYear } from "@/utils/formatters/date";
 import { toNumber, formatNumberInputValue } from "@/utils/form";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
@@ -48,10 +47,16 @@ async function fetchSeasonYears(showId: string): Promise<SeasonYears> {
   }
 }
 
-function FormComponent({ activeTab }: { activeTab: TabValue }) {
+function FormComponent({
+  activeTab,
+  currentYear,
+}: {
+  activeTab: TabValue;
+  currentYear: number;
+}) {
   const { schema, defaults } = useMemo(
-    () => getSchemaAndDefaults(activeTab),
-    [activeTab],
+    () => getSchemaAndDefaults(activeTab, currentYear),
+    [activeTab, currentYear],
   );
 
   const form = useForm<AnyCreateInput>({
@@ -321,7 +326,13 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
   );
 }
 
-export default function CreateItemForm({ aside }: { aside?: React.ReactNode }) {
+export default function CreateItemForm({
+  aside,
+  currentYear,
+}: {
+  aside?: React.ReactNode;
+  currentYear: number;
+}) {
   const [activeTab, setActiveTab] = useState<TabValue>(TAB_VALUES.BOOK);
 
   return (
@@ -337,7 +348,11 @@ export default function CreateItemForm({ aside }: { aside?: React.ReactNode }) {
       </TabsList>
 
       <TabsContent value={activeTab} className="lg:col-start-1">
-        <FormComponent key={activeTab} activeTab={activeTab} />
+        <FormComponent
+          key={activeTab}
+          activeTab={activeTab}
+          currentYear={currentYear}
+        />
       </TabsContent>
 
       {aside}
@@ -345,9 +360,7 @@ export default function CreateItemForm({ aside }: { aside?: React.ReactNode }) {
   );
 }
 
-function getSchemaAndDefaults(tab: TabValue) {
-  const year = getCurrentYear();
-
+function getSchemaAndDefaults(tab: TabValue, year: number) {
   switch (tab) {
     case TAB_VALUES.BOOK:
       return {

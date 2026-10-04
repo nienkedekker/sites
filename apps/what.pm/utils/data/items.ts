@@ -1,9 +1,9 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
 import { ITEMS_TAG } from "@/utils/constants/app";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { fetchAllRows } from "@/utils/data/fetch-all";
-import { getCurrentYear } from "@/utils/formatters/date";
+import { thisYear } from "@/utils/server/clock";
 
 export type DataResult<T> =
   | { success: true; data: T; error: null }
@@ -18,26 +18,28 @@ export async function getAllItems(): Promise<TypedItem[]> {
     .filter((item): item is TypedItem => item !== null);
 }
 
-export const getCachedItems = unstable_cache(getAllItems, ["all-items"], {
-  revalidate: 3600,
-  tags: [ITEMS_TAG],
-});
+// Remote, because /recs and the agent routes read it at request time
+export async function getCachedItems() {
+  "use cache: remote";
+  cacheLife("hours");
+  cacheTag(ITEMS_TAG);
+  return getAllItems();
+}
 
 // Failures throw inside the cache so they're never stored
-const fetchItemsForYear = unstable_cache(
-  async (year: number) => {
-    const { data, error } = await supabasePublic
-      .from("items")
-      .select("*")
-      .eq("belongs_to_year", year)
-      .order("created_at", { ascending: true });
+async function fetchItemsForYear(year: number) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(ITEMS_TAG);
+  const { data, error } = await supabasePublic
+    .from("items")
+    .select("*")
+    .eq("belongs_to_year", year)
+    .order("created_at", { ascending: true });
 
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  },
-  ["items-for-year"],
-  { revalidate: 3600, tags: [ITEMS_TAG] },
-);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
 
 export async function getItemsForYear(
   year: number,
@@ -66,42 +68,42 @@ export async function getItemsForYear(
   return { success: true, data: validatedItems, error: null };
 }
 
-export const getDistinctYears = unstable_cache(
-  async () => {
-    const { data, error } = await supabasePublic
-      .from("distinct_years")
-      .select("belongs_to_year")
-      .order("belongs_to_year", { ascending: true });
+export async function getDistinctYears() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(ITEMS_TAG);
+  const { data, error } = await supabasePublic
+    .from("distinct_years")
+    .select("belongs_to_year")
+    .order("belongs_to_year", { ascending: true });
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map((r) => r.belongs_to_year as number);
-  },
-  ["distinct-years"],
-  { revalidate: 3600, tags: [ITEMS_TAG] },
-);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => r.belongs_to_year as number);
+}
 
 export const parseYear = (param: string) =>
   /^\d{4}$/.test(param) ? Number(param) : null;
 
 // The current year has a page even before its first entry
 export async function isLoggedYear(year: number) {
-  return year === getCurrentYear() || (await getDistinctYears()).includes(year);
+  return (
+    year === (await thisYear()) || (await getDistinctYears()).includes(year)
+  );
 }
 
-const fetchRecentItems = unstable_cache(
-  async (limit: number) => {
-    const { data, error } = await supabasePublic
-      .from("items")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(limit);
+async function fetchRecentItems(limit: number) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(ITEMS_TAG);
+  const { data, error } = await supabasePublic
+    .from("items")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  },
-  ["recent-items"],
-  { revalidate: 3600, tags: [ITEMS_TAG] },
-);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
 
 export async function getRecentItems(
   limit: number,

@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/cache", () => ({
-  unstable_cache: <T>(lookup: T) => lookup,
+  cacheLife: () => {},
+  cacheTag: () => {},
 }));
 
 const { searchTitles, getSeasonYears } =

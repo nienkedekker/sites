@@ -109,8 +109,7 @@ function TypePace({
   );
 }
 
-export function Pace({ years }: { years: PaceYear[] }) {
-  const now = new Date();
+export function Pace({ years, now }: { years: PaceYear[]; now: Date }) {
   const today = dayOfYear(now);
   const thisYear = localDate(now).year;
   const current = years.find(({ year }) => year === thisYear);

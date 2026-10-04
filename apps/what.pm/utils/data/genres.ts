@@ -27,6 +27,25 @@ export function genresOf(item: TypedItem): string[] {
 export const mainSubgenre = (item: TypedItem) =>
   item.subgenres.find((name) => !GENRE_TAGS.has(name)) ?? NO_SUBGENRE;
 
+// Every genre page as [genre] or [genre, subgenre] slugs, the subgenres
+// counted the way itemsInGenre matches them
+export function genreSlugs(items: TypedItem[]): string[][] {
+  const paths = new Map<string, string[]>();
+  for (const item of items) {
+    const subs = [
+      mainSubgenre(item),
+      ...item.subgenres.filter((name) => GENRE_TAGS.has(name)),
+    ];
+    for (const genre of genresOf(item)) {
+      for (const path of [[genre], ...subs.map((sub) => [genre, sub])]) {
+        const slugs = path.map(genreSlug);
+        paths.set(slugs.join("/"), slugs);
+      }
+    }
+  }
+  return [...paths.values()];
+}
+
 export const genreSlug = (name: string) =>
   name
     .toLowerCase()
