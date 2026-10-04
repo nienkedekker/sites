@@ -26,6 +26,13 @@ export interface Person {
   type: ItemType;
 }
 
+export interface Genre {
+  name: string;
+  count: number;
+  // Subgenres logged under this genre, like the kinds of literary fiction
+  parts?: Genre[];
+}
+
 export interface MonthCell {
   books: number;
   movies: number;
@@ -42,6 +49,7 @@ export interface StatsData {
   years: YearEntries[];
   authors: Person[];
   directors: Person[];
+  genres: { books: Genre[]; screen: Genre[] };
   monthRows: MonthRow[];
   mostReread: Revisit[];
   pace: PaceYear[];
@@ -57,8 +65,17 @@ export interface Revisit {
 
 const PAGE_SIZE = 1000;
 const PEOPLE_COUNT = 10;
+const GENRE_COUNT = 10;
 const REVISIT_COUNT = 5;
 const RHYTHM_COUNT = 6;
+// TMDB's TV genres lump these together, so movies are counted the same way
+const SHARED_GENRES: Record<string, string> = {
+  Action: "Action & Adventure",
+  Adventure: "Action & Adventure",
+  "Science Fiction": "Sci-Fi & Fantasy",
+  Fantasy: "Sci-Fi & Fantasy",
+  War: "War & Politics",
+};
 const TYPE_ORDER: Record<ItemType, number> = { Book: 0, Movie: 1, Show: 2 };
 
 async function getAllItems(): Promise<TypedItem[]> {
@@ -122,6 +139,38 @@ export function computeStats(items: TypedItem[]): StatsData {
       .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
       .slice(0, PEOPLE_COUNT);
   };
+
+  const ranked = (counts: Map<string, number>) =>
+    [...counts]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  const topGenres = (books: boolean): Genre[] => {
+    const counts = new Map<string, number>();
+    const parts = new Map<string, Map<string, number>>();
+    for (const item of items) {
+      if ((item.itemtype === "Book") !== books) continue;
+      const names = new Set(
+        item.genres.map((name) =>
+          books ? name : (SHARED_GENRES[name] ?? name),
+        ),
+      );
+      for (const name of names) {
+        counts.set(name, (counts.get(name) ?? 0) + 1);
+        const sub = parts.get(name) ?? new Map<string, number>();
+        for (const part of item.subgenres) {
+          sub.set(part, (sub.get(part) ?? 0) + 1);
+        }
+        parts.set(name, sub);
+      }
+    }
+    return ranked(counts)
+      .slice(0, GENRE_COUNT)
+      .map((genre) => {
+        const sub = parts.get(genre.name);
+        return sub?.size ? { ...genre, parts: ranked(sub) } : genre;
+      });
+  };
+  const genres = { books: topGenres(true), screen: topGenres(false) };
 
   const monthRows = allYears
     .filter((year) => hasMonthlyData(byYear.get(year) ?? [], year))
@@ -190,6 +239,7 @@ export function computeStats(items: TypedItem[]): StatsData {
     years,
     authors: mostLogged("Book"),
     directors: mostLogged("Movie"),
+    genres,
     monthRows,
     mostReread,
     pace: paceYears(byYear, monthlyYears),
@@ -206,6 +256,6 @@ export const getStatsData = unstable_cache(
   async (): Promise<StatsData> => computeStats(await getAllItems()),
   // Bump the version whenever StatsData changes shape, so a deploy doesn't
   // read an old cached copy
-  ["stats-data", "v3"],
+  ["stats-data", "v10"],
   { revalidate: 3600, tags: [ITEMS_TAG] },
 );

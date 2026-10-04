@@ -25,6 +25,8 @@ export interface BaseItem {
   pages: number | null;
   runtime_minutes: number | null;
   based_on: string | null;
+  genres: string[];
+  subgenres: string[];
 }
 
 export type BookItem = BaseItem & {
@@ -91,6 +93,12 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
     runtime_minutes:
       typeof item.runtime_minutes === "number" ? item.runtime_minutes : null,
     based_on: typeof item.based_on === "string" ? item.based_on : null,
+    genres: Array.isArray(item.genres)
+      ? item.genres.filter((genre) => typeof genre === "string")
+      : [],
+    subgenres: Array.isArray(item.subgenres)
+      ? item.subgenres.filter((genre) => typeof genre === "string")
+      : [],
   };
 
   switch (baseItem.itemtype) {

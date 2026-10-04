@@ -29,7 +29,7 @@ afterEach(() => {
 });
 
 describe("getExternalDetails", () => {
-  it("takes the median page count across a book's editions, skipping placeholders", async () => {
+  it("takes the median page count across a book's editions, and its genres", async () => {
     serve({
       "/works/OL1W/editions.json": () => ({
         entries: [
@@ -43,12 +43,16 @@ describe("getExternalDetails", () => {
           { number_of_pages: 380 },
         ],
       }),
+      "/works/OL1W.json": () => ({
+        subjects: ["Fiction, fantasy, epic", "New York Times bestseller"],
+      }),
     });
 
     expect(await getExternalDetails("Book", "/works/OL1W")).toEqual({
       pages: 412,
       runtime_minutes: null,
       based_on: null,
+      genres: ["Fantasy"],
     });
   });
 
@@ -64,15 +68,17 @@ describe("getExternalDetails", () => {
       pages: 352,
       runtime_minutes: null,
       based_on: null,
+      genres: [],
     });
   });
 
-  it("gets a movie's runtime and who wrote the book behind it", async () => {
+  it("gets a movie's runtime, genres and who wrote the book behind it", async () => {
     serve({
       "/3/movie/438631": (url) => {
         expect(url.searchParams.get("append_to_response")).toBe("credits");
         return {
           runtime: 155,
+          genres: [{ name: "Science Fiction" }, { name: "Adventure" }],
           credits: {
             crew: [
               { job: "Director", name: "Denis Villeneuve" },
@@ -88,27 +94,37 @@ describe("getExternalDetails", () => {
       pages: null,
       runtime_minutes: 155,
       based_on: "Frank Herbert",
+      genres: ["Science Fiction", "Adventure"],
     });
   });
 
   it("adds up a show season's episodes and lists each source author once", async () => {
     serve({
-      "/3/tv/63639": () => ({
-        seasons: [
-          { season_number: 0 },
-          { season_number: 1 },
-          { season_number: 2 },
-        ],
-      }),
+      "/3/tv/63639": (url) => {
+        expect(url.searchParams.get("append_to_response")).toBe(
+          "aggregate_credits",
+        );
+        return {
+          seasons: [
+            { season_number: 0 },
+            { season_number: 1 },
+            { season_number: 2 },
+          ],
+          genres: [{ name: "Drama" }, { name: "Sci-Fi & Fantasy" }],
+          aggregate_credits: {
+            crew: [
+              { name: "Daniel Abraham", jobs: [{ job: "Novel" }] },
+              {
+                name: "Ty Franck",
+                jobs: [{ job: "Novel" }, { job: "Writer" }],
+              },
+              { name: "Naren Shankar", jobs: [{ job: "Showrunner" }] },
+            ],
+          },
+        };
+      },
       "/3/tv/63639/season/2": () => ({
         episodes: [{ runtime: 44 }, { runtime: 45 }, { runtime: null }],
-      }),
-      "/3/tv/63639/aggregate_credits": () => ({
-        crew: [
-          { name: "Daniel Abraham", jobs: [{ job: "Novel" }] },
-          { name: "Ty Franck", jobs: [{ job: "Novel" }, { job: "Writer" }] },
-          { name: "Naren Shankar", jobs: [{ job: "Showrunner" }] },
-        ],
       }),
     });
 
@@ -116,6 +132,7 @@ describe("getExternalDetails", () => {
       pages: null,
       runtime_minutes: 89,
       based_on: "Daniel Abraham, Ty Franck",
+      genres: ["Drama", "Science Fiction", "Fantasy"],
     });
   });
 
@@ -125,6 +142,7 @@ describe("getExternalDetails", () => {
       serve({
         "/3/tv/123249": () => ({
           seasons: [{ season_number: 0 }, { season_number: 1 }],
+          aggregate_credits: { crew: [] },
         }),
         "/3/tv/123249/season/1": () => ({
           episodes: [
@@ -138,7 +156,6 @@ describe("getExternalDetails", () => {
             })),
           ],
         }),
-        "/3/tv/123249/aggregate_credits": () => ({ crew: [] }),
       });
 
     it("counts only the first part for season 1", async () => {
@@ -161,6 +178,7 @@ describe("getExternalDetails", () => {
         pages: null,
         runtime_minutes: null,
         based_on: null,
+        genres: [],
       });
     });
   });
@@ -169,6 +187,7 @@ describe("getExternalDetails", () => {
     serve({
       "/3/tv/1396": () => ({
         seasons: [{ season_number: 1 }, { season_number: 5 }],
+        aggregate_credits: { crew: [] },
       }),
       // Breaking Bad's last season aired in two halves, a year apart
       "/3/tv/1396/season/5": () => ({
@@ -177,7 +196,6 @@ describe("getExternalDetails", () => {
           { runtime: 47, air_date: "2013-08-11" },
         ],
       }),
-      "/3/tv/1396/aggregate_credits": () => ({ crew: [] }),
     });
 
     expect((await getExternalDetails("Show", "1396", 5)).runtime_minutes).toBe(
@@ -187,8 +205,12 @@ describe("getExternalDetails", () => {
 
   it("keeps the source author when the season can't be found", async () => {
     serve({
-      "/3/tv/9/aggregate_credits": () => ({
-        crew: [{ name: "Anne Rice", jobs: [{ job: "Novel" }] }],
+      "/3/tv/9": () => ({
+        seasons: [{ season_number: 1 }, { season_number: 2 }],
+        genres: [{ name: "Drama" }],
+        aggregate_credits: {
+          crew: [{ name: "Anne Rice", jobs: [{ job: "Novel" }] }],
+        },
       }),
     });
 
@@ -196,20 +218,41 @@ describe("getExternalDetails", () => {
       pages: null,
       runtime_minutes: null,
       based_on: "Anne Rice",
+      genres: ["Drama"],
     });
   });
 
   it("skips the season lookup when there's no season", async () => {
     const fetchMock = serve({
-      "/3/tv/1/aggregate_credits": () => ({ crew: [] }),
+      "/3/tv/1": () => ({ aggregate_credits: { crew: [] } }),
     });
 
     expect(await getExternalDetails("Show", "1")).toEqual({
       pages: null,
       runtime_minutes: null,
       based_on: null,
+      genres: [],
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("splits TV's combined genres and drops TV Movie", async () => {
+    serve({
+      "/3/movie/1": () => ({
+        genres: [{ name: "TV Movie" }, { name: "Action" }],
+        credits: { crew: [] },
+      }),
+      "/3/tv/2": () => ({
+        genres: [{ name: "Action & Adventure" }, { name: "Action" }],
+        aggregate_credits: { crew: [] },
+      }),
+    });
+
+    expect((await getExternalDetails("Movie", "1")).genres).toEqual(["Action"]);
+    expect((await getExternalDetails("Show", "2")).genres).toEqual([
+      "Action",
+      "Adventure",
+    ]);
   });
 
   it("ignores ids that don't look like the source's", async () => {
@@ -225,6 +268,7 @@ describe("getExternalDetails", () => {
         pages: null,
         runtime_minutes: null,
         based_on: null,
+        genres: [],
       });
     }
     expect(fetchMock).not.toHaveBeenCalled();
@@ -248,6 +292,7 @@ describe("getExternalDetails", () => {
       pages: null,
       runtime_minutes: null,
       based_on: null,
+      genres: [],
     });
   });
 });

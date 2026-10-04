@@ -10,6 +10,10 @@
 // Books without pages also try Google Books, matched or not:
 //   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
 //     --refresh --sql refresh.sql
+// --genres fills in genres for matched items that don't have any yet, from
+// TMDB for movies and shows and from subjects for books:
+//   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
+//     --genres --sql genres.sql
 import { writeFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
@@ -47,6 +51,7 @@ const sqlPath = arg("--sql");
 // e.g. --only "Kafka|Runaways" to retry a few titles
 const only = arg("--only");
 const refresh = process.argv.includes("--refresh");
+const genresOnly = process.argv.includes("--genres");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -224,6 +229,9 @@ const sqlValue = (value: string | number | null) =>
       ? String(value)
       : `'${value.replace(/'/g, "''")}'`;
 
+const sqlArray = (values: string[]) =>
+  `array[${values.map(sqlValue).join(", ")}]::text[]`;
+
 // Only touches the new columns, and only rows that are still unmatched, so
 // running the file twice is harmless
 function writeSql(results: Result[], path: string) {
@@ -235,6 +243,7 @@ function writeSql(results: Result[], path: string) {
         `pages = ${sqlValue(details!.pages)}`,
         `runtime_minutes = ${sqlValue(details!.runtime_minutes)}`,
         `based_on = ${sqlValue(details!.based_on)}`,
+        `genres = ${sqlArray(details!.genres)}`,
       ].join(", ");
       return `update public.items set ${sets} where id = ${sqlValue(item.id)} and external_id is null; -- ${match!.confidence}: ${item.title.replace(/\n/g, " ")}`;
     });
@@ -254,7 +263,7 @@ async function refreshDetails(items: TypedItem[]) {
           item.external_id,
           item.season ?? null,
         )
-      : { pages: null, runtime_minutes: null, based_on: null };
+      : { pages: null, runtime_minutes: null, based_on: null, genres: [] };
     if (item.itemtype === "Book" && !details.pages) {
       details.pages = await googleBooksPages(item.title, item.author);
     }
@@ -275,6 +284,35 @@ async function refreshDetails(items: TypedItem[]) {
     ].join(", ");
     updates.push(
       `update public.items set ${sets} where id = ${sqlValue(item.id)} and external_id is not distinct from ${sqlValue(item.external_id)}; -- ${item.title.replace(/\n/g, " ")}`,
+    );
+  }
+  return updates;
+}
+
+// Seasons of one show share a TMDB id, so each id is looked up once and its
+// genres go to every row with it
+async function fillGenres(items: TypedItem[]) {
+  const byId = new Map<string, TypedItem[]>();
+  for (const item of items) {
+    const key = `${item.itemtype}|${item.external_id}`;
+    byId.set(key, [...(byId.get(key) ?? []), item]);
+  }
+  const updates: string[] = [];
+  for (const [first, ...rest] of byId.values()) {
+    const { genres } = await getExternalDetails(
+      first.itemtype,
+      first.external_id!,
+    );
+    await sleep(first.itemtype === "Book" ? 600 : 150);
+    const label = `${first.itemtype.padEnd(5)} ${first.title}`;
+    if (genres.length === 0) {
+      console.log(`  ·  ${label}: no genres`);
+      continue;
+    }
+    console.log(`  ✓  ${label} ${genres.join(", ")}`);
+    const ids = [first, ...rest].map((item) => sqlValue(item.id)).join(", ");
+    updates.push(
+      `update public.items set genres = ${sqlArray(genres)} where id in (${ids}) and genres = '{}' and external_id = ${sqlValue(first.external_id)}; -- ${first.title.replace(/\n/g, " ")}`,
     );
   }
   return updates;
@@ -336,22 +374,26 @@ async function main() {
     .map(validateAndTypeItem)
     .filter((item): item is TypedItem => item !== null)
     .filter((item) =>
-      refresh
-        ? missingDetails(item) &&
-          (!!item.external_id || item.itemtype === "Book")
-        : !item.external_id,
+      genresOnly
+        ? !!item.external_id && item.genres.length === 0
+        : refresh
+          ? missingDetails(item) &&
+            (!!item.external_id || item.itemtype === "Book")
+          : !item.external_id,
     )
     .filter((item) => !only || new RegExp(only, "i").test(item.title))
     .slice(0, limit);
 
-  if (refresh) {
-    const updates = await refreshDetails(items);
+  if (genresOnly || refresh) {
+    const updates = genresOnly
+      ? await fillGenres(items)
+      : await refreshDetails(items);
     if (sqlPath) {
       writeFileSync(sqlPath, ["begin;", ...updates, "commit;", ""].join("\n"));
       console.log(`Wrote ${updates.length} updates to ${sqlPath}`);
     }
     console.log(
-      `${updates.length} of ${items.length} now have details. Nothing was saved to the database.`,
+      `${updates.length} of ${genresOnly ? "the titles" : items.length} now have details. Nothing was saved to the database.`,
     );
     return;
   }

@@ -2,6 +2,7 @@ import type { ValidItemType } from "@/types/shared";
 import { splitNames } from "@/utils/data/names";
 import { normalizeTitle } from "@/utils/data/patterns";
 import { isGoogleVolumeId, isOpenLibraryKey } from "@/utils/data/external-ids";
+import { bookGenres } from "@/utils/data/book-genres";
 
 const TMDB = "https://api.themoviedb.org/3";
 const OPEN_LIBRARY_HEADERS = { "User-Agent": "what.pm (https://what.pm)" };
@@ -15,6 +16,13 @@ const SOURCE_JOBS = new Set([
   "Graphic Novel",
   "Author",
 ]);
+// TV has a few combined genres where movies have two, so they're stored under
+// the movie names. "TV Movie" says where it aired, not what it is.
+const TV_GENRES: Record<string, string[]> = {
+  "Action & Adventure": ["Action", "Adventure"],
+  "Sci-Fi & Fantasy": ["Science Fiction", "Fantasy"],
+};
+const NOT_GENRES = new Set(["TV Movie"]);
 
 const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
 
@@ -44,12 +52,14 @@ export interface ExternalDetails {
   pages: number | null;
   runtime_minutes: number | null;
   based_on: string | null;
+  genres: string[];
 }
 
 const NO_DETAILS: ExternalDetails = {
   pages: null,
   runtime_minutes: null,
   based_on: null,
+  genres: [],
 };
 
 // Some editions list 1 page, or 8, as a placeholder. Enough of them drag the
@@ -67,14 +77,31 @@ function median(values: number[]) {
 const joinNames = (names: string[]) =>
   names.length > 0 ? [...new Set(names)].join(", ") : null;
 
+export const genreNames = (genres: { name: string }[] = []) => [
+  ...new Set(
+    genres
+      .flatMap(({ name }) => TV_GENRES[name] ?? [name])
+      .filter((name) => !NOT_GENRES.has(name)),
+  ),
+];
+
 async function bookDetails(workKey: string): Promise<ExternalDetails> {
-  const data = await openLibraryJson<{
-    entries: { number_of_pages?: number }[];
-  }>(new URL(`https://openlibrary.org${workKey}/editions.json?limit=50`));
+  const [data, work] = await Promise.all([
+    openLibraryJson<{ entries: { number_of_pages?: number }[] }>(
+      new URL(`https://openlibrary.org${workKey}/editions.json?limit=50`),
+    ),
+    openLibraryJson<{ subjects?: string[] }>(
+      new URL(`https://openlibrary.org${workKey}.json`),
+    ).catch(() => ({ subjects: [] })),
+  ]);
   const pages = data.entries
     .map((edition) => edition.number_of_pages)
     .filter(isPageCount);
-  return { ...NO_DETAILS, pages: median(pages) };
+  return {
+    ...NO_DETAILS,
+    pages: median(pages),
+    genres: bookGenres(work.subjects),
+  };
 }
 
 interface GoogleVolume {
@@ -131,23 +158,33 @@ async function googleVolumeDetails(id: string): Promise<ExternalDetails> {
   const url = new URL(`https://www.googleapis.com/books/v1/volumes/${id}`);
   url.searchParams.set("key", process.env.GOOGLE_API_KEY ?? "");
   const { volumeInfo } = await getJson<{
-    volumeInfo: { pageCount?: number; printedPageCount?: number };
+    volumeInfo: {
+      pageCount?: number;
+      printedPageCount?: number;
+      categories?: string[];
+    };
   }>(url);
   // Search results often leave pageCount out when the volume itself has it
   const pages = [volumeInfo.pageCount, volumeInfo.printedPageCount].find(
     isPageCount,
   );
-  return { ...NO_DETAILS, pages: pages ?? null };
+  return {
+    ...NO_DETAILS,
+    pages: pages ?? null,
+    genres: bookGenres(volumeInfo.categories),
+  };
 }
 
 async function movieDetails(id: string): Promise<ExternalDetails> {
   const data = await getJson<{
     runtime?: number;
+    genres?: { name: string }[];
     credits: { crew: { job: string; name: string }[] };
   }>(tmdbUrl(`/movie/${id}`, { append_to_response: "credits" }));
   return {
     ...NO_DETAILS,
     runtime_minutes: data.runtime || null,
+    genres: genreNames(data.genres),
     based_on: joinNames(
       data.credits.crew
         .filter((person) => SOURCE_JOBS.has(person.job))
@@ -185,11 +222,12 @@ export function splitIntoCours(episodes: Episode[]): Episode[][] {
 const sumRuntime = (episodes: Episode[]) =>
   episodes.reduce((sum, ep) => sum + (ep.runtime ?? 0), 0) || null;
 
-async function seasonRuntime(id: string, season: number) {
-  const show = await getJson<{ seasons: { season_number: number }[] }>(
-    tmdbUrl(`/tv/${id}`),
-  );
-  const numbers = show.seasons
+async function seasonRuntime(
+  id: string,
+  season: number,
+  seasons: { season_number: number }[],
+) {
+  const numbers = seasons
     .map((s) => s.season_number)
     .filter((number) => number > 0);
   const episodesOf = (number: number) =>
@@ -214,17 +252,20 @@ async function showDetails(
   id: string,
   season: number | null,
 ): Promise<ExternalDetails> {
-  const [runtime, credits] = await Promise.all([
-    season ? seasonRuntime(id, season).catch(() => null) : null,
-    getJson<{ crew: { name: string; jobs: { job: string }[] }[] }>(
-      tmdbUrl(`/tv/${id}/aggregate_credits`),
-    ),
-  ]);
+  const show = await getJson<{
+    seasons?: { season_number: number }[];
+    genres?: { name: string }[];
+    aggregate_credits: { crew: { name: string; jobs: { job: string }[] }[] };
+  }>(tmdbUrl(`/tv/${id}`, { append_to_response: "aggregate_credits" }));
+  const runtime = season
+    ? await seasonRuntime(id, season, show.seasons ?? []).catch(() => null)
+    : null;
   return {
     ...NO_DETAILS,
     runtime_minutes: runtime,
+    genres: genreNames(show.genres),
     based_on: joinNames(
-      credits.crew
+      show.aggregate_credits.crew
         .filter((person) => person.jobs.some(({ job }) => SOURCE_JOBS.has(job)))
         .map((person) => person.name),
     ),

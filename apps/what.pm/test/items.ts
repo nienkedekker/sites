@@ -20,6 +20,8 @@ export function book(overrides: Partial<TypedItem> = {}): TypedItem {
     pages: null,
     runtime_minutes: null,
     based_on: null,
+    genres: [],
+    subgenres: [],
     ...overrides,
   } as TypedItem;
 }

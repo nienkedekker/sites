@@ -22,6 +22,8 @@ export type Database = {
           created_at: string | null;
           director: string | null;
           external_id: string | null;
+          genres: string[];
+          subgenres: string[];
           id: string;
           in_progress: boolean | null;
           itemtype: string;
@@ -40,6 +42,8 @@ export type Database = {
           created_at?: string | null;
           director?: string | null;
           external_id?: string | null;
+          genres?: string[];
+          subgenres?: string[];
           id?: string;
           in_progress?: boolean | null;
           itemtype: string;
@@ -58,6 +62,8 @@ export type Database = {
           created_at?: string | null;
           director?: string | null;
           external_id?: string | null;
+          genres?: string[];
+          subgenres?: string[];
           id?: string;
           in_progress?: boolean | null;
           itemtype?: string;

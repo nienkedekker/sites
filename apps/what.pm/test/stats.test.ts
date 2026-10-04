@@ -125,6 +125,51 @@ describe("computeStats", () => {
     ]);
   });
 
+  it("counts each logged movie and season once per genre", () => {
+    const { genres } = computeStats([
+      movie({ genres: ["Drama", "Science Fiction", "Adventure"] }),
+      movie({ genres: ["Drama", "Action", "Adventure"] }),
+      show({ season: 1, genres: ["Drama", "Science Fiction", "Fantasy"] }),
+      show({ season: 2, genres: ["Drama", "Science Fiction", "Fantasy"] }),
+      book({ genres: ["Fantasy"] }),
+    ]);
+
+    expect(genres.books).toEqual([{ name: "Fantasy", count: 1 }]);
+    expect(genres.screen).toEqual([
+      { name: "Drama", count: 4 },
+      { name: "Sci-Fi & Fantasy", count: 3 },
+      { name: "Action & Adventure", count: 2 },
+    ]);
+  });
+
+  it("breaks a book genre down into its subgenres", () => {
+    const { genres } = computeStats([
+      book({ genres: ["Literary Fiction"], subgenres: ["Satire"] }),
+      book({
+        genres: ["Literary Fiction"],
+        subgenres: ["Psychological Fiction", "Queer Fiction"],
+      }),
+      book({
+        genres: ["Literary Fiction"],
+        subgenres: ["Psychological Fiction"],
+      }),
+      book({ genres: ["Fantasy"] }),
+    ]);
+
+    expect(genres.books).toEqual([
+      {
+        name: "Literary Fiction",
+        count: 3,
+        parts: [
+          { name: "Psychological Fiction", count: 2 },
+          { name: "Queer Fiction", count: 1 },
+          { name: "Satire", count: 1 },
+        ],
+      },
+      { name: "Fantasy", count: 1 },
+    ]);
+  });
+
   it("only charts months for years logged as they happened", () => {
     const { monthRows } = computeStats([
       book({ belongs_to_year: 2019, created_at: "2024-01-01T00:00:00Z" }),

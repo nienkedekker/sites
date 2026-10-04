@@ -38,6 +38,12 @@ async function StatsContent() {
     b.entries.length > a.entries.length ? b : a,
   );
 
+  const total = cumulative && (
+    <div className="lg:col-span-2">
+      <CumulativeLineChart chartData={cumulative} config={CHART_CONFIG} />
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
       {stats && (
@@ -88,6 +94,27 @@ async function StatsContent() {
               <Pace years={stats.pace} />
             </div>
           )}
+          {/* Each genre card keeps its own height, so opening the subgenres of
+              one doesn't stretch the other */}
+          <div className="grid grid-cols-1 items-start gap-3 lg:col-span-2 lg:grid-cols-2">
+            {stats.genres.books.length > 0 && (
+              <MostLogged
+                id="most-read-genres"
+                title="Most read genres"
+                people={stats.genres.books}
+                linked={false}
+              />
+            )}
+            {stats.genres.screen.length > 0 && (
+              <MostLogged
+                id="most-watched-genres"
+                title="Most watched genres"
+                note="movies & TV"
+                people={stats.genres.screen}
+                linked={false}
+              />
+            )}
+          </div>
           {stats.rhythms.length > 0 && (
             <div className="lg:col-span-2">
               <RereadRhythm rhythms={stats.rhythms} />
@@ -100,11 +127,7 @@ async function StatsContent() {
           )}
         </>
       )}
-      {cumulative && (
-        <div className="lg:col-span-2">
-          <CumulativeLineChart chartData={cumulative} config={CHART_CONFIG} />
-        </div>
-      )}
+      {total}
     </div>
   );
 }
@@ -112,7 +135,7 @@ async function StatsContent() {
 export default function StatsPage() {
   return (
     <div>
-      <PageHeader intro="Books, movies and TV seasons, counted across every year.">
+      <PageHeader intro="Books, movies and TV seasons over the years">
         Stats
       </PageHeader>
       <Suspense fallback={<StatsPageSkeleton />}>
