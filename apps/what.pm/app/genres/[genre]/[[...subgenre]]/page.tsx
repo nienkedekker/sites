@@ -1,36 +1,42 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { unstable_cache } from "next/cache";
 import PageHeader from "@nienke/ui/page-header";
 import { describeCounts } from "@nienke/ui/series";
 import { CategoryList } from "@/components/features/lists/category-list";
-import { getAllItems } from "@/utils/data/items";
+import { getCachedItems } from "@/utils/data/items";
 import { genrePath, itemsInGenre } from "@/utils/data/genres";
-import { CATEGORY_CONFIG, ITEMS_TAG } from "@/utils/constants/app";
+import { CATEGORY_CONFIG } from "@/utils/constants/app";
+import { OG_SIZE } from "@/utils/og";
 import type { Metadata } from "next";
 
 interface GenreParams {
   params: Promise<{ genre: string; subgenre?: string[] }>;
 }
 
-const getItems = unstable_cache(getAllItems, ["all-items"], {
-  revalidate: 3600,
-  tags: [ITEMS_TAG],
-});
-
 async function load({ params }: GenreParams) {
   const { genre, subgenre } = await params;
   if (subgenre && subgenre.length > 1) return null;
-  return itemsInGenre(await getItems(), genre, subgenre?.[0]);
+  return itemsInGenre(await getCachedItems(), genre, subgenre?.[0]);
 }
 
 export async function generateMetadata(props: GenreParams): Promise<Metadata> {
   const found = await load(props);
   if (!found) return {};
+  const { genre, subgenre } = await props.params;
   const name = found.subgenre ?? found.genre;
   return {
     title: name,
     description: `Everything I logged as ${name.toLowerCase()}.`,
+    // Metadata image files can't sit under a catch-all, so a route draws it
+    openGraph: {
+      images: [
+        {
+          url: ["/og/genres", genre, ...(subgenre ?? [])].join("/"),
+          ...OG_SIZE,
+          alt: `Everything logged as ${name.toLowerCase()} on what.pm`,
+        },
+      ],
+    },
   };
 }
 

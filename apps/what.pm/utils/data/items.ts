@@ -17,6 +17,11 @@ export async function getAllItems(): Promise<TypedItem[]> {
     .filter((item): item is TypedItem => item !== null);
 }
 
+export const getCachedItems = unstable_cache(getAllItems, ["all-items"], {
+  revalidate: 3600,
+  tags: [ITEMS_TAG],
+});
+
 export async function getItemsForYear(
   year: number,
 ): Promise<DataResult<TypedItem[]>> {
