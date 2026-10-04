@@ -12,6 +12,12 @@ import {
   seriesText,
 } from "@/utils/og";
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return [];
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ genre: string; subgenre?: string[] }> },

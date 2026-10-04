@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface ErrorFallbackProps {
-  error?: Error;
+  error?: string;
   reset?: () => void;
 }
 
@@ -39,8 +39,7 @@ export function DataLoadingError({ error, reset }: ErrorFallbackProps) {
             Error details (dev only)
           </summary>
           <pre className="overflow-auto border border-line bg-panel-2 p-3 font-mono text-xs text-danger">
-            {error.message}
-            {error.stack && "\n\n" + error.stack}
+            {error}
           </pre>
         </details>
       )}

@@ -93,6 +93,10 @@ describe("markdownTarget", () => {
       "/feed.xml",
       "/llms.txt",
       "/year/2024/opengraph-image",
+      "/opengraph-image",
+      "/stats/opengraph-image",
+      "/up-next/opengraph-image",
+      "/og/genres/fantasy/cozy-fantasy",
       "/_next/data/x.json",
     ]) {
       expect(markdownTarget(path).kind, path).toBe("skip");
@@ -108,10 +112,13 @@ describe("markdownTarget", () => {
   it("never calls a real page missing", () => {
     const app = fileURLToPath(new URL("../app", import.meta.url));
     const routes = readdirSync(app, { recursive: true, encoding: "utf8" })
-      .filter((file) => /(^|\/)(page\.tsx|route\.ts)$/.test(file))
+      .filter((file) =>
+        /(^|\/)(page\.tsx|route\.tsx?|opengraph-image\.tsx)$/.test(file),
+      )
       .map((file) =>
         `/${relative(app, join(app, file))}`
-          .replace(/\/(page\.tsx|route\.ts)$/, "")
+          .replace(/\/(page\.tsx|route\.tsx?)$/, "")
+          .replace(/\.tsx$/, "")
           .replace(/\/\([^)]+\)/g, "")
           .replace("[year]", "2024")
           .replace("/[[...path]]", ""),

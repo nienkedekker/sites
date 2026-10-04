@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_rethrow } from "next/navigation";
 import PageHeader from "@nienke/ui/page-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { AddUpNext } from "@/components/features/recs/add-up-next";
@@ -40,8 +41,13 @@ export default async function UpNextPage() {
       }
     }
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error loading up next:", error);
-    return <DataLoadingError error={error as Error} />;
+    return (
+      <DataLoadingError
+        error={error instanceof Error ? error.message : String(error)}
+      />
+    );
   }
 
   return (

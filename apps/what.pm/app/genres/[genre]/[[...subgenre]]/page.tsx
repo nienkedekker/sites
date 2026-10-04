@@ -13,6 +13,11 @@ interface GenreParams {
   params: Promise<{ genre: string; subgenre?: string[] }>;
 }
 
+// None at build time: each genre renders on its first visit, then stays cached
+export async function generateStaticParams() {
+  return [];
+}
+
 async function load({ params }: GenreParams) {
   const { genre, subgenre } = await params;
   if (subgenre && subgenre.length > 1) return null;

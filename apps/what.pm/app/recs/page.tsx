@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_rethrow } from "next/navigation";
 import { formatDate } from "@nienke/ui/format";
 import PageHeader from "@nienke/ui/page-header";
 import TagLink from "@nienke/ui/tag-link";
@@ -111,8 +112,13 @@ export default async function RecsPage() {
     madeIt = loggedPicks(log.wanted, log.items);
     saved = log.wanted.filter((item) => item.reason).length;
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error loading recommendations:", error);
-    return <DataLoadingError error={error as Error} />;
+    return (
+      <DataLoadingError
+        error={error instanceof Error ? error.message : String(error)}
+      />
+    );
   }
 
   const batchAt = recs[0]?.batch_at;

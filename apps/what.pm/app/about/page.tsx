@@ -51,12 +51,8 @@ function LogNumbers({ facts }: { facts: LogFacts }) {
 }
 
 export default async function AboutPage() {
-  let facts: LogFacts | null = null;
-  try {
-    facts = await getLogFacts();
-  } catch (error) {
-    console.error("Error loading log facts:", error);
-  }
+  // Thrown, not hidden, so ISR keeps the last good page instead of the gap
+  const facts = await getLogFacts();
 
   return (
     <div className="grid items-start gap-y-14 lg:grid-cols-[1fr_2fr] lg:gap-x-14">
@@ -72,14 +68,12 @@ export default async function AboutPage() {
             <Link href="https://github.com/nienkedekker/sites">here</Link>.
           </p>
         </div>
-        {facts && (
-          <div
-            className="rise mt-12"
-            style={{ "--delay": "240ms" } as CSSProperties}
-          >
-            <LogNumbers facts={facts} />
-          </div>
-        )}
+        <div
+          className="rise mt-12"
+          style={{ "--delay": "240ms" } as CSSProperties}
+        >
+          <LogNumbers facts={facts} />
+        </div>
       </div>
 
       <figure

@@ -11,7 +11,17 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClientForServer();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("Error exchanging auth code:", error);
+      const signIn = new URL("/sign-in", requestUrl.origin);
+      signIn.searchParams.set(
+        "error",
+        "That sign-in link didn’t work. Try signing in again.",
+      );
+      signIn.searchParams.set("redirect", redirectTo);
+      return NextResponse.redirect(signIn);
+    }
   }
 
   return NextResponse.redirect(new URL(redirectTo, requestUrl.origin));

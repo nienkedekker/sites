@@ -22,7 +22,7 @@ const CHART_HEIGHT = 220;
 const GAP = 4;
 
 export default async function Image() {
-  const years = (await getStatsData().catch(() => null))?.years ?? [];
+  const { years } = await getStatsData();
   const totals = countTypes(
     years.flatMap(({ entries }) =>
       entries.map(({ type }) => ({ itemtype: type })),

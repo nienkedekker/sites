@@ -20,7 +20,7 @@ export const revalidate = 3600;
 const SHOWN = 6;
 
 export default async function Image() {
-  const upNext = await getUpNext().catch(() => []);
+  const upNext = await getUpNext();
   const shown = upNext.slice(0, SHOWN);
   const fonts = await loadFonts(
     "Up next",

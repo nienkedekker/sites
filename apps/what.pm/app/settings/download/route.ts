@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClientForServer } from "@/utils/supabase/server";
 import { fetchAllRows } from "@/utils/data/fetch-all";
+import { parseYear } from "@/utils/data/items";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { itemsToCSV, generateCSVFilename } from "@/utils/export/csv";
 import { createJSONDownload, generateJSONFilename } from "@/utils/export/json";
@@ -31,8 +32,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const yearNum = year ? parseInt(year) : null;
-    if (yearNum !== null && isNaN(yearNum)) {
+    const yearNum = year ? parseYear(year) : null;
+    if (year && yearNum === null) {
       return NextResponse.json(
         { error: "Invalid year parameter" },
         { status: 400 },
@@ -70,7 +71,7 @@ export async function GET(request: NextRequest) {
     if (format === "csv") {
       const csvData = itemsToCSV(validatedItems);
       const filename = generateCSVFilename(
-        year ? `whatpm-${year}` : "whatpm-export",
+        yearNum !== null ? `whatpm-${yearNum}` : "whatpm-export",
       );
 
       return new NextResponse(csvData, {
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
     } else {
       const jsonData = createJSONDownload(validatedItems);
       const filename = generateJSONFilename(
-        year ? `whatpm-${year}` : "whatpm-export",
+        yearNum !== null ? `whatpm-${yearNum}` : "whatpm-export",
       );
 
       return new NextResponse(jsonData, {

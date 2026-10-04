@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 
 interface YearLinksProps {
   years: number[];
+  currentYear: number;
 }
 
-export function YearLinks({ years }: YearLinksProps) {
+export function YearLinks({ years, currentYear }: YearLinksProps) {
   const pathname = usePathname();
-  const currentYear = new Date().getFullYear();
 
   const getActiveYear = (): number | null => {
     if (pathname === "/") return currentYear;

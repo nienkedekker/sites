@@ -1,14 +1,12 @@
 import type { createClientForServer } from "@/utils/supabase/server";
 import { fetchAllRows } from "@/utils/data/fetch-all";
-import { validateAndTypeItem, type TypedItem } from "@/types/shared";
+import { getCachedItems } from "@/utils/data/items";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
 export async function loadLog(supabase: SupabaseServer) {
-  const [rows, dismissed, wanted] = await Promise.all([
-    fetchAllRows((from, to) =>
-      supabase.from("items").select("*").order("id").range(from, to),
-    ),
+  const [items, dismissed, wanted] = await Promise.all([
+    getCachedItems(),
     fetchAllRows((from, to) =>
       supabase
         .from("dismissed")
@@ -24,8 +22,5 @@ export async function loadLog(supabase: SupabaseServer) {
         .range(from, to),
     ),
   ]);
-  const items = rows
-    .map(validateAndTypeItem)
-    .filter((item): item is TypedItem => item !== null);
   return { items, dismissed, wanted };
 }

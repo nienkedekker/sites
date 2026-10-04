@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { createClientForServer } from "@/utils/supabase/server";
+import { supabasePublic } from "@/utils/supabase/public";
 import { fetchAllRows } from "@/utils/data/fetch-all";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { itemsToCSV, generateCSVFilename } from "@/utils/export/csv";
@@ -23,13 +23,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = await createClientForServer();
     const timestamp = new Date().toISOString().split("T")[0];
 
     let rawItems: unknown[];
     try {
       rawItems = await fetchAllRows((from, to) =>
-        supabase
+        supabasePublic
           .from("items")
           .select("*")
           .order("created_at", { ascending: true })
@@ -44,12 +43,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // The log is never empty, so an empty read means something went wrong
     if (rawItems.length === 0) {
-      return NextResponse.json({
-        success: true,
-        message: "No items to export",
-        timestamp,
-      });
+      console.error("Cron export found no items");
+      return NextResponse.json({ error: "No items found" }, { status: 500 });
     }
 
     const validatedItems: TypedItem[] = rawItems

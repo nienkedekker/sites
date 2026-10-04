@@ -18,9 +18,9 @@ export const contentType = "image/png";
 export const revalidate = 3600;
 
 export default async function Image() {
-  const facts = await getLogFacts().catch(() => null);
-  const total = formatCount(facts?.total ?? 0);
-  const since = facts ? `logged since ${facts.firstYear}` : "";
+  const facts = await getLogFacts();
+  const total = formatCount(facts.total);
+  const since = `logged since ${facts.firstYear}`;
   const fonts = await loadFonts(total, `${since} ${seriesText}`);
 
   return new ImageResponse(
@@ -38,9 +38,9 @@ export default async function Image() {
           <span style={{ marginTop: 24, fontSize: 26, color: COLORS.soft }}>
             {since}
           </span>
-          {facts && <SeriesCounts counts={facts} />}
+          <SeriesCounts counts={facts} />
         </div>
-        {facts && <SeriesBars counts={facts} />}
+        <SeriesBars counts={facts} />
       </div>
     </OgFrame>,
     { ...size, fonts },

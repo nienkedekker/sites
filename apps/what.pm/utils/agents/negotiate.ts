@@ -21,6 +21,7 @@ const SKIP_PREFIXES = [
   "/auth/",
   "/settings/",
   "/genres/",
+  "/og/",
   "/markdown",
 ];
 
@@ -39,6 +40,7 @@ export function markdownTarget(pathname: string): MarkdownTarget {
     HTML_ONLY.has(path) ||
     SKIP_PREFIXES.some((prefix) => path.startsWith(prefix)) ||
     /^\/year\/\d+\//.test(path) ||
+    /\/(opengraph-image|twitter-image|icon|apple-icon)$/.test(path) ||
     /\.[a-z0-9]+$/i.test(path)
   ) {
     return { kind: "skip" };

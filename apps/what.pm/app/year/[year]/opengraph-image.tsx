@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
-import { getItemsForYear } from "@/utils/data/items";
+import { notFound } from "next/navigation";
+import { getItemsForYear, isLoggedYear, parseYear } from "@/utils/data/items";
 import { hasMonthlyData, summarizeYear } from "@/utils/data/summary";
 import {
   COLORS,
@@ -18,6 +19,10 @@ export const size = OG_SIZE;
 export const contentType = "image/png";
 export const revalidate = 3600;
 
+export async function generateStaticParams() {
+  return [];
+}
+
 const MONTHS = "JFMAMJJASOND".split("");
 const CHART_HEIGHT = 220;
 
@@ -26,9 +31,11 @@ export default async function Image({
 }: {
   params: Promise<{ year: string }>;
 }) {
-  const year = Number.parseInt((await params).year, 10);
+  const year = parseYear((await params).year);
+  if (year === null || !(await isLoggedYear(year))) notFound();
   const result = await getItemsForYear(year);
-  const items = result.success ? result.data : [];
+  if (!result.success) throw new Error(result.error);
+  const items = result.data;
   const summary = summarizeYear(items, year);
   const byMonth = hasMonthlyData(items, year);
   const tallest = Math.max(

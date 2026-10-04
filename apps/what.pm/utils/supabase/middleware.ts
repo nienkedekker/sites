@@ -65,7 +65,11 @@ export async function updateSession(request: NextRequest) {
       "redirect",
       request.nextUrl.pathname + request.nextUrl.search,
     );
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      redirect.cookies.set(cookie);
+    }
+    return redirect;
   }
 
   // IMPORTANT: return the same response object that carries Supabase cookies
