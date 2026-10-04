@@ -3,6 +3,30 @@ import CardHead from "@nienke/ui/card-head";
 import Meter from "@nienke/ui/meter";
 import { SWATCH, type ItemType } from "@nienke/ui/series";
 
+function PartList({
+  label,
+  parts,
+  className = "",
+}: {
+  label: string;
+  parts: { name: string; count: number }[];
+  className?: string;
+}) {
+  return (
+    <ul aria-label={label} className={`space-y-1 ${className}`}>
+      {parts.map((part) => (
+        <li
+          key={part.name}
+          className="flex items-baseline justify-between gap-3 text-xs text-ink-soft"
+        >
+          <span className="truncate">{part.name}</span>
+          <span className="font-mono tabular-nums">{part.count}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 interface MostLoggedProps {
   id: string;
   title: string;
@@ -11,8 +35,10 @@ interface MostLoggedProps {
     name: string;
     count: number;
     type?: ItemType;
-    // Folded away under the row, like the subgenres of literary fiction
+    // Folded away under the row, like the subgenres of literary fiction,
+    // with tags that cut across them below a rule
     parts?: { name: string; count: number }[];
+    tags?: { name: string; count: number }[];
   }[];
   // Names that search can't find, like genres, aren't links
   linked?: boolean;
@@ -35,7 +61,7 @@ export function MostLogged({
       </CardHead>
 
       <ol className="mt-5">
-        {people.map(({ name, count, type, parts }) => {
+        {people.map(({ name, count, type, parts, tags }) => {
           const label = (
             <span
               className={`truncate text-sm text-ink ${linked ? "underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-ink" : ""}`}
@@ -82,22 +108,16 @@ export function MostLogged({
                     </span>
                     {meter}
                   </summary>
-                  <ul
-                    aria-label={`${name} by subgenre`}
-                    className="mt-2.5 space-y-1 border-l border-line pl-3"
-                  >
-                    {parts.map((part) => (
-                      <li
-                        key={part.name}
-                        className="flex items-baseline justify-between gap-3 text-xs text-ink-soft"
-                      >
-                        <span className="truncate">{part.name}</span>
-                        <span className="font-mono tabular-nums">
-                          {part.count}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="mt-2.5 border-l border-line pl-3">
+                    <PartList label={`${name} by subgenre`} parts={parts} />
+                    {tags && tags.length > 0 && (
+                      <PartList
+                        label={`${name} tags`}
+                        parts={tags}
+                        className="mt-2 border-t border-line pt-2"
+                      />
+                    )}
+                  </div>
                 </details>
               </li>
             );

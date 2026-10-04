@@ -29,8 +29,10 @@ export interface Person {
 export interface Genre {
   name: string;
   count: number;
-  // Subgenres logged under this genre, like the kinds of literary fiction
+  // Each item's main subgenre, so these add up to the genre's count
   parts?: Genre[];
+  // Tags that cut across the subgenres, like Japanese or Queer Fiction
+  tags?: Genre[];
 }
 
 export interface MonthCell {
@@ -69,6 +71,15 @@ const GENRE_COUNT = 10;
 const REVISIT_COUNT = 5;
 const RHYTHM_COUNT = 6;
 // TMDB's TV genres lump these together, so movies are counted the same way
+// Stored with the subgenres, but they say where a book is from or who it's
+// about rather than what kind of book it is
+const GENRE_TAGS = new Set([
+  "Japanese Fiction",
+  "Korean Fiction",
+  "Queer Fiction",
+]);
+const NO_SUBGENRE = "Other";
+
 const SHARED_GENRES: Record<string, string> = {
   Action: "Action & Adventure",
   Adventure: "Action & Adventure",
@@ -144,9 +155,19 @@ export function computeStats(items: TypedItem[]): StatsData {
     [...counts]
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  const tally = (
+    groups: Map<string, Map<string, number>>,
+    genre: string,
+    name: string,
+  ) => {
+    const counts = groups.get(genre) ?? new Map<string, number>();
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+    groups.set(genre, counts);
+  };
   const topGenres = (books: boolean): Genre[] => {
     const counts = new Map<string, number>();
     const parts = new Map<string, Map<string, number>>();
+    const tags = new Map<string, Map<string, number>>();
     for (const item of items) {
       if ((item.itemtype === "Book") !== books) continue;
       const names = new Set(
@@ -154,20 +175,31 @@ export function computeStats(items: TypedItem[]): StatsData {
           books ? name : (SHARED_GENRES[name] ?? name),
         ),
       );
+      // The first subgenre is the main one; a second stays in the data
+      const main = item.subgenres.find((name) => !GENRE_TAGS.has(name));
       for (const name of names) {
         counts.set(name, (counts.get(name) ?? 0) + 1);
-        const sub = parts.get(name) ?? new Map<string, number>();
-        for (const part of item.subgenres) {
-          sub.set(part, (sub.get(part) ?? 0) + 1);
+        tally(parts, name, main ?? NO_SUBGENRE);
+        for (const tag of item.subgenres.filter((t) => GENRE_TAGS.has(t))) {
+          tally(tags, name, tag);
         }
-        parts.set(name, sub);
       }
     }
     return ranked(counts)
       .slice(0, GENRE_COUNT)
       .map((genre) => {
         const sub = parts.get(genre.name);
-        return sub?.size ? { ...genre, parts: ranked(sub) } : genre;
+        if (!sub || (sub.size === 1 && sub.has(NO_SUBGENRE))) return genre;
+        const tagged = tags.get(genre.name);
+        return {
+          ...genre,
+          // Books without a subgenre go last, whatever their count
+          parts: ranked(sub).sort(
+            (a, b) =>
+              Number(a.name === NO_SUBGENRE) - Number(b.name === NO_SUBGENRE),
+          ),
+          ...(tagged && { tags: ranked(tagged) }),
+        };
       });
   };
   const genres = { books: topGenres(true), screen: topGenres(false) };
@@ -256,6 +288,6 @@ export const getStatsData = unstable_cache(
   async (): Promise<StatsData> => computeStats(await getAllItems()),
   // Bump the version whenever StatsData changes shape, so a deploy doesn't
   // read an old cached copy
-  ["stats-data", "v10"],
+  ["stats-data", "v11"],
   { revalidate: 3600, tags: [ITEMS_TAG] },
 );

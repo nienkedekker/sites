@@ -142,29 +142,31 @@ describe("computeStats", () => {
     ]);
   });
 
-  it("breaks a book genre down into its subgenres", () => {
+  it("breaks a book genre down by main subgenre, with tags apart", () => {
     const { genres } = computeStats([
       book({ genres: ["Literary Fiction"], subgenres: ["Satire"] }),
       book({
         genres: ["Literary Fiction"],
-        subgenres: ["Psychological Fiction", "Queer Fiction"],
+        subgenres: ["Psychological Fiction", "Satire", "Queer Fiction"],
       }),
       book({
         genres: ["Literary Fiction"],
         subgenres: ["Psychological Fiction"],
       }),
+      book({ genres: ["Literary Fiction"] }),
       book({ genres: ["Fantasy"] }),
     ]);
 
     expect(genres.books).toEqual([
       {
         name: "Literary Fiction",
-        count: 3,
+        count: 4,
         parts: [
           { name: "Psychological Fiction", count: 2 },
-          { name: "Queer Fiction", count: 1 },
           { name: "Satire", count: 1 },
+          { name: "Other", count: 1 },
         ],
+        tags: [{ name: "Queer Fiction", count: 1 }],
       },
       { name: "Fantasy", count: 1 },
     ]);
