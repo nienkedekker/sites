@@ -2,6 +2,7 @@ import { z } from "zod";
 import { VALID_ITEM_TYPES } from "@/types/shared";
 import { ITEM_TYPES } from "@/utils/constants/app";
 import { getCurrentYear } from "@/utils/formatters/date";
+import { isExternalId } from "@/utils/data/external-ids";
 
 const yearSchema = z
   .number()
@@ -73,6 +74,45 @@ export const itemCreationSchema = z.discriminatedUnion("itemtype", [
   movieItemSchema,
   showItemSchema,
 ]);
+
+const pickKeyFields = {
+  itemtype: z.enum(VALID_ITEM_TYPES, { message: "Invalid item type" }),
+  externalId: z.string().trim().min(1).max(100),
+};
+
+const hasExternalId = ({
+  itemtype,
+  externalId,
+}: {
+  itemtype: (typeof VALID_ITEM_TYPES)[number];
+  externalId: string;
+}) => isExternalId(itemtype, externalId);
+const externalIdIssue = {
+  message: "Invalid external id",
+  path: ["externalId"],
+};
+
+const pickTitle = z.string().trim().min(1).max(200);
+
+// Picks already in the database only need to be found again, so this doesn't
+// check the id's shape
+export const pickKeySchema = z.object(pickKeyFields);
+
+export const dismissSchema = z
+  .object({
+    ...pickKeyFields,
+    title: pickTitle,
+    kind: z.enum(["not_for_me", "seen"]),
+  })
+  .refine(hasExternalId, externalIdIssue);
+
+export const upNextSchema = z
+  .object({
+    ...pickKeyFields,
+    title: pickTitle,
+    creator: z.string().trim().max(200).optional(),
+  })
+  .refine(hasExternalId, externalIdIssue);
 
 const emailSchema = z
   .string()

@@ -12,6 +12,7 @@ import {
   typicalBy,
   type PaceYear,
 } from "@/utils/data/patterns";
+import { localDate } from "@/utils/formatters/date";
 import type { TypedItem } from "@/types/shared";
 
 type ItemType = TypedItem["itemtype"];
@@ -111,7 +112,7 @@ function TypePace({
 export function Pace({ years }: { years: PaceYear[] }) {
   const now = new Date();
   const today = dayOfYear(now);
-  const thisYear = now.getUTCFullYear();
+  const thisYear = localDate(now).year;
   const current = years.find(({ year }) => year === thisYear);
   const earlier = years.filter(({ year }) => year < thisYear);
 

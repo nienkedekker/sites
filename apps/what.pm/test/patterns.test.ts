@@ -19,6 +19,11 @@ describe("dayOfYear", () => {
     expect(dayOfYear(new Date("2026-02-01T00:00:00Z"))).toBe(31);
   });
 
+  it("goes by the day in Amsterdam", () => {
+    expect(dayOfYear(new Date("2026-02-28T23:30:00Z"))).toBe(59);
+    expect(dayOfYear(new Date("2025-12-31T23:30:00Z"))).toBe(0);
+  });
+
   it("knows about leap years", () => {
     expect(daysInYear(2024)).toBe(366);
     expect(daysInYear(2026)).toBe(365);

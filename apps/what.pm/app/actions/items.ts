@@ -1,8 +1,7 @@
 "use server";
 
-import { isNextRedirect } from "@/utils/server/error-handling";
 import { createClientForServer } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { revalidateTag } from "next/cache";
 import {
   itemCreationSchema,
@@ -66,8 +65,9 @@ export const createItemAction = async (
       author: validatedData.author || null,
       director: validatedData.director || null,
       season: validatedData.season || null,
+      // The forms only send inProgress when it's checked
       in_progress:
-        "inProgress" in validatedData
+        validatedData.itemtype === "Show"
           ? (validatedData.inProgress ?? false)
           : null,
     };
@@ -86,7 +86,7 @@ export const createItemAction = async (
     revalidateTag(ITEMS_TAG);
     return redirect(`/year/${validatedData.belongsToYear}#item-${created.id}`);
   } catch (error) {
-    if (isNextRedirect(error)) throw error;
+    unstable_rethrow(error);
     console.error("Unexpected error in createItemAction:", error);
     return { error: "Something went wrong. Please try again." };
   }
@@ -116,7 +116,7 @@ export const deleteItemAction = async (
     revalidateTag(ITEMS_TAG);
     return redirect(`/year/${belongsToYear}`);
   } catch (error) {
-    if (isNextRedirect(error)) throw error;
+    unstable_rethrow(error);
     console.error("Unexpected error in deleteItemAction:", error);
     return { error: "Something went wrong. Please try again." };
   }
@@ -154,7 +154,7 @@ export const updateItemAction = async (
       director: validatedData.director || null,
       season: validatedData.season || null,
       in_progress:
-        "inProgress" in validatedData
+        validatedData.itemtype === "Show"
           ? (validatedData.inProgress ?? false)
           : null,
       ...(validatedData.itemtype === "Book" && {

@@ -1,3 +1,4 @@
+import "server-only";
 import { unstable_cache } from "next/cache";
 import { nameKey } from "@/utils/data/names";
 import { isOpenLibraryKey } from "@/utils/data/external-ids";

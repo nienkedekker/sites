@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { itemCreationSchema } from "@/utils/schemas/validation";
+import {
+  dismissSchema,
+  itemCreationSchema,
+  upNextSchema,
+} from "@/utils/schemas/validation";
 
 const year = new Date().getFullYear();
 const base = {
@@ -71,5 +75,51 @@ describe("itemCreationSchema", () => {
 
   it("rejects unknown item types", () => {
     expect(parse({ ...base, itemtype: "Podcast" }).success).toBe(false);
+  });
+});
+
+describe("upNextSchema", () => {
+  const pick = { itemtype: "Show", externalId: "95396", title: "Severance" };
+
+  it("takes ids in the shape each source uses", () => {
+    expect(upNextSchema.safeParse(pick).success).toBe(true);
+    expect(
+      upNextSchema.safeParse({
+        ...pick,
+        itemtype: "Book",
+        externalId: "/works/OL45246981W",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects ids that don't belong to the type", () => {
+    expect(
+      upNextSchema.safeParse({ ...pick, externalId: "95396/../../movie/1" })
+        .success,
+    ).toBe(false);
+    expect(upNextSchema.safeParse({ ...pick, itemtype: "Book" }).success).toBe(
+      false,
+    );
+    expect(
+      upNextSchema.safeParse({ ...pick, itemtype: "Podcast" }).success,
+    ).toBe(false);
+  });
+
+  it("caps the title length", () => {
+    expect(
+      upNextSchema.safeParse({ ...pick, title: "x".repeat(201) }).success,
+    ).toBe(false);
+  });
+});
+
+describe("dismissSchema", () => {
+  it("only knows the two ways to dismiss a pick", () => {
+    const pick = { itemtype: "Movie", externalId: "438631", title: "Dune" };
+    expect(dismissSchema.safeParse({ ...pick, kind: "seen" }).success).toBe(
+      true,
+    );
+    expect(dismissSchema.safeParse({ ...pick, kind: "hated" }).success).toBe(
+      false,
+    );
   });
 });

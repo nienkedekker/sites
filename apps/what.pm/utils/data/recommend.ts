@@ -1,6 +1,7 @@
 import type { TypedItem, ValidItemType } from "@/types/shared";
 import { nameKey, splitNames } from "@/utils/data/names";
 import { normalizeTitle } from "@/utils/data/patterns";
+import { localDate } from "@/utils/formatters/date";
 
 export interface Suggestion {
   itemtype: ValidItemType;
@@ -50,7 +51,7 @@ function loggedAt(item: TypedItem) {
   const created = item.created_at ? Date.parse(item.created_at) : NaN;
   if (
     !Number.isNaN(created) &&
-    new Date(created).getUTCFullYear() === item.belongs_to_year
+    localDate(new Date(created)).year === item.belongs_to_year
   ) {
     return created;
   }

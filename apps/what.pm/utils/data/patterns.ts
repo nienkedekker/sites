@@ -1,5 +1,6 @@
 import type { TypedItem } from "@/types/shared";
 import { splitNames } from "@/utils/data/names";
+import { localDate } from "@/utils/formatters/date";
 
 type ItemType = TypedItem["itemtype"];
 
@@ -9,9 +10,8 @@ export const daysInYear = (year: number) =>
   (Date.UTC(year + 1, 0, 1) - Date.UTC(year, 0, 1)) / DAY;
 
 export function dayOfYear(date: Date) {
-  const year = date.getUTCFullYear();
-  const day = Date.UTC(year, date.getUTCMonth(), date.getUTCDate());
-  return Math.floor((day - Date.UTC(year, 0, 1)) / DAY);
+  const { year, month, day } = localDate(date);
+  return (Date.UTC(year, month - 1, day) - Date.UTC(year, 0, 1)) / DAY;
 }
 
 // Same clamping as monthIndex: logs from before the year count on day one,
@@ -20,7 +20,7 @@ export function dayIndex(item: TypedItem, year: number): number | null {
   if (!item.created_at) return null;
   const logged = new Date(item.created_at);
   if (Number.isNaN(logged.getTime())) return null;
-  const loggedYear = logged.getUTCFullYear();
+  const loggedYear = localDate(logged).year;
   if (loggedYear < year) return 0;
   if (loggedYear > year) return daysInYear(year) - 1;
   return dayOfYear(logged);

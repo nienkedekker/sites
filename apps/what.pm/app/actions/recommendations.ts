@@ -4,7 +4,11 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { WANTED_TAG } from "@/utils/constants/app";
 import { getJson, tmdbUrl } from "@/utils/server/external-api";
 import { createClientForServer } from "@/utils/supabase/server";
-import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
+import {
+  dismissSchema,
+  pickKeySchema,
+  upNextSchema,
+} from "@/utils/schemas/validation";
 import { loadLog } from "@/utils/server/recommend-log";
 import { keepNew, knownCreators, logIndex } from "@/utils/data/recommend";
 import { lookUp } from "@/utils/server/recommend-lookup";
@@ -13,7 +17,6 @@ import { suggestWithClaude } from "@/utils/server/recommend-claude";
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
 const SIGNED_OUT_ERROR = "Your session has expired. Sign in again.";
-const DISMISS_KINDS = ["not_for_me", "seen"] as const;
 
 async function isSignedIn(supabase: SupabaseServer) {
   const { data } = await supabase.auth.getUser();
@@ -86,20 +89,9 @@ export async function dismissRecommendation(
   formData: FormData,
 ): Promise<{ error: string | null }> {
   try {
-    const itemtype = formData.get("itemtype")?.toString() as ValidItemType;
-    const externalId = formData.get("externalId")?.toString();
-    const title = formData.get("title")?.toString();
-    const kind = formData
-      .get("kind")
-      ?.toString() as (typeof DISMISS_KINDS)[number];
-    if (
-      !VALID_ITEM_TYPES.includes(itemtype) ||
-      !externalId ||
-      !title ||
-      !DISMISS_KINDS.includes(kind)
-    ) {
-      return { error: "Invalid request." };
-    }
+    const parsed = dismissSchema.safeParse(Object.fromEntries(formData));
+    if (!parsed.success) return { error: "Invalid request." };
+    const { itemtype, externalId, title, kind } = parsed.data;
 
     const supabase = await createClientForServer();
     if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
@@ -124,10 +116,9 @@ export async function dismissRecommendation(
 }
 
 function pickKey(formData: FormData) {
-  const itemtype = formData.get("itemtype")?.toString() as ValidItemType;
-  const externalId = formData.get("externalId")?.toString();
-  return VALID_ITEM_TYPES.includes(itemtype) && externalId
-    ? { itemtype, external_id: externalId }
+  const parsed = pickKeySchema.safeParse(Object.fromEntries(formData));
+  return parsed.success
+    ? { itemtype: parsed.data.itemtype, external_id: parsed.data.externalId }
     : null;
 }
 
@@ -158,7 +149,13 @@ export async function wantRecommendation(
       console.error("Database error saving wanted item:", error);
       return { error: "Unable to save that pick. Please try again." };
     }
-    await supabase.from("recommendations").delete().match(key);
+    const { error: clearError } = await supabase
+      .from("recommendations")
+      .delete()
+      .match(key);
+    if (clearError) {
+      console.error("Database error clearing wanted pick:", clearError);
+    }
 
     revalidateTag(WANTED_TAG);
     revalidatePath("/recs");
@@ -208,22 +205,23 @@ export async function addUpNext(
   formData: FormData,
 ): Promise<{ error: string | null }> {
   try {
-    const key = pickKey(formData);
-    const title = formData.get("title")?.toString().trim();
-    if (!key || !title) return { error: "Pick a match from the list first." };
+    const parsed = upNextSchema.safeParse(Object.fromEntries(formData));
+    if (!parsed.success) return { error: "Pick a match from the list first." };
+    const { itemtype, externalId, title } = parsed.data;
     const year = Number(formData.get("year"));
 
     const supabase = await createClientForServer();
     if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
 
     const creator =
-      formData.get("creator")?.toString() ||
-      (key.itemtype === "Show"
-        ? await showCreator(key.external_id).catch(() => null)
+      parsed.data.creator ||
+      (itemtype === "Show"
+        ? await showCreator(externalId).catch(() => null)
         : null);
     const { error } = await supabase.from("wanted").upsert(
       {
-        ...key,
+        itemtype,
+        external_id: externalId,
         title,
         creator,
         published_year: Number.isInteger(year) && year > 0 ? year : null,

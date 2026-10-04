@@ -1,10 +1,6 @@
 import type { TypedItem } from "@/types/shared";
 
 export function itemsToCSV(items: TypedItem[]): string {
-  if (items.length === 0) {
-    return "No items to export";
-  }
-
   const headers = [
     "Title",
     "Type",
@@ -24,8 +20,8 @@ export function itemsToCSV(items: TypedItem[]): string {
       [
         `"${escapeCSVField(item.title)}"`,
         `"${item.itemtype}"`,
-        `"${item.author || ""}"`,
-        `"${item.director || ""}"`,
+        `"${escapeCSVField(item.author || "")}"`,
+        `"${escapeCSVField(item.director || "")}"`,
         item.season?.toString() || "",
         item.published_year.toString(),
         item.belongs_to_year.toString(),

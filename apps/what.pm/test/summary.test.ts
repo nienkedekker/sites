@@ -23,8 +23,21 @@ describe("monthIndex", () => {
     );
   });
 
+  it("goes by Amsterdam time, where midnight comes before it does in UTC", () => {
+    expect(monthIndex(book({ created_at: "2026-02-28T23:30:00Z" }), 2026)).toBe(
+      2,
+    );
+    expect(monthIndex(book({ created_at: "2026-06-30T22:30:00Z" }), 2026)).toBe(
+      6,
+    );
+    expect(monthIndex(book({ created_at: "2025-12-31T23:30:00Z" }), 2026)).toBe(
+      0,
+    );
+  });
+
   it("skips items without a log date", () => {
     expect(monthIndex(book({ created_at: null }), 2026)).toBeNull();
+    expect(monthIndex(book({ created_at: "not a date" }), 2026)).toBeNull();
   });
 });
 

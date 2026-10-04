@@ -4,12 +4,18 @@ import {
   type YearSummary,
 } from "@nienke/ui/summary";
 import type { TypedItem } from "@/types/shared";
+import { localDate } from "@/utils/formatters/date";
+
+function loggedOn(item: TypedItem) {
+  if (!item.created_at) return null;
+  const date = new Date(item.created_at);
+  return Number.isNaN(date.getTime()) ? null : localDate(date);
+}
 
 export function monthIndex(item: TypedItem, year: number): number | null {
-  if (!item.created_at) return null;
-  const loggedYear = Number(item.created_at.slice(0, 4));
-  const loggedMonth = Number(item.created_at.slice(5, 7));
-  return loggedYear < year ? 0 : loggedYear > year ? 11 : loggedMonth - 1;
+  const logged = loggedOn(item);
+  if (!logged) return null;
+  return logged.year < year ? 0 : logged.year > year ? 11 : logged.month - 1;
 }
 
 export function countByMonth(items: TypedItem[], year: number): MonthCounts[] {
@@ -52,10 +58,8 @@ export function summarizeYear(items: TypedItem[], year: number): YearSummary {
 }
 
 export function hasMonthlyData(items: TypedItem[], year: number): boolean {
-  const dated = items.filter((item) => item.created_at);
+  const dated = items.map(loggedOn).filter((logged) => logged !== null);
   if (dated.length === 0) return false;
-  const loggedInYear = dated.filter(
-    (item) => Number(item.created_at!.slice(0, 4)) === year,
-  ).length;
+  const loggedInYear = dated.filter((logged) => logged.year === year).length;
   return loggedInYear / dated.length >= 0.5;
 }

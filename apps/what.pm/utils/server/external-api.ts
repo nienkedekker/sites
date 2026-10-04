@@ -1,7 +1,11 @@
 import type { ValidItemType } from "@/types/shared";
 import { nameKey, splitNames } from "@/utils/data/names";
 import { normalizeTitle } from "@/utils/data/patterns";
-import { isGoogleVolumeId, isOpenLibraryKey } from "@/utils/data/external-ids";
+import {
+  isGoogleVolumeId,
+  isOpenLibraryKey,
+  isTmdbId,
+} from "@/utils/data/external-ids";
 import { bookGenres } from "@/utils/data/book-genres";
 
 const TMDB = "https://api.themoviedb.org/3";
@@ -29,8 +33,15 @@ const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
 export const yearOf = (date?: string) =>
   date ? Number(date.slice(0, 4)) || null : null;
 
-export async function getJson<T>(url: URL, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
+// A hanging API shouldn't hold up saving an item or the recs page
+const FETCH_TIMEOUT = 8_000;
+
+export async function getJson<T>(url: URL, init: RequestInit = {}): Promise<T> {
+  const timeout = AbortSignal.timeout(FETCH_TIMEOUT);
+  const signal = init.signal
+    ? AbortSignal.any([init.signal, timeout])
+    : timeout;
+  const res = await fetch(url, { ...init, signal });
   if (!res.ok) throw new Error(`${url.hostname} responded ${res.status}`);
   return res.json();
 }
@@ -279,7 +290,7 @@ export async function getExternalDetails(
       }
       return NO_DETAILS;
     }
-    if (!/^\d+$/.test(externalId) || !process.env.TMDB_API_KEY) {
+    if (!isTmdbId(externalId) || !process.env.TMDB_API_KEY) {
       return NO_DETAILS;
     }
     return type === "Movie"

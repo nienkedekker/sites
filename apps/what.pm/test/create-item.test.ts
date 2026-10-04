@@ -40,6 +40,11 @@ vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
     throw { digest: `NEXT_REDIRECT;${url}` };
   },
+  unstable_rethrow: (error: unknown) => {
+    if ((error as { digest?: string })?.digest?.startsWith("NEXT_")) {
+      throw error;
+    }
+  },
 }));
 
 const { createItemAction } = await import("@/app/actions/items");
@@ -122,6 +127,29 @@ describe("createItemAction", () => {
     ).catch(() => {});
 
     expect(getExternalDetails).toHaveBeenCalledWith("Show", "95396", 2);
+  });
+
+  it("saves a finished show as not in progress", async () => {
+    const severance = {
+      itemtype: "Show",
+      title: "Severance",
+      season: "2",
+      publishedYear: "2025",
+      belongsToYear: String(year),
+      redo: "",
+    };
+
+    await createItemAction(form(severance)).catch(() => {});
+    await createItemAction(form({ ...severance, inProgress: "on" })).catch(
+      () => {},
+    );
+    await createItemAction(form(dune)).catch(() => {});
+
+    expect(db.inserted.map((row) => row.in_progress)).toEqual([
+      false,
+      true,
+      null,
+    ]);
   });
 
   it("saves typed-in items without looking anything up", async () => {
