@@ -10,11 +10,11 @@ export function TimeSpent({ spent }: { spent: Spent }) {
       {spent.pages > 0 && (
         <div>
           <dt className="sr-only">Pages read</dt>
-          <dd className="flex items-baseline gap-2">
+          <dd className="flex items-start gap-2">
             <span className="stat-figure text-3xl">
               {formatCount(spent.pages)}
             </span>
-            <span className="text-sm text-ink-soft">
+            <span className="mt-0.5 text-sm leading-none text-ink-soft">
               pages{" "}
               <span className="text-ink-faint">
                 from {formatPlural(spent.booksWithPages, "book")}
@@ -26,17 +26,20 @@ export function TimeSpent({ spent }: { spent: Spent }) {
       {hours > 0 && (
         <div>
           <dt className="sr-only">Hours watched</dt>
-          <dd className="flex items-baseline gap-2">
+          <dd className="flex items-start gap-2">
             <span className="stat-figure text-3xl">{formatCount(hours)}</span>
-            <span className="text-sm text-ink-soft">
+            <span className="mt-0.5 text-sm leading-none text-ink-soft">
               {hours === 1 ? "hour" : "hours"} watched{" "}
               <span className="text-ink-faint">
                 from{" "}
-                {formatPlural(
-                  spent.screensWithRuntime,
-                  "movie or season",
-                  "movies and seasons",
-                )}
+                {[
+                  spent.moviesWithRuntime > 0 &&
+                    formatPlural(spent.moviesWithRuntime, "movie"),
+                  spent.showsWithRuntime > 0 &&
+                    formatPlural(spent.showsWithRuntime, "TV season"),
+                ]
+                  .filter(Boolean)
+                  .join(" and ")}
               </span>
             </span>
           </dd>

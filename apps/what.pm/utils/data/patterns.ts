@@ -277,8 +277,8 @@ export interface TimeSpent {
   booksWithPages: number;
   books: number;
   minutes: number;
-  screensWithRuntime: number;
-  screens: number;
+  moviesWithRuntime: number;
+  showsWithRuntime: number;
 }
 
 export function timeSpent(items: TypedItem[]): TimeSpent {
@@ -291,7 +291,7 @@ export function timeSpent(items: TypedItem[]): TimeSpent {
     booksWithPages: paged.length,
     books: books.length,
     minutes: timed.reduce((sum, item) => sum + (item.runtime_minutes ?? 0), 0),
-    screensWithRuntime: timed.length,
-    screens: screens.length,
+    moviesWithRuntime: timed.filter((item) => item.itemtype === "Movie").length,
+    showsWithRuntime: timed.filter((item) => item.itemtype === "Show").length,
   };
 }
