@@ -19,15 +19,17 @@ const NOUN: Record<string, string> = {
   Show: "show",
 };
 
+interface EditItemDialogProps {
+  item: Item;
+  className?: string;
+  onSaved?: () => void;
+}
+
 export default function EditItemDialog({
   item,
   className = "",
   onSaved,
-}: {
-  item: Item;
-  className?: string;
-  onSaved?: () => void;
-}) {
+}: EditItemDialogProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
