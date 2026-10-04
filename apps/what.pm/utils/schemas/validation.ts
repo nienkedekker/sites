@@ -98,10 +98,21 @@ export const signInSchema = z.object({
   password: passwordSchema,
 });
 
+export const changePasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirm: z.string(),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords don't match",
+    path: ["confirm"],
+  });
+
 export type BookItemInput = z.infer<typeof bookItemSchema>;
 export type MovieItemInput = z.infer<typeof movieItemSchema>;
 export type ShowItemInput = z.infer<typeof showItemSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
 export function extractFormData<T>(
   formData: FormData,

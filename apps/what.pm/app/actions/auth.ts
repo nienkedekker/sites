@@ -1,7 +1,11 @@
 "use server";
 
 import { createClientForServer } from "@/utils/supabase/server";
-import { signInSchema, extractFormData } from "@/utils/schemas/validation";
+import {
+  changePasswordSchema,
+  signInSchema,
+  extractFormData,
+} from "@/utils/schemas/validation";
 
 type SignInResult =
   | { ok: true; access_token: string | null; refresh_token: string | null }
@@ -29,6 +33,33 @@ export async function signInActionReturnSession(
     access_token: data.session?.access_token ?? null,
     refresh_token: data.session?.refresh_token ?? null,
   };
+}
+
+export async function changePasswordAction(
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const validation = extractFormData(formData, changePasswordSchema);
+  if (!validation.success) {
+    return { ok: false, error: validation.errors.join(", ") };
+  }
+
+  const supabase = await createClientForServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { ok: false, error: "You're not signed in" };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: validation.data.password,
+  });
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
 }
 
 export async function signOutAction(): Promise<void> {

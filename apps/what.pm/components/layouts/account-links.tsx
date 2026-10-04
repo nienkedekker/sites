@@ -13,7 +13,7 @@ export function AccountLinks() {
     <>
       <li>
         <Link href="/export" className="link hover:text-ink">
-          Export
+          Settings
         </Link>
       </li>
       <li>
