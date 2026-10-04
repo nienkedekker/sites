@@ -12,6 +12,11 @@ export function AccountLinks() {
   return isLoggedIn ? (
     <>
       <li>
+        <Link href="/create" className="link hover:text-ink">
+          Create
+        </Link>
+      </li>
+      <li>
         <Link href="/recs" className="link hover:text-ink">
           Recs
         </Link>

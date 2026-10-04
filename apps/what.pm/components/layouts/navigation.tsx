@@ -2,7 +2,6 @@ import Link from "next/link";
 import SiteMark from "@nienke/ui/site-mark";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { NavLinks } from "@/components/layouts/nav-links";
-import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
 function Navigation() {
   return (
@@ -23,10 +22,7 @@ function Navigation() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <NavLinks />
-            <ThemeToggle />
-          </div>
+          <NavLinks />
         </nav>
       </header>
       <YearNavigation />

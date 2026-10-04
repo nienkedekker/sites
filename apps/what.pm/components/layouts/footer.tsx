@@ -1,12 +1,7 @@
 import Link from "next/link";
 import SiteFooter from "@nienke/ui/site-footer";
 import { AccountLinks } from "@/components/layouts/account-links";
-
-const SITE_LINKS = [
-  { href: "/stats", label: "Stats" },
-  { href: "/search", label: "Search" },
-  { href: "/about", label: "About" },
-] as const;
+import { SITE_LINKS } from "@/components/layouts/site-links";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -36,16 +31,14 @@ export default function Footer() {
           label: "Site",
           links: SITE_LINKS,
           extra: (
-            <>
-              <li>
-                <a href="/feed.xml" className="link hover:text-ink">
-                  RSS
-                </a>
-              </li>
-              <AccountLinks />
-            </>
+            <li>
+              <a href="/feed.xml" className="link hover:text-ink">
+                RSS
+              </a>
+            </li>
           ),
         },
+        { label: "Account", links: [], extra: <AccountLinks /> },
         {
           label: "Elsewhere",
           links: [
