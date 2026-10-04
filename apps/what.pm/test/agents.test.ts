@@ -88,7 +88,7 @@ describe("markdownTarget", () => {
       "/search",
       "/create",
       "/sign-in",
-      "/export/download",
+      "/settings/download",
       "/api/v1/summary",
       "/feed.xml",
       "/llms.txt",

@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@nienke/ui"],
+  async redirects() {
+    return [{ source: "/export", destination: "/settings", permanent: true }];
+  },
   async headers() {
     return [
       {

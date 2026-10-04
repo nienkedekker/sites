@@ -22,7 +22,7 @@ export function DataExport({ currentYear }: DataExportProps) {
         params.set("year", year.toString());
       }
 
-      const response = await fetch(`/export/download?${params.toString()}`);
+      const response = await fetch(`/settings/download?${params.toString()}`);
 
       if (!response.ok) {
         const body = await response.json().catch(() => null);

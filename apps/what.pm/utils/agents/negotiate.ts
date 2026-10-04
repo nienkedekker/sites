@@ -10,7 +10,7 @@ const HTML_ONLY = new Set([
   "/stats",
   "/search",
   "/create",
-  "/export",
+  "/settings",
   "/recs",
   "/up-next",
   "/sign-in",
@@ -19,7 +19,7 @@ const SKIP_PREFIXES = [
   "/_next/",
   "/api/",
   "/auth/",
-  "/export/",
+  "/settings/",
   "/genres/",
   "/markdown",
 ];
