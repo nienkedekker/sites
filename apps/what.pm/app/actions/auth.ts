@@ -59,6 +59,17 @@ export async function changePasswordAction(
     return { ok: false, error: error.message };
   }
 
+  const { error: signOutError } = await supabase.auth.signOut({
+    scope: "others",
+  });
+
+  if (signOutError) {
+    return {
+      ok: false,
+      error: "Password changed, but other devices couldn't be signed out",
+    };
+  }
+
   return { ok: true };
 }
 

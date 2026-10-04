@@ -22,5 +22,9 @@ describe("getSafeRedirectUrl", () => {
     expect(getSafeRedirectUrl("/\n/evil.example")).toBe("/");
     expect(getSafeRedirectUrl("@evil.example")).toBe("/");
     expect(getSafeRedirectUrl(".evil.example")).toBe("/");
+    expect(getSafeRedirectUrl("/.//evil.example")).toBe("/");
+    expect(getSafeRedirectUrl("/./\\evil.example")).toBe("/");
+    expect(getSafeRedirectUrl("/a/..//evil.example")).toBe("/");
+    expect(getSafeRedirectUrl("/%2e//evil.example")).toBe("/");
   });
 });

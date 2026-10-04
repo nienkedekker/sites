@@ -68,7 +68,7 @@ export function ChangePasswordForm() {
         )}
         {changed && (
           <FormMessage className="text-ink" role="status">
-            Password changed.
+            Password changed. Other devices are signed out.
           </FormMessage>
         )}
 
