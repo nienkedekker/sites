@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { unstable_rethrow } from "next/navigation";
 import { deleteItemAction } from "@/app/actions/items";
 import {
@@ -63,13 +64,11 @@ export default function DeleteItemDialog({
             {error}
           </p>
         )}
-        <DialogFooter>
-          <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            Cancel
-          </Button>
-          <form action={handleSubmit}>
-            <input type="hidden" name="id" value={itemId} />
-            <input type="hidden" name="belongsToYear" value={belongsToYear} />
+        <form action={handleSubmit}>
+          <input type="hidden" name="id" value={itemId} />
+          <input type="hidden" name="belongsToYear" value={belongsToYear} />
+          <DialogFooter>
+            <CancelButton onClick={() => handleOpenChange(false)} />
             <SubmitButton
               variant="destructive"
               pendingText="Deleting..."
@@ -77,9 +76,23 @@ export default function DeleteItemDialog({
             >
               Confirm
             </SubmitButton>
-          </form>
-        </DialogFooter>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CancelButton({ onClick }: { onClick: () => void }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={onClick}
+      disabled={pending}
+    >
+      Cancel
+    </Button>
   );
 }

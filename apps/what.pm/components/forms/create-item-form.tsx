@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { unstable_rethrow } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,6 @@ import { SubmitButton } from "./submit-button";
 import { TitleAutocomplete } from "./title-autocomplete";
 
 import { createItemAction } from "@/app/actions/items";
-import { getSeasonYears } from "@/app/actions/external-search";
 import type { ExternalResult, SeasonYears } from "@/types/external-api";
 import {
   bookItemSchema,
@@ -38,6 +37,17 @@ import { toNumber, formatNumberInputValue } from "@/utils/form";
 
 type AnyCreateInput = BookItemInput | MovieItemInput | ShowItemInput;
 
+async function fetchSeasonYears(showId: string): Promise<SeasonYears> {
+  try {
+    const res = await fetch(
+      `/api/seasons?${new URLSearchParams({ id: showId })}`,
+    );
+    return res.ok ? await res.json() : {};
+  } catch {
+    return {};
+  }
+}
+
 function FormComponent({ activeTab }: { activeTab: TabValue }) {
   const { schema, defaults } = useMemo(
     () => getSchemaAndDefaults(activeTab),
@@ -49,6 +59,9 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
     defaultValues: defaults,
     mode: "onBlur",
   });
+  // A transition rather than RHF's isSubmitting, which ends when the action
+  // redirects but before the next page shows, so the button would re-enable
+  const [isSaving, startSaving] = useTransition();
 
   const [seasonYears, setSeasonYears] = useState<{
     title: string;
@@ -78,7 +91,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
       form.setValue("director", result.creator, options);
     }
     if (activeTab === TAB_VALUES.SHOW) {
-      const years = await getSeasonYears(result.id).catch(() => ({}));
+      const years = await fetchSeasonYears(result.id);
       setSeasonYears({ title: result.title, years });
     }
   };
@@ -86,7 +99,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
   const formErrors = Object.values(form.formState.errors);
   const hasErrors = formErrors.length > 0;
 
-  const onSubmit = async (data: AnyCreateInput) => {
+  const onSubmit = (data: AnyCreateInput) => {
     const fd = new FormData();
     fd.append("itemtype", data.itemtype);
     fd.append("title", data.title);
@@ -105,16 +118,18 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
       fd.append("season", String(data.season));
     if ("inProgress" in data && data.inProgress) fd.append("inProgress", "on");
 
-    try {
-      const { error } = await createItemAction(fd);
-      form.setError("root", { message: error });
-    } catch (error) {
-      unstable_rethrow(error);
-      form.setError("root", {
-        message:
-          "Couldn’t reach the server. Check your connection and try again.",
-      });
-    }
+    startSaving(async () => {
+      try {
+        const { error } = await createItemAction(fd);
+        form.setError("root", { message: error });
+      } catch (error) {
+        unstable_rethrow(error);
+        form.setError("root", {
+          message:
+            "Couldn’t reach the server. Check your connection and try again.",
+        });
+      }
+    });
   };
 
   return (
@@ -291,7 +306,7 @@ function FormComponent({ activeTab }: { activeTab: TabValue }) {
             </p>
           )}
           <SubmitButton
-            isSubmitting={form.formState.isSubmitting}
+            isSubmitting={isSaving || form.formState.isSubmitting}
             className="w-full"
           >
             {activeTab === TAB_VALUES.BOOK

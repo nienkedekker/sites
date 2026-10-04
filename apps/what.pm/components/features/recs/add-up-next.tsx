@@ -86,6 +86,7 @@ export function AddUpNext() {
           Title
         </label>
         <TitleAutocomplete
+          key={itemType}
           id={inputId}
           itemType={itemType}
           value={title}

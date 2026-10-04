@@ -1,6 +1,5 @@
-"use server";
-
-import { createClientForServer } from "@/utils/supabase/server";
+import "server-only";
+import { unstable_cache } from "next/cache";
 import { ITEM_TYPES } from "@/utils/constants/app";
 import type { ValidItemType } from "@/types/shared";
 import type { ExternalResult, SeasonYears } from "@/types/external-api";
@@ -12,12 +11,7 @@ import {
 } from "@/utils/server/external-api";
 
 const LIMIT = 6;
-
-async function isSignedIn() {
-  const supabase = await createClientForServer();
-  const { data } = await supabase.auth.getUser();
-  return Boolean(data.user);
-}
+const WEEK = 7 * 24 * 60 * 60;
 
 async function searchBooks(query: string): Promise<ExternalResult[]> {
   const url = new URL("https://openlibrary.org/search.json");
@@ -42,15 +36,19 @@ async function searchBooks(query: string): Promise<ExternalResult[]> {
   }));
 }
 
-async function directorsOf(id: number) {
-  const data = await getJson<{ crew: { job: string; name: string }[] }>(
-    tmdbUrl(`/movie/${id}/credits`),
-  );
-  const names = data.crew
-    .filter((person) => person.job === "Director")
-    .map((person) => person.name);
-  return names.length > 0 ? names.join(", ") : null;
-}
+const directorsOf = unstable_cache(
+  async (id: number) => {
+    const data = await getJson<{ crew: { job: string; name: string }[] }>(
+      tmdbUrl(`/movie/${id}/credits`),
+    );
+    const names = data.crew
+      .filter((person) => person.job === "Director")
+      .map((person) => person.name);
+    return names.length > 0 ? names.join(", ") : null;
+  },
+  ["titles", "directors"],
+  { revalidate: WEEK },
+);
 
 type Movie = { id: number; title: string; release_date?: string };
 
@@ -115,13 +113,13 @@ async function searchShows(query: string): Promise<ExternalResult[]> {
   }));
 }
 
+/** Matches for the title field; `null` when the source couldn't be reached. */
 export async function searchTitles(
   type: ValidItemType,
   query: string,
 ): Promise<ExternalResult[] | null> {
   const trimmed = query.trim();
   if (trimmed.length < 2 || trimmed.length > 200) return [];
-  if (!(await isSignedIn())) return [];
   if (type !== ITEM_TYPES.BOOK && !process.env.TMDB_API_KEY) return [];
 
   try {
@@ -136,7 +134,6 @@ export async function searchTitles(
 
 export async function getSeasonYears(showId: string): Promise<SeasonYears> {
   if (!/^\d+$/.test(showId) || !process.env.TMDB_API_KEY) return {};
-  if (!(await isSignedIn())) return {};
 
   try {
     const data = await getJson<{

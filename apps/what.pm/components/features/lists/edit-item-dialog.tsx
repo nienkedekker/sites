@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -31,12 +30,10 @@ export default function EditItemDialog({
   onSaved,
 }: EditItemDialogProps) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   const handleSaved = () => {
     setOpen(false);
-    if (onSaved) onSaved();
-    else router.refresh();
+    onSaved?.();
   };
 
   return (

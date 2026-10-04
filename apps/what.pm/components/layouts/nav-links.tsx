@@ -13,10 +13,14 @@ export function NavLinks() {
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();
   const [open, setOpen] = useState(false);
+  const [menuPathname, setMenuPathname] = useState(pathname);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const links = isLoggedIn ? SIGNED_IN_LINKS : SITE_LINKS;
 
-  useEffect(() => setOpen(false), [pathname]);
+  if (pathname !== menuPathname) {
+    setMenuPathname(pathname);
+    setOpen(false);
+  }
 
   useEffect(() => {
     if (!open) return;

@@ -1,7 +1,7 @@
 "use client";
 
-import { CSSProperties } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { CSSProperties, useTransition } from "react";
+import { unstable_rethrow, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -18,8 +18,8 @@ import {
 import { formStyles } from "@/utils/styles";
 
 import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
-import { signInActionReturnSession } from "@/app/actions/auth";
-import { supabaseBrowser } from "@/utils/supabase/browser";
+import { signInAction } from "@/app/actions/auth";
+import { useAuth } from "@/providers/auth-provider";
 import { getSafeRedirectUrl } from "@/utils/auth/safe-redirect";
 
 function getQueryMessage(
@@ -43,6 +43,8 @@ function getQueryMessage(
 export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { syncSession } = useAuth();
+  const [isNavigating, startNavigation] = useTransition();
 
   const form = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
@@ -54,24 +56,24 @@ export function SignInForm() {
     formData.append("email", data.email);
     formData.append("password", data.password);
 
-    const res = await signInActionReturnSession(formData);
-
-    if (!res.ok) {
-      form.setError("root", { message: res.error ?? "Sign-in failed" });
+    try {
+      const res = await signInAction(formData);
+      if (!res.ok) {
+        form.setError("root", { message: res.error });
+        return;
+      }
+      await syncSession();
+    } catch (error) {
+      unstable_rethrow(error);
+      form.setError("root", {
+        message:
+          "Couldn’t reach the server. Check your connection and try again.",
+      });
       return;
     }
 
-    if (res.access_token && res.refresh_token) {
-      await supabaseBrowser.auth.setSession({
-        access_token: res.access_token,
-        refresh_token: res.refresh_token,
-      });
-    }
-
     const redirectTo = getSafeRedirectUrl(searchParams.get("redirect"));
-
-    router.refresh();
-    router.push(redirectTo);
+    startNavigation(() => router.push(redirectTo));
   };
 
   const queryMessage = getQueryMessage(searchParams);
@@ -136,7 +138,7 @@ export function SignInForm() {
 
         <SubmitButton
           pendingText="Signing In..."
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || isNavigating}
           className="w-full"
         >
           Sign in

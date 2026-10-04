@@ -1,17 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const auth = vi.hoisted(() => ({
-  user: { id: "me" } as { id: string } | null,
-}));
-
-vi.mock("@/utils/supabase/server", () => ({
-  createClientForServer: async () => ({
-    auth: { getUser: async () => ({ data: { user: auth.user } }) },
-  }),
+vi.mock("next/cache", () => ({
+  unstable_cache: <T>(lookup: T) => lookup,
 }));
 
 const { searchTitles, getSeasonYears } =
-  await import("@/app/actions/external-search");
+  await import("@/utils/server/title-search");
 
 type Route = (url: URL, init?: RequestInit) => unknown;
 
@@ -34,7 +28,6 @@ const credits = (...directors: string[]) => ({
 });
 
 beforeEach(() => {
-  auth.user = { id: "me" };
   vi.stubEnv("TMDB_API_KEY", "test-key");
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -46,14 +39,6 @@ afterEach(() => {
 });
 
 describe("searchTitles", () => {
-  it("does nothing when signed out", async () => {
-    auth.user = null;
-    const fetchMock = serve({});
-
-    expect(await searchTitles("Book", "dune")).toEqual([]);
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
   it("waits for at least two characters", async () => {
     const fetchMock = serve({});
 

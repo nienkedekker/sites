@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { unstable_rethrow } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CardHead from "@nienke/ui/card-head";
 
@@ -38,10 +39,18 @@ export function ChangePasswordForm() {
     formData.append("password", data.password);
     formData.append("confirm", data.confirm);
 
-    const res = await changePasswordAction(formData);
-
-    if (!res.ok) {
-      form.setError("root", { message: res.error });
+    try {
+      const res = await changePasswordAction(formData);
+      if (!res.ok) {
+        form.setError("root", { message: res.error });
+        return;
+      }
+    } catch (error) {
+      unstable_rethrow(error);
+      form.setError("root", {
+        message:
+          "Couldn’t reach the server. Check your connection and try again.",
+      });
       return;
     }
 

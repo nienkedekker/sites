@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { unstable_rethrow } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { updateItemAction } from "@/app/actions/items";
@@ -70,9 +71,18 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
       fd.append("season", String(data.season));
     if ("inProgress" in data && data.inProgress) fd.append("inProgress", "on");
 
-    const { error } = await updateItemAction(fd);
-    if (error) {
-      form.setError("root", { message: error });
+    try {
+      const { error } = await updateItemAction(fd);
+      if (error) {
+        form.setError("root", { message: error });
+        return;
+      }
+    } catch (error) {
+      unstable_rethrow(error);
+      form.setError("root", {
+        message:
+          "Couldn’t reach the server. Check your connection and try again.",
+      });
       return;
     }
     onSaved();

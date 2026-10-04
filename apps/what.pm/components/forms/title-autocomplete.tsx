@@ -11,11 +11,24 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Input } from "@/components/ui/input";
-import { searchTitles } from "@/app/actions/external-search";
 import type { ValidItemType } from "@/types/shared";
 import type { ExternalResult } from "@/types/external-api";
 
 const SOURCE = { Book: "OpenLibrary", Movie: "TMDB", Show: "TMDB" } as const;
+
+async function fetchTitles(
+  type: ValidItemType,
+  query: string,
+  signal: AbortSignal,
+): Promise<ExternalResult[] | null> {
+  try {
+    const params = new URLSearchParams({ type, q: query });
+    const res = await fetch(`/api/titles?${params}`, { signal });
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null;
+  }
+}
 
 interface TitleAutocompleteProps extends Omit<
   ComponentProps<"input">,
@@ -35,7 +48,7 @@ export function TitleAutocomplete({
   ...props
 }: TitleAutocompleteProps) {
   const listId = useId();
-  const latest = useRef(0);
+  const focused = useRef(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ExternalResult[]>([]);
   const [open, setOpen] = useState(false);
@@ -43,30 +56,32 @@ export function TitleAutocomplete({
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    const request = ++latest.current;
-
-    if (query.trim().length < 2) {
+    const trimmed = query.trim();
+    if (trimmed.length < 2 || trimmed.length > 200) {
       setResults([]);
       setFailed(false);
       return;
     }
 
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
-      const found = await searchTitles(itemType, query).catch(() => null);
-      if (request !== latest.current) return;
+      const found = await fetchTitles(itemType, trimmed, controller.signal);
+      if (controller.signal.aborted) return;
       setFailed(found === null);
       setResults(found ?? []);
       setActive(-1);
-      setOpen(true);
+      if (focused.current) setOpen(true);
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query, itemType]);
 
   const showList = open && results.length > 0;
 
   function choose(result: ExternalResult) {
-    latest.current++;
     setOpen(false);
     setResults([]);
     setQuery("");
@@ -79,6 +94,7 @@ export function TitleAutocomplete({
   }
 
   function handleBlur(event: FocusEvent<HTMLInputElement>) {
+    focused.current = false;
     setOpen(false);
     onBlur?.(event);
   }
@@ -108,7 +124,10 @@ export function TitleAutocomplete({
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          focused.current = true;
+          setOpen(true);
+        }}
         onKeyDown={handleKeyDown}
         role="combobox"
         autoComplete="off"

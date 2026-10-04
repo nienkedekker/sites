@@ -1,6 +1,5 @@
 "use client";
 
-import { searchItems, type SearchState } from "@/app/actions/search";
 import { SearchResultsSkeleton } from "@/components/features/skeletons/search-skeleton";
 import {
   SearchInput,
@@ -11,12 +10,29 @@ import { SearchResults } from "@/components/features/search/search-results";
 import { YearStrip } from "@/components/features/search/year-strip";
 import { Button } from "@/components/ui/button";
 import type { SearchContext } from "@/utils/data/search-context";
+import type { Item } from "@/types";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 const MIN_QUERY_LENGTH = 2;
 const DEBOUNCE_MS = 250;
 
+type SearchState = {
+  query: string;
+  results: Item[];
+  initial: boolean;
+};
+
 const INITIAL_STATE: SearchState = { query: "", results: [], initial: true };
+
+async function fetchResults(query: string, signal: AbortSignal) {
+  const res = await fetch(`/api/search?${new URLSearchParams({ q: query })}`, {
+    signal,
+  });
+  if (res.status === 400) return [];
+  if (!res.ok) throw new Error(`Search responded ${res.status}`);
+  const data: { results: Item[] } = await res.json();
+  return data.results;
+}
 
 export default function SearchForm({
   suggestions,
@@ -30,29 +46,37 @@ export default function SearchForm({
   const [filterType, setFilterType] = useState("all");
   const [isSearching, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
-  const latestRequest = useRef(0);
+  const lastSearch = useRef<string | null>(null);
+  const inFlight = useRef<AbortController | null>(null);
 
-  const runSearch = (rawQuery: string) => {
+  // Submitting or picking a suggestion searches right away, and the debounce
+  // then sees the same query, so `force` is only for searching again on purpose
+  const runSearch = (rawQuery: string, force = false) => {
     const trimmed = rawQuery.trim();
-    const request = ++latestRequest.current;
+    if (trimmed.length > 0 && trimmed.length < MIN_QUERY_LENGTH) return;
+    if (!force && trimmed === lastSearch.current) return;
+    lastSearch.current = trimmed;
+
+    inFlight.current?.abort();
+    inFlight.current = null;
 
     if (trimmed.length === 0) {
       setSearchState(INITIAL_STATE);
       setFailed(false);
       return;
     }
-    if (trimmed.length < MIN_QUERY_LENGTH) return;
+
+    const controller = new AbortController();
+    inFlight.current = controller;
 
     startTransition(async () => {
-      const formData = new FormData();
-      formData.append("query", trimmed);
       try {
-        const result = await searchItems(formData);
-        if (request !== latestRequest.current) return;
-        setSearchState(result);
+        const results = await fetchResults(trimmed, controller.signal);
+        if (controller.signal.aborted) return;
+        setSearchState({ query: trimmed, results, initial: false });
         setFailed(false);
       } catch {
-        if (request !== latestRequest.current) return;
+        if (controller.signal.aborted) return;
         setSearchState({ query: trimmed, results: [], initial: false });
         setFailed(true);
       }
@@ -207,7 +231,7 @@ export default function SearchForm({
           </p>
           <Button
             type="button"
-            onClick={() => runSearch(searchState.query)}
+            onClick={() => runSearch(searchState.query, true)}
             variant="outline"
             size="sm"
             className="mt-6"
@@ -223,7 +247,7 @@ export default function SearchForm({
           query={searchState.query}
           filterType={filterType}
           onClearFilter={() => setFilterType("all")}
-          onItemSaved={() => runSearch(searchState.query)}
+          onItemSaved={() => runSearch(searchState.query, true)}
         />
       )}
 
