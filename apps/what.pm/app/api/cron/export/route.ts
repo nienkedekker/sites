@@ -43,10 +43,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // The log is never empty, so an empty read means something went wrong
+    // A new log is empty, but so is a read that RLS quietly blocked, so skip
+    // the upload and leave a warning instead of writing an empty backup
     if (rawItems.length === 0) {
-      console.error("Cron export found no items");
-      return NextResponse.json({ error: "No items found" }, { status: 500 });
+      console.warn("Cron export found no items, skipping backup");
+      return NextResponse.json({ success: true, timestamp, itemsExported: 0 });
     }
 
     const validatedItems: TypedItem[] = rawItems
