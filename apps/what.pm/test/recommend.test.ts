@@ -8,6 +8,7 @@ import {
   knownCreators,
   knownNames,
   logIndex,
+  loggedPicks,
   pickSeeds,
   promptItems,
   seedWeights,
@@ -364,5 +365,65 @@ describe("keepNew", () => {
     expect(
       keepNew(looked, index, known, 2).map((kept) => kept.suggestion.title),
     ).toEqual(["First", "Second"]);
+  });
+});
+
+describe("loggedPicks", () => {
+  const saved = (overrides: Record<string, unknown> = {}) => ({
+    itemtype: "Book",
+    external_id: "/works/OL1W",
+    title: "Picked",
+    creator: "New Author",
+    reason: "Because.",
+    created_at: "2026-09-01T12:00:00Z",
+    ...overrides,
+  });
+
+  it("pairs Claude's saved picks with their first log entry, newest first", () => {
+    const first = book({
+      external_id: "/works/OL1W",
+      title: "Picked",
+      created_at: "2026-09-11T09:00:00Z",
+    });
+    const reread = book({
+      external_id: "/works/OL1W",
+      title: "Picked",
+      redo: true,
+      created_at: "2026-10-01T09:00:00Z",
+    });
+    const later = movie({
+      external_id: "8",
+      title: "Watched",
+      created_at: "2026-09-20T09:00:00Z",
+    });
+    const made = loggedPicks(
+      [
+        saved(),
+        saved({ itemtype: "Movie", external_id: "8", title: "Watched" }),
+        saved({ external_id: "/works/OL2W", title: "Not yet" }),
+      ],
+      [reread, later, first],
+    );
+    expect(made.map(({ item, days }) => [item.id, days])).toEqual([
+      [later.id, 19],
+      [first.id, 10],
+    ]);
+  });
+
+  it("matches by title and author across ids", () => {
+    const item = book({
+      external_id: "abcGoogleId",
+      title: "Picked: A Novel",
+      author: "New Author",
+      created_at: "2026-09-01T18:00:00Z",
+    });
+    expect(loggedPicks([saved()], [item])).toEqual([
+      { pick: saved(), item, days: 0 },
+    ]);
+  });
+
+  it("leaves out what I added myself", () => {
+    const item = book({ external_id: "/works/OL1W", title: "Picked" });
+    expect(loggedPicks([saved({ reason: null })], [item])).toEqual([]);
   });
 });

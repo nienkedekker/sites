@@ -26,7 +26,8 @@ export interface Dismissal {
 }
 
 const HALF_LIFE_YEARS = 2;
-const YEAR = 365.25 * 86_400_000;
+const DAY = 86_400_000;
+const YEAR = 365.25 * DAY;
 const SEED_COUNT = 60;
 export const PICK_COUNT = 12;
 // More than are shown, since some won't be found or turn out to be known
@@ -225,7 +226,9 @@ export function logIndex(
 }
 
 export function isLogged(
-  candidate: Pick<Found, "itemtype" | "external_id" | "title" | "creator">,
+  candidate: Pick<Found, "external_id" | "title" | "creator"> & {
+    itemtype: string;
+  },
   index: LogIndex,
 ) {
   if (index.ids.has(`${candidate.itemtype}|${candidate.external_id}`)) {
@@ -238,6 +241,46 @@ export function isLogged(
   return splitNames(candidate.creator).some((name) =>
     creators.has(nameKey(name)),
   );
+}
+
+type SavedPick = Parameters<typeof isLogged>[0] & {
+  reason: string | null;
+  created_at: string;
+};
+
+export interface LoggedPick<T extends SavedPick> {
+  pick: T;
+  item: TypedItem;
+  days: number;
+}
+
+// Claude's picks that I saved and then logged, each with the first entry it
+// became, newest first. Picks I added myself have no reason, so they're left out.
+export function loggedPicks<T extends SavedPick>(
+  wanted: T[],
+  items: TypedItem[],
+): LoggedPick<T>[] {
+  const entries = [...items]
+    .filter((item) => item.created_at)
+    .sort((a, b) => a.created_at!.localeCompare(b.created_at!))
+    .map((item) => ({ item, index: logIndex([item]) }));
+
+  return wanted
+    .flatMap((pick) => {
+      if (!pick.reason) return [];
+      const entry = entries.find(({ index }) => isLogged(pick, index));
+      if (!entry) return [];
+      const waited =
+        Date.parse(entry.item.created_at!) - Date.parse(pick.created_at);
+      return [
+        {
+          pick,
+          item: entry.item,
+          days: Math.max(0, Math.round(waited / DAY)),
+        },
+      ];
+    })
+    .sort((a, b) => b.item.created_at!.localeCompare(a.item.created_at!));
 }
 
 export function knownNames(items: TypedItem[]): string[] {

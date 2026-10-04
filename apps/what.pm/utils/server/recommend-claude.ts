@@ -6,7 +6,9 @@ import { HIDDEN_PEOPLE } from "@/utils/constants/app";
 import {
   creatorOf,
   favouriteCreators,
+  isLogged,
   knownNames,
+  logIndex,
   pickSeeds,
   promptItems,
   seedWeights,
@@ -27,21 +29,22 @@ const SuggestionsSchema = z.object({
   ),
 });
 
-const SYSTEM = `You recommend books, movies and TV shows to Nienke, from her own log.
+const SYSTEM = `You recommend books, movies and TV shows to me, from my own log.
 
-Everything in the log was finished and liked: she drops what she doesn't like, so there are no ratings and every entry counts as a yes. "reread" marks something she went back to, which is the strongest signal there is. Newer entries say more about her taste now than old ones. The log covers the last three years in full; before that it only has rereads and the entries that weigh most, and a line with the authors and directors she has logged most over the years.
+Everything in the log was finished and liked: I drop what I don't like, so there are no ratings and every entry counts as a yes. "reread" marks something I went back to, which is the strongest signal there is. Newer entries say more about my taste now than old ones. The log covers the last three years in full; before that it only has rereads and the entries that weigh most, and a line with the authors and directors I've logged most over the years.
 
 Suggest ${SUGGESTION_COUNT}, best first:
 - About a third each of books, movies and TV shows.
-- Only by people she hasn't logged anything by: <known_people> lists everyone she has. Nothing adapted from a book by one of them either. The point is discovering authors, directors and showrunners new to her.
-- Nothing in her log, nothing she dismissed, and nothing much like what she dismissed as not for her.
-- Nothing on her want list either. She picked those out of earlier suggestions to read or watch next, so they say a lot about what she's after now.
+- Only by people I haven't logged anything by: <known_people> lists everyone I have. Nothing adapted from a book by one of them either. The point is discovering authors, directors and showrunners new to me.
+- Nothing in my log, nothing I dismissed, and nothing much like what I dismissed as not for me.
+- Nothing on my want list either. I picked those out of earlier suggestions to read or watch next, so they say a lot about what I'm after now.
+- <picks_logged> lists earlier suggestions I saved and then went on to read or watch. They're in the log too, but they show best what kind of pick works for me.
 - Real, released works you're sure about, each a single work rather than a box set or collection. For a series, suggest where to start.
 - Give the title as published in English, the author for a book, the director for a movie, the creator for a show, and the year it first came out. Each suggestion is looked up on OpenLibrary or TMDB, and anything that can't be found is dropped.
-- Prefer links across media, like a book she'd love behind a show she watched.
+- Prefer links across media, like a book I'd love behind a show I watched.
 - Anime and manga count like anything else.
 
-For each, write one plain sentence, in English, that says why, naming the logged titles behind it. No hype. In "because", list those logged titles exactly as they appear in the log.`;
+For each, write one plain sentence, in English and addressed to me as "you", that says why, naming the logged titles behind it. No hype. In "because", list those logged titles exactly as they appear in the log.`;
 
 const logLine = (item: TypedItem) =>
   [
@@ -59,9 +62,20 @@ const logLine = (item: TypedItem) =>
 export async function suggestWithClaude(
   items: TypedItem[],
   dismissed: { title: string; kind: string }[],
-  wanted: { itemtype: string; title: string; creator: string | null }[],
+  wanted: {
+    itemtype: string;
+    external_id: string;
+    title: string;
+    creator: string | null;
+    reason: string | null;
+  }[],
 ): Promise<Suggestion[] | null> {
   if (!process.env.ANTHROPIC_API_KEY) return null;
+  const logged = logIndex(items);
+  const open = wanted.filter((w) => !isLogged(w, logged));
+  const picksLogged = wanted.filter((w) => w.reason && isLogged(w, logged));
+  const wantLine = (w: (typeof wanted)[number]) =>
+    [w.itemtype, w.title, w.creator].filter(Boolean).join(" · ");
   const log = promptItems(items, pickSeeds(items, seedWeights(items)));
   const authors = favouriteCreators(items, "Book", HIDDEN_PEOPLE);
   const directors = favouriteCreators(items, "Movie", HIDDEN_PEOPLE);
@@ -69,11 +83,14 @@ export async function suggestWithClaude(
     `<log>\n${log.map(logLine).join("\n")}\n</log>`,
     `<most_logged>\nAuthors: ${authors.join(", ")}\nDirectors: ${directors.join(", ")}\n</most_logged>`,
     `<known_people>\n${knownNames(items).join(", ")}\n</known_people>`,
-    wanted.length > 0
-      ? `<want_list>\n${wanted.map((w) => [w.itemtype, w.title, w.creator].filter(Boolean).join(" · ")).join("\n")}\n</want_list>`
+    open.length > 0
+      ? `<want_list>\n${open.map(wantLine).join("\n")}\n</want_list>`
+      : "",
+    picksLogged.length > 0
+      ? `<picks_logged>\n${picksLogged.map(wantLine).join("\n")}\n</picks_logged>`
       : "",
     dismissed.length > 0
-      ? `<dismissed>\n${dismissed.map((d) => `${d.title} (${d.kind === "seen" ? "already seen" : "not for her"})`).join("\n")}\n</dismissed>`
+      ? `<dismissed>\n${dismissed.map((d) => `${d.title} (${d.kind === "seen" ? "already seen" : "not for me"})`).join("\n")}\n</dismissed>`
       : "",
   ]
     .filter(Boolean)

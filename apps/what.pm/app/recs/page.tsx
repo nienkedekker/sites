@@ -9,13 +9,19 @@ import {
   EntryTitle,
   TypeColumns,
 } from "@/components/features/recs/entries";
+import { MadeIt } from "@/components/features/recs/made-it";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { RefreshPicks } from "@/components/features/recs/refresh-picks";
 import {
   dismissRecommendation,
   wantRecommendation,
 } from "@/app/actions/recommendations";
-import { isLogged, logIndex } from "@/utils/data/recommend";
+import {
+  isLogged,
+  loggedPicks,
+  logIndex,
+  type LoggedPick,
+} from "@/utils/data/recommend";
 import { loadLog } from "@/utils/server/recommend-log";
 import { createClientForServer } from "@/utils/supabase/server";
 import type { Tables } from "@/types";
@@ -86,6 +92,8 @@ function RecEntry({ rec }: { rec: Rec }) {
 export default async function RecsPage() {
   let recs: Rec[];
   let upNextCount: number;
+  let madeIt: LoggedPick<Tables<"wanted">>[];
+  let saved: number;
   try {
     const supabase = await createClientForServer();
     const [{ data, error }, log] = await Promise.all([
@@ -100,6 +108,8 @@ export default async function RecsPage() {
     recs = (data as Rec[]).filter((rec) => !isLogged(rec, index));
     const logged = logIndex(log.items);
     upNextCount = log.wanted.filter((item) => !isLogged(item, logged)).length;
+    madeIt = loggedPicks(log.wanted, log.items);
+    saved = log.wanted.filter((item) => item.reason).length;
   } catch (error) {
     console.error("Error loading recommendations:", error);
     return <DataLoadingError error={error as Error} />;
@@ -147,6 +157,8 @@ export default async function RecsPage() {
             : "Nothing picked yet."}
         </p>
       )}
+
+      {madeIt.length > 0 && <MadeIt picks={madeIt} saved={saved} />}
     </>
   );
 }
