@@ -8,6 +8,7 @@ import { useAuth } from "@/providers/auth-provider";
 const NAV_LINKS = [
   { href: "/stats", label: "Stats" },
   { href: "/search", label: "Search" },
+  { href: "/up-next", label: "Up next" },
   { href: "/about", label: "About" },
 ] as const;
 

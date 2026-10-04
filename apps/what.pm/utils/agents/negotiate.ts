@@ -12,6 +12,7 @@ const HTML_ONLY = new Set([
   "/create",
   "/export",
   "/recs",
+  "/up-next",
   "/sign-in",
 ]);
 const SKIP_PREFIXES = [

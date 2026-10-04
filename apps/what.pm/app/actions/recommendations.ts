@@ -1,6 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { WANTED_TAG } from "@/utils/constants/app";
+import { getJson, tmdbUrl } from "@/utils/server/external-api";
 import { createClientForServer } from "@/utils/supabase/server";
 import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
 import { loadLog } from "@/utils/server/recommend-log";
@@ -158,6 +160,7 @@ export async function wantRecommendation(
     }
     await supabase.from("recommendations").delete().match(key);
 
+    revalidateTag(WANTED_TAG);
     revalidatePath("/recs");
     return { error: null };
   } catch (error) {
@@ -182,10 +185,61 @@ export async function removeWanted(
       return { error: "Unable to remove that. Please try again." };
     }
 
+    revalidateTag(WANTED_TAG);
     revalidatePath("/recs");
+    revalidatePath("/up-next");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in removeWanted:", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+}
+
+// Title search has no creator for shows
+async function showCreator(id: string) {
+  const show = await getJson<{ created_by?: { name: string }[] }>(
+    tmdbUrl(`/tv/${id}`),
+  );
+  const names = show.created_by?.map(({ name }) => name) ?? [];
+  return names.length > 0 ? names.join(", ") : null;
+}
+
+export async function addUpNext(
+  formData: FormData,
+): Promise<{ error: string | null }> {
+  try {
+    const key = pickKey(formData);
+    const title = formData.get("title")?.toString().trim();
+    if (!key || !title) return { error: "Pick a match from the list first." };
+    const year = Number(formData.get("year"));
+
+    const supabase = await createClientForServer();
+    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
+
+    const creator =
+      formData.get("creator")?.toString() ||
+      (key.itemtype === "Show"
+        ? await showCreator(key.external_id).catch(() => null)
+        : null);
+    const { error } = await supabase.from("wanted").upsert(
+      {
+        ...key,
+        title,
+        creator,
+        published_year: Number.isInteger(year) && year > 0 ? year : null,
+      },
+      { onConflict: "itemtype,external_id" },
+    );
+    if (error) {
+      console.error("Database error adding to up next:", error);
+      return { error: "Unable to add that. Please try again." };
+    }
+
+    revalidateTag(WANTED_TAG);
+    revalidatePath("/up-next");
+    return { error: null };
+  } catch (error) {
+    console.error("Unexpected error in addUpNext:", error);
     return { error: "Something went wrong. Please try again." };
   }
 }
