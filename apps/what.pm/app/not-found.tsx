@@ -16,12 +16,8 @@ export default function NotFound() {
   return (
     <div className="grid gap-y-12 lg:grid-cols-12 lg:gap-x-16">
       <div className="lg:col-span-7">
-        <PageHeader
-          eyebrow="404"
-          intro="Nothing’s logged at this address. Maybe it never was, or it lives under another year."
-          className="mb-10"
-        >
-          Not in the log
+        <PageHeader intro="¯\_(ツ)_/¯" className="mb-10">
+          404
         </PageHeader>
 
         <nav aria-label="Elsewhere on what.pm">
@@ -33,7 +29,7 @@ export default function NotFound() {
             </li>
             <li>
               <TagLink as={Link} href="/search">
-                Search the log
+                Search log
               </TagLink>
             </li>
             <li>
