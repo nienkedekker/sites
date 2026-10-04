@@ -108,9 +108,7 @@ export default async function RecsPage() {
   const batchAt = recs[0]?.batch_at;
   return (
     <>
-      <PageHeader intro="Picked from the log, where everything counts as liked.">
-        Recommendations
-      </PageHeader>
+      <PageHeader intro="Picked from the log.">Recommendations</PageHeader>
 
       <div className="mb-12 font-mono text-xs text-ink-soft">
         {batchAt && (
