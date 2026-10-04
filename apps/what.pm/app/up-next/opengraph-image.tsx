@@ -9,7 +9,6 @@ import {
   SeriesCounts,
   countTypes,
   loadFonts,
-  seriesText,
 } from "@/utils/og";
 
 export const alt = "Books, movies and TV shows I want to get to next";
@@ -22,10 +21,7 @@ const SHOWN = 6;
 export default async function Image() {
   const upNext = await getUpNext();
   const shown = upNext.slice(0, SHOWN);
-  const fonts = await loadFonts(
-    "Up next",
-    `/up-next ${seriesText} TV shows ${shown.map(({ title }) => title).join(" ")}`,
-  );
+  const fonts = await loadFonts();
 
   return new ImageResponse(
     <OgFrame path="/up-next">

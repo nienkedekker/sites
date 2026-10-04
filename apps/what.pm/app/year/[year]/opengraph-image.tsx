@@ -11,7 +11,6 @@ import {
   SeriesBars,
   SeriesCounts,
   loadFonts,
-  seriesText,
 } from "@/utils/og";
 
 export const alt = "Books, movies and TV seasons logged on what.pm";
@@ -44,10 +43,7 @@ export default async function Image({
   );
 
   const path = `/year/${year}`;
-  const fonts = await loadFonts(
-    String(year),
-    `${path} ${MONTHS.join("")} ${seriesText}`,
-  );
+  const fonts = await loadFonts();
 
   return new ImageResponse(
     <OgFrame path={path}>

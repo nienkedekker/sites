@@ -9,7 +9,6 @@ import {
   SeriesCounts,
   countTypes,
   loadFonts,
-  seriesText,
 } from "@/utils/og";
 
 export const alt = "Stats for every year logged on what.pm";
@@ -40,10 +39,7 @@ export default async function Image() {
   const first = perYear[0]?.year ?? "";
   const last = perYear.at(-1)?.year ?? "";
 
-  const fonts = await loadFonts(
-    "Stats",
-    `/stats ${first} ${last} ${seriesText}`,
-  );
+  const fonts = await loadFonts();
 
   return new ImageResponse(
     <OgFrame path="/stats">

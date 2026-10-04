@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import type { ReactNode } from "react";
 import { formatPlural } from "@nienke/ui/format";
 
@@ -22,31 +24,18 @@ export const SERIES = [
 type SeriesKey = (typeof SERIES)[number]["key"];
 export type Counts = Record<SeriesKey, number>;
 
-// Without a browser user agent Google Fonts serves TTF, which satori can read
-async function loadFont(family: string, weight: number, text: string) {
-  const css = await fetch(
-    `https://fonts.googleapis.com/css2?family=${family}:wght@${weight}&text=${encodeURIComponent(text)}`,
-  ).then((res) => res.text());
-  const url = css.match(/src: url\((.+?)\) format/)?.[1];
-  if (!url) throw new Error(`No font file for ${family}`);
-  return fetch(url).then((res) => res.arrayBuffer());
+// Read from disk so the share images never depend on the network at build
+export async function loadFonts() {
+  const [serif, mono] = await Promise.all(
+    ["InstrumentSerif-Regular.ttf", "GeistMono-Regular.ttf"].map((file) =>
+      readFile(join(process.cwd(), "assets/fonts", file)),
+    ),
+  );
+  return [
+    { name: "Serif", data: serif, weight: 400 as const },
+    { name: "Mono", data: mono, weight: 400 as const },
+  ];
 }
-
-// Only the characters in `serif` and `mono` are fetched, so pass every
-// string the image shows
-export function loadFonts(serif: string, mono: string) {
-  return Promise.all([
-    loadFont("Instrument+Serif", 400, `${serif}what.`),
-    loadFont("Geist+Mono", 400, `${mono}what.pm/0123456789,`),
-  ])
-    .then(([serifData, monoData]) => [
-      { name: "Serif", data: serifData, weight: 400 as const },
-      { name: "Mono", data: monoData, weight: 400 as const },
-    ])
-    .catch(() => []);
-}
-
-export const seriesText = SERIES.map(({ noun }) => `${noun}s`).join(" ");
 
 export function OgFrame({
   path,

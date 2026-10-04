@@ -9,7 +9,6 @@ import {
   SeriesCounts,
   countTypes,
   loadFonts,
-  seriesText,
 } from "@/utils/og";
 
 export const revalidate = 3600;
@@ -36,7 +35,7 @@ export async function GET(
   );
   const eyebrow = found.subgenre ? found.genre : "Genre";
   const path = ["/genres", genre, ...(subgenre ?? [])].join("/");
-  const fonts = await loadFonts(name, `${path} ${eyebrow} ${seriesText}`);
+  const fonts = await loadFonts();
 
   return new ImageResponse(
     <OgFrame path={path}>
