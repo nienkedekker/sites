@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import ItemsList from "@/components/features/lists/items-list";
 import { ScrollToHash } from "@/components/features/scroll-to-hash";
+import { YearTransition } from "@/components/features/lists/year-transition";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
 import { getDistinctYears, isLoggedYear, parseYear } from "@/utils/data/items";
 import type { Metadata } from "next";
@@ -33,9 +34,11 @@ export default async function YearPage(props: YearParams) {
   const year = await loadYear(props);
 
   return (
-    <Suspense fallback={<ItemsListSkeleton />}>
-      <ItemsList year={year} />
-      <ScrollToHash />
-    </Suspense>
+    <YearTransition year={year}>
+      <Suspense fallback={<ItemsListSkeleton />}>
+        <ItemsList year={year} />
+        <ScrollToHash />
+      </Suspense>
+    </YearTransition>
   );
 }

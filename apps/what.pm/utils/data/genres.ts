@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import type { TypedItem } from "@/types/shared";
 
 // Stored with the subgenres, but they say where a book is from or who it's
@@ -53,8 +54,10 @@ export const genreSlug = (name: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
+// Typed routes can't express the bare /genres/[genre] form of the optional
+// catch-all, so the path is asserted
 export const genrePath = (genre: string, subgenre?: string) =>
-  `/genres/${genreSlug(genre)}${subgenre ? `/${genreSlug(subgenre)}` : ""}`;
+  `/genres/${genreSlug(genre)}${subgenre ? `/${genreSlug(subgenre)}` : ""}` as Route;
 
 export interface GenreItems {
   genre: string;

@@ -2,6 +2,7 @@
 
 import { CSSProperties, useTransition } from "react";
 import { unstable_rethrow, useRouter, useSearchParams } from "next/navigation";
+import type { Route } from "next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -73,7 +74,7 @@ export function SignInForm() {
     }
 
     const redirectTo = getSafeRedirectUrl(searchParams.get("redirect"));
-    startNavigation(() => router.push(redirectTo));
+    startNavigation(() => router.push(redirectTo as Route));
   };
 
   const queryMessage = getQueryMessage(searchParams);

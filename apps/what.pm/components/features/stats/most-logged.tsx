@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 import CardHead from "@nienke/ui/card-head";
 import Meter from "@nienke/ui/meter";
 import { SWATCH, type ItemType } from "@nienke/ui/series";
@@ -8,7 +9,8 @@ interface Part {
   count: number;
 }
 
-const searchHref = (name: string) => `/search?q=${encodeURIComponent(name)}`;
+const searchHref = (name: string): Route =>
+  `/search?q=${encodeURIComponent(name)}`;
 
 function PartList({
   label,
@@ -18,7 +20,7 @@ function PartList({
 }: {
   label: string;
   parts: Part[];
-  href: (part: string) => string;
+  href: (part: string) => Route;
   className?: string;
 }) {
   return (
@@ -54,7 +56,7 @@ interface MostLoggedProps {
     tags?: Part[];
   }[];
   // Where a row, or one of its parts, leads; search by default
-  href?: (name: string, part?: string) => string;
+  href?: (name: string, part?: string) => Route;
 }
 
 export function MostLogged({
