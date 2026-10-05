@@ -79,8 +79,8 @@ function Table({ rows, longest }: { rows: Row[]; longest: number }) {
           <th scope="col" className={`${head} w-16 text-right`}>
             watched
           </th>
-          <th scope="col" className={`${head} w-28 pl-6 text-left`}>
-            wait
+          <th scope="col" className={`${head} w-32 pl-6 text-left`}>
+            wait (years)
           </th>
         </tr>
       </thead>
