@@ -8,6 +8,7 @@ import { genrePath, genreSlugs, itemsInGenre } from "@/utils/data/genres";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { OG_SIZE } from "@/utils/og";
 import type { Metadata } from "next";
+import { SITE_NAME } from "@/utils/constants/site";
 
 interface GenreParams {
   params: Promise<{ genre: string; subgenre?: string[] }>;
@@ -42,7 +43,7 @@ export async function generateMetadata(props: GenreParams): Promise<Metadata> {
         {
           url: ["/og/genres", genre, ...(subgenre ?? [])].join("/"),
           ...OG_SIZE,
-          alt: `Everything logged as ${name.toLowerCase()} on what.pm`,
+          alt: `Everything logged as ${name.toLowerCase()} on ${SITE_NAME}`,
         },
       ],
     },

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import type { ReactNode } from "react";
 import { cacheLife } from "next/cache";
 import { formatPlural } from "@nienke/ui/format";
+import { SITE_NAME } from "@/utils/constants/site";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -76,7 +77,7 @@ export function OgFrame({
         <span style={{ fontFamily: "Serif", fontSize: 48, color: COLORS.ink }}>
           what.
         </span>
-        <span>{`what.pm${path}`}</span>
+        <span>{`${SITE_NAME}${path}`}</span>
       </div>
       {children}
     </div>

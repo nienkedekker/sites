@@ -7,9 +7,10 @@ import {
   isTmdbId,
 } from "@/utils/data/external-ids";
 import { bookGenres } from "@/utils/data/book-genres";
+import { SITE_NAME, SITE_URL } from "@/utils/constants/site";
 
 const TMDB = "https://api.themoviedb.org/3";
-const OPEN_LIBRARY_HEADERS = { "User-Agent": "what.pm (https://what.pm)" };
+const OPEN_LIBRARY_HEADERS = { "User-Agent": `${SITE_NAME} (${SITE_URL})` };
 // TMDB writing credits that point at a book behind the movie or show
 export const SOURCE_JOBS = new Set([
   "Novel",

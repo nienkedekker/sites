@@ -1,8 +1,5 @@
-import {
-  whatpmYearUrl,
-  type MonthCounts,
-  type YearSummary,
-} from "@nienke/ui/summary";
+import { type MonthCounts, type YearSummary } from "@nienke/ui/summary";
+import { yearUrl } from "@/utils/constants/site";
 import type { TypedItem } from "@/types/shared";
 import { localDate } from "@/utils/formatters/date";
 
@@ -53,7 +50,7 @@ export function summarizeYear(items: TypedItem[], year: number): YearSummary {
       shows: count("Show"),
     },
     months: countByMonth(items, year),
-    url: whatpmYearUrl(year),
+    url: yearUrl(year),
   };
 }
 

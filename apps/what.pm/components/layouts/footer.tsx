@@ -2,6 +2,7 @@ import Link from "next/link";
 import SiteFooter from "@nienke/ui/site-footer";
 import { AccountLinks } from "@/components/layouts/account-links";
 import { SITE_LINKS } from "@/components/layouts/site-links";
+import { IS_MINE, OWNER_URL } from "@/utils/constants/site";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -42,13 +43,17 @@ export default function Footer() {
         {
           label: "Elsewhere",
           links: [
-            { href: "https://nienke.dev", label: "nienke.dev" },
-            {
-              href: "https://x.com/thanergic",
-              label: "@thanergic",
-              ariaLabel: "@thanergic on X",
-              icon: <XIcon className="size-3.5 shrink-0" />,
-            },
+            { href: OWNER_URL, label: new URL(OWNER_URL).host },
+            ...(IS_MINE
+              ? [
+                  {
+                    href: "https://x.com/thanergic",
+                    label: "@thanergic",
+                    ariaLabel: "@thanergic on X",
+                    icon: <XIcon className="size-3.5 shrink-0" />,
+                  },
+                ]
+              : []),
           ],
         },
       ]}

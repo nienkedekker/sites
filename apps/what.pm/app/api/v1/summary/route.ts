@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabasePublic } from "@/utils/supabase/public";
 import {
-  whatpmYearUrl,
   type SummaryBook,
   type SummaryMovie,
   type SummaryResponse,
   type SummaryShow,
 } from "@nienke/ui/summary";
+import { yearUrl } from "@/utils/constants/site";
 import {
   validateAndTypeItem,
   type BookItem,
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         movies: movies.slice(0, limit).map(toMovie),
         shows: shows.slice(0, limit).map(toShow),
       },
-      url: whatpmYearUrl(year),
+      url: yearUrl(year),
     },
     { headers: HEADERS },
   );

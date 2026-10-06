@@ -1,6 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { supabasePublic } from "@/utils/supabase/public";
-import { HIDDEN_PEOPLE, ITEMS_TAG } from "@/utils/constants/app";
+import { ITEMS_TAG } from "@/utils/constants/app";
+import { HIDDEN_PEOPLE } from "@/utils/constants/site";
 import { splitNames } from "@/utils/data/names";
 
 export interface SearchSuggestion {

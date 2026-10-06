@@ -1,5 +1,5 @@
 import { getRecentItems } from "@/utils/data/items";
-import { SITE } from "@/utils/agents/negotiate";
+import { SITE_NAME, SITE_URL } from "@/utils/constants/site";
 import type { TypedItem } from "@/types/shared";
 
 const LIMIT = 50;
@@ -47,7 +47,7 @@ export async function GET() {
 
   const entries = result.data
     .map((item) => {
-      const link = `${SITE}/year/${item.belongs_to_year}`;
+      const link = `${SITE_URL}/year/${item.belongs_to_year}`;
       const date = item.created_at
         ? `\n      <pubDate>${new Date(item.created_at).toUTCString()}</pubDate>`
         : "";
@@ -65,11 +65,11 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>what. · what.pm</title>
-    <link>${SITE}</link>
+    <title>what. · ${SITE_NAME}</title>
+    <link>${SITE_URL}</link>
     <description>Books, movies and TV seasons, as I log them.</description>
     <language>en</language>
-    <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />${
+    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml" />${
       updated
         ? `\n    <lastBuildDate>${new Date(updated).toUTCString()}</lastBuildDate>`
         : ""

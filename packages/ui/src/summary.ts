@@ -37,5 +37,3 @@ export interface SummaryShow {
 export interface SummaryResponse extends YearSummary {
   recent: { books: SummaryBook[]; movies: SummaryMovie[]; shows: SummaryShow[] };
 }
-
-export const whatpmYearUrl = (year: number) => `https://www.what.pm/year/${year}`;

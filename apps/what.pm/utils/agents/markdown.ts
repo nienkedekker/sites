@@ -1,7 +1,14 @@
 import type { TypedItem } from "@/types/shared";
 import type { LogFacts } from "@/utils/data/about";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
-import { SITE } from "@/utils/agents/negotiate";
+import {
+  OWNER_FIRST_NAME,
+  OWNER_NAME,
+  OWNER_URL,
+  SITE_NAME,
+  SITE_URL,
+  SOURCE_URL,
+} from "@/utils/constants/site";
 
 const escape = (value: string) => value.replace(/([\\`*_[\]<>#])/g, "\\$1");
 
@@ -18,7 +25,7 @@ function itemLine(item: TypedItem) {
 }
 
 const footer = (links: string[]) =>
-  `---\n\n${links.join("\n")}\n- [Everything agents can read on what.pm](${SITE}/llms.txt)\n`;
+  `---\n\n${links.join("\n")}\n- [Everything agents can read on ${SITE_NAME}](${SITE_URL}/llms.txt)\n`;
 
 export function yearMarkdown(
   year: number,
@@ -26,8 +33,8 @@ export function yearMarkdown(
   isCurrentYear: boolean,
 ) {
   const intro = isCurrentYear
-    ? "What Nienke has read and watched so far this year"
-    : `What Nienke read and watched in ${year}`;
+    ? `What ${OWNER_FIRST_NAME} has read and watched so far this year`
+    : `What ${OWNER_FIRST_NAME} read and watched in ${year}`;
 
   const sections = CATEGORY_CONFIG.map(({ title, type }) => {
     const ofType = items.filter((item) => item.itemtype === type);
@@ -37,37 +44,37 @@ export function yearMarkdown(
     return `## ${title} (${ofType.length})\n\n${list}`;
   });
 
-  return `# ${year} · what.pm
+  return `# ${year} · ${SITE_NAME}
 
-${intro}, as logged on what.pm: ${items.length} ${items.length === 1 ? "thing" : "things"} in total.
+${intro}, as logged on ${SITE_NAME}: ${items.length} ${items.length === 1 ? "thing" : "things"} in total.
 
 ${sections.join("\n\n")}
 
 ${footer([
-  `- [This year on the web](${SITE}/year/${year})`,
-  `- [The same year as JSON](${SITE}/api/v1/summary?year=${year})`,
+  `- [This year on the web](${SITE_URL}/year/${year})`,
+  `- [The same year as JSON](${SITE_URL}/api/v1/summary?year=${year})`,
 ])}`;
 }
 
 export function aboutMarkdown(facts: LogFacts | null) {
   const numbers = facts
-    ? `\n\n## The log in numbers\n\n- ${facts.total} things logged across ${facts.yearCount} years\n- Books: ${facts.books}\n- Movies: ${facts.movies}\n- TV seasons: ${facts.shows}\n- Logging since [${facts.firstYear}](${SITE}/year/${facts.firstYear})`
+    ? `\n\n## The log in numbers\n\n- ${facts.total} things logged across ${facts.yearCount} years\n- Books: ${facts.books}\n- Movies: ${facts.movies}\n- TV seasons: ${facts.shows}\n- Logging since [${facts.firstYear}](${SITE_URL}/year/${facts.firstYear})`
     : "";
 
-  return `# About · what.pm
+  return `# About · ${SITE_NAME}
 
-what.pm is where [Nienke Dekker](https://nienke.dev) logs every book read, movie watched and TV season watched, year by year. The source code is on [GitHub](https://github.com/nienkedekker/sites).${numbers}
+${SITE_NAME} is where [${OWNER_NAME}](${OWNER_URL}) logs every book read, movie watched and TV season watched, year by year. The source code is on [GitHub](${SOURCE_URL}).${numbers}
 
-${footer([`- [This year](${SITE}/)`])}`;
+${footer([`- [This year](${SITE_URL}/)`])}`;
 }
 
 export function notFoundMarkdown(pathname: string) {
-  return `# Not found · what.pm
+  return `# Not found · ${SITE_NAME}
 
-Nothing's logged at \`${pathname.replace(/`/g, "")}\` on what.pm. The page may never have existed, or it lives under another year.
+Nothing's logged at \`${pathname.replace(/`/g, "")}\` on ${SITE_NAME}. The page may never have existed, or it lives under another year.
 
-- [This year's log](${SITE}/)
-- [About what.pm](${SITE}/about)
-- [Everything agents can read on what.pm](${SITE}/llms.txt)
+- [This year's log](${SITE_URL}/)
+- [About ${SITE_NAME}](${SITE_URL}/about)
+- [Everything agents can read on ${SITE_NAME}](${SITE_URL}/llms.txt)
 `;
 }

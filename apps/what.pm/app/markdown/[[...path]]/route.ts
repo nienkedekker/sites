@@ -7,6 +7,7 @@ import {
   notFoundMarkdown,
   yearMarkdown,
 } from "@/utils/agents/markdown";
+import { SITE_NAME } from "@/utils/constants/site";
 
 // Middleware rewrites requests that ask for text/markdown here
 const markdown = (body: string, status = 200) =>
@@ -42,7 +43,7 @@ export async function GET(
     const result = await getItemsForYear(year);
     if (!result.success) {
       return markdown(
-        "# Unavailable · what.pm\n\nThe log couldn't be loaded. Try again in a moment.\n",
+        `# Unavailable · ${SITE_NAME}\n\nThe log couldn't be loaded. Try again in a moment.\n`,
         503,
       );
     }

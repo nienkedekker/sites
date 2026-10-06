@@ -2,7 +2,8 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { TypedItem } from "@/types/shared";
 import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
-import { HIDDEN_PEOPLE, ITEMS_TAG } from "@/utils/constants/app";
+import { ITEMS_TAG } from "@/utils/constants/app";
+import { HIDDEN_PEOPLE } from "@/utils/constants/site";
 import { getAllItems } from "@/utils/data/items";
 import {
   GENRE_TAGS,

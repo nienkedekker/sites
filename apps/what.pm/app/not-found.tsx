@@ -5,6 +5,7 @@ import PageHeader from "@nienke/ui/page-header";
 import TagLink from "@nienke/ui/tag-link";
 import { LastLogged } from "@/components/features/lists/last-logged";
 import { thisYear } from "@/utils/server/clock";
+import { SITE_NAME } from "@/utils/constants/site";
 
 export const metadata: Metadata = {
   title: "Not found",
@@ -20,7 +21,7 @@ export default async function NotFound() {
           404
         </PageHeader>
 
-        <nav aria-label="Elsewhere on what.pm">
+        <nav aria-label={`Elsewhere on ${SITE_NAME}`}>
           <ul className="flex flex-wrap gap-3">
             <li>
               <TagLink as={Link} href={`/year/${year}`}>

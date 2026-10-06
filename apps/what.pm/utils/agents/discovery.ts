@@ -1,31 +1,37 @@
-import { SITE } from "@/utils/agents/negotiate";
+import {
+  IS_MINE,
+  OWNER_NAME,
+  OWNER_URL,
+  SITE_NAME,
+  SITE_URL,
+  SOURCE_URL,
+} from "@/utils/constants/site";
 
-export const DESCRIPTION =
-  "what.pm is Nienke Dekker's public log of every book read, movie watched and TV season watched, organised by year.";
+export const DESCRIPTION = `${SITE_NAME} is ${OWNER_NAME}'s public log of every book read, movie watched and TV season watched, organised by year.`;
 
 // https://llmstxt.org
-export const LLMS_TXT = `# what.pm
+export const LLMS_TXT = `# ${SITE_NAME}
 
 > ${DESCRIPTION}
 
-Every page below also answers in Markdown when requested with \`Accept: text/markdown\`. The what.pm API is public, read-only and needs no authentication.
+Every page below also answers in Markdown when requested with \`Accept: text/markdown\`. The ${SITE_NAME} API is public, read-only and needs no authentication.
 
 ## Pages
 
-- [This year](${SITE}/): Everything logged so far this year, grouped into books, movies and TV shows
-- [Year archive](${SITE}/year/2025): The log for one year; swap the year in the URL for any other
-- [About](${SITE}/about): What what.pm is, with totals across every year
+- [This year](${SITE_URL}/): Everything logged so far this year, grouped into books, movies and TV shows
+- [Year archive](${SITE_URL}/year/2025): The log for one year; swap the year in the URL for any other
+- [About](${SITE_URL}/about): What ${SITE_NAME} is, with totals across every year
 
-## what.pm API
+## ${SITE_NAME} API
 
-- [OpenAPI spec](${SITE}/openapi.json): OpenAPI 3.1 description of the what.pm API
-- [Year summary](${SITE}/api/v1/summary): JSON counts per type and month, plus the most recent books, movies and shows for a year. Query parameters: \`year\` (defaults to this year) and \`limit\` (1 to 20, default 5)
-- [RSS feed](${SITE}/feed.xml): The 50 most recently logged items
+- [OpenAPI spec](${SITE_URL}/openapi.json): OpenAPI 3.1 description of the ${SITE_NAME} API
+- [Year summary](${SITE_URL}/api/v1/summary): JSON counts per type and month, plus the most recent books, movies and shows for a year. Query parameters: \`year\` (defaults to this year) and \`limit\` (1 to 20, default 5)
+- [RSS feed](${SITE_URL}/feed.xml): The 50 most recently logged items
 
 ## Optional
 
-- [Source code](https://github.com/nienkedekker/sites): The monorepo behind what.pm and nienke.dev
-- [Nienke Dekker](https://nienke.dev): The person keeping the log
+- [Source code](${SOURCE_URL}): The monorepo behind what.pm and nienke.dev
+- [${OWNER_NAME}](${OWNER_URL}): The person keeping the log
 `;
 
 const count = { type: "integer", minimum: 0 };
@@ -38,12 +44,15 @@ const loggedAt = {
 export const OPENAPI = {
   openapi: "3.1.0",
   info: {
-    title: "what.pm API",
+    title: `${SITE_NAME} API`,
     version: "1.0.0",
     description: `${DESCRIPTION} Read-only, no authentication, CORS open to every origin.`,
   },
-  servers: [{ url: SITE }],
-  externalDocs: { description: "what.pm for agents", url: `${SITE}/llms.txt` },
+  servers: [{ url: SITE_URL }],
+  externalDocs: {
+    description: `${SITE_NAME} for agents`,
+    url: `${SITE_URL}/llms.txt`,
+  },
   paths: {
     "/api/v1/summary": {
       get: {
@@ -183,17 +192,17 @@ export const OPENAPI = {
 export const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "@id": `${SITE}/#website`,
-  name: "what.pm",
+  "@id": `${SITE_URL}/#website`,
+  name: SITE_NAME,
   alternateName: "what.",
-  url: `${SITE}/`,
+  url: `${SITE_URL}/`,
   description: DESCRIPTION,
   inLanguage: "en",
   author: {
     "@type": "Person",
-    name: "Nienke Dekker",
-    url: "https://nienke.dev",
-    sameAs: ["https://github.com/nienkedekker"],
+    name: OWNER_NAME,
+    url: OWNER_URL,
+    ...(IS_MINE && { sameAs: ["https://github.com/nienkedekker"] }),
   },
 };
 

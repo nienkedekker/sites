@@ -7,6 +7,7 @@ import Footer from "@/components/layouts/footer";
 import { LowPower } from "@/components/layouts/low-power";
 import { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/providers/auth-provider";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/utils/constants/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,12 +43,11 @@ const defaultUrl = host ? `https://${host}` : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: { default: "what.pm", template: "%s · what.pm" },
-  description:
-    "what!!! every book, movie and show I’ve read or watched since 2007.",
+  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
   alternates: {
     types: {
-      "application/rss+xml": [{ url: "/feed.xml", title: "what.pm" }],
+      "application/rss+xml": [{ url: "/feed.xml", title: SITE_NAME }],
     },
   },
 };

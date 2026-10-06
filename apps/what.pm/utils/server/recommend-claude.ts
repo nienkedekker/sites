@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import type { TypedItem } from "@/types/shared";
-import { HIDDEN_PEOPLE } from "@/utils/constants/app";
+import { HIDDEN_PEOPLE } from "@/utils/constants/site";
 import {
   creatorOf,
   favouriteCreators,

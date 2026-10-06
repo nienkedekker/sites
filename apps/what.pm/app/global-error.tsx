@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import PageHeader from "@nienke/ui/page-header";
 import "./globals.css";
+import { SITE_NAME } from "@/utils/constants/site";
 
 export default function GlobalError({
   error,
@@ -29,11 +30,11 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="min-h-screen font-sans antialiased">
-        <title>That didn’t work · what.pm</title>
+        <title>{`That didn’t work · ${SITE_NAME}`}</title>
         <main className="mx-auto w-full max-w-6xl px-4 pt-16 sm:pt-24">
           <PageHeader
             eyebrow="Error"
-            intro="what.pm couldn’t load. If it was just updated, reloading the page usually fixes it."
+            intro={`${SITE_NAME} couldn’t load. If it was just updated, reloading the page usually fixes it.`}
             className="mb-10"
           >
             That didn’t work

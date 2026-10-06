@@ -10,8 +10,9 @@ import {
   countTypes,
   loadFonts,
 } from "@/utils/og";
+import { SITE_NAME } from "@/utils/constants/site";
 
-export const alt = "Stats for every year logged on what.pm";
+export const alt = `Stats for every year logged on ${SITE_NAME}`;
 export const size = OG_SIZE;
 export const contentType = "image/png";
 const CHART_WIDTH = 560;

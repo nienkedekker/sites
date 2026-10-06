@@ -7,6 +7,12 @@ import { getLogFacts, type LogFacts } from "@/utils/data/about";
 import { formatCount } from "@nienke/ui/format";
 import { SERIES } from "@nienke/ui/series";
 import { StatList, StatRow } from "@nienke/ui/stat-list";
+import {
+  IS_MINE,
+  OWNER_FIRST_NAME,
+  OWNER_URL,
+  SOURCE_URL,
+} from "@/utils/constants/site";
 
 function LogNumbers({ facts }: { facts: LogFacts }) {
   return (
@@ -63,9 +69,9 @@ export default async function AboutPage() {
           style={{ "--delay": "160ms" } as CSSProperties}
         >
           <p>
-            I (<Link href="https://nienke.dev">Nienke</Link>) like to log what I
-            read and watch in a year :) find the source code for this site{" "}
-            <Link href="https://github.com/nienkedekker/sites">here</Link>.
+            I (<Link href={OWNER_URL}>{OWNER_FIRST_NAME}</Link>) like to log
+            what I read and watch in a year :) find the source code for this
+            site <Link href={SOURCE_URL}>here</Link>.
           </p>
         </div>
         <div
@@ -76,17 +82,19 @@ export default async function AboutPage() {
         </div>
       </div>
 
-      <figure
-        className="rise above-grain framed w-full lg:mt-24"
-        style={{ "--delay": "200ms" } as CSSProperties}
-      >
-        <Image
-          className="block h-auto w-full"
-          src={tumblr}
-          sizes="(min-width: 1024px) 680px, 100vw"
-          alt="A screenshot of a Tumblr post by user so-many-ocs, with the text '[on the verge of having a complete breakdown] i need to make some kind of list or perhaps sort things into categories'"
-        />
-      </figure>
+      {IS_MINE && (
+        <figure
+          className="rise above-grain framed w-full lg:mt-24"
+          style={{ "--delay": "200ms" } as CSSProperties}
+        >
+          <Image
+            className="block h-auto w-full"
+            src={tumblr}
+            sizes="(min-width: 1024px) 680px, 100vw"
+            alt="A screenshot of a Tumblr post by user so-many-ocs, with the text '[on the verge of having a complete breakdown] i need to make some kind of list or perhaps sort things into categories'"
+          />
+        </figure>
+      )}
     </div>
   );
 }

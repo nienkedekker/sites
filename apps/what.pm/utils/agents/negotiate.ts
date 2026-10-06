@@ -1,5 +1,3 @@
-export const SITE = "https://www.what.pm";
-
 export type MarkdownTarget =
   | { kind: "year"; year: number | null }
   | { kind: "about" }

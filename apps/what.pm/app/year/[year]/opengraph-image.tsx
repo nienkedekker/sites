@@ -17,8 +17,9 @@ import {
   SeriesCounts,
   loadFonts,
 } from "@/utils/og";
+import { SITE_NAME } from "@/utils/constants/site";
 
-export const alt = "Books, movies and TV seasons logged on what.pm";
+export const alt = `Books, movies and TV seasons logged on ${SITE_NAME}`;
 export const size = OG_SIZE;
 export const contentType = "image/png";
 export async function generateStaticParams() {
