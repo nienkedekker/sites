@@ -47,6 +47,15 @@ export function genreSlugs(items: TypedItem[]): string[][] {
   return [...paths.values()];
 }
 
+// generateStaticParams can't come back empty under Cache Components, so a
+// brand-new log gets one placeholder genre, which renders as a 404
+export function genreParams(items: TypedItem[]) {
+  const paths = genreSlugs(items);
+  return (paths.length > 0 ? paths : [["fiction"]]).map(
+    ([genre, ...subgenre]) => ({ genre, subgenre }),
+  );
+}
+
 export const genreSlug = (name: string) =>
   name
     .toLowerCase()

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getCachedItems } from "@/utils/data/items";
-import { genreSlugs, itemsInGenre } from "@/utils/data/genres";
+import { genreParams, itemsInGenre } from "@/utils/data/genres";
 import {
   COLORS,
   Headline,
@@ -12,8 +12,7 @@ import {
 } from "@/utils/og";
 
 export async function generateStaticParams() {
-  const paths = genreSlugs(await getCachedItems());
-  return paths.map(([genre, ...subgenre]) => ({ genre, subgenre }));
+  return genreParams(await getCachedItems());
 }
 
 export async function GET(

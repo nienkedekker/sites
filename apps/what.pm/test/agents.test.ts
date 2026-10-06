@@ -5,7 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
 import type { TypedItem } from "@/types/shared";
 import { markdownTarget, prefersMarkdown } from "@/utils/agents/negotiate";
-import { notFoundMarkdown, yearMarkdown } from "@/utils/agents/markdown";
+import {
+  aboutMarkdown,
+  notFoundMarkdown,
+  yearMarkdown,
+} from "@/utils/agents/markdown";
 import {
   JSON_LD,
   LLMS_TXT,
@@ -266,5 +270,22 @@ describe("discovery files", () => {
     expect(jsonLdScript({ name: "</script>" })).toBe(
       '{"name":"\\u003c/script>"}',
     );
+  });
+});
+
+describe("aboutMarkdown", () => {
+  it("leaves out the first year on an empty log", () => {
+    const md = aboutMarkdown({
+      total: 0,
+      books: 0,
+      movies: 0,
+      shows: 0,
+      firstYear: null,
+      yearCount: 0,
+      firstEntry: null,
+    });
+    expect(md).toContain("- 0 things logged across 0 years");
+    expect(md).not.toContain("Logging since");
+    expect(md).not.toContain("null");
   });
 });

@@ -33,14 +33,16 @@ function LogNumbers({ facts }: { facts: LogFacts }) {
             </span>
           </StatRow>
         ))}
-        <StatRow label="Logging since" className="py-3">
-          <Link
-            href={`/year/${facts.firstYear}`}
-            className="link font-mono text-sm text-ink"
-          >
-            {facts.firstYear}
-          </Link>
-        </StatRow>
+        {facts.firstYear !== null && (
+          <StatRow label="Logging since" className="py-3">
+            <Link
+              href={`/year/${facts.firstYear}`}
+              className="link font-mono text-sm text-ink"
+            >
+              {facts.firstYear}
+            </Link>
+          </StatRow>
+        )}
         {facts.firstEntry && (
           <StatRow label="First entry" className="py-3">
             <span className="wrap-break-word font-medium tracking-[-0.01em] text-ink">

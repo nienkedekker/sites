@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { book, movie, show } from "./items";
-import { genrePath, genreSlug, itemsInGenre } from "@/utils/data/genres";
+import {
+  genreParams,
+  genrePath,
+  genreSlug,
+  itemsInGenre,
+} from "@/utils/data/genres";
 
 describe("genre pages", () => {
   it("turns genre names into readable slugs", () => {
@@ -64,5 +69,13 @@ describe("genre pages", () => {
     ).toHaveLength(1);
     expect(itemsInGenre(items, "literary-fiction", "classics")).toBeNull();
     expect(itemsInGenre(items, "romance")).toBeNull();
+  });
+
+  it("gives an empty log one placeholder path, since the build needs one", () => {
+    expect(genreParams([])).toEqual([{ genre: "fiction", subgenre: [] }]);
+    expect(genreParams([book({ genres: ["Fantasy"] })])).toEqual([
+      { genre: "fantasy", subgenre: [] },
+      { genre: "fantasy", subgenre: ["other"] },
+    ]);
   });
 });

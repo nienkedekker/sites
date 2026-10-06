@@ -4,7 +4,7 @@ import PageHeader from "@nienke/ui/page-header";
 import { describeCounts } from "@nienke/ui/series";
 import { CategoryList } from "@/components/features/lists/category-list";
 import { getCachedItems } from "@/utils/data/items";
-import { genrePath, genreSlugs, itemsInGenre } from "@/utils/data/genres";
+import { genreParams, genrePath, itemsInGenre } from "@/utils/data/genres";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { OG_SIZE } from "@/utils/og";
 import type { Metadata } from "next";
@@ -19,8 +19,7 @@ interface GenreParams {
 export const instant = false;
 
 export async function generateStaticParams() {
-  const paths = genreSlugs(await getCachedItems());
-  return paths.map(([genre, ...subgenre]) => ({ genre, subgenre }));
+  return genreParams(await getCachedItems());
 }
 
 async function load({ params }: GenreParams) {

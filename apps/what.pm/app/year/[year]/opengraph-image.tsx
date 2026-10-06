@@ -1,10 +1,10 @@
 import { ImageResponse } from "next/og";
 import { notFound } from "next/navigation";
 import {
-  getDistinctYears,
   getItemsForYear,
   isLoggedYear,
   parseYear,
+  yearParams,
 } from "@/utils/data/items";
 import { hasMonthlyData, summarizeYear } from "@/utils/data/summary";
 import {
@@ -23,8 +23,7 @@ export const alt = `Books, movies and TV seasons logged on ${SITE_NAME}`;
 export const size = OG_SIZE;
 export const contentType = "image/png";
 export async function generateStaticParams() {
-  const years = await getDistinctYears();
-  return years.map((year) => ({ year: String(year) }));
+  return yearParams();
 }
 
 const MONTHS = "JFMAMJJASOND".split("");

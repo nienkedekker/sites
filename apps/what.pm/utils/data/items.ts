@@ -81,6 +81,13 @@ export async function getDistinctYears() {
   return (data ?? []).map((r) => r.belongs_to_year as number);
 }
 
+// Cache Components won't build a route whose generateStaticParams comes back
+// empty, so a brand-new log still lists the current year, which has a page
+export async function yearParams() {
+  const years = new Set([...(await getDistinctYears()), await thisYear()]);
+  return [...years].map((year) => ({ year: String(year) }));
+}
+
 export const parseYear = (param: string) =>
   /^\d{4}$/.test(param) ? Number(param) : null;
 

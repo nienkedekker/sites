@@ -18,7 +18,10 @@ export const contentType = "image/png";
 export default async function Image() {
   const facts = await getLogFacts();
   const total = formatCount(facts.total);
-  const since = `logged since ${facts.firstYear}`;
+  const since =
+    facts.firstYear !== null
+      ? `logged since ${facts.firstYear}`
+      : "nothing logged yet";
   const fonts = await loadFonts();
 
   return new ImageResponse(

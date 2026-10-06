@@ -7,7 +7,8 @@ export interface LogFacts {
   books: number;
   movies: number;
   shows: number;
-  firstYear: number;
+  // Null until the first entry
+  firstYear: number | null;
   yearCount: number;
   firstEntry: { title: string; itemtype: string; by: string | null } | null;
 }
@@ -54,7 +55,7 @@ export async function getLogFacts(): Promise<LogFacts> {
     books,
     movies,
     shows,
-    firstYear: loggedYears[0],
+    firstYear: loggedYears[0] ?? null,
     yearCount: loggedYears.length,
     firstEntry: first.data
       ? {

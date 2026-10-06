@@ -25,6 +25,14 @@ async function StatsContent() {
   ]);
   const now = new Date(time);
 
+  if (stats.years.length === 0) {
+    return (
+      <p className="border border-dashed border-line-strong p-6 text-ink-soft">
+        Nothing logged yet. Stats show up after the first entry.
+      </p>
+    );
+  }
+
   const busiest = stats.years.reduce((a, b) =>
     b.entries.length > a.entries.length ? b : a,
   );

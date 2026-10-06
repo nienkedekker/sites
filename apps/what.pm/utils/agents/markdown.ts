@@ -58,7 +58,7 @@ ${footer([
 
 export function aboutMarkdown(facts: LogFacts | null) {
   const numbers = facts
-    ? `\n\n## The log in numbers\n\n- ${facts.total} things logged across ${facts.yearCount} years\n- Books: ${facts.books}\n- Movies: ${facts.movies}\n- TV seasons: ${facts.shows}\n- Logging since [${facts.firstYear}](${SITE_URL}/year/${facts.firstYear})`
+    ? `\n\n## The log in numbers\n\n- ${facts.total} things logged across ${facts.yearCount} years\n- Books: ${facts.books}\n- Movies: ${facts.movies}\n- TV seasons: ${facts.shows}${facts.firstYear !== null ? `\n- Logging since [${facts.firstYear}](${SITE_URL}/year/${facts.firstYear})` : ""}`
     : "";
 
   return `# About · ${SITE_NAME}
