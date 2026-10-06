@@ -13,6 +13,7 @@ import { loadLog } from "@/utils/server/recommend-log";
 import { keepNew, knownCreators, logIndex } from "@/utils/data/recommend";
 import { lookUp } from "@/utils/server/recommend-lookup";
 import { suggestWithClaude } from "@/utils/server/recommend-claude";
+import { hasRecs } from "@/utils/server/services";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
@@ -30,7 +31,7 @@ export async function refreshRecommendations(): Promise<{
     const supabase = await createClientForServer();
     if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!hasRecs()) {
       return { error: "Picks need an ANTHROPIC_API_KEY." };
     }
     const { items, dismissed, wanted } = await loadLog(supabase);

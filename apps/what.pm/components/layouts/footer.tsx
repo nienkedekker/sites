@@ -3,6 +3,7 @@ import SiteFooter from "@nienke/ui/site-footer";
 import { AccountLinks } from "@/components/layouts/account-links";
 import { SITE_LINKS } from "@/components/layouts/site-links";
 import { IS_MINE, OWNER_URL } from "@/utils/constants/site";
+import { hasRecs } from "@/utils/server/services";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -39,7 +40,11 @@ export default function Footer() {
             </li>
           ),
         },
-        { label: "Account", links: [], extra: <AccountLinks /> },
+        {
+          label: "Account",
+          links: [],
+          extra: <AccountLinks recs={hasRecs()} />,
+        },
         {
           label: "Elsewhere",
           links: [

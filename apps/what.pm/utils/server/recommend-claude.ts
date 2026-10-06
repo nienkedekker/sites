@@ -4,6 +4,7 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import type { TypedItem } from "@/types/shared";
 import { HIDDEN_PEOPLE } from "@/utils/constants/site";
+import { hasRecs } from "@/utils/server/services";
 import {
   creatorOf,
   favouriteCreators,
@@ -71,7 +72,7 @@ export async function suggestWithClaude(
     reason: string | null;
   }[],
 ): Promise<Suggestion[] | null> {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
+  if (!hasRecs()) return null;
   const logged = logIndex(items);
   const open = wanted.filter((w) => !isLogged(w, logged));
   const picksLogged = wanted.filter((w) => w.reason && isLogged(w, logged));

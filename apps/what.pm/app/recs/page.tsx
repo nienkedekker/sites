@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { unstable_rethrow } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { formatDate } from "@nienke/ui/format";
 import PageHeader from "@nienke/ui/page-header";
 import TagLink from "@nienke/ui/tag-link";
@@ -27,6 +27,7 @@ import {
   type LoggedPick,
 } from "@/utils/data/recommend";
 import { loadLog } from "@/utils/server/recommend-log";
+import { hasRecs } from "@/utils/server/services";
 import { createClientForServer } from "@/utils/supabase/server";
 import type { Tables } from "@/types";
 import type { ValidItemType } from "@/types/shared";
@@ -94,6 +95,9 @@ function RecEntry({ rec }: { rec: Rec }) {
 }
 
 export default function RecsPage() {
+  // Picks need Claude; without a key, up next is the closest thing
+  if (!hasRecs()) redirect("/up-next");
+
   return (
     <>
       <PageHeader intro="Picked from the log.">Recommendations</PageHeader>

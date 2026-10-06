@@ -6,6 +6,7 @@ import { fetchAllRows } from "@/utils/data/fetch-all";
 import { validateAndTypeItem, type TypedItem } from "@/types/shared";
 import { itemsToCSV, generateCSVFilename } from "@/utils/export/csv";
 import { createJSONDownload, generateJSONFilename } from "@/utils/export/json";
+import { hasBackups } from "@/utils/server/services";
 
 const r2Client = new S3Client({
   region: "auto",
@@ -22,6 +23,11 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Backups are optional, so a log without an R2 bucket skips them quietly
+    if (!hasBackups()) {
+      return NextResponse.json({ skipped: "no bucket" });
     }
 
     const timestamp = new Date().toISOString().split("T")[0];

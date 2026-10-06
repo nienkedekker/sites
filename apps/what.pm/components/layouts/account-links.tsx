@@ -4,7 +4,7 @@ import Link from "next/link";
 import { SignOutButton } from "@/components/layouts/sign-out-button";
 import { useAuth } from "@/providers/auth-provider";
 
-export function AccountLinks() {
+export function AccountLinks({ recs }: { recs: boolean }) {
   const { isLoggedIn, loading } = useAuth();
 
   if (loading) return null;
@@ -16,11 +16,13 @@ export function AccountLinks() {
           Create
         </Link>
       </li>
-      <li>
-        <Link href="/recs" className="link hover:text-ink">
-          Recs
-        </Link>
-      </li>
+      {recs && (
+        <li>
+          <Link href="/recs" className="link hover:text-ink">
+            Recs
+          </Link>
+        </li>
+      )}
       <li>
         <Link href="/settings" className="link hover:text-ink">
           Settings
