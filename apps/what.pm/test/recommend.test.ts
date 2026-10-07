@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  dropReason,
   favouriteCreators,
   isByKnownCreator,
   isCollection,
@@ -365,6 +366,27 @@ describe("keepNew", () => {
     expect(
       keepNew(looked, index, known, 2).map((kept) => kept.suggestion.title),
     ).toEqual(["First", "Second"]);
+  });
+
+  it("says why a suggestion is left out", () => {
+    const reason = (f: Parameters<typeof dropReason>[0]) =>
+      dropReason(f, index, known, new Set(["Book|/works/OL1W"]));
+    expect(reason(null)).toBe("not found");
+    expect(reason(found({ external_id: "/works/OL1W" }))).toBe(
+      "suggested twice",
+    );
+    expect(reason(found({ external_id: "/works/OL9W", title: "Logged" }))).toBe(
+      "logged, dismissed or wanted",
+    );
+    expect(
+      reason(found({ external_id: "/works/OL2W", creator: "Old Friend" })),
+    ).toBe("known creator (Old Friend)");
+    expect(
+      reason(found({ external_id: "/works/OL3W", title: "Saga Box Set" })),
+    ).toBe("collection");
+    expect(reason(found({ external_id: "/works/OL4W", title: "New" }))).toBe(
+      null,
+    );
   });
 });
 

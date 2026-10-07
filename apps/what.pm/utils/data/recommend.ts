@@ -294,6 +294,25 @@ export function knownNames(items: TypedItem[]): string[] {
   return [...names.values()].sort((a, b) => a.localeCompare(b));
 }
 
+const foundKey = (found: Found) => `${found.itemtype}|${found.external_id}`;
+
+// Why a looked-up suggestion is left out, or null when it's kept
+export function dropReason(
+  found: Found | null,
+  index: LogIndex,
+  known: Set<string>,
+  seen: ReadonlySet<string> = new Set(),
+): string | null {
+  if (!found) return "not found";
+  if (seen.has(foundKey(found))) return "suggested twice";
+  if (isLogged(found, index)) return "logged, dismissed or wanted";
+  if (isByKnownCreator(found, known)) {
+    return `known creator (${[found.creator, found.based_on].filter(Boolean).join(", ")})`;
+  }
+  if (isCollection(found)) return "collection";
+  return null;
+}
+
 export function keepNew(
   looked: { suggestion: Suggestion; found: Found | null }[],
   index: LogIndex,
@@ -304,17 +323,8 @@ export function keepNew(
   const kept: { suggestion: Suggestion; found: Found }[] = [];
   for (const { suggestion, found } of looked) {
     if (kept.length === count) break;
-    if (!found) continue;
-    const key = `${found.itemtype}|${found.external_id}`;
-    if (
-      seen.has(key) ||
-      isLogged(found, index) ||
-      isByKnownCreator(found, known) ||
-      isCollection(found)
-    ) {
-      continue;
-    }
-    seen.add(key);
+    if (!found || dropReason(found, index, known, seen)) continue;
+    seen.add(foundKey(found));
     kept.push({ suggestion, found });
   }
   return kept;

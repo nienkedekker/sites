@@ -10,7 +10,12 @@ import {
   upNextSchema,
 } from "@/utils/schemas/validation";
 import { loadLog } from "@/utils/server/recommend-log";
-import { keepNew, knownCreators, logIndex } from "@/utils/data/recommend";
+import {
+  dropReason,
+  keepNew,
+  knownCreators,
+  logIndex,
+} from "@/utils/data/recommend";
 import { lookUp } from "@/utils/server/recommend-lookup";
 import { suggestWithClaude } from "@/utils/server/recommend-claude";
 import { hasRecs } from "@/utils/server/services";
@@ -39,12 +44,23 @@ export async function refreshRecommendations(): Promise<{
     if (!suggestions) {
       return { error: "Claude didn’t come back with picks. Try again." };
     }
-    const picks = keepNew(
-      await lookUp(suggestions),
-      logIndex(items, [...dismissed, ...wanted]),
-      knownCreators(items),
-    );
+    const looked = await lookUp(suggestions);
+    const index = logIndex(items, [...dismissed, ...wanted]);
+    const known = knownCreators(items);
+    const picks = keepNew(looked, index, known);
     if (picks.length === 0) {
+      console.warn(
+        "No picks kept:",
+        JSON.stringify({
+          logged: items.length,
+          dismissed: dismissed.length,
+          wanted: wanted.length,
+          suggestions: looked.map(
+            ({ suggestion, found }) =>
+              `${suggestion.itemtype} ${suggestion.title} (${suggestion.year}): ${dropReason(found, index, known)}`,
+          ),
+        }),
+      );
       return { error: "None of Claude’s picks checked out. Try again." };
     }
 

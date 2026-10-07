@@ -121,6 +121,19 @@ export async function suggestWithClaude(
       return null;
     }
     const { suggestions } = response.parsed_output;
+    // A short answer leaves too few to look up, so say what came back
+    if (suggestions.length < SUGGESTION_COUNT / 2) {
+      console.warn(
+        "Claude came back short:",
+        JSON.stringify({
+          model: response.model,
+          stop_reason: response.stop_reason,
+          suggestions: suggestions.length,
+          log_lines: log.length,
+          output_tokens: response.usage.output_tokens,
+        }),
+      );
+    }
     return suggestions.length > 0 ? suggestions : null;
   } catch (error) {
     console.error("Claude recommendation pass failed:", error);
