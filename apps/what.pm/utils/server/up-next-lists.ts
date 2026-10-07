@@ -23,9 +23,11 @@ export async function upNextMovies(): Promise<UpNextMovie[]> {
     .map((item) => ({ id: Number(item.external_id), title: item.title }));
 }
 
-// A show's TVDB id never changes, so it's looked up once
+// A show's TVDB id never changes, so it's looked up once. A remote cache
+// would be put off until request time, which the build reads as a failed
+// lookup and bakes an empty list into the route
 async function tvdbIdOf(tmdbId: string) {
-  "use cache: remote";
+  "use cache";
   cacheLife("max");
   const ids = await getJson<{ tvdb_id?: number | null }>(
     tmdbUrl(`/tv/${tmdbId}/external_ids`),
