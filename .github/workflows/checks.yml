@@ -14,16 +14,17 @@ jobs:
       WANIKANI_KEY: ci
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
       - name: Types
         if: ${{ !cancelled() }}
-        run: npm run check-types
+        run: pnpm run check-types
       - name: Tests
         if: ${{ !cancelled() }}
-        run: npm test
+        run: pnpm test
