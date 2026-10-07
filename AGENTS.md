@@ -21,10 +21,3 @@ Turbo monorepo with npm workspaces:
   helpers such as the number and date formatters (`format`), each exported by
   path in `package.json`. It's published as TypeScript source, with no build
   step. Change the look here, not in either app.
-
-## TODO
-- Fix pending states when submitting forms
-- Add JSDoc comments for complex functions
-- Add API documentation
-- Reading/watching patterns analysis?
-
