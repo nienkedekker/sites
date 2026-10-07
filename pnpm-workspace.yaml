@@ -1,3 +1,20 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# pnpm 12 defaults to a 24h minimumReleaseAge cooldown; keep the pre-12
+# behaviour of installing freshly published versions (next, astro, rolldown
+# ship often and we track latest).
+minimumReleaseAge: 0
+
+# pnpm blocks dependency build scripts by default; allow the ones that place
+# native binaries we rely on.
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+
+overrides:
+  react-is: "^19.2.3"
+  postcss: "^8.5.28"
+  "next>postcss": "^8.5.28"
+  "@vercel/routing-utils>path-to-regexp": "6.3.0"
