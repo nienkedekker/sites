@@ -8,6 +8,10 @@ vi.mock("next/cache", () => ({
   cacheTag: () => {},
 }));
 vi.mock("@/utils/data/up-next", () => upNext);
+vi.mock("next/server", async (original) => ({
+  ...(await original<typeof import("next/server")>()),
+  connection: async () => {},
+}));
 
 const movies = await import("@/app/api/v1/up-next/movies/route");
 const shows = await import("@/app/api/v1/up-next/shows/route");
