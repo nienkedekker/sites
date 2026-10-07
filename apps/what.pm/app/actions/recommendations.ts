@@ -15,7 +15,10 @@ import {
   keepNew,
   knownCreators,
   logIndex,
+  PICK_COUNT,
+  TYPE_PICK_COUNT,
 } from "@/utils/data/recommend";
+import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
 import { lookUp } from "@/utils/server/recommend-lookup";
 import { suggestWithClaude } from "@/utils/server/recommend-claude";
 import { hasRecs } from "@/utils/server/services";
@@ -29,10 +32,16 @@ async function isSignedIn(supabase: SupabaseServer) {
   return Boolean(data.user);
 }
 
-export async function refreshRecommendations(): Promise<{
+// With an itemtype, only that type's picks are replaced
+export async function refreshRecommendations(
+  itemtype?: ValidItemType,
+): Promise<{
   error: string | null;
 }> {
   try {
+    if (itemtype !== undefined && !VALID_ITEM_TYPES.includes(itemtype)) {
+      return { error: "Invalid request." };
+    }
     const supabase = await createClientForServer();
     if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
 
@@ -40,14 +49,24 @@ export async function refreshRecommendations(): Promise<{
       return { error: "Picks need an ANTHROPIC_API_KEY." };
     }
     const { items, dismissed, wanted } = await loadLog(supabase);
-    const suggestions = await suggestWithClaude(items, dismissed, wanted);
+    const suggestions = await suggestWithClaude(
+      items,
+      dismissed,
+      wanted,
+      itemtype,
+    );
     if (!suggestions) {
       return { error: "Claude didn’t come back with picks. Try again." };
     }
     const looked = await lookUp(suggestions);
     const index = logIndex(items, [...dismissed, ...wanted]);
     const known = knownCreators(items);
-    const picks = keepNew(looked, index, known);
+    const picks = keepNew(
+      looked,
+      index,
+      known,
+      itemtype ? TYPE_PICK_COUNT : PICK_COUNT,
+    );
     if (picks.length === 0) {
       console.warn(
         "No picks kept:",
@@ -86,10 +105,13 @@ export async function refreshRecommendations(): Promise<{
       console.error("Database error saving recommendations:", saveError);
       return { error: "Unable to save the new picks. Please try again." };
     }
-    const { error: clearError } = await supabase
+    const older = supabase
       .from("recommendations")
       .delete()
       .lt("batch_at", batchAt);
+    const { error: clearError } = await (itemtype
+      ? older.eq("itemtype", itemtype)
+      : older);
     if (clearError) {
       console.error("Database error clearing old recommendations:", clearError);
     }

@@ -33,6 +33,9 @@ const SEED_COUNT = 60;
 export const PICK_COUNT = 12;
 // More than are shown, since some won't be found or turn out to be known
 export const SUGGESTION_COUNT = 18;
+// Picking one type again keeps its share of the page
+export const TYPE_PICK_COUNT = PICK_COUNT / 3;
+export const TYPE_SUGGESTION_COUNT = 8;
 const RECENT_YEARS = 3;
 const FAVOURITE_COUNT = 15;
 

@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import type { Metadata } from "next";
 import { redirect, unstable_rethrow } from "next/navigation";
 import { formatDate } from "@nienke/ui/format";
@@ -41,6 +41,12 @@ export const metadata: Metadata = {
 };
 
 type Rec = Tables<"recommendations"> & { itemtype: ValidItemType };
+
+const ONE_TYPE: { type: ValidItemType; label: string }[] = [
+  { type: "Book", label: "books" },
+  { type: "Movie", label: "movies" },
+  { type: "Show", label: "shows" },
+];
 
 function RecEntry({ rec }: { rec: Rec }) {
   return (
@@ -146,7 +152,11 @@ async function Recs() {
     );
   }
 
-  const batchAt = recs[0]?.batch_at;
+  // Types can be picked again on their own, so the newest batch says when
+  const batchAt = recs.reduce<string | undefined>(
+    (newest, rec) => (!newest || rec.batch_at > newest ? rec.batch_at : newest),
+    undefined,
+  );
   return (
     <>
       <div className="mb-12 font-mono text-xs text-ink-soft">
@@ -165,6 +175,17 @@ async function Recs() {
           </span>
         )}
         <RefreshPicks label={batchAt ? "Pick again" : "Pick the first ones"} />
+        {batchAt && (
+          <span className="ml-3">
+            · or just{" "}
+            {ONE_TYPE.map(({ type, label }, i) => (
+              <Fragment key={type}>
+                {i > 0 && ", "}
+                <RefreshPicks label={label} itemtype={type} />
+              </Fragment>
+            ))}
+          </span>
+        )}
         <span className="ml-3">
           ·{" "}
           <Link href="/up-next" className="link text-ink">

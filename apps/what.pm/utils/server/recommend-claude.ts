@@ -2,7 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
-import type { TypedItem } from "@/types/shared";
+import type { TypedItem, ValidItemType } from "@/types/shared";
 import { HIDDEN_PEOPLE } from "@/utils/constants/site";
 import { hasRecs } from "@/utils/server/services";
 import {
@@ -15,6 +15,7 @@ import {
   promptItems,
   seedWeights,
   SUGGESTION_COUNT,
+  TYPE_SUGGESTION_COUNT,
   type Suggestion,
 } from "@/utils/data/recommend";
 
@@ -31,12 +32,21 @@ const SuggestionsSchema = z.object({
   ),
 });
 
-const SYSTEM = `You recommend books, movies and TV shows to me, from my own log.
+const TYPE_NAMES: Record<ValidItemType, string> = {
+  Book: "books",
+  Movie: "movies",
+  Show: "TV shows",
+};
+
+// Picking one type again leaves the picks for the others as they are
+const system = (
+  only?: ValidItemType,
+) => `You recommend books, movies and TV shows to me, from my own log.
 
 Everything in the log was finished and liked: I drop what I don't like, so there are no ratings and every entry counts as a yes. "reread" marks something I went back to, which is the strongest signal there is. Newer entries say more about my taste now than old ones. The log covers the last three years in full; before that it only has rereads and the entries that weigh most, and a line with the authors and directors I've logged most over the years.
 
-Suggest ${SUGGESTION_COUNT}, best first:
-- About a third each of books, movies and TV shows.
+Suggest ${only ? TYPE_SUGGESTION_COUNT : SUGGESTION_COUNT}, best first:
+- ${only ? `Only ${TYPE_NAMES[only]} this time.` : "About a third each of books, movies and TV shows."}
 - Only by people I haven't logged anything by: <known_people> lists everyone I have. Nothing adapted from a book by one of them either. The point is discovering authors, directors and showrunners new to me.
 - Nothing in my log, nothing I dismissed, and nothing much like what I dismissed as not for me.
 - Nothing on my want list either. I picked those out of earlier suggestions to read or watch next, so they say a lot about what I'm after now.
@@ -71,6 +81,7 @@ export async function suggestWithClaude(
     creator: string | null;
     reason: string | null;
   }[],
+  only?: ValidItemType,
 ): Promise<Suggestion[] | null> {
   if (!hasRecs()) return null;
   const logged = logIndex(items);
@@ -111,7 +122,7 @@ export async function suggestWithClaude(
           effort: "low",
           format: betaZodOutputFormat(SuggestionsSchema),
         },
-        system: SYSTEM,
+        system: system(only),
         messages: [{ role: "user", content: prompt }],
       },
       { signal: AbortSignal.timeout(45_000) },
@@ -120,9 +131,12 @@ export async function suggestWithClaude(
       console.error("Claude gave no usable suggestions:", response.stop_reason);
       return null;
     }
-    const { suggestions } = response.parsed_output;
+    const suggestions = response.parsed_output.suggestions.filter(
+      (suggestion) => !only || suggestion.itemtype === only,
+    );
     // A short answer leaves too few to look up, so say what came back
-    if (suggestions.length < SUGGESTION_COUNT / 2) {
+    const asked = only ? TYPE_SUGGESTION_COUNT : SUGGESTION_COUNT;
+    if (suggestions.length < asked / 2) {
       console.warn(
         "Claude came back short:",
         JSON.stringify({
