@@ -245,11 +245,15 @@ describe("discovery files", () => {
     expect(body).toContain("## Optional");
   });
 
-  it("serves an OpenAPI 3.1 spec for the summary API", async () => {
+  it("serves an OpenAPI 3.1 spec for the summary and up next APIs", async () => {
     const spec = await openapiGET().json();
     expect(spec).toEqual(JSON.parse(JSON.stringify(OPENAPI)));
     expect(spec.openapi).toBe("3.1.0");
-    expect(Object.keys(spec.paths)).toEqual(["/api/v1/summary"]);
+    expect(Object.keys(spec.paths)).toEqual([
+      "/api/v1/summary",
+      "/api/v1/up-next/movies",
+      "/api/v1/up-next/shows",
+    ]);
 
     const refs = JSON.stringify(spec).match(/#\/components\/schemas\/\w+/g)!;
     for (const ref of refs) {

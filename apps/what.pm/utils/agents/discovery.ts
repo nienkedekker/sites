@@ -1,5 +1,6 @@
 import {
   IS_MINE,
+  OWNER_FIRST_NAME,
   OWNER_NAME,
   OWNER_URL,
   SITE_NAME,
@@ -26,6 +27,8 @@ Every page below also answers in Markdown when requested with \`Accept: text/mar
 
 - [OpenAPI spec](${SITE_URL}/openapi.json): OpenAPI 3.1 description of the ${SITE_NAME} API
 - [Year summary](${SITE_URL}/api/v1/summary): JSON counts per type and month, plus the most recent books, movies and shows for a year. Query parameters: \`year\` (defaults to this year) and \`limit\` (1 to 20, default 5)
+- [Up next movies](${SITE_URL}/api/v1/up-next/movies): JSON list of movies ${OWNER_FIRST_NAME} wants to watch, by TMDB id, in Radarr's Custom List format
+- [Up next shows](${SITE_URL}/api/v1/up-next/shows): JSON list of shows ${OWNER_FIRST_NAME} wants to watch, by TheTVDB id, in Sonarr's Custom List format
 - [RSS feed](${SITE_URL}/feed.xml): The 50 most recently logged items
 
 ## Optional
@@ -35,6 +38,33 @@ Every page below also answers in Markdown when requested with \`Accept: text/mar
 `;
 
 const count = { type: "integer", minimum: 0 };
+const failed = {
+  description: "The log couldn't be read",
+  content: {
+    "application/json": { schema: { $ref: "#/components/schemas/Error" } },
+  },
+};
+
+const upNextList = (operationId: string, summary: string, item: string) => ({
+  get: {
+    operationId,
+    summary,
+    responses: {
+      "200": {
+        description: "Everything in up next that isn't logged yet",
+        content: {
+          "application/json": {
+            schema: {
+              type: "array",
+              items: { $ref: `#/components/schemas/${item}` },
+            },
+          },
+        },
+      },
+      "500": failed,
+    },
+  },
+});
 const loggedAt = {
   type: ["string", "null"],
   format: "date-time",
@@ -89,17 +119,20 @@ export const OPENAPI = {
               },
             },
           },
-          "500": {
-            description: "The log couldn't be read",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Error" },
-              },
-            },
-          },
+          "500": failed,
         },
       },
     },
+    "/api/v1/up-next/movies": upNextList(
+      "getUpNextMovies",
+      "Movies to watch next, as a Radarr Custom List",
+      "UpNextMovie",
+    ),
+    "/api/v1/up-next/shows": upNextList(
+      "getUpNextShows",
+      "Shows to watch next, as a Sonarr Custom List",
+      "UpNextShow",
+    ),
   },
   components: {
     schemas: {
@@ -178,6 +211,22 @@ export const OPENAPI = {
             },
           },
           url: { type: "string", format: "uri" },
+        },
+      },
+      UpNextMovie: {
+        type: "object",
+        required: ["id", "title"],
+        properties: {
+          id: { type: "integer", description: "TMDB movie id" },
+          title: { type: "string" },
+        },
+      },
+      UpNextShow: {
+        type: "object",
+        required: ["tvdbId", "title"],
+        properties: {
+          tvdbId: { type: "integer", description: "TheTVDB series id" },
+          title: { type: "string" },
         },
       },
       Error: {
