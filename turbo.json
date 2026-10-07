@@ -11,6 +11,12 @@
         ".next/**",
         "!.next/cache/**"
       ],
+      "env": [
+        "ANTHROPIC_API_KEY",
+        "GOOGLE_API_KEY",
+        "HIDDEN_PEOPLE",
+        "TMDB_API_KEY"
+      ],
       "passThroughEnv": [
         "CLOUDFLARE_ACCOUNT_ID",
         "CLOUDFLARE_ACCESS_KEY_ID",
