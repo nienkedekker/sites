@@ -2,12 +2,16 @@ import type { CSSProperties } from "react";
 import CardHead from "@nienke/ui/card-head";
 import MediaChart from "@nienke/ui/media-chart";
 import PageHeader from "@nienke/ui/page-header";
+import { SERIES } from "@nienke/ui/series";
 import { CategoryList } from "@/components/features/lists/category-list";
 import { getItemsForYear } from "@/utils/data/items";
 import { hasMonthlyData, summarizeYear } from "@/utils/data/summary";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { TypeBreakdown } from "@/components/features/lists/type-breakdown";
-import { TimeSpent } from "@/components/features/lists/time-spent";
+import {
+  hasTimeSpent,
+  TimeSpent,
+} from "@/components/features/lists/time-spent";
 import { timeSpent } from "@/utils/data/patterns";
 import { renderTime } from "@/utils/server/clock";
 import { localDate } from "@/utils/formatters/date";
@@ -22,6 +26,10 @@ export default async function ItemsList({ year }: { year: number }) {
   const isCurrentYear = year === localDate(now).year;
   const summary = summarizeYear(validatedItems, year);
   const byMonth = hasMonthlyData(validatedItems, year);
+  const spent = timeSpent(validatedItems);
+  // One type alone has nothing to compare against, so it gets no chart
+  const types = SERIES.filter(({ key }) => summary.counts[key] > 0).length;
+  const chart = byMonth ? "month" : types > 1 ? "type" : null;
 
   const categoryData = CATEGORY_CONFIG.map(({ title, type }) => ({
     title,
@@ -42,21 +50,22 @@ export default async function ItemsList({ year }: { year: number }) {
         {year}
       </PageHeader>
 
-      {validatedItems.length > 0 && (
+      {validatedItems.length > 0 && (chart || hasTimeSpent(spent)) && (
         <section
           aria-labelledby="year-chart-heading"
           className="rise panel flex flex-col"
           style={{ "--delay": "240ms" } as CSSProperties}
         >
           <CardHead id="year-chart-heading" className="mb-5">
-            {byMonth ? "Month by month" : "By type"}
+            {chart === "month"
+              ? "Month by month"
+              : chart === "type"
+                ? "By type"
+                : "Time spent"}
           </CardHead>
-          {byMonth ? (
-            <MediaChart summary={summary} now={now} />
-          ) : (
-            <TypeBreakdown counts={summary.counts} />
-          )}
-          <TimeSpent spent={timeSpent(validatedItems)} />
+          {chart === "month" && <MediaChart summary={summary} now={now} />}
+          {chart === "type" && <TypeBreakdown counts={summary.counts} />}
+          <TimeSpent spent={spent} divided={chart !== null} />
         </section>
       )}
 

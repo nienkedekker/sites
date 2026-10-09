@@ -1,12 +1,27 @@
 import { formatCount, formatPlural } from "@nienke/ui/format";
 import type { TimeSpent as Spent } from "@/utils/data/patterns";
 
-export function TimeSpent({ spent }: { spent: Spent }) {
+export function hasTimeSpent(spent: Spent) {
+  return spent.pages > 0 || Math.round(spent.minutes / 60) > 0;
+}
+
+export function TimeSpent({
+  spent,
+  divided = true,
+}: {
+  spent: Spent;
+  // Off when there's no chart above it to divide from
+  divided?: boolean;
+}) {
   const hours = Math.round(spent.minutes / 60);
-  if (spent.pages === 0 && hours === 0) return null;
+  if (!hasTimeSpent(spent)) return null;
 
   return (
-    <dl className="mt-6 grid gap-x-10 gap-y-3 border-t border-line pt-5 sm:grid-cols-2">
+    <dl
+      className={`grid gap-x-10 gap-y-3 sm:grid-cols-2 ${
+        divided ? "mt-6 border-t border-line pt-5" : ""
+      }`}
+    >
       {spent.pages > 0 && (
         <div>
           <dt className="sr-only">Pages read</dt>
