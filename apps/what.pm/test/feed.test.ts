@@ -48,6 +48,8 @@ describe("GET /feed.xml", () => {
       movie({ title: "Heat", published_year: 1995, redo: true }),
       show({ title: "Severance", season: 2, in_progress: true }),
       show({ title: "The Leftovers", season: 1 }),
+      book({ title: "Ulysses", author: "James Joyce", did_not_finish: true }),
+      show({ title: "Lost", season: 3, did_not_finish: true }),
     ]);
 
     expect(titles(xml)).toEqual([
@@ -57,6 +59,8 @@ describe("GET /feed.xml", () => {
       "Rewatched Heat (1995)",
       "Watching Severance, season 2",
       "Watched The Leftovers, season 1",
+      "Didn’t finish Ulysses by James Joyce",
+      "Stopped watching Lost, season 3",
     ]);
   });
 

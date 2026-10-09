@@ -5,6 +5,7 @@ import PageHeader from "@nienke/ui/page-header";
 import { SERIES } from "@nienke/ui/series";
 import { CategoryList } from "@/components/features/lists/category-list";
 import { getItemsForYear } from "@/utils/data/items";
+import { isCounted } from "@/types/shared";
 import { hasMonthlyData, summarizeYear } from "@/utils/data/summary";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { TypeBreakdown } from "@/components/features/lists/type-breakdown";
@@ -22,11 +23,13 @@ export default async function ItemsList({ year }: { year: number }) {
   if (!itemsResult.success) throw new Error(itemsResult.error);
 
   const validatedItems = itemsResult.data;
+  // Everything is listed, but only what I finished is counted
+  const counted = validatedItems.filter(isCounted);
   const now = new Date(await renderTime());
   const isCurrentYear = year === localDate(now).year;
-  const summary = summarizeYear(validatedItems, year);
-  const byMonth = hasMonthlyData(validatedItems, year);
-  const spent = timeSpent(validatedItems);
+  const summary = summarizeYear(counted, year);
+  const byMonth = hasMonthlyData(counted, year);
+  const spent = timeSpent(counted);
   // One type alone has nothing to compare against, so it gets no chart
   const types = SERIES.filter(({ key }) => summary.counts[key] > 0).length;
   const chart = byMonth ? "month" : types > 1 ? "type" : null;
@@ -40,7 +43,7 @@ export default async function ItemsList({ year }: { year: number }) {
   return (
     <>
       <PageHeader
-        eyebrow={`${validatedItems.length} logged`}
+        eyebrow={`${counted.length} logged`}
         intro={
           isCurrentYear
             ? "What I’ve read and watched so far this year."
@@ -50,7 +53,7 @@ export default async function ItemsList({ year }: { year: number }) {
         {year}
       </PageHeader>
 
-      {validatedItems.length > 0 && (chart || hasTimeSpent(spent)) && (
+      {counted.length > 0 && (chart || hasTimeSpent(spent)) && (
         <section
           aria-labelledby="year-chart-heading"
           className="rise panel flex flex-col"

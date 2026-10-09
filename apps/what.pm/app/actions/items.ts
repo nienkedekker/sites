@@ -68,10 +68,14 @@ export const createItemAction = async (
       director: validatedData.director || null,
       season: validatedData.season || null,
       // The forms only send inProgress when it's checked
+      // Not finishing ends it, so it can't still be in progress
       in_progress:
         validatedData.itemtype === "Movie"
           ? null
-          : (validatedData.inProgress ?? false),
+          : !validatedData.didNotFinish && (validatedData.inProgress ?? false),
+      did_not_finish:
+        validatedData.itemtype !== "Movie" &&
+        (validatedData.didNotFinish ?? false),
     };
 
     const { data: created, error } = await supabase
@@ -234,10 +238,14 @@ export const updateItemAction = async (
       author: validatedData.author || null,
       director: validatedData.director || null,
       season: validatedData.season || null,
+      // Not finishing ends it, so it can't still be in progress
       in_progress:
         validatedData.itemtype === "Movie"
           ? null
-          : (validatedData.inProgress ?? false),
+          : !validatedData.didNotFinish && (validatedData.inProgress ?? false),
+      did_not_finish:
+        validatedData.itemtype !== "Movie" &&
+        (validatedData.didNotFinish ?? false),
       ...(validatedData.itemtype === "Book" && {
         pages: validatedData.pages || null,
       }),

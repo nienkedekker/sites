@@ -15,6 +15,7 @@ export interface BaseItem {
   published_year: number;
   belongs_to_year: number;
   redo: boolean;
+  did_not_finish: boolean;
   created_at: string | null;
   updated_at: string | null;
   author?: string | null;
@@ -55,6 +56,10 @@ export type ShowItem = BaseItem & {
 
 export type TypedItem = BookItem | MovieItem | ShowItem;
 
+// Things I didn't finish stay on the list but are left out of every count
+export const isCounted = (item: { did_not_finish: boolean }) =>
+  !item.did_not_finish;
+
 export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
   if (!dbItem || typeof dbItem !== "object") {
     return null;
@@ -81,6 +86,7 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
     published_year: item.published_year,
     belongs_to_year: item.belongs_to_year,
     redo: item.redo,
+    did_not_finish: item.did_not_finish === true,
     created_at: typeof item.created_at === "string" ? item.created_at : null,
     updated_at: typeof item.updated_at === "string" ? item.updated_at : null,
     author: typeof item.author === "string" ? item.author : null,

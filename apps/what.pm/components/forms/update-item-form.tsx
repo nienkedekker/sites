@@ -70,6 +70,8 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
     if ("season" in data && data.season)
       fd.append("season", String(data.season));
     if ("inProgress" in data && data.inProgress) fd.append("inProgress", "on");
+    if ("didNotFinish" in data && data.didNotFinish)
+      fd.append("didNotFinish", "on");
 
     try {
       const { error } = await updateItemAction(fd);
@@ -164,6 +166,21 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="didNotFinish"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(v) => field.onChange(Boolean(v))}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">Didn’t finish</FormLabel>
+                  </FormItem>
+                )}
+              />
             </>
           )}
 
@@ -219,6 +236,21 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
                     <FormLabel className="!mt-0">
                       Currently watching (in progress)
                     </FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="didNotFinish"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(v) => field.onChange(Boolean(v))}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">Didn’t finish</FormLabel>
                   </FormItem>
                 )}
               />
@@ -322,6 +354,7 @@ function getSchemaAndDefaults(item: Item) {
           author: item.author ?? "",
           pages: item.pages ?? 0,
           inProgress: !!item.in_progress,
+          didNotFinish: !!item.did_not_finish,
         },
       };
     case ITEM_TYPES.MOVIE:
@@ -347,6 +380,7 @@ function getSchemaAndDefaults(item: Item) {
           redo: !!item.redo,
           season: item.season ?? 1,
           inProgress: !!item.in_progress,
+          didNotFinish: !!item.did_not_finish,
         },
       };
     default:

@@ -7,6 +7,7 @@ import {
   yearParams,
 } from "@/utils/data/items";
 import { hasMonthlyData, summarizeYear } from "@/utils/data/summary";
+import { isCounted } from "@/types/shared";
 import {
   COLORS,
   Headline,
@@ -38,7 +39,7 @@ export default async function Image({
   if (year === null || !(await isLoggedYear(year))) notFound();
   const result = await getItemsForYear(year);
   if (!result.success) throw new Error(result.error);
-  const items = result.data;
+  const items = result.data.filter(isCounted);
   const summary = summarizeYear(items, year);
   const byMonth = hasMonthlyData(items, year);
   const tallest = Math.max(

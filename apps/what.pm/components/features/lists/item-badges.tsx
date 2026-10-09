@@ -1,4 +1,4 @@
-import { RotateCcw, Clock, type LucideIcon } from "lucide-react";
+import { RotateCcw, Clock, CircleSlash, type LucideIcon } from "lucide-react";
 import { Item } from "@/types";
 import { cn } from "@/utils/ui";
 import { badgeStyles } from "@/utils/styles";
@@ -12,7 +12,7 @@ function ItemBadge({
 }: {
   icon: LucideIcon;
   label: string;
-  variant: "progress" | "redo";
+  variant: "progress" | "redo" | "dnf";
   ariaLabel: string;
   className?: string;
 }) {
@@ -32,6 +32,22 @@ export function ItemBadges({
   item: Item;
   className?: string;
 }) {
+  if (item.did_not_finish) {
+    return (
+      <ItemBadge
+        icon={CircleSlash}
+        label="Didn’t finish"
+        variant="dnf"
+        className={className}
+        ariaLabel={
+          item.itemtype === "Book"
+            ? "Started this book but didn’t finish it"
+            : "Started this but didn’t finish it"
+        }
+      />
+    );
+  }
+
   if (item.itemtype !== "Movie" && item.in_progress) {
     const isBook = item.itemtype === "Book";
     if (item.redo) {

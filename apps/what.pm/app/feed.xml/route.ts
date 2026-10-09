@@ -15,23 +15,27 @@ const escape = (value: string) =>
 function headline(item: TypedItem) {
   switch (item.itemtype) {
     case "Book": {
-      const verb = item.in_progress
-        ? item.redo
-          ? "Rereading"
-          : "Reading"
-        : item.redo
-          ? "Reread"
-          : "Read";
+      const verb = item.did_not_finish
+        ? "Didn’t finish"
+        : item.in_progress
+          ? item.redo
+            ? "Rereading"
+            : "Reading"
+          : item.redo
+            ? "Reread"
+            : "Read";
       return `${verb} ${item.title} by ${item.author}`;
     }
     case "Movie":
       return `${item.redo ? "Rewatched" : "Watched"} ${item.title} (${item.published_year})`;
     case "Show": {
-      const verb = item.in_progress
-        ? "Watching"
-        : item.redo
-          ? "Rewatched"
-          : "Watched";
+      const verb = item.did_not_finish
+        ? "Stopped watching"
+        : item.in_progress
+          ? "Watching"
+          : item.redo
+            ? "Rewatched"
+            : "Watched";
       return `${verb} ${item.title}, season ${item.season}`;
     }
   }

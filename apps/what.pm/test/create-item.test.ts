@@ -178,6 +178,22 @@ describe("createItemAction", () => {
     expect(db.inserted.map((row) => row.in_progress)).toEqual([false, true]);
   });
 
+  it("saves a book I didn't finish as no longer in progress", async () => {
+    await createItemAction(
+      form({ ...slowGods, inProgress: "on", didNotFinish: "on" }),
+    ).catch(() => {});
+    await createItemAction(form({ ...dune, didNotFinish: "on" })).catch(
+      () => {},
+    );
+
+    expect(db.inserted[0]).toMatchObject({
+      did_not_finish: true,
+      in_progress: false,
+    });
+    // Movies are finished or not logged
+    expect(db.inserted[1]).toMatchObject({ did_not_finish: false });
+  });
+
   it("saves typed-in items without looking anything up", async () => {
     await createItemAction(form(dune)).catch(() => {});
 

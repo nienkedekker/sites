@@ -66,6 +66,7 @@ const logLine = (item: TypedItem) =>
     item.published_year,
     `logged ${item.belongs_to_year}`,
     item.redo ? "reread" : "",
+    item.did_not_finish ? "didn't finish" : "",
     [...item.genres, ...item.subgenres].join(", "),
   ]
     .filter((part) => part !== "")

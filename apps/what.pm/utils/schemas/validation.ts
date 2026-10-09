@@ -45,6 +45,7 @@ export const bookItemSchema = baseItemSchema.extend({
   director: z.string().optional(),
   season: z.number().optional(),
   inProgress: z.boolean().optional(),
+  didNotFinish: z.boolean().optional(),
 });
 
 export const movieItemSchema = baseItemSchema.extend({
@@ -68,6 +69,7 @@ export const showItemSchema = baseItemSchema.extend({
   author: z.string().optional(),
   director: z.string().optional(),
   inProgress: z.boolean().optional(),
+  didNotFinish: z.boolean().optional(),
 });
 
 export const itemCreationSchema = z.discriminatedUnion("itemtype", [
@@ -180,6 +182,9 @@ export function extractFormData<T>(
     }
     if ("inProgress" in rawData) {
       rawData.inProgress = rawData.inProgress === "on";
+    }
+    if ("didNotFinish" in rawData) {
+      rawData.didNotFinish = rawData.didNotFinish === "on";
     }
 
     const result = schema.parse(rawData);

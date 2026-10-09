@@ -8,6 +8,7 @@ import {
 } from "@nienke/ui/summary";
 import { yearUrl } from "@/utils/constants/site";
 import {
+  isCounted,
   validateAndTypeItem,
   type BookItem,
   type MovieItem,
@@ -99,7 +100,8 @@ export async function GET(request: NextRequest) {
 
   const items = (rawItems ?? [])
     .map(validateAndTypeItem)
-    .filter((item): item is TypedItem => item !== null);
+    .filter((item): item is TypedItem => item !== null)
+    .filter(isCounted);
 
   const books = items.filter((item) => item.itemtype === "Book");
   const movies = items.filter((item) => item.itemtype === "Movie");

@@ -16,7 +16,8 @@ export interface LogFacts {
 const countOf = async (itemtype?: string) => {
   let query = supabasePublic
     .from("items")
-    .select("*", { count: "exact", head: true });
+    .select("*", { count: "exact", head: true })
+    .eq("did_not_finish", false);
   if (itemtype) query = query.eq("itemtype", itemtype);
   const { count, error } = await query;
   if (error) throw new Error(error.message);

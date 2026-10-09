@@ -14,6 +14,7 @@ export function book(overrides: Partial<TypedItem> = {}): TypedItem {
     published_year: 2020,
     belongs_to_year: 2026,
     redo: false,
+    did_not_finish: false,
     created_at: "2026-03-15T12:00:00Z",
     updated_at: null,
     external_id: null,

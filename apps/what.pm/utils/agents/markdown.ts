@@ -1,4 +1,4 @@
-import type { TypedItem } from "@/types/shared";
+import { isCounted, type TypedItem } from "@/types/shared";
 import type { LogFacts } from "@/utils/data/about";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import {
@@ -16,11 +16,11 @@ function itemLine(item: TypedItem) {
   const title = `**${escape(item.title)}**`;
   switch (item.itemtype) {
     case "Book":
-      return `${title} by ${escape(item.author)} (${item.published_year})${item.in_progress ? ", still reading" : ""}${item.redo ? ", reread" : ""}`;
+      return `${title} by ${escape(item.author)} (${item.published_year})${item.in_progress ? ", still reading" : ""}${item.did_not_finish ? ", didn't finish" : ""}${item.redo ? ", reread" : ""}`;
     case "Movie":
       return `${title}, directed by ${escape(item.director)} (${item.published_year})${item.redo ? ", rewatched" : ""}`;
     case "Show":
-      return `${title}, season ${item.season}${item.in_progress ? ", still watching" : ""}${item.redo ? ", rewatched" : ""}`;
+      return `${title}, season ${item.season}${item.in_progress ? ", still watching" : ""}${item.did_not_finish ? ", didn't finish" : ""}${item.redo ? ", rewatched" : ""}`;
   }
 }
 
@@ -32,6 +32,7 @@ export function yearMarkdown(
   items: TypedItem[],
   isCurrentYear: boolean,
 ) {
+  const counted = items.filter(isCounted).length;
   const intro = isCurrentYear
     ? `What ${OWNER_FIRST_NAME} has read and watched so far this year`
     : `What ${OWNER_FIRST_NAME} read and watched in ${year}`;
@@ -46,7 +47,7 @@ export function yearMarkdown(
 
   return `# ${year} · ${SITE_NAME}
 
-${intro}, as logged on ${SITE_NAME}: ${items.length} ${items.length === 1 ? "thing" : "things"} in total.
+${intro}, as logged on ${SITE_NAME}: ${counted} ${counted === 1 ? "thing" : "things"} in total.${counted < items.length ? ` ${items.length - counted} more ${items.length - counted === 1 ? "was" : "were"} left unfinished.` : ""}
 
 ${sections.join("\n\n")}
 

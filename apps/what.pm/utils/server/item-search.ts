@@ -11,7 +11,7 @@ export async function searchItems(query: string): Promise<Item[]> {
     supabasePublic
       .from("items")
       .select(
-        "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo, in_progress, external_id, pages, runtime_minutes",
+        "id, title, author, director, itemtype, season, published_year, belongs_to_year, redo, in_progress, did_not_finish, external_id, pages, runtime_minutes",
       )
       .or(filter)
       .order("created_at", { ascending: false })

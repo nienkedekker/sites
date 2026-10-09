@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
-import type { TypedItem } from "@/types/shared";
+import { isCounted, type TypedItem } from "@/types/shared";
 import { hasMonthlyData, monthIndex } from "@/utils/data/summary";
 import { splitNames } from "@/utils/data/search-context";
 import { ITEMS_TAG } from "@/utils/constants/app";
@@ -252,5 +252,5 @@ export async function getStatsData(): Promise<StatsData> {
   "use cache";
   cacheLife("hours");
   cacheTag(ITEMS_TAG);
-  return computeStats(await getAllItems());
+  return computeStats((await getAllItems()).filter(isCounted));
 }

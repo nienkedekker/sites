@@ -122,6 +122,8 @@ function FormComponent({
     if ("season" in data && data.season)
       fd.append("season", String(data.season));
     if ("inProgress" in data && data.inProgress) fd.append("inProgress", "on");
+    if ("didNotFinish" in data && data.didNotFinish)
+      fd.append("didNotFinish", "on");
 
     startSaving(async () => {
       try {
@@ -199,6 +201,21 @@ function FormComponent({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="didNotFinish"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(v) => field.onChange(Boolean(v))}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">Didn’t finish</FormLabel>
+                  </FormItem>
+                )}
+              />
             </>
           )}
 
@@ -254,6 +271,21 @@ function FormComponent({
                     <FormLabel className="!mt-0">
                       Currently watching (in progress)
                     </FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="didNotFinish"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(v) => field.onChange(Boolean(v))}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">Didn’t finish</FormLabel>
                   </FormItem>
                 )}
               />
@@ -392,6 +424,7 @@ function getSchemaAndDefaults(tab: TabValue, year: number) {
           redo: false,
           author: "",
           inProgress: false,
+          didNotFinish: false,
         } satisfies BookItemInput,
       };
     case TAB_VALUES.MOVIE:
@@ -418,6 +451,7 @@ function getSchemaAndDefaults(tab: TabValue, year: number) {
           redo: false,
           season: 0,
           inProgress: false,
+          didNotFinish: false,
         } satisfies ShowItemInput,
       };
   }

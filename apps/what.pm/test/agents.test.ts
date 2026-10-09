@@ -157,6 +157,25 @@ describe("yearMarkdown", () => {
     expect(md).toContain("https://www.what.pm/llms.txt");
   });
 
+  it("lists what I didn't finish but leaves it out of the total", () => {
+    const md = yearMarkdown(
+      2025,
+      [
+        book({ title: "Dune", author: "Frank Herbert", published_year: 1965 }),
+        book({
+          title: "Ulysses",
+          author: "James Joyce",
+          published_year: 1922,
+          did_not_finish: true,
+        }),
+      ] as TypedItem[],
+      false,
+    );
+
+    expect(md).toContain("1 thing in total. 1 more was left unfinished.");
+    expect(md).toContain("**Ulysses** by James Joyce (1922), didn't finish");
+  });
+
   it("escapes Markdown in titles", () => {
     expect(
       yearMarkdown(2020, [book({ title: "*Not* bold" })], false),

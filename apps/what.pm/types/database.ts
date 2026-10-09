@@ -44,6 +44,7 @@ export type Database = {
           based_on: string | null;
           belongs_to_year: number;
           created_at: string | null;
+          did_not_finish: boolean;
           director: string | null;
           external_id: string | null;
           genres: string[];
@@ -64,6 +65,7 @@ export type Database = {
           based_on?: string | null;
           belongs_to_year: number;
           created_at?: string | null;
+          did_not_finish?: boolean;
           director?: string | null;
           external_id?: string | null;
           genres?: string[];
@@ -84,6 +86,7 @@ export type Database = {
           based_on?: string | null;
           belongs_to_year?: number;
           created_at?: string | null;
+          did_not_finish?: boolean;
           director?: string | null;
           external_id?: string | null;
           genres?: string[];
