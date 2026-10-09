@@ -2,17 +2,19 @@
 
 import { createClientForServer } from "@/utils/supabase/server";
 import { redirect, unstable_rethrow } from "next/navigation";
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import {
   itemCreationSchema,
   extractFormData,
+  pickKeySchema,
 } from "@/utils/schemas/validation";
 import { ItemInsert, ItemUpdate } from "@/types";
 import {
   getExternalDetails,
   googleBooksPages,
 } from "@/utils/server/external-api";
-import { ITEMS_TAG } from "@/utils/constants/app";
+import { ITEMS_TAG, WANTED_TAG } from "@/utils/constants/app";
+import { getCurrentYear } from "@/utils/formatters/date";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
@@ -67,9 +69,9 @@ export const createItemAction = async (
       season: validatedData.season || null,
       // The forms only send inProgress when it's checked
       in_progress:
-        validatedData.itemtype === "Show"
-          ? (validatedData.inProgress ?? false)
-          : null,
+        validatedData.itemtype === "Movie"
+          ? null
+          : (validatedData.inProgress ?? false),
     };
 
     const { data: created, error } = await supabase
@@ -88,6 +90,85 @@ export const createItemAction = async (
   } catch (error) {
     unstable_rethrow(error);
     console.error("Unexpected error in createItemAction:", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+};
+
+// Started a book or show from up next: it moves to this year's list, in
+// progress. Up next doesn't know seasons, so a show starts at season 1
+export const startUpNextAction = async (
+  formData: FormData,
+): Promise<{ error: string | null }> => {
+  try {
+    const parsed = pickKeySchema.safeParse(Object.fromEntries(formData));
+    if (!parsed.success || parsed.data.itemtype === "Movie") {
+      return { error: "Invalid request." };
+    }
+    const { itemtype } = parsed.data;
+    const key = { itemtype, external_id: parsed.data.externalId };
+    const isBook = itemtype === "Book";
+
+    const supabase = await createClientForServer();
+    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
+
+    const { data: wanted, error: readError } = await supabase
+      .from("wanted")
+      .select("title, creator, published_year")
+      .match(key)
+      .maybeSingle();
+    if (readError || !wanted) {
+      console.error("Database error reading up next item:", readError);
+      return { error: "Couldn’t find that anymore. Reload the page." };
+    }
+    const author = isBook ? wanted.creator : null;
+    if ((isBook && !author) || !wanted.published_year) {
+      return {
+        error: isBook
+          ? "That one has no author or year, so add it from the log form."
+          : "That one has no year, so add it from the log form.",
+      };
+    }
+
+    const season = isBook ? null : 1;
+    const details = await getExternalDetails(itemtype, key.external_id, season);
+    const pages = author
+      ? details?.pages || (await googleBooksPages(wanted.title, author))
+      : null;
+
+    const newItem: ItemInsert = {
+      ...details,
+      pages,
+      external_id: key.external_id,
+      title: wanted.title,
+      itemtype,
+      belongs_to_year: getCurrentYear(),
+      published_year: wanted.published_year,
+      redo: false,
+      author,
+      season,
+      in_progress: true,
+    };
+
+    const { error } = await supabase.from("items").insert(newItem);
+    if (error) {
+      console.error("Database error starting up next item:", error);
+      return { error: "Unable to save that. Please try again." };
+    }
+    // Up next already hides logged items, so a failed clear only leaves a row
+    const { error: clearError } = await supabase
+      .from("wanted")
+      .delete()
+      .match(key);
+    if (clearError) {
+      console.error("Database error clearing started item:", clearError);
+    }
+
+    updateTag(ITEMS_TAG);
+    updateTag(WANTED_TAG);
+    revalidatePath("/up-next");
+    return { error: null };
+  } catch (error) {
+    console.error("Unexpected error in startUpNextAction:", error);
     return { error: "Something went wrong. Please try again." };
   }
 };
@@ -154,9 +235,9 @@ export const updateItemAction = async (
       director: validatedData.director || null,
       season: validatedData.season || null,
       in_progress:
-        validatedData.itemtype === "Show"
-          ? (validatedData.inProgress ?? false)
-          : null,
+        validatedData.itemtype === "Movie"
+          ? null
+          : (validatedData.inProgress ?? false),
       ...(validatedData.itemtype === "Book" && {
         pages: validatedData.pages || null,
       }),

@@ -12,6 +12,7 @@ import {
 } from "@/components/features/recs/entries";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { removeWanted } from "@/app/actions/recommendations";
+import { startUpNextAction } from "@/app/actions/items";
 import { getUpNext, type UpNextItem } from "@/utils/data/up-next";
 import { createClientForServer } from "@/utils/supabase/server";
 
@@ -92,7 +93,12 @@ async function UpNext() {
                         itemtype: entry.itemtype,
                         externalId: entry.external_id,
                       }}
-                      actions={[{ label: "remove", action: removeWanted }]}
+                      actions={[
+                        ...(entry.itemtype !== "Movie"
+                          ? [{ label: "started", action: startUpNextAction }]
+                          : []),
+                        { label: "remove", action: removeWanted },
+                      ]}
                     />
                   </div>
                 )}

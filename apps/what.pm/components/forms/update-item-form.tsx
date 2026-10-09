@@ -147,6 +147,23 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="inProgress"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(v) => field.onChange(Boolean(v))}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">
+                      Currently reading (in progress)
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
             </>
           )}
 
@@ -304,6 +321,7 @@ function getSchemaAndDefaults(item: Item) {
           redo: !!item.redo,
           author: item.author ?? "",
           pages: item.pages ?? 0,
+          inProgress: !!item.in_progress,
         },
       };
     case ITEM_TYPES.MOVIE:

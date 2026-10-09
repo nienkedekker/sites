@@ -168,19 +168,38 @@ function FormComponent({
           />
 
           {activeTab === TAB_VALUES.BOOK && (
-            <FormField
-              control={form.control}
-              name="author"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Author</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <>
+              <FormField
+                control={form.control}
+                name="author"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Author</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="inProgress"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(v) => field.onChange(Boolean(v))}
+                      />
+                    </FormControl>
+                    <FormLabel className="!mt-0">
+                      Currently reading (in progress)
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+            </>
           )}
 
           {activeTab === TAB_VALUES.MOVIE && (
@@ -372,6 +391,7 @@ function getSchemaAndDefaults(tab: TabValue, year: number) {
           publishedYear: 0,
           redo: false,
           author: "",
+          inProgress: false,
         } satisfies BookItemInput,
       };
     case TAB_VALUES.MOVIE:

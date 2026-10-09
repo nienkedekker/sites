@@ -32,26 +32,34 @@ export function ItemBadges({
   item: Item;
   className?: string;
 }) {
-  if (item.itemtype === "Show" && item.in_progress && item.redo) {
-    return (
-      <ItemBadge
-        icon={RotateCcw}
-        label="Rewatch in progress"
-        variant="progress"
-        className={className}
-        ariaLabel="Currently rewatching this show"
-      />
-    );
-  }
-
-  if (item.itemtype === "Show" && item.in_progress) {
+  if (item.itemtype !== "Movie" && item.in_progress) {
+    const isBook = item.itemtype === "Book";
+    if (item.redo) {
+      return (
+        <ItemBadge
+          icon={RotateCcw}
+          label={isBook ? "Reread in progress" : "Rewatch in progress"}
+          variant="progress"
+          className={className}
+          ariaLabel={
+            isBook
+              ? "Currently rereading this book"
+              : "Currently rewatching this show"
+          }
+        />
+      );
+    }
     return (
       <ItemBadge
         icon={Clock}
         label="In progress"
         variant="progress"
         className={className}
-        ariaLabel="Currently watching this show"
+        ariaLabel={
+          isBook
+            ? "Currently reading this book"
+            : "Currently watching this show"
+        }
       />
     );
   }

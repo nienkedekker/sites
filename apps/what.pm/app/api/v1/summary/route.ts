@@ -38,6 +38,7 @@ function toBook(item: BookItem): SummaryBook {
     author: item.author,
     publishedYear: item.published_year,
     reread: item.redo,
+    inProgress: item.in_progress,
     loggedAt: item.created_at,
   };
 }

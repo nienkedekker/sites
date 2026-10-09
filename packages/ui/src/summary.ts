@@ -17,6 +17,7 @@ export interface SummaryBook {
   author: string;
   publishedYear: number;
   reread: boolean;
+  inProgress: boolean;
   loggedAt: string | null;
 }
 

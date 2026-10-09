@@ -14,8 +14,16 @@ const escape = (value: string) =>
 
 function headline(item: TypedItem) {
   switch (item.itemtype) {
-    case "Book":
-      return `${item.redo ? "Reread" : "Read"} ${item.title} by ${item.author}`;
+    case "Book": {
+      const verb = item.in_progress
+        ? item.redo
+          ? "Rereading"
+          : "Reading"
+        : item.redo
+          ? "Reread"
+          : "Read";
+      return `${verb} ${item.title} by ${item.author}`;
+    }
     case "Movie":
       return `${item.redo ? "Rewatched" : "Watched"} ${item.title} (${item.published_year})`;
     case "Show": {

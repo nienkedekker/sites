@@ -16,7 +16,7 @@ function itemLine(item: TypedItem) {
   const title = `**${escape(item.title)}**`;
   switch (item.itemtype) {
     case "Book":
-      return `${title} by ${escape(item.author)} (${item.published_year})${item.redo ? ", reread" : ""}`;
+      return `${title} by ${escape(item.author)} (${item.published_year})${item.in_progress ? ", still reading" : ""}${item.redo ? ", reread" : ""}`;
     case "Movie":
       return `${title}, directed by ${escape(item.director)} (${item.published_year})${item.redo ? ", rewatched" : ""}`;
     case "Show":

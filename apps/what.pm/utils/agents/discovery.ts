@@ -153,12 +153,20 @@ export const OPENAPI = {
       },
       Book: {
         type: "object",
-        required: ["title", "author", "publishedYear", "reread", "loggedAt"],
+        required: [
+          "title",
+          "author",
+          "publishedYear",
+          "reread",
+          "inProgress",
+          "loggedAt",
+        ],
         properties: {
           title: { type: "string" },
           author: { type: "string" },
           publishedYear: { type: "integer" },
           reread: { type: "boolean" },
+          inProgress: { type: "boolean" },
           loggedAt,
         },
       },

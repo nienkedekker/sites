@@ -34,7 +34,7 @@ export type BookItem = BaseItem & {
   author: string;
   director: null;
   season: null;
-  in_progress: null;
+  in_progress: boolean;
 };
 
 export type MovieItem = BaseItem & {
@@ -113,7 +113,7 @@ export function validateAndTypeItem(dbItem: unknown): TypedItem | null {
         author: baseItem.author,
         director: null,
         season: null,
-        in_progress: null,
+        in_progress: baseItem.in_progress ?? false,
       } as BookItem;
 
     case "Movie":

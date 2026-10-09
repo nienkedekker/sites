@@ -59,7 +59,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
       <div className="flex flex-1 items-end">
         <ul
           className="flex h-44 w-full items-end gap-1.5 border-b border-line-strong px-2"
-          aria-label={books.length ? "Most recently finished books" : undefined}
+          aria-label={books.length ? "Most recent books" : undefined}
         >
           {books.map((book, i) => {
             return (
@@ -68,7 +68,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
                 className={`group relative flex flex-1 cursor-default justify-center py-3 transition-transform duration-300 hover:-translate-y-2 ${SPINES[i % SPINES.length]}`}
                 style={{ height: `${spineHeight(book.title)}%` }}
                 tabIndex={0}
-                aria-label={`${book.title} by ${book.author}${book.reread ? ", a reread" : ""}`}
+                aria-label={`${book.title} by ${book.author}${book.inProgress ? ", still reading" : ""}${book.reread ? ", a reread" : ""}`}
               >
                 <span className="max-w-full overflow-hidden text-xs font-medium [writing-mode:vertical-rl]">
                   {book.title}
@@ -79,6 +79,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
                   <span className="block font-medium text-ink">{book.title}</span>
                   <span className="block text-ink-soft">
                     {book.author}
+                    {book.inProgress && <span className="text-ink-faint"> · Reading</span>}
                     {book.reread && <span className="text-ink-faint"> · Reread</span>}
                   </span>
                 </span>

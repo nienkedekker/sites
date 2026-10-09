@@ -44,6 +44,7 @@ export const bookItemSchema = baseItemSchema.extend({
     .optional(),
   director: z.string().optional(),
   season: z.number().optional(),
+  inProgress: z.boolean().optional(),
 });
 
 export const movieItemSchema = baseItemSchema.extend({
