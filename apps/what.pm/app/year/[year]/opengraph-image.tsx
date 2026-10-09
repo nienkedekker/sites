@@ -61,7 +61,7 @@ export default async function Image({
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Headline>{year}</Headline>
-          <SeriesCounts counts={summary.counts} />
+          <SeriesCounts counts={summary.counts} skipZero />
         </div>
 
         {byMonth ? (

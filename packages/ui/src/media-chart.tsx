@@ -34,17 +34,19 @@ export default function MediaChart({
   return (
     <>
       <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-        {SERIES.map(({ key, label, swatch }) => (
-          <li key={key} className="flex items-center gap-2">
-            <span className={`size-2.5 ${swatch}`} aria-hidden="true" />
-            <span className="text-ink-soft">{label}</span>
-            {summary && (
-              <span className="font-medium tabular-nums">
-                {summary.counts[key]}
-              </span>
-            )}
-          </li>
-        ))}
+        {SERIES.filter(({ key }) => !summary || summary.counts[key] > 0).map(
+          ({ key, label, swatch }) => (
+            <li key={key} className="flex items-center gap-2">
+              <span className={`size-2.5 ${swatch}`} aria-hidden="true" />
+              <span className="text-ink-soft">{label}</span>
+              {summary && (
+                <span className="font-medium tabular-nums">
+                  {summary.counts[key]}
+                </span>
+              )}
+            </li>
+          )
+        )}
       </ul>
 
       {failed && !summary ? (
