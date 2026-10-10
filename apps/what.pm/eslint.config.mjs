@@ -18,5 +18,7 @@ export default defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The Python recommender lives here, not JS
+    "recs/**",
   ]),
 ]);

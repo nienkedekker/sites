@@ -1,0 +1,49 @@
+# prefix          goes in front of every text, mine and the candidates. Qwen3
+#                 and Harrier are trained with "Instruct: ...\nQuery: " on the
+#                 query side; this is item-to-item similarity, so it goes on
+#                 both sides.
+# device          "auto" is mps on Apple silicon, cpu otherwise
+# dtype           "auto" loads the weights as published, "float32" is safer
+#                 but takes twice the memory
+
+default = "harrier-0.6b"
+
+[models.qwen3-4b]
+name = "Qwen/Qwen3-Embedding-4B"
+prefix = "Instruct: Given a book, film or TV show, retrieve others like it\nQuery: "
+max_seq_length = 8192
+batch_size = 16
+device = "auto"
+dtype = "auto"
+
+[models."qwen3-0.6b"]
+name = "Qwen/Qwen3-Embedding-0.6B"
+prefix = "Instruct: Given a book, film or TV show, retrieve others like it\nQuery: "
+max_seq_length = 8192
+batch_size = 32
+device = "auto"
+dtype = "auto"
+
+[models."harrier-0.6b"]
+name = "microsoft/harrier-oss-v1-0.6b"
+prefix = "Instruct: Given a book, film or TV show, retrieve others like it\nQuery: "
+max_seq_length = 8192
+batch_size = 32
+device = "auto"
+dtype = "auto"
+
+[models.bge-m3]
+name = "BAAI/bge-m3"
+prefix = ""
+max_seq_length = 8192
+batch_size = 32
+device = "auto"
+dtype = "float32"
+
+[models.baseline]
+name = "sentence-transformers/all-MiniLM-L6-v2"
+prefix = ""
+max_seq_length = 256
+batch_size = 64
+device = "auto"
+dtype = "float32"

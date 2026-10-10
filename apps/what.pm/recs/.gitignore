@@ -1,0 +1,9 @@
+.env
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+embeddings/
+# Data is rebuilt by the scripts; only the hand-written overrides are kept
+data/**
+!data/enriched/
+!data/enriched/overrides.csv

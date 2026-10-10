@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!recs/**"],
       "dependsOn": ["^build"],
       "outputs": [
         "build/**",
@@ -29,12 +29,15 @@
       ]
     },
     "lint": {
+      "inputs": ["$TURBO_DEFAULT$", "!recs/**"],
       "dependsOn": ["^build"]
     },
     "check-types": {
+      "inputs": ["$TURBO_DEFAULT$", "!recs/**"],
       "dependsOn": ["^build"]
     },
     "format": {
+      "inputs": ["$TURBO_DEFAULT$", "!recs/**"],
       "dependsOn": ["^build"]
     },
     "dev": {
@@ -43,6 +46,7 @@
       "persistent": true
     },
     "test": {
+      "inputs": ["$TURBO_DEFAULT$", "!recs/**"],
       "dependsOn": ["^build"],
       "passThroughEnv": ["KV_REST_API_URL", "KV_REST_API_TOKEN", "WANIKANI_KEY"]
     }
