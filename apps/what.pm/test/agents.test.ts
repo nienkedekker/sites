@@ -272,6 +272,7 @@ describe("discovery files", () => {
       "/api/v1/summary",
       "/api/v1/up-next/movies",
       "/api/v1/up-next/shows",
+      "/api/v1/up-next/books",
     ]);
 
     const refs = JSON.stringify(spec).match(/#\/components\/schemas\/\w+/g)!;

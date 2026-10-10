@@ -29,6 +29,7 @@ Every page below also answers in Markdown when requested with \`Accept: text/mar
 - [Year summary](${SITE_URL}/api/v1/summary): JSON counts per type and month, plus the most recent books, movies and shows for a year. Query parameters: \`year\` (defaults to this year) and \`limit\` (1 to 20, default 5)
 - [Up next movies](${SITE_URL}/api/v1/up-next/movies): JSON list of movies ${OWNER_FIRST_NAME} wants to watch, by TMDB id, in Radarr's Custom List format
 - [Up next shows](${SITE_URL}/api/v1/up-next/shows): JSON list of shows ${OWNER_FIRST_NAME} wants to watch, by TheTVDB id, in Sonarr's Custom List format
+- [Up next books](${SITE_URL}/api/v1/up-next/books): JSON list of books ${OWNER_FIRST_NAME} wants to read, with title, author and year
 - [RSS feed](${SITE_URL}/feed.xml): The 50 most recently logged items
 
 ## Optional
@@ -133,6 +134,11 @@ export const OPENAPI = {
       "Shows to watch next, as a Sonarr Custom List",
       "UpNextShow",
     ),
+    "/api/v1/up-next/books": upNextList(
+      "getUpNextBooks",
+      "Books to read next, with what a search needs",
+      "UpNextBook",
+    ),
   },
   components: {
     schemas: {
@@ -235,6 +241,19 @@ export const OPENAPI = {
         properties: {
           tvdbId: { type: "integer", description: "TheTVDB series id" },
           title: { type: "string" },
+        },
+      },
+      UpNextBook: {
+        type: "object",
+        required: ["id", "title", "author", "year"],
+        properties: {
+          id: {
+            type: "string",
+            description: "OpenLibrary work key or Google Books id",
+          },
+          title: { type: "string" },
+          author: { type: ["string", "null"] },
+          year: { type: ["integer", "null"] },
         },
       },
       Error: {

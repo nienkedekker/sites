@@ -15,6 +15,7 @@ vi.mock("next/server", async (original) => ({
 
 const movies = await import("@/app/api/v1/up-next/movies/route");
 const shows = await import("@/app/api/v1/up-next/shows/route");
+const books = await import("@/app/api/v1/up-next/books/route");
 
 const item = (overrides: Partial<UpNextItem>): UpNextItem => ({
   itemtype: "Movie",
@@ -27,7 +28,13 @@ const item = (overrides: Partial<UpNextItem>): UpNextItem => ({
 
 const LIST = [
   item({ itemtype: "Movie", external_id: "438631", title: "Dune" }),
-  item({ itemtype: "Book", external_id: "/works/OL893415W", title: "Dune" }),
+  item({
+    itemtype: "Book",
+    external_id: "/works/OL893415W",
+    title: "Dune",
+    creator: "Frank Herbert",
+    published_year: 1965,
+  }),
   item({ itemtype: "Show", external_id: "95396", title: "Severance" }),
   item({ itemtype: "Show", external_id: "1399", title: "Game of Thrones" }),
   item({ itemtype: "Show", external_id: "42", title: "Not on TVDB" }),
@@ -79,5 +86,26 @@ describe("GET /api/v1/up-next/shows", () => {
   it("fails loudly when up next can't be read", async () => {
     upNext.getUpNext.mockRejectedValue(new Error("down"));
     expect((await shows.GET()).status).toBe(500);
+  });
+});
+
+describe("GET /api/v1/up-next/books", () => {
+  it("lists books with the title and author a search needs", async () => {
+    const res = await books.GET();
+
+    expect(await res.json()).toEqual([
+      {
+        id: "/works/OL893415W",
+        title: "Dune",
+        author: "Frank Herbert",
+        year: 1965,
+      },
+    ]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("fails loudly when up next can't be read", async () => {
+    upNext.getUpNext.mockRejectedValue(new Error("down"));
+    expect((await books.GET()).status).toBe(500);
   });
 });

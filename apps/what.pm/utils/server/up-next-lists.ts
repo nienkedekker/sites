@@ -4,7 +4,8 @@ import { getUpNext } from "@/utils/data/up-next";
 import { getJson, tmdbUrl } from "@/utils/server/external-api";
 
 // Up next as import lists, so Radarr and Sonarr can fetch what I want to
-// watch: Radarr reads TMDB ids, Sonarr reads TheTVDB ids
+// watch: Radarr reads TMDB ids, Sonarr reads TheTVDB ids. Books have no *arr
+// to read them, so their list carries what a search needs: title and author
 
 export interface UpNextMovie {
   id: number;
@@ -16,11 +17,31 @@ export interface UpNextShow {
   title: string;
 }
 
+export interface UpNextBook {
+  id: string;
+  title: string;
+  author: string | null;
+  year: number | null;
+}
+
 export async function upNextMovies(): Promise<UpNextMovie[]> {
   const upNext = await getUpNext();
   return upNext
     .filter((item) => item.itemtype === "Movie")
     .map((item) => ({ id: Number(item.external_id), title: item.title }));
+}
+
+// id is the OpenLibrary work key or Google Books id the book was added with
+export async function upNextBooks(): Promise<UpNextBook[]> {
+  const upNext = await getUpNext();
+  return upNext
+    .filter((item) => item.itemtype === "Book")
+    .map((item) => ({
+      id: item.external_id,
+      title: item.title,
+      author: item.creator,
+      year: item.published_year,
+    }));
 }
 
 // A show's TVDB id never changes, so it's looked up once and shared
