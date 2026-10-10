@@ -87,12 +87,34 @@ def my_subjects(items: pd.DataFrame, limit: int) -> list[str]:
     return [subject for subject, _ in counts.most_common(limit)]
 
 
+# A subject listing on its own is mostly classics (median year 1916), and
+# half of what I read is from the last few years, so each subject is also
+# searched for the last ten years, most-logged first. The subject endpoint's
+# own year filter returns almost nothing.
+RECENT_YEARS = 10
+
+
 def subject_works(subjects: list[str], per_subject: int) -> list[dict]:
     works: dict[str, dict] = {}
+    this_year = date.today().year
     for subject in subjects:
         data = open_library_get(f"/subjects/{subject_slug(subject)}.json", limit=str(per_subject))
         for work in (data or {}).get("works", []):
             works.setdefault(work["key"], work)
+        recent = open_library_get(
+            "/search.json",
+            q=f'subject:"{subject}" first_publish_year:[{this_year - RECENT_YEARS} TO {this_year}]',
+            sort="readinglog",
+            fields="key,title,author_name,first_publish_year",
+            limit=str(per_subject),
+        )
+        for doc in (recent or {}).get("docs", []):
+            works.setdefault(doc["key"], {
+                "key": doc["key"],
+                "title": doc.get("title", ""),
+                "authors": [{"name": n} for n in doc.get("author_name", [])],
+                "first_publish_year": doc.get("first_publish_year"),
+            })
     return list(works.values())
 
 

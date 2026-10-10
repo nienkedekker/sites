@@ -112,6 +112,25 @@ content score, standardised first, and falls back to content alone for
 films MovieLens doesn't know. The Goodreads dump (UCSD, 2017) was checked
 too: it has my books up to 2015 and almost none since, so it stays unused.
 
+## The classifier
+
+`uv run classify` trains on top of the embeddings: positives are my history,
+presumed negatives a random sample of the catalog (five per positive), and
+the features are an item's content vector plus its recency-weighted
+similarity to the history. Logistic regression first, then a small MLP, and
+for films the MovieLens score is blended in afterwards, as for the baseline.
+`--rolling` gives the same five-window table as evaluate, with a "newest"
+row that ranks on the year alone. `--recommend` trains on the whole log and
+prints picks. Notebook 02 walks through it.
+
+Two shortcuts it had to be stopped from taking. Training on every item, it
+learned to tell my data source from the catalog's: a fifth of my items had
+a bare title-and-author text and the catalog almost never does, so it put
+every such held-out book at the top. It trains on fully described items
+only now. And the first book catalog was classics (median year 1916), so
+"recent" alone found most of what I'd read next; the catalog has a recent
+pass now and the "newest" row keeps that honest.
+
 ## Evaluation
 
 The newest 20% of the log is held out and the rest is the history. Each
@@ -125,26 +144,23 @@ at the cut date rather than today. evaluate prints the table twice: once for
 every held-out item, once for only the ones with a synopsis and genres.
 
 Where it stands (2026-10-10, `--rolling`, items with a full text, median
-rank of a held-out item among the candidates, lower is better):
+rank of a held-out item among the candidates, lower is better). The
+similarity rows are `evaluate`, films blended with MovieLens; the classifier
+rows are `classify` on the default embeddings.
 
-| medium | chance | baseline | qwen3-0.6b | harrier-0.6b | qwen3-4b |
-|---|---|---|---|---|---|
-| books | 610 | 205 | 136 | 97 | 99 |
-| movies | 1962 | 920 | 1308 | 1134 | 897 |
-| movies, `--blend movielens` | 1962 | 351 | | 529 | 404 |
-| shows | 1060 | 433 | 459 | 287 | 375 |
+| medium | chance | newest first | similarity, baseline | similarity, harrier | similarity, qwen3-4b | logistic | mlp |
+|---|---|---|---|---|---|---|---|
+| books | 1136 | 302 | 646 | 377 | 406 | 218 | 125 |
+| movies | 1962 | 419 | 351 | 529 | 404 | 445 | 279 |
+| shows | 1060 | 334 | 433 | 287 | 375 | 184 | 161 |
 
-Books work: more than half of the held-out books land in the top 100 for
-the two best models. Shows are close behind on fewer items. Movies are near
-chance for every model: what I log now (Anora, Conclave) reads nothing like
-the franchise-heavy history, and no synopsis says otherwise. Blending in
-MovieLens closes much of that gap: it knows which films are liked by the
-people who liked mine, which is a different kind of similar. The classifier
-is next. Open Library has no description
-for about half of the recent books, and a text that is just a title and a
-year ranks on the year, so the first table flatters whichever model likes
-short texts. The second is the one to compare models on. Notebook 01 has
-the rest, including what the catalog skews.
+An earlier version of this table had the similarity baseline at 97 for
+books. That was the catalog: all classics, so the year in the text did the
+work. With recent books in the catalog, plain similarity is barely better
+than newest-first on books, and the MLP is what finds what I read next, with
+63% of held-out books in its top 100. Films are the hardest: what I log now
+(Anora, Conclave) reads nothing like the franchise-heavy history, and
+MovieLens, which knows who else liked my films, is what moves them.
 
 ## Layout
 

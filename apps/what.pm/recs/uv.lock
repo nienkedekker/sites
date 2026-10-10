@@ -2296,6 +2296,7 @@ dependencies = [
     { name = "pyarrow" },
     { name = "python-dotenv" },
     { name = "requests" },
+    { name = "scikit-learn" },
     { name = "scipy" },
     { name = "sentence-transformers" },
 ]
@@ -2316,6 +2317,7 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=17" },
     { name = "python-dotenv", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.32" },
+    { name = "scikit-learn", specifier = ">=1.5" },
     { name = "scipy", specifier = ">=1.13" },
     { name = "sentence-transformers", specifier = ">=3.0" },
 ]

@@ -66,7 +66,7 @@ def ranks_for(
         return scored, candidates
 
     scores, candidates = scores_from(model_key)
-    if blend and embedding_path(blend, FILE_NAMES[medium]).exists():
+    if blend and blend != model_key and embedding_path(blend, FILE_NAMES[medium]).exists():
         other, other_candidates = scores_from(blend)
         scores = blend_scores(scores, other, np.abs(other_candidates).sum(axis=1) > 0)
     catalog_rows = len(candidates) - int((split.heldout & of_medium).sum())
@@ -116,7 +116,7 @@ def evaluate(
             ranks.append(r)
         # One summary per window, averaged, so each cut date counts the same
         per_window = pd.DataFrame([summarise(r, n_candidates) for r in ranks if len(r)])
-        blended = blend and embedding_path(blend, FILE_NAMES[medium]).exists()
+        blended = blend and blend != model_key and embedding_path(blend, FILE_NAMES[medium]).exists()
         name = f"{model_key}+{blend}" if blended else model_key
         rows.append({"model": name, "medium": medium, "held_out": sum(len(r) for r in ranks),
                      **per_window.mean().to_dict()})
