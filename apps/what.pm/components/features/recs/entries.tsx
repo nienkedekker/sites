@@ -3,6 +3,7 @@ import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
 import { SWATCH } from "@nienke/ui/series";
 import { sourceOf } from "@/components/features/lists/item-source";
+import { SelectBox } from "@/components/features/recs/bulk-select";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import type { ValidItemType } from "@/types/shared";
 
@@ -44,14 +45,17 @@ export function EntryTitle({ entry }: { entry: Entry }) {
   );
 }
 
+// Selectable entries get a checkbox for the BulkSelect around them
 export function TypeColumns<T extends Entry>({
   entries,
   noun,
   render,
+  selectable = false,
 }: {
   entries: T[];
   noun: string;
   render: (entry: T) => ReactNode;
+  selectable?: boolean;
 }) {
   const columns = CATEGORY_CONFIG.map(({ title, type }) => ({
     title,
@@ -81,7 +85,18 @@ export function TypeColumns<T extends Entry>({
           <ul>
             {entries.map((entry) => (
               <li key={entry.external_id} className="border-b border-line py-5">
-                {render(entry)}
+                {selectable ? (
+                  <div className="flex gap-3">
+                    <SelectBox
+                      itemtype={entry.itemtype}
+                      externalId={entry.external_id}
+                      title={entry.title}
+                    />
+                    <div className="min-w-0 flex-1">{render(entry)}</div>
+                  </div>
+                ) : (
+                  render(entry)
+                )}
               </li>
             ))}
           </ul>

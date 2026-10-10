@@ -13,11 +13,13 @@ import {
   EntryTitle,
   TypeColumns,
 } from "@/components/features/recs/entries";
+import { BulkSelect } from "@/components/features/recs/bulk-select";
 import { MadeIt } from "@/components/features/recs/made-it";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { RefreshPicks } from "@/components/features/recs/refresh-picks";
 import {
   dismissRecommendation,
+  removeRecommendations,
   wantRecommendation,
 } from "@/app/actions/recommendations";
 import {
@@ -195,11 +197,14 @@ async function Recs() {
       </div>
 
       {recs.length > 0 ? (
-        <TypeColumns
-          entries={recs}
-          noun="pick"
-          render={(rec) => <RecEntry rec={rec} />}
-        />
+        <BulkSelect entries={recs} noun="pick" remove={removeRecommendations}>
+          <TypeColumns
+            entries={recs}
+            noun="pick"
+            selectable
+            render={(rec) => <RecEntry rec={rec} />}
+          />
+        </BulkSelect>
       ) : (
         <p className="border border-dashed border-line-strong p-6 text-ink-soft">
           {batchAt

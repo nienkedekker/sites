@@ -2,8 +2,9 @@ import Link from "next/link";
 import { formatPlural } from "@nienke/ui/format";
 import { SWATCH, type ItemType } from "@nienke/ui/series";
 import SwellText from "@nienke/ui/swell-text";
-import DeleteItemDialog from "./delete-item-dialog";
 import EditItemDialog from "./edit-item-dialog";
+import { ConfirmDeleteDialog } from "@/components/features/confirm-delete-dialog";
+import { deleteItemAction } from "@/app/actions/items";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
@@ -100,9 +101,13 @@ export function CategoryList({
                         item={item}
                         className="link hover:text-ink"
                       />
-                      <DeleteItemDialog
-                        itemId={item.id}
-                        belongsToYear={item.belongs_to_year}
+                      <ConfirmDeleteDialog
+                        description="This action cannot be undone. This will permanently delete the item."
+                        action={deleteItemAction}
+                        fields={{
+                          id: item.id,
+                          belongsToYear: item.belongs_to_year,
+                        }}
                       />
                       <ItemSource item={item} />
                     </div>

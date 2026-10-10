@@ -7,6 +7,7 @@ import { createClientForServer } from "@/utils/supabase/server";
 import {
   dismissSchema,
   pickKeySchema,
+  pickKeysSchema,
   upNextSchema,
 } from "@/utils/schemas/validation";
 import { loadLog } from "@/utils/server/recommend-log";
@@ -227,6 +228,82 @@ export async function removeWanted(
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in removeWanted:", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+}
+
+export interface PickKey {
+  itemtype: ValidItemType;
+  externalId: string;
+}
+
+// One delete per type, since the key is the pair
+async function deleteKeys(
+  supabase: SupabaseServer,
+  table: "wanted" | "recommendations",
+  keys: PickKey[],
+) {
+  for (const itemtype of VALID_ITEM_TYPES) {
+    const ids = keys
+      .filter((key) => key.itemtype === itemtype)
+      .map((key) => key.externalId);
+    if (ids.length === 0) continue;
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .eq("itemtype", itemtype)
+      .in("external_id", ids);
+    if (error) return error;
+  }
+  return null;
+}
+
+export async function removeWantedMany(
+  keys: PickKey[],
+): Promise<{ error: string | null }> {
+  try {
+    const parsed = pickKeysSchema.safeParse(keys);
+    if (!parsed.success) return { error: "Invalid request." };
+
+    const supabase = await createClientForServer();
+    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
+
+    const error = await deleteKeys(supabase, "wanted", parsed.data);
+    if (error) {
+      console.error("Database error removing wanted items:", error);
+      return { error: "Unable to remove those. Please try again." };
+    }
+
+    updateTag(WANTED_TAG);
+    revalidatePath("/recs");
+    revalidatePath("/up-next");
+    return { error: null };
+  } catch (error) {
+    console.error("Unexpected error in removeWantedMany:", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+}
+
+export async function removeRecommendations(
+  keys: PickKey[],
+): Promise<{ error: string | null }> {
+  try {
+    const parsed = pickKeysSchema.safeParse(keys);
+    if (!parsed.success) return { error: "Invalid request." };
+
+    const supabase = await createClientForServer();
+    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
+
+    const error = await deleteKeys(supabase, "recommendations", parsed.data);
+    if (error) {
+      console.error("Database error removing recommendations:", error);
+      return { error: "Unable to remove those. Please try again." };
+    }
+
+    revalidatePath("/recs");
+    return { error: null };
+  } catch (error) {
+    console.error("Unexpected error in removeRecommendations:", error);
     return { error: "Something went wrong. Please try again." };
   }
 }

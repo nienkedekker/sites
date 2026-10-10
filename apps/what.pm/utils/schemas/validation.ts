@@ -101,6 +101,9 @@ const pickTitle = z.string().trim().min(1).max(200);
 // check the id's shape
 export const pickKeySchema = z.object(pickKeyFields);
 
+// A selection on the up next or recs page, so no more than they hold
+export const pickKeysSchema = z.array(pickKeySchema).min(1).max(500);
+
 export const dismissSchema = z
   .object({
     ...pickKeyFields,

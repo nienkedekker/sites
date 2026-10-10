@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   dismissSchema,
   itemCreationSchema,
+  pickKeysSchema,
   upNextSchema,
 } from "@/utils/schemas/validation";
 
@@ -121,5 +122,24 @@ describe("dismissSchema", () => {
     expect(dismissSchema.safeParse({ ...pick, kind: "hated" }).success).toBe(
       false,
     );
+  });
+});
+
+describe("pickKeysSchema", () => {
+  const key = { itemtype: "Book", externalId: "/works/OL45246981W" };
+
+  it("takes a selection of one or more picks", () => {
+    expect(pickKeysSchema.safeParse([key]).success).toBe(true);
+    expect(
+      pickKeysSchema.safeParse([key, { itemtype: "Show", externalId: "95396" }])
+        .success,
+    ).toBe(true);
+  });
+
+  it("turns down an empty selection or an unknown type", () => {
+    expect(pickKeysSchema.safeParse([]).success).toBe(false);
+    expect(
+      pickKeysSchema.safeParse([{ itemtype: "Game", externalId: "1" }]).success,
+    ).toBe(false);
   });
 });

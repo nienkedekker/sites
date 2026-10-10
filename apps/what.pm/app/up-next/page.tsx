@@ -5,13 +5,14 @@ import PageHeader from "@nienke/ui/page-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { TypeColumnsSkeleton } from "@/components/features/skeletons/type-columns-skeleton";
 import { AddUpNext } from "@/components/features/recs/add-up-next";
+import { BulkSelect } from "@/components/features/recs/bulk-select";
 import {
   byline,
   EntryTitle,
   TypeColumns,
 } from "@/components/features/recs/entries";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
-import { removeWanted } from "@/app/actions/recommendations";
+import { removeWanted, removeWantedMany } from "@/app/actions/recommendations";
 import { startUpNextAction } from "@/app/actions/items";
 import { getUpNext, type UpNextItem } from "@/utils/data/up-next";
 import { createClientForServer } from "@/utils/supabase/server";
@@ -69,46 +70,55 @@ async function UpNext() {
     );
   }
 
+  const columns = (
+    <TypeColumns
+      entries={upNext}
+      noun="item"
+      selectable={signedIn}
+      render={(entry) => {
+        const reason = reasons.get(`${entry.itemtype}|${entry.external_id}`);
+        return (
+          <>
+            <EntryTitle entry={entry} />
+            {byline(entry) && (
+              <p className="mt-1 text-sm text-ink-soft">{byline(entry)}</p>
+            )}
+            {reason && <p className="mt-3 text-sm text-ink">{reason}</p>}
+            {signedIn && (
+              <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft">
+                <QuietActions
+                  subject={entry.title}
+                  fields={{
+                    itemtype: entry.itemtype,
+                    externalId: entry.external_id,
+                  }}
+                  actions={[
+                    ...(entry.itemtype !== "Movie"
+                      ? [{ label: "started", action: startUpNextAction }]
+                      : []),
+                    { label: "remove", action: removeWanted },
+                  ]}
+                />
+              </div>
+            )}
+          </>
+        );
+      }}
+    />
+  );
+
   return (
     <>
       {signedIn && <AddUpNext />}
 
       {upNext.length > 0 ? (
-        <TypeColumns
-          entries={upNext}
-          noun="item"
-          render={(entry) => {
-            const reason = reasons.get(
-              `${entry.itemtype}|${entry.external_id}`,
-            );
-            return (
-              <>
-                <EntryTitle entry={entry} />
-                {byline(entry) && (
-                  <p className="mt-1 text-sm text-ink-soft">{byline(entry)}</p>
-                )}
-                {reason && <p className="mt-3 text-sm text-ink">{reason}</p>}
-                {signedIn && (
-                  <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft">
-                    <QuietActions
-                      subject={entry.title}
-                      fields={{
-                        itemtype: entry.itemtype,
-                        externalId: entry.external_id,
-                      }}
-                      actions={[
-                        ...(entry.itemtype !== "Movie"
-                          ? [{ label: "started", action: startUpNextAction }]
-                          : []),
-                        { label: "remove", action: removeWanted },
-                      ]}
-                    />
-                  </div>
-                )}
-              </>
-            );
-          }}
-        />
+        signedIn ? (
+          <BulkSelect entries={upNext} noun="item" remove={removeWantedMany}>
+            {columns}
+          </BulkSelect>
+        ) : (
+          columns
+        )
       ) : (
         <p className="border border-dashed border-line-strong p-6 text-ink-soft">
           Nothing up next right now.
