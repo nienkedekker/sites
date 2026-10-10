@@ -93,6 +93,7 @@ export async function suggestWithClaude(
   const log = promptItems(items, pickSeeds(items, seedWeights(items)));
   const authors = favouriteCreators(items, "Book", HIDDEN_PEOPLE);
   const directors = favouriteCreators(items, "Movie", HIDDEN_PEOPLE);
+  const count = only ? TYPE_SUGGESTION_COUNT : SUGGESTION_COUNT;
   const prompt = [
     `<log>\n${log.map(logLine).join("\n")}\n</log>`,
     `<most_logged>\nAuthors: ${authors.join(", ")}\nDirectors: ${directors.join(", ")}\n</most_logged>`,
@@ -106,27 +107,29 @@ export async function suggestWithClaude(
     dismissed.length > 0
       ? `<dismissed>\n${dismissed.map((d) => `${d.title} (${d.kind === "seen" ? "already seen" : "not for me"})`).join("\n")}\n</dismissed>`
       : "",
+    `Give me all ${count} suggestions.`,
   ]
     .filter(Boolean)
     .join("\n\n");
 
   try {
-    // The page gets 60 seconds, and looking up the picks takes some of them
-    const client = new Anthropic({ timeout: 40_000, maxRetries: 1 });
+    // The page gets 120 seconds, and looking up the picks takes some of them
+    const client = new Anthropic({ timeout: 90_000, maxRetries: 0 });
     const response = await client.beta.messages.parse(
       {
         model: "claude-opus-5-5",
         max_tokens: 16000,
         betas: ["server-side-fallback-2026-07-01"],
         fallbacks: "default",
+        // At low effort Opus 5.5 can skip thinking and stop after one pick
         output_config: {
-          effort: "low",
+          effort: "medium",
           format: betaZodOutputFormat(SuggestionsSchema),
         },
         system: system(only),
         messages: [{ role: "user", content: prompt }],
       },
-      { signal: AbortSignal.timeout(45_000) },
+      { signal: AbortSignal.timeout(95_000) },
     );
     if (response.stop_reason === "refusal" || !response.parsed_output) {
       console.error("Claude gave no usable suggestions:", response.stop_reason);
@@ -136,8 +139,7 @@ export async function suggestWithClaude(
       (suggestion) => !only || suggestion.itemtype === only,
     );
     // A short answer leaves too few to look up, so say what came back
-    const asked = only ? TYPE_SUGGESTION_COUNT : SUGGESTION_COUNT;
-    if (suggestions.length < asked / 2) {
+    if (suggestions.length < count / 2) {
       console.warn(
         "Claude came back short:",
         JSON.stringify({

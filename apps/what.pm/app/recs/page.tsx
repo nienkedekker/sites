@@ -33,7 +33,7 @@ import type { Tables } from "@/types";
 import type { ValidItemType } from "@/types/shared";
 
 // Refreshing runs as an action in this route's function, and takes a while
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export const metadata: Metadata = {
   title: "Recommendations",
