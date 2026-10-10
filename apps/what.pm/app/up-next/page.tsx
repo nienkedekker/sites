@@ -16,9 +16,12 @@ import { startUpNextAction } from "@/app/actions/items";
 import { getUpNext, type UpNextItem } from "@/utils/data/up-next";
 import { createClientForServer } from "@/utils/supabase/server";
 
+// Only for me: the page sits behind sign-in, while the lists Radarr, Sonarr and
+// the book fetcher read under /api/v1/up-next stay public
 export const metadata: Metadata = {
   title: "Up next",
   description: "Books, movies, and TV shows I want to get to next.",
+  robots: { index: false },
 };
 
 export default function UpNextPage() {

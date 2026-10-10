@@ -7,6 +7,7 @@ describe("isProtectedPathname", () => {
     expect(isProtectedPathname("/settings")).toBe(true);
     expect(isProtectedPathname("/create/anything")).toBe(true);
     expect(isProtectedPathname("/recs")).toBe(true);
+    expect(isProtectedPathname("/up-next")).toBe(true);
   });
 
   it("matches whole path segments only", () => {

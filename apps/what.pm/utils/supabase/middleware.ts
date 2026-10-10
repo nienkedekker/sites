@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const protectedPaths = ["/create", "/settings", "/recs"];
+const protectedPaths = ["/create", "/settings", "/recs", "/up-next"];
 
 // The download route answers its own 401, which a fetch can read; a redirect
 // would be followed and the sign-in page saved as the export
