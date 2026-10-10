@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "prettier": "^3.5.2",
-    "turbo": "^2.7.4"
+    "turbo": "^2.11.7"
   },
   "packageManager": "pnpm@12.10.1",
   "engines": {
