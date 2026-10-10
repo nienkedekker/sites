@@ -1,0 +1,92 @@
+---
+import NanamiStatus from "../components/nanami-status";
+import PageLayout from "../layouts/PageLayout.astro";
+import {
+  getReport,
+  isSignedIn,
+  signIn,
+  signOut,
+  type SignIn,
+} from "../lib/nanami";
+
+// Just for me: the media server at home, behind a password and out of search engines
+export const prerender = false;
+
+Astro.response.headers.set("Cache-Control", "private, no-store");
+Astro.response.headers.set("X-Robots-Tag", "noindex");
+
+let failed: Exclude<SignIn, "signed-in"> | null = null;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("action") === "sign-out") {
+    signOut(Astro.cookies);
+    return Astro.redirect("/nanami", 303);
+  }
+  const password = String(form.get("password") ?? "");
+  const result = await signIn(password, Astro.clientAddress, Astro.cookies);
+  if (result === "signed-in") return Astro.redirect("/nanami", 303);
+  failed = result;
+  Astro.response.status = result === "slow-down" ? 429 : 401;
+}
+
+const signedIn = isSignedIn(Astro.cookies);
+const report = signedIn ? await getReport().catch(() => null) : null;
+
+const messages = {
+  wrong: "That's not it.",
+  "slow-down": "Too many tries. Wait a quarter of an hour.",
+  locked: "No password is set, so nobody gets in.",
+};
+---
+
+<PageLayout
+  title="nanami"
+  intro="The media server at home: how it fits together, and whether it's all running."
+>
+  {
+    signedIn ? (
+      <>
+        <NanamiStatus client:load initial={report} renderedAt={Date.now()} />
+        <form method="post" class="mt-10" data-astro-reload>
+          <button
+            name="action"
+            value="sign-out"
+            class="link cursor-pointer font-mono text-xs text-ink-faint"
+          >
+            Sign out
+          </button>
+        </form>
+      </>
+    ) : (
+      <form
+        method="post"
+        class="card max-w-sm space-y-4 p-5 sm:p-6"
+        data-astro-reload
+      >
+        <label for="password" class="card-title block">
+          Password
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+          class="w-full border border-line-strong bg-paper px-3 py-2 font-mono text-sm"
+        />
+        {failed && (
+          <p class="text-sm text-down" role="alert">
+            {messages[failed]}
+          </p>
+        )}
+        <button
+          type="submit"
+          class="cursor-pointer bg-ink px-4 py-2 font-mono text-xs text-paper"
+        >
+          Sign in
+        </button>
+      </form>
+    )
+  }
+</PageLayout>

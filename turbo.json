@@ -25,6 +25,8 @@
         "CRON_SECRET",
         "KV_REST_API_URL",
         "KV_REST_API_TOKEN",
+        "NANAMI_PASSWORD",
+        "NANAMI_PUSH_TOKEN",
         "WANIKANI_KEY"
       ]
     },

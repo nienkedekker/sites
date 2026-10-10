@@ -18,6 +18,10 @@
   /* --movies is too dark for small text on the dark theme */
   --movies-text: var(--movies);
   --shows: #8b909a;
+  /* Status lights; always shown next to a word, never on their own */
+  --ok: #1f8a4c;
+  --warn: #b26b00;
+  --down: #c8322d;
 
   color-scheme: light;
 }
@@ -37,6 +41,9 @@
   --movies: #5f69aa;
   --movies-text: var(--accent);
   --shows: #6c7078;
+  --ok: #4cc38a;
+  --warn: #e2a336;
+  --down: #f0645c;
 
   color-scheme: dark;
 }
@@ -65,6 +72,9 @@
   --color-movies: var(--movies);
   --color-movies-text: var(--movies-text);
   --color-shows: var(--shows);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-down: var(--down);
 }
 
 @layer base {

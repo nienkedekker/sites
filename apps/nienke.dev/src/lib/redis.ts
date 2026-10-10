@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { Redis } from "@upstash/redis";
 import { KV_REST_API_TOKEN, KV_REST_API_URL } from "astro:env/server";
 
-const redis = new Redis({ url: KV_REST_API_URL, token: KV_REST_API_TOKEN });
+export const redis = new Redis({ url: KV_REST_API_URL, token: KV_REST_API_TOKEN });
 
 const HITS_KEY = "site:hits";
 const SEEN_FOR_SECONDS = 60 * 60 * 24;
