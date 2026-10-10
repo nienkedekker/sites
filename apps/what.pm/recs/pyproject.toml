@@ -10,6 +10,7 @@ dependencies = [
     "pyarrow>=17",
     "python-dotenv>=1.0",
     "requests>=2.32",
+    "scipy>=1.13",
     "sentence-transformers>=3.0",
 ]
 
@@ -19,6 +20,7 @@ enrich = "recs.enrich:main"
 build-catalog = "recs.build_catalog:main"
 embed = "recs.embed:main"
 evaluate = "recs.evaluate:main"
+movielens = "recs.movielens:main"
 recommend = "recs.recommend:main"
 
 [dependency-groups]

@@ -4,6 +4,7 @@
     uv run evaluate baseline qwen3-4b     # just these, one table
     uv run evaluate --rolling             # average over five cut dates
     uv run evaluate --half-life 0         # every history item counts the same
+    uv run evaluate --blend movielens     # films: average in the MovieLens score
 """
 
 import argparse
@@ -13,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from recs.paths import EMBEDDINGS, FILE_NAMES, ITEMS, MEDIA, catalog_path, embedding_path
-from recs.recommend import HALF_LIFE, K_NEIGHBOURS, recency_weights, score_candidates
+from recs.recommend import HALF_LIFE, K_NEIGHBOURS, blend_scores, recency_weights, score_candidates
 
 HOLDOUT = 0.2
 KS = (10, 50, 100)
@@ -44,28 +45,35 @@ def temporal_split(items: pd.DataFrame, holdout: float = HOLDOUT, end: float = 1
 
 def ranks_for(
     items: pd.DataFrame,
-    item_vectors: np.ndarray,
     split: Split,
     model_key: str,
     medium: str,
     k: int,
     half_life: float | None = None,
+    blend: str | None = None,
 ) -> np.ndarray:
     of_medium = (items["medium"] == medium).to_numpy()
-    history = item_vectors[split.train & of_medium]
-    heldout = item_vectors[split.heldout & of_medium]
-    catalog = np.load(embedding_path(model_key, FILE_NAMES[medium]))
     # Ages are taken at the cut date, not today: at the cut, that was "now"
     weights = recency_weights(items.loc[split.train & of_medium, "date_logged"], half_life, split.cut_date)
 
-    # The catalog leaves out everything I've logged, held-out items too, so
-    # without adding them here the baseline could never find them
-    candidates = np.vstack([catalog, heldout])
-    scores, _ = score_candidates(candidates, history, k, weights)
+    def scores_from(key: str) -> tuple[np.ndarray, np.ndarray]:
+        vectors = np.load(embedding_path(key, "items"))
+        catalog = np.load(embedding_path(key, FILE_NAMES[medium]))
+        # The catalog leaves out everything I've logged, held-out items too, so
+        # without adding them here the baseline could never find them
+        candidates = np.vstack([catalog, vectors[split.heldout & of_medium]])
+        scored, _ = score_candidates(candidates, vectors[split.train & of_medium], k, weights)
+        return scored, candidates
+
+    scores, candidates = scores_from(model_key)
+    if blend and embedding_path(blend, FILE_NAMES[medium]).exists():
+        other, other_candidates = scores_from(blend)
+        scores = blend_scores(scores, other, np.abs(other_candidates).sum(axis=1) > 0)
+    catalog_rows = len(candidates) - int((split.heldout & of_medium).sum())
     order = np.argsort(-scores)
     rank_of = np.empty(len(candidates), dtype=int)
     rank_of[order] = np.arange(1, len(candidates) + 1)
-    return rank_of[len(catalog):]
+    return rank_of[catalog_rows:]
 
 
 def summarise(ranks: np.ndarray, n_candidates: int) -> dict[str, float]:
@@ -86,17 +94,19 @@ def evaluate(
     complete_only: bool = False,
     windows: list[tuple[float, float]] | None = None,
     half_life: float | None = None,
+    blend: str | None = None,
 ) -> pd.DataFrame:
     items = pd.read_parquet(ITEMS)
-    vectors = np.load(embedding_path(model_key, "items"))
     splits = [temporal_split(items, h, e) for h, e in (windows or [(HOLDOUT, 1.0)])]
     rows = []
     for medium in MEDIA:
+        if not embedding_path(model_key, FILE_NAMES[medium]).exists():
+            continue
         catalog = pd.read_parquet(catalog_path(medium))
         ranks = []
         n_candidates = 0
         for split in splits:
-            r = ranks_for(items, vectors, split, model_key, medium, k, half_life)
+            r = ranks_for(items, split, model_key, medium, k, half_life, blend)
             n_candidates = max(n_candidates, len(catalog) + len(r))
             if complete_only:
                 # Open Library has no description or subjects for about half of
@@ -106,7 +116,9 @@ def evaluate(
             ranks.append(r)
         # One summary per window, averaged, so each cut date counts the same
         per_window = pd.DataFrame([summarise(r, n_candidates) for r in ranks if len(r)])
-        rows.append({"model": model_key, "medium": medium, "held_out": sum(len(r) for r in ranks),
+        blended = blend and embedding_path(blend, FILE_NAMES[medium]).exists()
+        name = f"{model_key}+{blend}" if blended else model_key
+        rows.append({"model": name, "medium": medium, "held_out": sum(len(r) for r in ranks),
                      **per_window.mean().to_dict()})
     return pd.DataFrame(rows)
 
@@ -122,6 +134,7 @@ def main() -> None:
     parser.add_argument("--half-life", type=float, default=HALF_LIFE,
                         help="years; recent history counts more, 0 for no weighting")
     parser.add_argument("--rolling", action="store_true", help="average over five cut dates")
+    parser.add_argument("--blend", help="a second set to average in, e.g. movielens")
     args = parser.parse_args()
     windows = ROLLING if args.rolling else None
 
@@ -139,7 +152,7 @@ def main() -> None:
 
     for complete_only in (False, True):
         table = pd.concat(
-            [evaluate(key, args.k, complete_only, windows, args.half_life) for key in keys],
+            [evaluate(key, args.k, complete_only, windows, args.half_life, args.blend) for key in keys],
             ignore_index=True,
         )
         table = table.set_index(["medium", "model"]).sort_index()

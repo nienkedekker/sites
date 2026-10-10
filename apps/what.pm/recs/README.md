@@ -96,6 +96,22 @@ split, candidates and scoring are the same for every row, only the
 embeddings differ. The 4B takes about half an hour to embed everything on
 the GPU; the 0.6B models take five to seven minutes.
 
+## MovieLens
+
+Content similarity can't see that my film taste moved; other people's logs
+can. `uv run movielens` reads the MovieLens 32M ratings (unzip
+[ml-32m.zip](https://files.grouplens.org/datasets/movielens/) into
+`data/external/movielens/`), keeps the ratings of 4 and up, and factorises
+the films-by-users matrix into 128 numbers per film. That's an embedding too,
+from who liked a film rather than what it's about, and it's written to
+`embeddings/movielens/` for films only. MovieLens covers 556 of my 609 films
+and stops in 2023, so anything newer gets a zero vector.
+
+`--blend movielens` on recommend and evaluate averages that score with the
+content score, standardised first, and falls back to content alone for
+films MovieLens doesn't know. The Goodreads dump (UCSD, 2017) was checked
+too: it has my books up to 2015 and almost none since, so it stays unused.
+
 ## Evaluation
 
 The newest 20% of the log is held out and the rest is the history. Each
@@ -115,13 +131,16 @@ rank of a held-out item among the candidates, lower is better):
 |---|---|---|---|---|---|
 | books | 610 | 205 | 136 | 97 | 99 |
 | movies | 1962 | 920 | 1308 | 1134 | 897 |
+| movies, `--blend movielens` | 1962 | 351 | | 529 | 404 |
 | shows | 1060 | 433 | 459 | 287 | 375 |
 
 Books work: more than half of the held-out books land in the top 100 for
 the two best models. Shows are close behind on fewer items. Movies are near
 chance for every model: what I log now (Anora, Conclave) reads nothing like
-the franchise-heavy history, and no synopsis says otherwise. That's the gap
-for other people's logs (MovieLens) and the classifier to close. Open Library has no description
+the franchise-heavy history, and no synopsis says otherwise. Blending in
+MovieLens closes much of that gap: it knows which films are liked by the
+people who liked mine, which is a different kind of similar. The classifier
+is next. Open Library has no description
 for about half of the recent books, and a text that is just a title and a
 year ranks on the year, so the first table flatters whichever model likes
 short texts. The second is the one to compare models on. Notebook 01 has
