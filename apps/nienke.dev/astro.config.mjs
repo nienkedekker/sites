@@ -33,6 +33,12 @@ export default defineConfig({
         access: "secret",
         optional: true,
       }),
+      // Signs the status page's session cookie; a long random string
+      NANAMI_SESSION_SECRET: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+      }),
     },
   },
   prefetch: {

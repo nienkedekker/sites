@@ -27,6 +27,7 @@
         "KV_REST_API_TOKEN",
         "NANAMI_PASSWORD",
         "NANAMI_PUSH_TOKEN",
+        "NANAMI_SESSION_SECRET",
         "WANIKANI_KEY"
       ]
     },
