@@ -23,6 +23,7 @@ const item = (overrides: Partial<UpNextItem>): UpNextItem => ({
   title: "A title",
   creator: null,
   published_year: 2020,
+  created_at: "2026-10-01T12:00:00Z",
   ...overrides,
 });
 

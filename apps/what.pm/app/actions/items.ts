@@ -15,6 +15,8 @@ import {
 } from "@/utils/server/external-api";
 import { ITEMS_TAG, WANTED_TAG } from "@/utils/constants/app";
 import { getCurrentYear } from "@/utils/formatters/date";
+import { getCachedItems } from "@/utils/data/items";
+import { isLogged, logIndex } from "@/utils/data/recommend";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
@@ -99,7 +101,8 @@ export const createItemAction = async (
 };
 
 // Started a book or show from up next: it moves to this year's list, in
-// progress. Up next doesn't know seasons, so a show starts at season 1
+// progress, as a reread if it's in the log already. Up next doesn't know
+// seasons, so a show starts at season 1
 export const startUpNextAction = async (
   formData: FormData,
 ): Promise<{ error: string | null }> => {
@@ -134,6 +137,10 @@ export const startUpNextAction = async (
     }
 
     const season = isBook ? null : 1;
+    const readBefore = isLogged(
+      { ...key, title: wanted.title, creator: wanted.creator },
+      logIndex(await getCachedItems()),
+    );
     const details = await getExternalDetails(itemtype, key.external_id, season);
     const pages = author
       ? details?.pages || (await googleBooksPages(wanted.title, author))
@@ -147,7 +154,7 @@ export const startUpNextAction = async (
       itemtype,
       belongs_to_year: getCurrentYear(),
       published_year: wanted.published_year,
-      redo: false,
+      redo: readBefore,
       author,
       season,
       in_progress: true,
@@ -158,7 +165,8 @@ export const startUpNextAction = async (
       console.error("Database error starting up next item:", error);
       return { error: "Unable to save that. Please try again." };
     }
-    // Up next already hides logged items, so a failed clear only leaves a row
+    // Up next already hides what's logged since it was added, so a failed
+    // clear only leaves a row
     const { error: clearError } = await supabase
       .from("wanted")
       .delete()

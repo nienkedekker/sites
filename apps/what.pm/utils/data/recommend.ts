@@ -247,6 +247,19 @@ export function isLogged(
   );
 }
 
+// Up next keeps an entry until it's logged after being added, so something
+// read before can go back on the list for a reread
+export function loggedSinceAdded(
+  entry: Parameters<typeof isLogged>[0] & { created_at: string },
+  items: TypedItem[],
+) {
+  const added = Date.parse(entry.created_at);
+  const since = items.filter(
+    (item) => item.created_at && Date.parse(item.created_at) >= added,
+  );
+  return isLogged(entry, logIndex(since));
+}
+
 type SavedPick = Parameters<typeof isLogged>[0] & {
   reason: string | null;
   created_at: string;

@@ -10,6 +10,7 @@ import {
   knownNames,
   logIndex,
   loggedPicks,
+  loggedSinceAdded,
   pickSeeds,
   promptItems,
   seedWeights,
@@ -387,6 +388,36 @@ describe("keepNew", () => {
     expect(reason(found({ external_id: "/works/OL4W", title: "New" }))).toBe(
       null,
     );
+  });
+});
+
+describe("loggedSinceAdded", () => {
+  const wanted = {
+    itemtype: "Book",
+    external_id: "/works/OL1W",
+    title: "Ninth House",
+    creator: "Leigh Bardugo",
+    created_at: "2026-10-10T14:33:00Z",
+  };
+
+  it("keeps a reread on up next while the only entries are from before", () => {
+    const before = book({
+      external_id: "/works/OL1W",
+      title: "Ninth House",
+      author: "Leigh Bardugo",
+      created_at: "2023-03-01T12:00:00Z",
+    });
+    const undated = book({ title: "Ninth House", author: "Leigh Bardugo" });
+    expect(loggedSinceAdded(wanted, [before, undated])).toBe(false);
+  });
+
+  it("takes it off once it's logged after being added", () => {
+    const after = book({
+      title: "Ninth House",
+      author: "Leigh Bardugo",
+      created_at: "2026-10-20T09:00:00Z",
+    });
+    expect(loggedSinceAdded(wanted, [after])).toBe(true);
   });
 });
 

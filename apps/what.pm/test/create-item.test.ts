@@ -6,6 +6,7 @@ const db = vi.hoisted(() => ({
   wanted: null as Record<string, unknown> | null,
   error: null as { message: string } | null,
   user: { id: "nienke" } as { id: string } | null,
+  logged: [] as Record<string, unknown>[],
 }));
 
 const getExternalDetails = vi.hoisted(() => vi.fn());
@@ -43,6 +44,10 @@ vi.mock("@/utils/supabase/server", () => ({
       }),
     }),
   }),
+}));
+
+vi.mock("@/utils/data/items", () => ({
+  getCachedItems: async () => db.logged,
 }));
 
 vi.mock("@/utils/server/external-api", () => ({
@@ -91,6 +96,7 @@ const slowGods = {
 };
 
 beforeEach(() => {
+  db.logged = [];
   db.inserted = [];
   db.deleted = [];
   db.wanted = null;
@@ -294,6 +300,26 @@ describe("startUpNextAction", () => {
       in_progress: true,
     });
     expect(db.deleted).toEqual([{ itemtype: "Book", external_id: "OL1W" }]);
+  });
+
+  it("logs a book that's in the log already as a reread", async () => {
+    db.wanted = {
+      title: "Ninth House",
+      creator: "Leigh Bardugo",
+      published_year: 2019,
+    };
+    db.logged = [
+      {
+        itemtype: "Book",
+        external_id: "OL2W",
+        title: "Ninth House",
+        author: "Leigh Bardugo",
+      },
+    ];
+    getExternalDetails.mockResolvedValue({ pages: 480 });
+
+    await started({ itemtype: "Book", externalId: "OL2W" });
+    expect(db.inserted[0]).toMatchObject({ title: "Ninth House", redo: true });
   });
 
   it("starts a show at season 1, without a book's page lookup", async () => {
