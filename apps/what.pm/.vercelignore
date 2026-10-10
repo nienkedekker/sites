@@ -1,2 +1,2 @@
 # The Python recommender has its own data and venv, none of it deploys
-recs/
+/recs/
