@@ -20,11 +20,13 @@ export function AddUpNext() {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // Keep what's typed; only the match belongs to the old type's source. Back
+  // in the box, the new type's matches open without another click
   const changeType = (type: ValidItemType) => {
     setItemType(type);
-    setTitle("");
     setPicked(null);
     setError(null);
+    document.getElementById(inputId)?.focus();
   };
 
   const add = () => {
@@ -86,7 +88,6 @@ export function AddUpNext() {
           Title
         </label>
         <TitleAutocomplete
-          key={itemType}
           id={inputId}
           itemType={itemType}
           value={title}

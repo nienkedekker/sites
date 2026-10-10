@@ -55,6 +55,16 @@ export function TitleAutocomplete({
   const [active, setActive] = useState(-1);
   const [failed, setFailed] = useState(false);
 
+  // A new type searches its own source for whatever is in the box, even a
+  // title picked from the old one
+  const [searchedType, setSearchedType] = useState(itemType);
+  if (itemType !== searchedType) {
+    setSearchedType(itemType);
+    setQuery(value);
+    setResults([]);
+    setFailed(false);
+  }
+
   const trimmed = query.trim();
   const searchable = trimmed.length >= 2 && trimmed.length <= 200;
 
