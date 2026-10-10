@@ -23,3 +23,5 @@ npm-debug.log
 # Tumblr backups (large, personal)
 old-sites-handover/tumblr-backup/
 apps/nienke.dev/scripts/old-sites-snapshot/cache/
+.vercel
+.env*
