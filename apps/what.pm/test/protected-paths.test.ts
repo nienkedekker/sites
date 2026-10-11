@@ -9,7 +9,7 @@ describe("isProtectedPathname", () => {
     expect(isProtectedPathname("/discover")).toBe(true);
     expect(isProtectedPathname("/up-next")).toBe(true);
     expect(isProtectedPathname("/nanami/downloads")).toBe(true);
-    expect(isProtectedPathname("/discover/new")).toBe(true);
+    expect(isProtectedPathname("/discover/for-you")).toBe(true);
   });
 
   it("matches whole path segments only", () => {

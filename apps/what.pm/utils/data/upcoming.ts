@@ -1,4 +1,5 @@
 import { genresIn } from "@/utils/data/book-genres";
+import { normalizeTitle } from "@/utils/data/patterns";
 
 // New books, out in the last two months or coming soon, as Hardcover
 // describes them
@@ -126,3 +127,8 @@ export function genresOf(books: UpcomingBook[]) {
 
 export const matchesGenres = (book: UpcomingBook, genres: Set<string>) =>
   genres.size === 0 || book.genres.some((genre) => genres.has(genre));
+
+// Titles to compare by: without a subtitle, since Hardcover, Open Library and
+// the log don't always agree on one ("Ninth House" or "Ninth House: A Novel")
+export const titleKey = (title: string) =>
+  normalizeTitle(title.split(/[:(]/)[0]);

@@ -5,6 +5,7 @@ import {
   favouriteGenres,
   isOut,
   matchesGenres,
+  titleKey,
   toUpcoming,
   type HardcoverBook,
 } from "@/utils/data/upcoming";
@@ -146,5 +147,12 @@ describe("recent books", () => {
       ["2026-10", [2]],
       ["2026-09", [1]],
     ]);
+  });
+});
+
+describe("titleKey", () => {
+  it("matches titles with and without a subtitle", () => {
+    expect(titleKey("Ninth House: A Novel")).toBe(titleKey("Ninth House"));
+    expect(titleKey("The Fisherman (Hardcover)")).toBe(titleKey("Fisherman"));
   });
 });

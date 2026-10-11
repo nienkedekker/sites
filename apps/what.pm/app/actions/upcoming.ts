@@ -61,7 +61,7 @@ export async function addUpcomingToUpNext(
 
     updateTag(WANTED_TAG);
     revalidatePath("/up-next");
-    revalidatePath("/discover/new");
+    revalidatePath("/discover");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in addUpcomingToUpNext:", error);

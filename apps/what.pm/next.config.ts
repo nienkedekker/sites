@@ -16,8 +16,9 @@ const nextConfig: NextConfig = {
   // Recs and new books moved under Discover
   async redirects() {
     return [
-      { source: "/recs", destination: "/discover", permanent: true },
-      { source: "/recent", destination: "/discover/new", permanent: true },
+      { source: "/recs", destination: "/discover/for-you", permanent: true },
+      { source: "/recent", destination: "/discover", permanent: true },
+      { source: "/discover/new", destination: "/discover", permanent: true },
     ];
   },
   async headers() {

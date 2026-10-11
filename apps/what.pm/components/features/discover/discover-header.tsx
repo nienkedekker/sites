@@ -3,11 +3,11 @@ import UiNavLinks from "@nienke/ui/nav-links";
 import PageHeader from "@nienke/ui/page-header";
 import { hasRecs, hasUpcoming } from "@/utils/server/services";
 
-// Both ways of finding what to read and watch next, under one header: picks
-// from the log, and new books. A tab only shows when its service is set up
+// Both ways of finding what to read and watch next, under one header: new
+// books, and picks from the log. A tab only shows when its service is set up
 const TABS = [
-  { href: "/discover", label: "For you", shown: hasRecs },
-  { href: "/discover/new", label: "New releases", shown: hasUpcoming },
+  { href: "/discover", label: "New releases", shown: hasUpcoming },
+  { href: "/discover/for-you", label: "For you", shown: hasRecs },
 ] as const;
 
 export function DiscoverHeader({

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
@@ -12,9 +13,9 @@ import {
   genresOf,
   isOut,
   matchesGenres,
+  titleKey,
   type UpcomingBook,
 } from "@/utils/data/upcoming";
-import { normalizeTitle } from "@/utils/data/patterns";
 
 // Release dates are calendar days, so read them in UTC to keep the day
 const day = (date: string) =>
@@ -53,15 +54,20 @@ function Cover({ book }: { book: UpcomingBook }) {
   );
 }
 
+type Status = "up-next" | "read" | null;
+
 function BookRow({
   book,
-  known,
+  status,
   out,
 }: {
   book: UpcomingBook;
-  known: boolean;
+  status: Status;
   out: boolean;
 }) {
+  // Marked straight away, before the page has refreshed with up next
+  const [added, setAdded] = useState(false);
+  const shown = added ? "up-next" : status;
   const href = book.slug ? `https://hardcover.app/books/${book.slug}` : null;
   const author = book.authors.join(", ");
   return (
@@ -108,8 +114,12 @@ function BookRow({
             {formatPlural(book.readers, "reader")}{" "}
             {out ? "on Hardcover" : "waiting"}
           </span>
-          {known ? (
-            <span>On your list</span>
+          {shown === "up-next" ? (
+            <Link href="/up-next" className="link text-ink hover:text-ink">
+              ✓ On up next
+            </Link>
+          ) : shown === "read" ? (
+            <span>Read</span>
           ) : (
             <QuietActions
               subject={book.title}
@@ -119,7 +129,14 @@ function BookRow({
                 year: book.releaseDate.slice(0, 4),
               }}
               actions={[
-                { label: "Put on up next", action: addUpcomingToUpNext },
+                {
+                  label: "Put on up next",
+                  action: async (formData) => {
+                    const result = await addUpcomingToUpNext(formData);
+                    if (!result.error) setAdded(true);
+                    return result;
+                  },
+                },
               ]}
             />
           )}
@@ -131,10 +148,9 @@ function BookRow({
 
 interface Props {
   books: UpcomingBook[];
-  // The genres I read most, picked to start with
-  favourites: string[];
-  // Normalised titles already logged or on up next
-  known: string[];
+  // Title keys of books on up next, and of books in the log
+  upNext: string[];
+  read: string[];
   // YYYY-MM-DD in Amsterdam: books released by then are out
   today: string;
 }
@@ -142,12 +158,12 @@ interface Props {
 function Months({
   books,
   newestFirst,
-  known,
+  statusOf,
   today,
 }: {
   books: UpcomingBook[];
   newestFirst: boolean;
-  known: Set<string>;
+  statusOf: (book: UpcomingBook) => Status;
   today: string;
 }) {
   return (
@@ -170,7 +186,7 @@ function Months({
               <BookRow
                 key={book.id}
                 book={book}
-                known={known.has(normalizeTitle(book.title))}
+                status={statusOf(book)}
                 out={isOut(book, today)}
               />
             ))}
@@ -181,12 +197,16 @@ function Months({
   );
 }
 
-export function UpcomingList({ books, favourites, known, today }: Props) {
+export function UpcomingList({ books, upNext, read, today }: Props) {
   const genres = genresOf(books);
-  const [picked, setPicked] = useState(
-    () => new Set(favourites.filter((genre) => genres.includes(genre))),
-  );
-  const knownTitles = new Set(known);
+  // Everything to start with; a genre narrows it down
+  const [picked, setPicked] = useState(() => new Set<string>());
+  const onUpNext = new Set(upNext);
+  const inLog = new Set(read);
+  const statusOf = (book: UpcomingBook): Status => {
+    const key = titleKey(book.title);
+    return onUpNext.has(key) ? "up-next" : inLog.has(key) ? "read" : null;
+  };
   const shown = books.filter((book) => matchesGenres(book, picked));
   const out = shown.filter((book) => isOut(book, today));
   const coming = shown.filter((book) => !isOut(book, today));
@@ -257,7 +277,7 @@ export function UpcomingList({ books, favourites, known, today }: Props) {
                 <Months
                   books={part.books}
                   newestFirst={part.newestFirst}
-                  known={knownTitles}
+                  statusOf={statusOf}
                   today={today}
                 />
               </section>

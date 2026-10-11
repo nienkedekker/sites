@@ -117,7 +117,7 @@ export async function refreshRecommendations(
       console.error("Database error clearing old recommendations:", clearError);
     }
 
-    revalidatePath("/discover");
+    revalidatePath("/discover/for-you");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in refreshRecommendations:", error);
@@ -147,7 +147,7 @@ export async function dismissRecommendation(
       return { error: "Unable to hide that pick. Please try again." };
     }
 
-    revalidatePath("/discover");
+    revalidatePath("/discover/for-you");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in dismissRecommendation:", error);
@@ -198,7 +198,7 @@ export async function wantRecommendation(
     }
 
     updateTag(WANTED_TAG);
-    revalidatePath("/discover");
+    revalidatePath("/discover/for-you");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in wantRecommendation:", error);
@@ -223,7 +223,7 @@ export async function removeWanted(
     }
 
     updateTag(WANTED_TAG);
-    revalidatePath("/discover");
+    revalidatePath("/discover/for-you");
     revalidatePath("/up-next");
     return { error: null };
   } catch (error) {
@@ -275,7 +275,7 @@ export async function removeWantedMany(
     }
 
     updateTag(WANTED_TAG);
-    revalidatePath("/discover");
+    revalidatePath("/discover/for-you");
     revalidatePath("/up-next");
     return { error: null };
   } catch (error) {
@@ -300,7 +300,7 @@ export async function removeRecommendations(
       return { error: "Unable to remove those. Please try again." };
     }
 
-    revalidatePath("/discover");
+    revalidatePath("/discover/for-you");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in removeRecommendations:", error);
