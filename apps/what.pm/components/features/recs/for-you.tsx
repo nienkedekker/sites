@@ -245,7 +245,7 @@ function StatusBand({
   return (
     <div
       aria-busy={busy}
-      className="mb-12 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-y border-rule py-4"
+      className="mb-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4"
     >
       <div aria-live="polite" className="min-w-0">
         <p className="text-ink">{title}</p>

@@ -113,7 +113,7 @@ async function Recs() {
   // the page gets opened for most; the picks to choose from follow
   return (
     <>
-      <section id="up-next" aria-label="Up next" className="mb-20 scroll-mt-24">
+      <section id="up-next" aria-label="Up next" className="mb-12 scroll-mt-24">
         <UpNext items={queue} />
       </section>
       {hasRecs() && picks && (
