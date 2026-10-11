@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { genresIn } from "@/utils/data/book-genres";
 import {
   byMonth,
+  descriptionRuns,
   favouriteGenres,
   isOut,
   matchesGenres,
@@ -47,7 +48,7 @@ describe("toUpcoming", () => {
           width: 600,
           height: 900,
         },
-        description: "A rogue returns.",
+        description: [{ text: "A rogue returns." }],
       },
     ]);
   });
@@ -94,8 +95,9 @@ describe("toUpcoming", () => {
 
   it("shortens long descriptions at a word", () => {
     const [book] = toUpcoming([{ ...raw, description: "word ".repeat(600) }]);
-    expect(book.description!.length).toBeLessThanOrEqual(2001);
-    expect(book.description).toMatch(/word…$/);
+    const text = book.description!.map((run) => run.text).join("");
+    expect(text.length).toBeLessThanOrEqual(2001);
+    expect(text).toMatch(/word…$/);
   });
 });
 
@@ -180,5 +182,27 @@ describe("titleKey", () => {
   it("matches titles with and without a subtitle", () => {
     expect(titleKey("Ninth House: A Novel")).toBe(titleKey("Ninth House"));
     expect(titleKey("The Fisherman (Hardcover)")).toBe(titleKey("Fisherman"));
+  });
+});
+
+describe("descriptionRuns", () => {
+  it("keeps italics and bold, breaks lines, and drops other tags", () => {
+    expect(
+      descriptionRuns(
+        'They tell visitors, <i>we’re a quaint people.</i> Mind <b>your</b> step &amp; <a href="x">this</a>.<br>Next line',
+      ),
+    ).toEqual([
+      { text: "They tell visitors, " },
+      { text: "we’re a quaint people.", italic: true },
+      { text: " Mind " },
+      { text: "your", bold: true },
+      { text: " step & this.\nNext line" },
+    ]);
+  });
+
+  it("turns paragraphs into blank lines and never keeps markup", () => {
+    expect(
+      descriptionRuns("<p>One.</p><p>Two &#8212; <script>x</script>three.</p>"),
+    ).toEqual([{ text: "One.\n\nTwo — xthree." }]);
   });
 });

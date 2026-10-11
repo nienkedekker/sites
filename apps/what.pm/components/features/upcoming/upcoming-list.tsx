@@ -14,6 +14,7 @@ import {
   isOut,
   matchesGenres,
   titleKey,
+  type Run,
   type UpcomingBook,
 } from "@/utils/data/upcoming";
 
@@ -65,7 +66,7 @@ function Cover({ book }: { book: UpcomingBook }) {
 type Status = "up-next" | "read" | null;
 
 // Three lines, and "Read more" when there's more than fits in them
-function Description({ text }: { text: string }) {
+function Description({ runs }: { runs: Run[] }) {
   const [open, setOpen] = useState(false);
   const [cut, setCut] = useState(false);
   const ref = useRef<HTMLParagraphElement>(null);
@@ -85,8 +86,22 @@ function Description({ text }: { text: string }) {
 
   return (
     <div className="mt-3">
-      <p ref={ref} className={`text-sm text-ink ${open ? "" : "line-clamp-3"}`}>
-        {text}
+      <p
+        ref={ref}
+        className={`text-sm whitespace-pre-line text-ink ${open ? "" : "line-clamp-3"}`}
+      >
+        {runs.map((run, i) =>
+          run.italic || run.bold ? (
+            <span
+              key={i}
+              className={`${run.italic ? "italic" : ""} ${run.bold ? "font-semibold" : ""}`}
+            >
+              {run.text}
+            </span>
+          ) : (
+            run.text
+          ),
+        )}
       </p>
       {(cut || open) && (
         <button
@@ -154,7 +169,7 @@ function BookRow({
             ))}
           </p>
         )}
-        {book.description && <Description text={book.description} />}
+        {book.description && <Description runs={book.description} />}
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ink-faint">
           <span>
             {formatPlural(book.readers, "reader")}{" "}

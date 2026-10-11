@@ -10,6 +10,13 @@ export interface Cover {
   height: number;
 }
 
+// A stretch of description text, in italics or bold or neither
+export interface Run {
+  text: string;
+  italic?: boolean;
+  bold?: boolean;
+}
+
 export interface UpcomingBook {
   id: number;
   slug: string | null;
@@ -21,7 +28,7 @@ export interface UpcomingBook {
   readers: number;
   genres: string[];
   cover: Cover | null;
-  description: string | null;
+  description: Run[] | null;
 }
 
 export interface HardcoverBook {
@@ -46,10 +53,92 @@ const DESCRIPTION_LENGTH = 2000;
 // goes, even when it's fantasy as well
 const LEFT_OUT = /\b(romance|romantasy|young adult|ya)\b/i;
 
-const shorten = (text: string) =>
-  text.length <= DESCRIPTION_LENGTH
-    ? text
-    : `${text.slice(0, DESCRIPTION_LENGTH).replace(/\s+\S*$/, "")}…`;
+const ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  hellip: "…",
+  mdash: "—",
+  ndash: "–",
+  rsquo: "’",
+  lsquo: "‘",
+  rdquo: "”",
+  ldquo: "“",
+};
+
+const decode = (text: string) =>
+  text.replace(/&(#x[\da-f]+|#\d+|[a-z]+);/gi, (entity, name: string) => {
+    if (name[0] === "#") {
+      const code =
+        name[1].toLowerCase() === "x"
+          ? parseInt(name.slice(2), 16)
+          : Number(name.slice(1));
+      return Number.isFinite(code) ? String.fromCodePoint(code) : entity;
+    }
+    return ENTITIES[name.toLowerCase()] ?? entity;
+  });
+
+// Hardcover's descriptions are bits of HTML. Only italics, bold and line
+// breaks are kept, as plain runs of text the page draws itself; every other
+// tag goes, so nothing in a description is ever put on the page as HTML
+export function descriptionRuns(html: string): Run[] {
+  const flat = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
+    .replace(/<\/?p[^>]*>/gi, "");
+  const runs: Run[] = [];
+  let italic = 0;
+  let bold = 0;
+  const push = (raw: string) => {
+    const text = decode(raw.replace(/<[^>]*>/g, ""));
+    if (!text) return;
+    runs.push({
+      text,
+      ...(italic > 0 ? { italic: true } : {}),
+      ...(bold > 0 ? { bold: true } : {}),
+    });
+  };
+  let last = 0;
+  for (const match of flat.matchAll(/<(\/?)(i|em|b|strong)\b[^>]*>/gi)) {
+    push(flat.slice(last, match.index));
+    last = match.index + match[0].length;
+    const step = match[1] ? -1 : 1;
+    if (/^(i|em)$/i.test(match[2])) italic = Math.max(0, italic + step);
+    else bold = Math.max(0, bold + step);
+  }
+  push(flat.slice(last));
+  // No runs of blank lines, nothing blank at either end
+  const tidy = runs.map((run) => ({
+    ...run,
+    text: run.text.replace(/[ \t]*\n[ \t]*/g, "\n").replace(/\n{3,}/g, "\n\n"),
+  }));
+  if (tidy.length) {
+    tidy[0].text = tidy[0].text.trimStart();
+    tidy[tidy.length - 1].text = tidy[tidy.length - 1].text.trimEnd();
+  }
+  return tidy.filter((run) => run.text);
+}
+
+// Cut at a word once the runs pass the length, with an ellipsis
+function shorten(runs: Run[]): Run[] {
+  const kept: Run[] = [];
+  let length = 0;
+  for (const run of runs) {
+    if (length + run.text.length <= DESCRIPTION_LENGTH) {
+      kept.push(run);
+      length += run.text.length;
+      continue;
+    }
+    const room = DESCRIPTION_LENGTH - length;
+    const text = run.text.slice(0, room).replace(/\s+\S*$/, "");
+    kept.push({ ...run, text: `${text}…` });
+    break;
+  }
+  return kept;
+}
 
 // Writers, not the illustrators, translators and narrators listed with them
 function authorsOf(book: HardcoverBook) {
@@ -75,7 +164,9 @@ export function toUpcoming(books: HardcoverBook[]): UpcomingBook[] {
       .map(({ tag }) => tag)
       .filter((tag): tag is string => Boolean(tag));
     if (tags.some((tag) => LEFT_OUT.test(tag))) return [];
-    const description = book.description?.trim();
+    const description = book.description
+      ? descriptionRuns(book.description)
+      : [];
     return [
       {
         id: book.id,
@@ -86,7 +177,7 @@ export function toUpcoming(books: HardcoverBook[]): UpcomingBook[] {
         readers: book.users_count ?? 0,
         genres: genresIn(tags),
         cover: coverOf(book),
-        description: description ? shorten(description) : null,
+        description: description.length ? shorten(description) : null,
       },
     ];
   });
