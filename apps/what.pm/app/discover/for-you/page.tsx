@@ -36,14 +36,7 @@ type Rec = Tables<"recommendations"> & { itemtype: ValidItemType };
 export default function ForYouPage() {
   return (
     <>
-      <DiscoverHeader
-        current="/discover/for-you"
-        intro={
-          hasRecs()
-            ? "Books, films and shows picked from your log."
-            : "Books, films and shows to get to next."
-        }
-      />
+      <DiscoverHeader current="/discover/for-you" />
       <Suspense fallback={<ForYouSkeleton />}>
         <Recs />
       </Suspense>

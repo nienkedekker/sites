@@ -24,10 +24,7 @@ export default function NewReleasesPage() {
   if (!hasUpcoming()) redirect("/discover/for-you");
   return (
     <>
-      <DiscoverHeader
-        current="/discover"
-        intro="Just out or coming soon, from Hardcover."
-      />
+      <DiscoverHeader current="/discover" />
       <Suspense fallback={<ItemsListSkeleton />}>
         <NewReleases />
       </Suspense>

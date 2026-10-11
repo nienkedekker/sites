@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import PageHeader from "@nienke/ui/page-header";
 import { hasUpcoming } from "@/utils/server/services";
@@ -12,23 +13,21 @@ const TABS = [
 
 export function DiscoverHeader({
   current,
-  intro,
 }: {
   current: (typeof TABS)[number]["href"];
-  intro: string;
 }) {
   const tabs = TABS.filter(({ shown }) => shown());
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
-      <PageHeader intro={intro} className="">
-        Discover
-      </PageHeader>
-      {/* The tabs are pages of their own, so each view has its own address */}
+    <div className="mb-8">
+      <PageHeader className="">Discover</PageHeader>
+      {/* In the intro's place, as plain words rather than a control. The tabs
+          are pages of their own, so each view has its own address */}
       {tabs.length > 1 && (
         <div
           role="tablist"
           aria-label="Discover"
-          className="flex shrink-0 border border-rule font-mono text-xs"
+          className="rise mt-5 flex flex-wrap gap-x-8 gap-y-2 text-lg sm:text-xl"
+          style={{ "--delay": "160ms" } as CSSProperties}
         >
           {tabs.map(({ href, label }) => (
             <Link
@@ -36,7 +35,7 @@ export function DiscoverHeader({
               href={href}
               role="tab"
               aria-selected={href === current}
-              className="px-3 py-2 text-ink transition-colors not-first:border-l not-first:border-rule hover:bg-panel-2 aria-selected:bg-ink aria-selected:text-paper"
+              className="text-ink-soft underline decoration-transparent decoration-2 underline-offset-8 transition-colors hover:text-ink aria-selected:text-ink aria-selected:decoration-ink"
             >
               {label}
             </Link>
