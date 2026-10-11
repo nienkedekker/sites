@@ -132,7 +132,7 @@ export default function NanamiDownloads({ initial, renderedAt }: Props) {
 
             <section className="card p-5 sm:p-6">
               <CardHead as="h3" note={note}>
-                Arrived lately
+                Recently added
               </CardHead>
               {finished.length ? (
                 <ul className="mt-2">

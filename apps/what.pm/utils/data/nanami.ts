@@ -84,7 +84,7 @@ export interface Finished {
 
 export interface Downloads {
   items: Download[];
-  // What arrived lately, newest first
+  // What was recently added, newest first
   finished: Finished[];
 }
 
