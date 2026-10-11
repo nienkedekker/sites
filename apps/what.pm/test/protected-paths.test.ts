@@ -6,9 +6,10 @@ describe("isProtectedPathname", () => {
     expect(isProtectedPathname("/create")).toBe(true);
     expect(isProtectedPathname("/settings")).toBe(true);
     expect(isProtectedPathname("/create/anything")).toBe(true);
-    expect(isProtectedPathname("/recs")).toBe(true);
+    expect(isProtectedPathname("/discover")).toBe(true);
     expect(isProtectedPathname("/up-next")).toBe(true);
     expect(isProtectedPathname("/nanami/downloads")).toBe(true);
+    expect(isProtectedPathname("/discover/new")).toBe(true);
   });
 
   it("matches whole path segments only", () => {

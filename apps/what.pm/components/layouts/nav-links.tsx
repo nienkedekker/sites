@@ -6,36 +6,45 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import UiNavLinks from "@nienke/ui/nav-links";
 import { useAuth } from "@/providers/auth-provider";
-import { SIGNED_IN_LINKS, SITE_LINKS } from "@/components/layouts/site-links";
+import { isWithin, NextMenu } from "@/components/layouts/next-menu";
+import {
+  NEXT_LINKS,
+  SIGNED_IN_END,
+  SIGNED_IN_START,
+  SITE_LINKS,
+} from "@/components/layouts/site-links";
 import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
 // The path is unknown while a dynamic route's shell prerenders, so the
 // Suspense fallback renders these links with nothing marked current
-export function NavLinks({ recs, nanami }: { recs: boolean; nanami: boolean }) {
-  return <NavLinksFor pathname={usePathname()} recs={recs} nanami={nanami} />;
+export function NavLinks(props: Features) {
+  return <NavLinksFor pathname={usePathname()} {...props} />;
 }
 
-// recs and nanami come from the server, which knows whether there's an
-// Anthropic key and a media server pushing reports
-export function NavLinksFor({
-  pathname,
-  recs,
-  nanami,
-}: {
-  pathname: string | null;
+// Which optional pages have what they need, from the server: an Anthropic key
+// for recs, a media server pushing reports for nanami, a Hardcover token for
+// recent books
+interface Features {
   recs: boolean;
   nanami: boolean;
-}) {
+  upcoming: boolean;
+}
+
+// Discover shows with either of its tabs
+const SHOWN: Record<string, (features: Features) => boolean> = {
+  "/discover": ({ recs, upcoming }) => recs || upcoming,
+  "/nanami": ({ nanami }) => nanami,
+};
+
+export function NavLinksFor({
+  pathname,
+  ...features
+}: Features & { pathname: string | null }) {
   const { isLoggedIn } = useAuth();
   const [open, setOpen] = useState(false);
   const [menuPathname, setMenuPathname] = useState(pathname);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const links = isLoggedIn
-    ? SIGNED_IN_LINKS.filter(
-        ({ href }) =>
-          (recs || href !== "/recs") && (nanami || href !== "/nanami"),
-      )
-    : SITE_LINKS;
+  const next = NEXT_LINKS.filter(({ href }) => SHOWN[href]?.(features) ?? true);
 
   if (pathname !== menuPathname) {
     setMenuPathname(pathname);
@@ -56,7 +65,23 @@ export function NavLinksFor({
   return (
     <div className="flex items-center gap-1 sm:gap-2">
       <div className="hidden md:block">
-        <UiNavLinks links={links} currentPath={pathname ?? ""} as={Link} />
+        {isLoggedIn ? (
+          <ul className="nav-links">
+            {SIGNED_IN_START.map((link) => (
+              <NavItem key={link.href} {...link} pathname={pathname} />
+            ))}
+            <NextMenu links={next} pathname={pathname} />
+            {SIGNED_IN_END.map((link) => (
+              <NavItem key={link.href} {...link} pathname={pathname} />
+            ))}
+          </ul>
+        ) : (
+          <UiNavLinks
+            links={SITE_LINKS}
+            currentPath={pathname ?? ""}
+            as={Link}
+          />
+        )}
       </div>
       <ThemeToggle />
       <button
@@ -81,20 +106,97 @@ export function NavLinksFor({
         className="own-grain absolute inset-x-0 top-full border-b border-rule bg-paper md:hidden"
       >
         <ul className="mx-auto max-w-6xl divide-y divide-rule px-4 font-geist text-base font-medium">
-          {links.map(({ href, label }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-current={pathname === href ? "page" : undefined}
-                onClick={() => setOpen(false)}
-                className="block py-3 text-ink aria-[current=page]:text-ink-soft"
-              >
-                {label}
-              </Link>
-            </li>
+          {(isLoggedIn ? SIGNED_IN_START : SITE_LINKS).map((link) => (
+            <MenuItem
+              key={link.href}
+              {...link}
+              pathname={pathname}
+              onPick={() => setOpen(false)}
+            />
           ))}
+          {isLoggedIn && (
+            <>
+              <li className="py-3">
+                <p className="font-mono text-xs uppercase tracking-[0.06em] text-ink-faint">
+                  Next
+                </p>
+                <ul className="mt-1">
+                  {next.map((link) => (
+                    <MenuItem
+                      key={link.href}
+                      {...link}
+                      pathname={pathname}
+                      onPick={() => setOpen(false)}
+                      nested
+                    />
+                  ))}
+                </ul>
+              </li>
+              {SIGNED_IN_END.map((link) => (
+                <MenuItem
+                  key={link.href}
+                  {...link}
+                  pathname={pathname}
+                  onPick={() => setOpen(false)}
+                />
+              ))}
+            </>
+          )}
         </ul>
       </div>
     </div>
+  );
+}
+
+type Href = Parameters<typeof Link>[0]["href"];
+
+// A header link, as @nienke/ui/nav-links draws them
+function NavItem({
+  href,
+  label,
+  pathname,
+}: {
+  href: Href & string;
+  label: string;
+  pathname: string | null;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        aria-current={pathname === href ? "page" : undefined}
+        className="nav-link"
+      >
+        {label}
+      </Link>
+    </li>
+  );
+}
+
+// A link in the phone menu; the pages under Next sit indented, without rules
+function MenuItem({
+  href,
+  label,
+  pathname,
+  onPick,
+  nested = false,
+}: {
+  href: Href & string;
+  label: string;
+  pathname: string | null;
+  onPick: () => void;
+  nested?: boolean;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        aria-current={isWithin(pathname, href) ? "page" : undefined}
+        onClick={onPick}
+        className={`block text-ink aria-[current=page]:text-ink-soft ${nested ? "py-2 pl-4" : "py-3"}`}
+      >
+        {label}
+      </Link>
+    </li>
   );
 }

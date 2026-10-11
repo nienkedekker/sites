@@ -9,9 +9,9 @@ const HTML_ONLY = new Set([
   "/search",
   "/create",
   "/settings",
-  "/recs",
   "/up-next",
   "/nanami",
+  "/discover",
   "/sign-in",
 ]);
 const SKIP_PREFIXES = [
@@ -20,6 +20,7 @@ const SKIP_PREFIXES = [
   "/auth/",
   "/settings/",
   "/nanami/",
+  "/discover/",
   "/genres/",
   "/og/",
   "/markdown",

@@ -4,10 +4,21 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@nienke/ui"],
   cacheComponents: true,
   typedRoutes: true,
+  // Book covers on the upcoming page come from Hardcover, resized to fit
+  images: {
+    remotePatterns: [new URL("https://assets.hardcover.app/**")],
+  },
   // Share images read their fonts with readFile, which tracing misses for
   // opengraph-image routes
   outputFileTracingIncludes: {
     "/**/opengraph-image": ["./assets/fonts/*.ttf"],
+  },
+  // Recs and new books moved under Discover
+  async redirects() {
+    return [
+      { source: "/recs", destination: "/discover", permanent: true },
+      { source: "/recent", destination: "/discover/new", permanent: true },
+    ];
   },
   async headers() {
     return [

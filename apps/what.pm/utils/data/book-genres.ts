@@ -43,3 +43,12 @@ export function bookGenres(subjects: string[] = []): string[] {
   // only "Fiction" and their topics
   return fiction ? ["Literary Fiction"] : [];
 }
+
+// Every genre a list of tags names, for tags that already are genres (like
+// Hardcover's) rather than library subjects a single genre has to be read from
+export function genresIn(tags: string[]): string[] {
+  const lower = tags.map((tag) => tag.toLowerCase());
+  return [...GENRES, ...NONFICTION_GENRES]
+    .filter(([, pattern]) => lower.some((tag) => pattern.test(tag)))
+    .map(([name]) => name);
+}

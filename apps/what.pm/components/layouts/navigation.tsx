@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteMark from "@nienke/ui/site-mark";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { NavLinks, NavLinksFor } from "@/components/layouts/nav-links";
-import { hasNanami, hasRecs } from "@/utils/server/services";
+import { hasNanami, hasRecs, hasUpcoming } from "@/utils/server/services";
 
 function Navigation() {
   return (
@@ -27,10 +27,15 @@ function Navigation() {
                 pathname={null}
                 recs={hasRecs()}
                 nanami={hasNanami()}
+                upcoming={hasUpcoming()}
               />
             }
           >
-            <NavLinks recs={hasRecs()} nanami={hasNanami()} />
+            <NavLinks
+              recs={hasRecs()}
+              nanami={hasNanami()}
+              upcoming={hasUpcoming()}
+            />
           </Suspense>
         </nav>
       </header>

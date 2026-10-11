@@ -2,7 +2,7 @@ import { Fragment, Suspense } from "react";
 import type { Metadata } from "next";
 import { redirect, unstable_rethrow } from "next/navigation";
 import { formatDate } from "@nienke/ui/format";
-import PageHeader from "@nienke/ui/page-header";
+import { DiscoverHeader } from "@/components/features/discover/discover-header";
 import TagLink from "@nienke/ui/tag-link";
 import Link from "next/link";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
@@ -29,7 +29,7 @@ import {
   type LoggedPick,
 } from "@/utils/data/recommend";
 import { loadLog } from "@/utils/server/recommend-log";
-import { hasRecs } from "@/utils/server/services";
+import { hasRecs, hasUpcoming } from "@/utils/server/services";
 import { createClientForServer } from "@/utils/supabase/server";
 import type { Tables } from "@/types";
 import type { ValidItemType } from "@/types/shared";
@@ -38,7 +38,7 @@ import type { ValidItemType } from "@/types/shared";
 export const maxDuration = 120;
 
 export const metadata: Metadata = {
-  title: "Recommendations",
+  title: "Discover",
   robots: { index: false },
 };
 
@@ -102,13 +102,13 @@ function RecEntry({ rec }: { rec: Rec }) {
   );
 }
 
-export default function RecsPage() {
-  // Picks need Claude; without a key, up next is the closest thing
-  if (!hasRecs()) redirect("/up-next");
+export default function DiscoverPage() {
+  // Picks need Claude; without a key, new releases or up next is the closest
+  if (!hasRecs()) redirect(hasUpcoming() ? "/discover/new" : "/up-next");
 
   return (
     <>
-      <PageHeader intro="Picked from the log.">Recommendations</PageHeader>
+      <DiscoverHeader current="/discover" intro="Picked from the log." />
       <Suspense
         fallback={
           <>
