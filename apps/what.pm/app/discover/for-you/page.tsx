@@ -76,7 +76,6 @@ async function Recs() {
       creator: rec.creator,
       published_year: rec.published_year,
       reason: rec.reason,
-      because: rec.because,
       cover: covers[i],
       upNext: wanted.has(`${rec.itemtype}|${rec.external_id}`),
     }));

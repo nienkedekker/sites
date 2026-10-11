@@ -1,13 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
-  Fragment,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  useTransition,
-} from "react";
+import { useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { flushSync } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,7 +25,6 @@ export interface ForYouPick {
   creator: string | null;
   published_year: number | null;
   reason: string;
-  because: string[];
   cover: string | null;
   upNext: boolean;
 }
@@ -92,13 +85,9 @@ const bordered =
 // down the column, pulsing while loading
 function GhostRows({ loading }: { loading: boolean }) {
   return (
-    <ul aria-hidden="true">
+    <ul aria-hidden="true" className="space-y-8 pt-6">
       {[1, 0.7, 0.45, 0.2].map((opacity) => (
-        <li
-          key={opacity}
-          style={{ opacity }}
-          className="flex gap-4 border-b border-line py-5"
-        >
+        <li key={opacity} style={{ opacity }} className="flex gap-4">
           <div
             className={`h-24 w-16 shrink-0 border border-dashed border-line-strong ${loading ? "motion-safe:animate-pulse" : ""}`}
           />
@@ -112,22 +101,6 @@ function GhostRows({ loading }: { loading: boolean }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-function Because({ titles }: { titles: string[] }) {
-  if (titles.length === 0) return null;
-  const shown = titles.slice(0, 2);
-  return (
-    <p className="mt-2 text-sm text-ink">
-      Because you loved{" "}
-      {shown.map((title, i) => (
-        <Fragment key={title}>
-          {i > 0 && " and "}
-          <em>{title}</em>
-        </Fragment>
-      ))}
-    </p>
   );
 }
 
@@ -147,7 +120,8 @@ function PickRow({
   const href = sourceOf({ ...pick, author: pick.creator })?.href;
   const meta = byline(pick);
   return (
-    <li className="flex gap-4 border-b border-line py-5">
+    // A group, so Not for me can show on hovering or tabbing into the pick
+    <li className="group flex gap-4">
       <Cover
         src={pick.cover}
         title={pick.title}
@@ -170,7 +144,6 @@ function PickRow({
           )}
         </h3>
         {meta && <p className="mt-1 text-sm text-ink-soft">{meta}</p>}
-        <Because titles={pick.because} />
         <div className="mt-1">
           <ReadMore clamp="line-clamp-2" className="text-sm text-ink-soft">
             {pick.reason}
@@ -183,7 +156,8 @@ function PickRow({
             disabled={busy}
             aria-pressed={pick.upNext}
             aria-label={`Put ${pick.title} on Up next`}
-            className="cursor-pointer border border-rule px-2.5 py-1 text-ink transition-colors hover:bg-panel-2 disabled:cursor-wait aria-pressed:bg-ink aria-pressed:text-paper"
+            // A quiet link until it's on up next, then a filled box for the state
+            className="link cursor-pointer text-ink disabled:cursor-wait aria-pressed:bg-ink aria-pressed:px-1.5 aria-pressed:py-0.5 aria-pressed:text-paper aria-pressed:no-underline"
           >
             {pick.upNext ? "✓ In Up next" : "+ Up next"}
           </button>
@@ -192,7 +166,8 @@ function PickRow({
             onClick={onNotForMe}
             disabled={busy}
             aria-label={`Not for me: ${pick.title}`}
-            className="link cursor-pointer text-ink-soft hover:text-ink disabled:cursor-wait"
+            // Only on hovering or tabbing in where there's a mouse; always on touch
+            className="link cursor-pointer text-ink-soft transition-opacity hover:text-ink disabled:cursor-wait pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:group-focus-within:opacity-100"
           >
             Not for me
           </button>
@@ -243,7 +218,7 @@ export function PickColumns({
             )}
             {shown && !loading && row ? (
               shown.length > 0 ? (
-                <ul>{shown.map(row)}</ul>
+                <ul className="space-y-8 pt-6">{shown.map(row)}</ul>
               ) : (
                 <p className="py-5 text-sm text-ink-soft">
                   Nothing left here. Pick again for more.
