@@ -7,6 +7,7 @@ import {
   useTransition,
   type ReactNode,
 } from "react";
+import Link from "next/link";
 import { externalProps } from "@nienke/ui/external";
 import { sourceOf } from "@/components/features/lists/item-source";
 import {
@@ -208,33 +209,28 @@ export function UpNext({
           </>
         ) : (
           starting.length > 0 && (
-            <section aria-labelledby="starting-heading" className="mt-14">
-              <h2
-                id="starting-heading"
-                className="border-b border-rule pb-3 font-mono text-xs uppercase tracking-[0.06em] text-ink-soft"
-              >
-                Or start with something from Discover
-              </h2>
+            <section aria-labelledby="starting-heading" className="mt-16">
+              <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
+                <h2
+                  id="starting-heading"
+                  className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
+                >
+                  New on Discover
+                </h2>
+                <Link
+                  href="/discover"
+                  className="link pb-1 font-mono text-xs text-ink-faint hover:text-ink"
+                >
+                  All new releases
+                </Link>
+              </header>
               <ul>
                 {starting.map((book) => (
-                  <Row
+                  <StartingRow
                     key={book.id}
-                    cover={
-                      <Cover src={book.cover} title={book.title} type="Book" />
-                    }
-                    title={book.title}
-                    meta={[book.author, book.when]}
-                    type="Book"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => addBook(book)}
-                      aria-label={`Add ${book.title} to up next`}
-                      className="cursor-pointer border border-rule px-3 py-1.5 font-mono text-xs text-ink transition-colors hover:bg-ink hover:text-paper"
-                    >
-                      + Add
-                    </button>
-                  </Row>
+                    book={book}
+                    onAdd={() => addBook(book)}
+                  />
                 ))}
               </ul>
             </section>
@@ -245,8 +241,64 @@ export function UpNext({
   );
 }
 
-// A row of the queue or the suggestions: cover, title and what it is, and
-// what can be done with it on the right
+// A new book as Discover shows it, with its own way onto the list
+function StartingRow({
+  book,
+  onAdd,
+}: {
+  book: StartingBook;
+  onAdd: () => void;
+}) {
+  const goodreads = sourceOf({
+    itemtype: "Book",
+    external_id: null,
+    title: book.title,
+    author: book.author || null,
+  });
+  return (
+    <li className="flex gap-4 border-t border-line py-5 first:border-t-0 sm:gap-5">
+      <Cover
+        src={book.cover}
+        title={book.title}
+        type="Book"
+        sizes="96px"
+        className="aspect-2/3 w-20 self-start sm:w-24"
+      />
+      <div className="min-w-0 flex-1">
+        <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
+          {goodreads ? (
+            <a
+              href={goodreads.href}
+              className="underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink"
+              {...externalProps(goodreads.href)}
+            >
+              {book.title}
+            </a>
+          ) : (
+            book.title
+          )}
+        </h3>
+        <p className="mt-1 text-sm text-ink-soft">
+          {book.author && `by ${book.author} · `}
+          {book.when}
+        </p>
+        <p className="mt-3 font-mono text-xs text-ink-faint">
+          <button
+            type="button"
+            onClick={onAdd}
+            aria-label={`${book.title}: Put on up next`}
+            className="link cursor-pointer hover:text-ink"
+          >
+            Put on up next
+          </button>
+        </p>
+      </div>
+    </li>
+  );
+}
+
+// A row of the queue: cover, title and what it is, and what can be done with
+// it on the right
 function Row({
   number,
   cover,
@@ -258,7 +310,7 @@ function Row({
   dim = false,
   children,
 }: {
-  number?: number;
+  number: number;
   cover: ReactNode;
   title: string;
   href?: string;
@@ -272,11 +324,9 @@ function Row({
     <li
       className={`flex items-center gap-4 border-t border-line py-4 first:border-t-0 transition-opacity sm:gap-6 ${dim ? "opacity-60" : ""}`}
     >
-      {number !== undefined && (
-        <span className="w-6 shrink-0 font-mono text-sm text-ink-faint tabular-nums">
-          {String(number).padStart(2, "0")}
-        </span>
-      )}
+      <span className="w-6 shrink-0 font-mono text-sm text-ink-faint tabular-nums">
+        {String(number).padStart(2, "0")}
+      </span>
       {cover}
       <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0">
