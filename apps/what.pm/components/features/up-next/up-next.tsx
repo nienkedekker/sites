@@ -1,20 +1,10 @@
 "use client";
 
-import {
-  useOptimistic,
-  useRef,
-  useState,
-  useTransition,
-  type ReactNode,
-} from "react";
+import { useOptimistic, useState, useTransition, type ReactNode } from "react";
 import { sourceOf } from "@/components/features/lists/item-source";
-import {
-  QueueSearch,
-  type Match,
-} from "@/components/features/up-next/queue-search";
 import { ItemTitle } from "@/components/ui/item-row";
 import { Cover, TYPE_LABEL } from "@/components/ui/cover";
-import { addUpNext, removeWanted } from "@/app/actions/recommendations";
+import { removeWanted } from "@/app/actions/recommendations";
 import { startUpNextAction } from "@/app/actions/items";
 import type { ValidItemType } from "@/types/shared";
 
@@ -29,9 +19,6 @@ export interface QueueItem {
   // Added on this page and still being saved
   saving?: boolean;
 }
-
-type Change =
-  { add: QueueItem } | { remove: Pick<QueueItem, "itemtype" | "external_id"> };
 
 type Result = { error: string | null };
 
@@ -50,118 +37,62 @@ const formOf = (fields: Record<string, string | number | null | undefined>) => {
 
 const OFFLINE: Result = { error: "Couldn’t reach the server. Try again." };
 
-// Up next as one queue, newest first, with a search box over it that adds
-// books, films and shows alike. Adding and removing show straight away and
-// undo themselves if the save fails
+// Up next as one queue, newest first. Things are added from the box beside
+// Discover's title; removing shows straight away and undoes itself if the
+// save fails
 export function UpNext({ items }: { items: QueueItem[] }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [queue, change] = useOptimistic(items, (state, update: Change) =>
-    "add" in update
-      ? [update.add, ...state]
-      : state.filter((item) => keyOf(item) !== keyOf(update.remove)),
+  const [queue, remove] = useOptimistic(
+    items,
+    (state, gone: Pick<QueueItem, "itemtype" | "external_id">) =>
+      state.filter((item) => keyOf(item) !== keyOf(gone)),
   );
   const [, startTransition] = useTransition();
-  // Errors and repeats show under the box; what was added or removed is only
-  // read out, since the list itself shows it
-  const [notice, setNotice] = useState<{
-    text: string;
-    kind: "error" | "info" | "done";
-  }>();
-  const queued = new Set(queue.map(keyOf));
+  // Errors show; what was removed is only read out, as the list shows it
+  const [notice, setNotice] = useState<{ text: string; error: boolean }>();
 
-  const run = (update: Change, save: () => Promise<Result>, done: string) => {
+  const removeItem = (item: QueueItem) => {
     setNotice(undefined);
     startTransition(async () => {
-      change(update);
-      const { error } = await save().catch(() => OFFLINE);
+      remove(item);
+      const { error } = await removeWanted(
+        formOf({ itemtype: item.itemtype, externalId: item.external_id }),
+      ).catch(() => OFFLINE);
       setNotice(
-        error ? { text: error, kind: "error" } : { text: done, kind: "done" },
+        error
+          ? { text: error, error: true }
+          : { text: `Removed ${item.title}.`, error: false },
       );
     });
   };
 
-  const addMatch = (match: Match) => {
-    inputRef.current?.focus();
-    const item: QueueItem = {
-      itemtype: match.itemtype,
-      external_id: match.id,
-      title: match.title,
-      creator: match.creator,
-      published_year: match.year,
-      cover: match.cover ?? null,
-      saving: true,
-    };
-    if (queued.has(keyOf(item))) {
-      setNotice({
-        text: `${match.title} is already in your queue.`,
-        kind: "info",
-      });
-      return;
-    }
-    run(
-      { add: item },
-      () =>
-        addUpNext(
-          formOf({
-            itemtype: match.itemtype,
-            externalId: match.id,
-            title: match.title,
-            creator: match.creator,
-            year: match.year,
-          }),
-        ),
-      `Added ${match.title}.`,
+  if (queue.length === 0 && !notice?.error) {
+    return (
+      <p aria-live="polite" className="sr-only">
+        {notice?.text}
+      </p>
     );
-  };
-
-  const remove = (item: QueueItem) =>
-    run(
-      { remove: item },
-      () =>
-        removeWanted(
-          formOf({ itemtype: item.itemtype, externalId: item.external_id }),
-        ),
-      `Removed ${item.title}.`,
-    );
+  }
 
   return (
     <>
-      <div>
-        <QueueSearch inputRef={inputRef} onPick={addMatch} />
-        <p aria-live="polite" className="mt-2 min-h-5 font-mono text-xs">
-          <span
-            className={
-              notice?.kind === "error"
-                ? "text-danger"
-                : notice?.kind === "info"
-                  ? "text-ink-faint"
-                  : "sr-only"
-            }
-          >
-            {notice?.text}
-          </span>
-        </p>
-
-        {queue.length > 0 && (
-          <>
-            <ol className="mt-8">
-              {queue.map((item, i) => (
-                <QueueRow
-                  key={keyOf(item)}
-                  item={item}
-                  number={i + 1}
-                  onRemove={() => remove(item)}
-                />
-              ))}
-            </ol>
-            {queue.length === 1 && (
-              <p className="mt-4 text-sm text-ink-faint">
-                Nice. Add a few more.
-              </p>
-            )}
-          </>
-        )}
-      </div>
+      <p aria-live="polite" className="font-mono text-xs">
+        <span className={notice?.error ? "text-danger" : "sr-only"}>
+          {notice?.text}
+        </span>
+      </p>
+      <ol>
+        {queue.map((item, i) => (
+          <QueueRow
+            key={keyOf(item)}
+            item={item}
+            number={i + 1}
+            onRemove={() => removeItem(item)}
+          />
+        ))}
+      </ol>
+      {queue.length === 1 && (
+        <p className="mt-4 text-sm text-ink-faint">Nice. Add a few more.</p>
+      )}
     </>
   );
 }

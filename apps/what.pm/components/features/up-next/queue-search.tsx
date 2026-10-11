@@ -36,14 +36,24 @@ async function fetchMatches(
   }
 }
 
+// How the compact box says what it adds, by type
+const ADDING: Record<ValidItemType, string> = {
+  Book: "a book",
+  Movie: "a film",
+  Show: "a show",
+};
+
 // Pick a type, then search it: the first match is highlighted, arrows move
-// the highlight, Enter or a click adds it, Escape closes
+// the highlight, Enter or a click adds it, Escape closes. Compact, it's a
+// small box beside a page's title, with "/" as its key
 export function QueueSearch({
   inputRef,
   onPick,
+  compact = false,
 }: {
   inputRef: RefObject<HTMLInputElement | null>;
   onPick: (match: Match) => void;
+  compact?: boolean;
 }) {
   const listId = useId();
   const [itemType, setItemType] = useState<ValidItemType>("Book");
@@ -112,7 +122,7 @@ export function QueueSearch({
       <div
         role="radiogroup"
         aria-label="Type"
-        className="mb-3 flex gap-4 font-mono text-xs text-ink-soft"
+        className={`flex gap-4 font-mono text-xs text-ink-soft ${compact ? "mb-2 justify-end" : "mb-3"}`}
       >
         {VALID_ITEM_TYPES.map((type) => (
           <button
@@ -143,7 +153,11 @@ export function QueueSearch({
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}
           onKeyDown={handleKeyDown}
-          placeholder={`Search ${SEARCHING[itemType]}`}
+          placeholder={
+            compact
+              ? `Add ${ADDING[itemType]} to Up next…`
+              : `Search ${SEARCHING[itemType]}`
+          }
           aria-label={`Search ${SEARCHING[itemType]}`}
           role="combobox"
           autoComplete="off"
@@ -152,21 +166,31 @@ export function QueueSearch({
           aria-expanded={shown}
           aria-controls={listId}
           aria-activedescendant={shown ? `${listId}-${active}` : undefined}
-          className="block w-full border border-rule bg-panel py-4 pl-5 pr-28 text-[22px] text-ink placeholder:text-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className={`block w-full border border-rule bg-panel text-ink placeholder:text-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 ${compact ? "py-2.5 pl-3.5 pr-10 text-sm" : "py-4 pl-5 pr-28 text-[22px]"}`}
         />
-        <span
-          className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-faint"
-          aria-hidden="true"
-        >
-          ↵ to add
-        </span>
+        {compact ? (
+          <kbd
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 border border-line-strong px-1.5 font-mono text-[0.6875rem] leading-5 text-ink-faint"
+            aria-hidden="true"
+          >
+            /
+          </kbd>
+        ) : (
+          <span
+            className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-faint"
+            aria-hidden="true"
+          >
+            ↵ to add
+          </span>
+        )}
 
         <ul
           id={listId}
           role="listbox"
           aria-label="Matches"
           hidden={!shown}
-          className="absolute inset-x-0 top-full z-20 max-h-[28rem] overflow-y-auto border border-t-0 border-rule bg-panel"
+          // Compact, the matches open wider than the box, to its left
+          className={`absolute top-full z-20 max-h-[28rem] overflow-y-auto border border-rule bg-panel ${compact ? "right-0 mt-1 w-[min(32rem,calc(100vw-2rem))]" : "inset-x-0 border-t-0"}`}
         >
           {shown &&
             matches.map((match, i) => (

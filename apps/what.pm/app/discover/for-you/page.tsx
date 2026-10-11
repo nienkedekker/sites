@@ -4,6 +4,7 @@ import { unstable_rethrow } from "next/navigation";
 import { DiscoverHeader } from "@/components/features/discover/discover-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { MadeIt } from "@/components/features/recs/made-it";
+import { AddToUpNext } from "@/components/features/up-next/add-to-up-next";
 import { UpNext, type QueueItem } from "@/components/features/up-next/up-next";
 import {
   ForYou,
@@ -36,7 +37,7 @@ type Rec = Tables<"recommendations"> & { itemtype: ValidItemType };
 export default function ForYouPage() {
   return (
     <>
-      <DiscoverHeader current="/discover/for-you" />
+      <DiscoverHeader current="/discover/for-you" aside={<AddToUpNext />} />
       <Suspense fallback={<ForYouSkeleton />}>
         <Recs />
       </Suspense>
@@ -106,9 +107,15 @@ async function Recs() {
   // the page gets opened for most; the picks to choose from follow
   return (
     <>
-      <section id="up-next" aria-label="Up next" className="mb-12 scroll-mt-24">
-        <UpNext items={queue} />
-      </section>
+      {queue.length > 0 && (
+        <section
+          id="up-next"
+          aria-label="Up next"
+          className="mb-12 scroll-mt-24"
+        >
+          <UpNext items={queue} />
+        </section>
+      )}
       {hasRecs() && picks && (
         <ForYou picks={picks} logCount={logCount} batchAt={batchAt} />
       )}
