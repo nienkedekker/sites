@@ -114,7 +114,6 @@ export async function removeWanted(
 
     updateTag(WANTED_TAG);
     revalidatePath("/discover/for-you");
-    revalidatePath("/up-next");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in removeWanted:", error);
@@ -166,7 +165,6 @@ export async function removeWantedMany(
 
     updateTag(WANTED_TAG);
     revalidatePath("/discover/for-you");
-    revalidatePath("/up-next");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in removeWantedMany:", error);
@@ -216,7 +214,7 @@ export async function addUpNext(
     }
 
     updateTag(WANTED_TAG);
-    revalidatePath("/up-next");
+    revalidatePath("/discover/for-you");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in addUpNext:", error);

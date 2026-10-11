@@ -7,16 +7,14 @@ import {
   useTransition,
   type ReactNode,
 } from "react";
-import Link from "next/link";
 import { sourceOf } from "@/components/features/lists/item-source";
 import {
   QueueSearch,
   type Match,
 } from "@/components/features/up-next/queue-search";
-import { ItemRow, ItemTitle } from "@/components/ui/item-row";
+import { ItemTitle } from "@/components/ui/item-row";
 import { Cover, TYPE_LABEL } from "@/components/ui/cover";
 import { addUpNext, removeWanted } from "@/app/actions/recommendations";
-import { addUpcomingToUpNext } from "@/app/actions/upcoming";
 import { startUpNextAction } from "@/app/actions/items";
 import type { ValidItemType } from "@/types/shared";
 
@@ -30,17 +28,6 @@ export interface QueueItem {
   reason?: string | null;
   // Added on this page and still being saved
   saving?: boolean;
-}
-
-// A new book from Discover to start an empty list with
-export interface StartingBook {
-  id: number;
-  title: string;
-  author: string;
-  year: number;
-  cover: string | null;
-  // "out this month", "coming in November"
-  when: string;
 }
 
 type Change =
@@ -66,13 +53,7 @@ const OFFLINE: Result = { error: "Couldn’t reach the server. Try again." };
 // Up next as one queue, newest first, with a search box over it that adds
 // books, films and shows alike. Adding and removing show straight away and
 // undo themselves if the save fails
-export function UpNext({
-  items,
-  starting,
-}: {
-  items: QueueItem[];
-  starting: StartingBook[];
-}) {
+export function UpNext({ items }: { items: QueueItem[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [queue, change] = useOptimistic(items, (state, update: Change) =>
     "add" in update
@@ -133,28 +114,6 @@ export function UpNext({
     );
   };
 
-  const addBook = (book: StartingBook) => {
-    inputRef.current?.focus();
-    run(
-      {
-        add: {
-          itemtype: "Book",
-          external_id: `hardcover:${book.id}`,
-          title: book.title,
-          creator: book.author || null,
-          published_year: book.year,
-          cover: book.cover,
-          saving: true,
-        },
-      },
-      () =>
-        addUpcomingToUpNext(
-          formOf({ title: book.title, author: book.author, year: book.year }),
-        ),
-      `Added ${book.title}.`,
-    );
-  };
-
   const remove = (item: QueueItem) =>
     run(
       { remove: item },
@@ -168,8 +127,9 @@ export function UpNext({
   return (
     <>
       {queue.length === 0 && (
-        <p className="mb-10 max-w-2xl text-lg text-ink-soft sm:text-xl">
-          Nothing queued yet. What do you want to read or watch next?
+        <p className="mb-6 text-sm text-ink-soft">
+          Nothing queued yet. Find something here, or put one of the picks below
+          on it.
         </p>
       )}
 
@@ -189,7 +149,7 @@ export function UpNext({
           </span>
         </p>
 
-        {queue.length > 0 ? (
+        {queue.length > 0 && (
           <>
             <ol className="mt-8">
               {queue.map((item, i) => (
@@ -207,85 +167,9 @@ export function UpNext({
               </p>
             )}
           </>
-        ) : (
-          starting.length > 0 && (
-            <section aria-labelledby="starting-heading" className="mt-16">
-              <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
-                <h2
-                  id="starting-heading"
-                  className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
-                >
-                  New on Discover
-                </h2>
-                <Link
-                  href="/discover"
-                  className="link pb-1 font-mono text-xs text-ink-faint hover:text-ink"
-                >
-                  All new releases
-                </Link>
-              </header>
-              <ul>
-                {starting.map((book) => (
-                  <StartingRow
-                    key={book.id}
-                    book={book}
-                    onAdd={() => addBook(book)}
-                  />
-                ))}
-              </ul>
-            </section>
-          )
         )}
       </div>
     </>
-  );
-}
-
-// A new book as Discover shows it, with its own way onto the list
-function StartingRow({
-  book,
-  onAdd,
-}: {
-  book: StartingBook;
-  onAdd: () => void;
-}) {
-  const goodreads = sourceOf({
-    itemtype: "Book",
-    external_id: null,
-    title: book.title,
-    author: book.author || null,
-  });
-  return (
-    <ItemRow
-      className="border-t border-line py-5 first:border-t-0"
-      cover={
-        <Cover
-          src={book.cover}
-          title={book.title}
-          type="Book"
-          sizes="96px"
-          className="aspect-2/3 w-20 self-start sm:w-24"
-        />
-      }
-      title={book.title}
-      href={goodreads?.href}
-      meta={
-        <>
-          {book.author && `by ${book.author} · `}
-          {book.when}
-        </>
-      }
-      actions={
-        <button
-          type="button"
-          onClick={onAdd}
-          aria-label={`Put ${book.title} on Up next`}
-          className="link cursor-pointer hover:text-ink"
-        >
-          + Up next
-        </button>
-      }
-    />
   );
 }
 

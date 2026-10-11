@@ -22,7 +22,9 @@ export async function getUpNext(): Promise<UpNextItem[]> {
     getAllItems(),
     supabasePublic
       .from("wanted")
-      .select("itemtype, external_id, title, creator, published_year, created_at")
+      .select(
+        "itemtype, external_id, title, creator, published_year, created_at",
+      )
       .order("created_at", { ascending: false }),
   ]);
   if (error) throw new Error(error.message);

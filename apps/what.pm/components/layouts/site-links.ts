@@ -4,11 +4,10 @@ export const SITE_LINKS = [
   { href: "/about", label: "About" },
 ] as const;
 
-// Signed in, the header reads Discover, Up next, Search, Stats, About, then
-// Create as a button. nanami is linked from the footer
+// Signed in, the header reads Discover, Search, Stats, About, then Create as
+// a button. Up next is on Discover's For you; nanami is linked from the footer
 export const SIGNED_IN_LINKS = [
   { href: "/discover", label: "Discover" },
-  { href: "/up-next", label: "Up next" },
   ...SITE_LINKS,
 ] as const;
 

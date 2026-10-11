@@ -60,7 +60,7 @@ export async function addUpcomingToUpNext(
     }
 
     updateTag(WANTED_TAG);
-    revalidatePath("/up-next");
+    revalidatePath("/discover/for-you");
     revalidatePath("/discover");
     return { error: null };
   } catch (error) {

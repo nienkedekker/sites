@@ -16,32 +16,15 @@ import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
 // The path is unknown while a dynamic route's shell prerenders, so the
 // Suspense fallback renders these links with nothing marked current
-export function NavLinks(props: Features) {
-  return <NavLinksFor pathname={usePathname()} {...props} />;
+export function NavLinks() {
+  return <NavLinksFor pathname={usePathname()} />;
 }
 
-// Which optional pages have what they need, from the server: an Anthropic key
-// for recs, a Hardcover token for recent books
-interface Features {
-  recs: boolean;
-  upcoming: boolean;
-}
-
-// Discover shows with either of its tabs
-const SHOWN: Record<string, (features: Features) => boolean> = {
-  "/discover": ({ recs, upcoming }) => recs || upcoming,
-};
-
-export function NavLinksFor({
-  pathname,
-  ...features
-}: Features & { pathname: string | null }) {
+export function NavLinksFor({ pathname }: { pathname: string | null }) {
   const { isLoggedIn } = useAuth();
   const [open, setOpen] = useState(false);
   const [menuPathname, setMenuPathname] = useState(pathname);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const shown = ({ href }: { href: string }) => SHOWN[href]?.(features) ?? true;
-  const links = SIGNED_IN_LINKS.filter(shown);
 
   if (pathname !== menuPathname) {
     setMenuPathname(pathname);
@@ -64,7 +47,7 @@ export function NavLinksFor({
       <div className="hidden md:block">
         {isLoggedIn ? (
           <ul className="nav-links">
-            {links.map((link) => (
+            {SIGNED_IN_LINKS.map((link) => (
               <NavItem key={link.href} {...link} pathname={pathname} />
             ))}
             <li className="ml-2">
@@ -110,7 +93,7 @@ export function NavLinksFor({
         className="own-grain absolute inset-x-0 top-full border-b border-rule bg-paper md:hidden"
       >
         <ul className="mx-auto max-w-6xl divide-y divide-rule px-4 font-geist text-base font-medium">
-          {(isLoggedIn ? links : SITE_LINKS).map((link) => (
+          {(isLoggedIn ? SIGNED_IN_LINKS : SITE_LINKS).map((link) => (
             <MenuItem
               key={link.href}
               {...link}

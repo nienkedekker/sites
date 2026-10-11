@@ -153,7 +153,7 @@ function BookRow({
       actions={
         shown === "up-next" ? (
           <Link
-            href="/up-next"
+            href="/discover/for-you#up-next"
             className="inline-block bg-ink px-1.5 py-0.5 text-paper"
           >
             ✓ On Up next

@@ -4,13 +4,7 @@ import Link from "next/link";
 import { SignOutButton } from "@/components/layouts/sign-out-button";
 import { useAuth } from "@/providers/auth-provider";
 
-export function AccountLinks({
-  discover,
-  nanami,
-}: {
-  discover: boolean;
-  nanami: boolean;
-}) {
+export function AccountLinks({ nanami }: { nanami: boolean }) {
   const { isLoggedIn, loading } = useAuth();
 
   if (loading) return null;
@@ -22,13 +16,11 @@ export function AccountLinks({
           Create
         </Link>
       </li>
-      {discover && (
-        <li>
-          <Link href="/discover" className="link hover:text-ink">
-            Discover
-          </Link>
-        </li>
-      )}
+      <li>
+        <Link href="/discover" className="link hover:text-ink">
+          Discover
+        </Link>
+      </li>
       {nanami && (
         <li>
           <Link href="/nanami" className="link hover:text-ink">

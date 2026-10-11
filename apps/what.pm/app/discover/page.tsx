@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { notFound, redirect, unstable_rethrow } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { DiscoverHeader } from "@/components/features/discover/discover-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { ItemsListSkeleton } from "@/components/features/skeletons/items-list-skeleton";
@@ -9,7 +9,7 @@ import { fetchAllRows } from "@/utils/data/fetch-all";
 import { titleKey, type UpcomingBook } from "@/utils/data/upcoming";
 import { renderTime } from "@/utils/server/clock";
 import { recentBooks } from "@/utils/server/hardcover";
-import { hasRecs, hasUpcoming } from "@/utils/server/services";
+import { hasUpcoming } from "@/utils/server/services";
 import { createClientForServer } from "@/utils/supabase/server";
 
 // Hardcover's terms say to keep its data off public pages,
@@ -20,11 +20,8 @@ export const metadata: Metadata = {
 };
 
 export default function NewReleasesPage() {
-  // Without a Hardcover token, Discover is the picks alone
-  if (!hasUpcoming()) {
-    if (hasRecs()) redirect("/discover/for-you");
-    notFound();
-  }
+  // Without a Hardcover token, Discover is For you alone
+  if (!hasUpcoming()) redirect("/discover/for-you");
   return (
     <>
       <DiscoverHeader

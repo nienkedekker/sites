@@ -3,7 +3,6 @@ import Link from "next/link";
 import SiteMark from "@nienke/ui/site-mark";
 import YearNavigation from "@/components/features/lists/year-navigation";
 import { NavLinks, NavLinksFor } from "@/components/layouts/nav-links";
-import { hasRecs, hasUpcoming } from "@/utils/server/services";
 
 function Navigation() {
   return (
@@ -21,16 +20,8 @@ function Navigation() {
             </span>
           </Link>
 
-          <Suspense
-            fallback={
-              <NavLinksFor
-                pathname={null}
-                recs={hasRecs()}
-                upcoming={hasUpcoming()}
-              />
-            }
-          >
-            <NavLinks recs={hasRecs()} upcoming={hasUpcoming()} />
+          <Suspense fallback={<NavLinksFor pathname={null} />}>
+            <NavLinks />
           </Suspense>
         </nav>
       </header>

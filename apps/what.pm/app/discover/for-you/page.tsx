@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { redirect, unstable_rethrow } from "next/navigation";
+import { unstable_rethrow } from "next/navigation";
+import { formatCount } from "@nienke/ui/format";
 import { DiscoverHeader } from "@/components/features/discover/discover-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { MadeIt } from "@/components/features/recs/made-it";
+import { UpNext, type QueueItem } from "@/components/features/up-next/up-next";
 import {
   ForYou,
   ForYouSkeleton,
@@ -17,7 +19,8 @@ import {
 } from "@/utils/data/recommend";
 import { coverOf } from "@/utils/server/covers";
 import { loadLog } from "@/utils/server/recommend-log";
-import { hasRecs, hasUpcoming } from "@/utils/server/services";
+import { hasRecs } from "@/utils/server/services";
+import { loadQueue } from "@/utils/server/up-next-queue";
 import { createClientForServer } from "@/utils/supabase/server";
 import type { Tables } from "@/types";
 import type { ValidItemType } from "@/types/shared";
@@ -29,15 +32,18 @@ export const metadata: Metadata = {
 
 type Rec = Tables<"recommendations"> & { itemtype: ValidItemType };
 
+// Picks from the log, and up next under them: what to get to after that.
+// Picks need Claude; without a key, the page is up next alone
 export default function ForYouPage() {
-  // Picks need Claude; without a key, new releases or up next is the closest
-  if (!hasRecs()) redirect(hasUpcoming() ? "/discover" : "/up-next");
-
   return (
     <>
       <DiscoverHeader
         current="/discover/for-you"
-        intro="Books, films and shows picked from your log."
+        intro={
+          hasRecs()
+            ? "Books, films and shows picked from your log."
+            : "Books, films and shows to get to next."
+        }
       />
       <Suspense fallback={<ForYouSkeleton />}>
         <Recs />
@@ -47,27 +53,32 @@ export default function ForYouPage() {
 }
 
 async function Recs() {
-  let picks: ForYouPick[];
-  let logCount: number;
-  let batchAt: string | null;
+  let picks: ForYouPick[] | null = null;
+  let queue: QueueItem[];
+  let logCount = 0;
+  let batchAt: string | null = null;
   let madeIt: LoggedPick<Tables<"wanted">>[];
   let saved: number;
   try {
     const supabase = await createClientForServer();
-    const [{ data, error }, log] = await Promise.all([
+    const [{ data, error }, log, queued] = await Promise.all([
       supabase
         .from("recommendations")
         .select("*")
         .order("score", { ascending: false }),
       loadLog(supabase),
+      loadQueue(supabase),
     ]);
     if (error) throw new Error(error.message);
+    queue = queued;
     // Picks on up next stay, marked, until the next batch
     const gone = logIndex(log.items, log.dismissed);
     const wanted = new Set(
       log.wanted.map((item) => `${item.itemtype}|${item.external_id}`),
     );
-    const recs = (data as Rec[]).filter((rec) => !isLogged(rec, gone));
+    const recs = hasRecs()
+      ? (data as Rec[]).filter((rec) => !isLogged(rec, gone))
+      : [];
     const covers = await Promise.all(recs.map(coverOf));
     picks = recs.map((rec, i) => ({
       itemtype: rec.itemtype,
@@ -99,9 +110,31 @@ async function Recs() {
     );
   }
 
+  // Up next first: it's what's already chosen, and its search box is what
+  // the page gets opened for most; the picks to choose from follow
   return (
     <>
-      <ForYou picks={picks} logCount={logCount} batchAt={batchAt} />
+      <section
+        id="up-next"
+        aria-labelledby="up-next-heading"
+        className="mb-20 scroll-mt-24"
+      >
+        <header className="mb-6 flex items-end justify-between gap-4 border-b border-rule pb-3">
+          <h2
+            id="up-next-heading"
+            className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
+          >
+            Up next
+          </h2>
+          <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
+            {formatCount(queue.length)} queued
+          </p>
+        </header>
+        <UpNext items={queue} />
+      </section>
+      {hasRecs() && picks && (
+        <ForYou picks={picks} logCount={logCount} batchAt={batchAt} />
+      )}
       {madeIt.length > 0 && <MadeIt picks={madeIt} saved={saved} />}
     </>
   );

@@ -177,7 +177,7 @@ export const startUpNextAction = async (
 
     updateTag(ITEMS_TAG);
     updateTag(WANTED_TAG);
-    revalidatePath("/up-next");
+    revalidatePath("/discover/for-you");
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in startUpNextAction:", error);
