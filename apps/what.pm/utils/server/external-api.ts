@@ -11,7 +11,6 @@ import { SITE_NAME, SITE_URL } from "@/utils/constants/site";
 
 const TMDB = "https://api.themoviedb.org/3";
 const OPEN_LIBRARY_HEADERS = { "User-Agent": `${SITE_NAME} (${SITE_URL})` };
-// TMDB writing credits that point at a book behind the movie or show
 export const SOURCE_JOBS = new Set([
   "Novel",
   "Book",
@@ -207,9 +206,6 @@ export interface Episode {
 
 const COUR_GAP_DAYS = 180;
 
-// Splits a season into the runs that aired with more than half a year in
-// between. TMDB often files a whole anime as one long season, so its parts
-// only show up as gaps in the air dates.
 export function splitIntoCours(episodes: Episode[]): Episode[][] {
   const cours: Episode[][] = [];
   let lastAired: number | null = null;

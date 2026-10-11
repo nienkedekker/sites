@@ -41,8 +41,6 @@ export interface OpenLibraryDoc {
   edition_count?: number;
 }
 
-// With a year, a work first published then (or a year either side) comes
-// first: an anthology and a novel can share a title and an author
 export function matchBook(
   docs: OpenLibraryDoc[],
   title: string,

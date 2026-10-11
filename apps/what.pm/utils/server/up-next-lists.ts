@@ -49,8 +49,6 @@ async function tvdbIdOf(tmdbId: string) {
   return ids.tvdb_id ?? null;
 }
 
-// A show TVDB doesn't know, or a lookup that fails, is left off this time
-// rather than failing the whole list
 export async function upNextShows(): Promise<UpNextShow[]> {
   const shows = (await getUpNext()).filter((item) => item.itemtype === "Show");
   const ids = await Promise.allSettled(

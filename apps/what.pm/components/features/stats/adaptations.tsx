@@ -28,9 +28,6 @@ function suffixFor(book: string, screens: string[]) {
   return extras.join(", ");
 }
 
-// One row per book, timed from the first adaptation I watched. Pairs where
-// the first read or watch happened before I started logging are left out,
-// since that wait is unknown.
 function longestWaits(pairs: Adaptation[]): Row[] {
   const byBook = new Map<string, Adaptation[]>();
   for (const pair of pairs) {

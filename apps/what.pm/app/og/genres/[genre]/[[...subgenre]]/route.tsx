@@ -27,7 +27,6 @@ export async function GET(
   if (!found) return new Response("Not found", { status: 404 });
 
   const name = found.subgenre ?? found.genre;
-  // Instrument Serif runs about 0.45em a character; fit the name on one line
   const headline = Math.round(
     Math.min(180, Math.max(72, 1056 / (name.length * 0.45))),
   );

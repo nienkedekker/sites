@@ -56,7 +56,6 @@ export type ShowItem = BaseItem & {
 
 export type TypedItem = BookItem | MovieItem | ShowItem;
 
-// Things I didn't finish stay on the list but are left out of every count
 export const isCounted = (item: { did_not_finish: boolean }) =>
   !item.did_not_finish;
 

@@ -18,7 +18,6 @@ export async function getAllItems(): Promise<TypedItem[]> {
     .filter((item): item is TypedItem => item !== null);
 }
 
-// Remote, because /recs and the agent routes read it at request time
 export async function getCachedItems() {
   "use cache: remote";
   cacheLife("hours");

@@ -17,7 +17,6 @@ const years = Array.from(
   (_, i) => tumblrFirstYear + i
 );
 const max = Math.max(...fandoms.flatMap(({ counts }) => counts));
-// Lost dwarfs everything else, so the shades follow a log scale.
 const scale = "log";
 ---
 

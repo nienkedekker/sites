@@ -1,4 +1,3 @@
-// What client islands may import; the API key stays in lastfm.ts, which only runs on the server.
 export const USER = "shinyhats";
 export const PROFILE_URL = `https://www.last.fm/user/${USER}`;
 

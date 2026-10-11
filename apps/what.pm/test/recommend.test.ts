@@ -94,7 +94,6 @@ describe("seedWeights", () => {
       created_at: "2026-01-01T00:00:00Z",
     });
     const weights = seedWeights([now, imported], NOW);
-    // July 2022 to October 2026 is about 4.25 years
     expect(weights.get(imported.id)! / weights.get(now.id)!).toBeCloseTo(
       0.5 ** (4.26 / 2),
       1,

@@ -137,7 +137,6 @@ describe("getExternalDetails", () => {
   });
 
   describe("anime TMDB files as one long season", () => {
-    // My Dress-Up Darling: 12 episodes in 2022, 12 more in 2025, all "Season 1"
     const darling = () =>
       serve({
         "/3/tv/123249": () => ({
@@ -189,7 +188,6 @@ describe("getExternalDetails", () => {
         seasons: [{ season_number: 1 }, { season_number: 5 }],
         aggregate_credits: { crew: [] },
       }),
-      // Breaking Bad's last season aired in two halves, a year apart
       "/3/tv/1396/season/5": () => ({
         episodes: [
           { runtime: 47, air_date: "2012-07-15" },

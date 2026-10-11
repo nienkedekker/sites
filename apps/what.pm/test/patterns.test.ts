@@ -121,11 +121,8 @@ describe("rereadRhythms", () => {
         none,
       )[0];
 
-    // every 2 years, last read 2022: 4 years is still within twice the gap
     expect(rhythm([2020, 2022]).due).toBe(true);
-    // every 2 years, last read 2025: not yet
     expect(rhythm([2023, 2025]).due).toBe(false);
-    // every 2 years, last read 2009: the habit has long lapsed
     expect(rhythm([2007, 2009]).due).toBe(false);
   });
 

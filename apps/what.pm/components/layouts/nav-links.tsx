@@ -165,8 +165,6 @@ function NavItem({
   );
 }
 
-// A row of the phone menu: current only on exactly its page, as For you is
-// under New releases' address, and underlined like the header marks it
 function MenuItem({
   href,
   label,

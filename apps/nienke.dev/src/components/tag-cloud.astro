@@ -6,7 +6,6 @@ const counts = tumblrTags.map(({ count }) => count);
 const min = Math.min(...counts);
 const max = Math.max(...counts);
 
-// Lost dwarfs everything else, so the sizes follow a log scale.
 const level = (count: number) => Math.log(count / min) / Math.log(max / min);
 ---
 

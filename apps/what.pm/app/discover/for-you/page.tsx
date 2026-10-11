@@ -61,7 +61,6 @@ async function Recs() {
     ]);
     if (error) throw new Error(error.message);
     queue = queued;
-    // Picks on up next stay, marked, until the next batch
     const gone = logIndex(log.items, log.dismissed);
     const wanted = new Set(
       log.wanted.map((item) => `${item.itemtype}|${item.external_id}`),

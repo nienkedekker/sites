@@ -34,12 +34,8 @@ export interface Link {
   from: string;
   to: string;
   label?: string;
-  // Labels go on the first stretch of a link unless they'd sit in a crowd there
   labelAt?: "start" | "end";
   labelBelow?: boolean;
-  // Where a link bends, from 0 at the left of the gap next to `from` to 1 at its
-  // right, or in the gap next to `to` with `bendIn: "to"`. Links with the same
-  // bend share their vertical stretch, like a bus
   bend?: number;
   bendIn?: "from" | "to";
   fromDy?: number;

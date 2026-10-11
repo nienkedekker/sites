@@ -21,7 +21,6 @@ export const SITE_DESCRIPTION = IS_MINE
   ? "what!!! every book, movie and show I’ve read or watched since 2007."
   : "every book, movie and show I’ve read or watched.";
 
-// Comma-separated; left out of favourites, stats and recs
 export const HIDDEN_PEOPLE: ReadonlySet<string> = new Set(
   (process.env.HIDDEN_PEOPLE ?? "Christopher Nolan")
     .split(",")

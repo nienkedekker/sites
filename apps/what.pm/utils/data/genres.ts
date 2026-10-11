@@ -1,8 +1,6 @@
 import type { Route } from "next";
 import type { TypedItem } from "@/types/shared";
 
-// Stored with the subgenres, but they say where a book is from or who it's
-// about rather than what kind of book it is
 export const GENRE_TAGS = new Set([
   "Japanese Fiction",
   "Korean Fiction",

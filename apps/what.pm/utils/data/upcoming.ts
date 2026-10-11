@@ -40,12 +40,8 @@ export interface HardcoverBook {
   cached_tags?: { Genre?: { tag?: string }[] } | null;
 }
 
-// Long enough for all but the longest blurbs; the page shows three lines
-// until "Read more"
 const DESCRIPTION_LENGTH = 2000;
 
-// Genres I don't read, left out altogether: a book tagged with any of them
-// goes, even when it's fantasy as well
 const LEFT_OUT = /\b(romance|romantasy|young adult|ya)\b/i;
 
 const ENTITIES: Record<string, string> = {

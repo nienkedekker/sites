@@ -14,8 +14,6 @@ export function dayOfYear(date: Date) {
   return (Date.UTC(year, month - 1, day) - Date.UTC(year, 0, 1)) / DAY;
 }
 
-// Same clamping as monthIndex: logs from before the year count on day one,
-// logs from after it on the last day
 export function dayIndex(item: TypedItem, year: number): number | null {
   if (!item.created_at) return null;
   const logged = new Date(item.created_at);
@@ -136,7 +134,6 @@ export function rereadRhythms(
         season,
         years: sorted,
         every,
-        // Past the usual gap, but not so long ago that the habit has lapsed
         due: since >= Math.round(every) && since <= every * 2,
       };
     })

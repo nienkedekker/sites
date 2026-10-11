@@ -13,9 +13,6 @@ async function tmdbPoster(itemtype: "Movie" | "Show", id: string) {
   return posterUrl(data.poster_path);
 }
 
-// A cover for something kept only by its id: a book's from its Open Library
-// work, asked to 404 rather than send a blank so the text cover takes over,
-// and a movie's or show's poster from TMDB. Google Books ids get none
 export async function coverOf({
   itemtype,
   external_id: id,

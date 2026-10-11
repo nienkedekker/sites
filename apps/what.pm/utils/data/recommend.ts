@@ -244,8 +244,6 @@ export function isLogged(
   );
 }
 
-// Up next keeps an entry until it's logged after being added, so something
-// read before can go back on the list for a reread
 export function loggedSinceAdded(
   entry: Parameters<typeof isLogged>[0] & { created_at: string },
   items: TypedItem[],

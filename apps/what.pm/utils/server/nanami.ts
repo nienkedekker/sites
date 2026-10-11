@@ -4,8 +4,6 @@ import { Redis } from "@upstash/redis";
 import type { Report, StoredReport } from "@/utils/data/nanami";
 import { createClientForServer } from "@/utils/supabase/server";
 
-// A dev server keeps its own report, so trying things out locally never
-// changes what the live page shows
 const REPORT_KEY =
   process.env.NODE_ENV === "production" ? "nanami:report" : "nanami:report:dev";
 

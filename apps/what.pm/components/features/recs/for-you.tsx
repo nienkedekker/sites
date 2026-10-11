@@ -313,7 +313,6 @@ export function ForYou({
       }
       setHidden(new Set());
       setUpNext(new Map());
-      // Still loading until the new picks are on the page
       startRefresh(() => router.refresh());
     } catch {
       if (!current.signal.aborted) {

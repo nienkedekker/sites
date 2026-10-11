@@ -30,8 +30,6 @@ interface TypePaceProps {
   label: string;
   color: string;
   current: number[];
-  // Earlier years with at least one log of this type, so years from before
-  // logging it don't drag the typical year down
   past: number[][];
   today: number;
   length: number;

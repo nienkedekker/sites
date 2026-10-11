@@ -27,8 +27,6 @@ export function YearLinksFor({
   const activeYear = getActiveYear();
   const barRef = useRef<HTMLDivElement>(null);
 
-  // Keep the year shown in sight on a phone, scrolling just the bar; again
-  // once the fonts are in, as they change how wide the years are
   useEffect(() => {
     const keepInSight = () => {
       const bar = barRef.current;

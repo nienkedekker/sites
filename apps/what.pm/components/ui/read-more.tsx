@@ -16,7 +16,6 @@ export function ReadMore({
 }) {
   const [open, setOpen] = useState(false);
   const [cut, setCut] = useState(false);
-  // An element rather than a ref: it changes when the text becomes a button
   const [element, setElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {

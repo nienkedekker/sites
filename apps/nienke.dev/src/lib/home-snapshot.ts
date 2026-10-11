@@ -44,7 +44,6 @@ export async function getHomeSnapshot(): Promise<HomeSnapshot> {
 
 let numbers: Promise<LiveNumbers> | undefined;
 
-// Fetched once per build, for every page that fills in {{books}} and the like
 export function getLiveNumbers() {
   numbers ??= Promise.all([attempt("what.pm", fetchSummary), loadProgress()]).then(
     ([summary, progress]) => liveNumbers(summary, progress)

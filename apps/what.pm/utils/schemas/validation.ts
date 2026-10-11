@@ -96,8 +96,6 @@ const externalIdIssue = {
 
 const pickTitle = z.string().trim().min(1).max(200);
 
-// Picks already in the database only need to be found again, so this doesn't
-// check the id's shape
 export const pickKeySchema = z.object(pickKeyFields);
 
 export const pickKeysSchema = z.array(pickKeySchema).min(1).max(500);

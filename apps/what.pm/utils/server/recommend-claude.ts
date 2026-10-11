@@ -108,9 +108,6 @@ export async function suggestWithClaude(
     .join("\n\n");
 
   try {
-    // Streamed, so a long think doesn't hit a request timeout, and so the
-    // log can say where the time went. The route gets 300 seconds, and
-    // looking up the picks takes some of them
     const client = new Anthropic({ maxRetries: 0 });
     const started = Date.now();
     let answerAt: number | null = null;

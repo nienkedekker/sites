@@ -2,7 +2,6 @@ import { formatCount } from "@nienke/ui/format";
 import type { SummaryResponse } from "@nienke/ui/summary";
 import type { Progress } from "./wanikani.ts";
 
-// Markdown pages write these as {{books}}, filled in from what.pm and WaniKani
 export type LiveNumbers = Partial<Record<string, string>>;
 
 const TOKEN = /\{\{(\w+)\}\}/g;
