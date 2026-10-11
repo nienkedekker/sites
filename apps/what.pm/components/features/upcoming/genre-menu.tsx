@@ -86,7 +86,7 @@ export function GenreMenu({ genres, total, current, onPick }: Props) {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls={menuId}
-        className="flex cursor-pointer items-center gap-2 px-4 py-2.5 whitespace-nowrap text-ink hover:bg-panel-2"
+        className="flex cursor-pointer items-center gap-2 py-2.5 pr-4 whitespace-nowrap text-ink transition-colors hover:text-ink-soft"
       >
         <span className="uppercase tracking-[0.06em] text-ink-faint">
           Genre

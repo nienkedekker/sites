@@ -279,10 +279,10 @@ function StartingRow({
         <button
           type="button"
           onClick={onAdd}
-          aria-label={`${book.title}: Put on up next`}
+          aria-label={`Put ${book.title} on Up next`}
           className="link cursor-pointer hover:text-ink"
         >
-          Put on up next
+          + Up next
         </button>
       }
     />

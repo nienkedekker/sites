@@ -51,13 +51,14 @@ const monthName = (month: string) =>
 
 type Status = "up-next" | "read" | null;
 
-// Three lines, and "Read more" when there's more than fits in them
+// Three lines, opened in full by clicking them when there's more
 function Description({ runs }: { runs: Run[] }) {
   return (
     <div className="mt-3">
       <ReadMore
         clamp="line-clamp-3"
         className="text-sm whitespace-pre-line text-ink"
+        toggle="text"
       >
         {runs.map((run, i) =>
           run.italic || run.bold ? (
@@ -151,8 +152,11 @@ function BookRow({
       }
       actions={
         shown === "up-next" ? (
-          <Link href="/up-next" className="link text-ink hover:text-ink">
-            ✓ On up next
+          <Link
+            href="/up-next"
+            className="inline-block bg-ink px-1.5 py-0.5 text-paper"
+          >
+            ✓ On Up next
           </Link>
         ) : shown === "read" ? (
           <span>Read</span>
@@ -166,7 +170,8 @@ function BookRow({
             }}
             actions={[
               {
-                label: "Put on up next",
+                label: "+ Up next",
+                ariaLabel: `Put ${book.title} on Up next`,
                 action: async (formData) => {
                   const result = await addUpcomingToUpNext(formData);
                   if (!result.error) setAdded(true);
@@ -302,7 +307,7 @@ function FilterBar({
   return (
     <nav
       aria-label="Genre and month"
-      className="sticky top-14 z-10 -mx-4 mb-8 flex items-stretch border-y border-rule bg-paper/90 font-mono text-xs backdrop-blur"
+      className="sticky top-14 z-10 mb-8 flex items-stretch border-y border-rule bg-paper/90 font-mono text-xs backdrop-blur"
     >
       {genreMenu}
       <div ref={barRef} className="relative min-w-0 flex-1 overflow-x-auto">
@@ -346,7 +351,7 @@ function FilterBar({
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
-        className="shrink-0 cursor-pointer border-l border-rule px-4 text-ink-soft hover:text-ink"
+        className="shrink-0 cursor-pointer border-l border-rule pl-4 text-ink-soft hover:text-ink"
       >
         ↑ Top
       </button>

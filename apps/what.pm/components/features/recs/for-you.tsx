@@ -146,7 +146,7 @@ function PickRow({
             // A quiet link until it's on up next, then a filled box for the state
             className="link cursor-pointer text-ink disabled:cursor-wait aria-pressed:bg-ink aria-pressed:px-1.5 aria-pressed:py-0.5 aria-pressed:text-paper aria-pressed:no-underline"
           >
-            {pick.upNext ? "✓ In Up next" : "+ Up next"}
+            {pick.upNext ? "✓ On Up next" : "+ Up next"}
           </button>
           <button
             type="button"
