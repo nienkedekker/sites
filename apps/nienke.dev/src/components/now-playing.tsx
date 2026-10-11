@@ -15,6 +15,7 @@ export default function NowPlaying({ initial }: { initial?: Track | null }) {
         if (!res.ok) throw new Error(`Now playing route responded ${res.status}`);
         setTrack(await res.json());
       } catch {
+        // The site works fine without Last.fm
       } finally {
         setLoading(false);
       }
