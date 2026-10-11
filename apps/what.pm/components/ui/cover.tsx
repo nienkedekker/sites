@@ -5,7 +5,8 @@ import Image from "next/image";
 import { cn } from "@/utils/ui";
 import type { ValidItemType } from "@/types/shared";
 
-const LABEL: Record<ValidItemType, string> = {
+// How a type is labelled next to a title: BOOK, FILM, TV
+export const TYPE_LABEL: Record<ValidItemType, string> = {
   Book: "Book",
   Movie: "Film",
   Show: "TV",
@@ -87,7 +88,7 @@ export function Cover({
     >
       <div className="flex items-center justify-between">
         <span className="font-mono text-[9px] uppercase leading-none tracking-[0.06em] text-ink-soft">
-          {LABEL[type]}
+          {TYPE_LABEL[type]}
         </span>
         <span className="size-1.5 bg-accent" />
       </div>

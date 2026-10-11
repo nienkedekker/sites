@@ -6,10 +6,9 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import UiNavLinks from "@nienke/ui/nav-links";
 import { useAuth } from "@/providers/auth-provider";
-import { isWithin, MoreMenu } from "@/components/layouts/more-menu";
 import {
   CREATE_LINK,
-  MORE_LINKS,
+  isWithin,
   SIGNED_IN_LINKS,
   SITE_LINKS,
 } from "@/components/layouts/site-links";
@@ -22,18 +21,15 @@ export function NavLinks(props: Features) {
 }
 
 // Which optional pages have what they need, from the server: an Anthropic key
-// for recs, a media server pushing reports for nanami, a Hardcover token for
-// recent books
+// for recs, a Hardcover token for recent books
 interface Features {
   recs: boolean;
-  nanami: boolean;
   upcoming: boolean;
 }
 
 // Discover shows with either of its tabs
 const SHOWN: Record<string, (features: Features) => boolean> = {
   "/discover": ({ recs, upcoming }) => recs || upcoming,
-  "/nanami": ({ nanami }) => nanami,
 };
 
 export function NavLinksFor({
@@ -46,7 +42,6 @@ export function NavLinksFor({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const shown = ({ href }: { href: string }) => SHOWN[href]?.(features) ?? true;
   const links = SIGNED_IN_LINKS.filter(shown);
-  const more = MORE_LINKS.filter(shown);
 
   if (pathname !== menuPathname) {
     setMenuPathname(pathname);
@@ -72,7 +67,6 @@ export function NavLinksFor({
             {links.map((link) => (
               <NavItem key={link.href} {...link} pathname={pathname} />
             ))}
-            <MoreMenu links={more} pathname={pathname} />
             <li className="ml-2">
               <Link
                 href={CREATE_LINK.href}
@@ -125,29 +119,11 @@ export function NavLinksFor({
             />
           ))}
           {isLoggedIn && (
-            <>
-              <li className="py-3">
-                <p className="font-mono text-xs uppercase tracking-[0.06em] text-ink-faint">
-                  More
-                </p>
-                <ul className="mt-1">
-                  {more.map((link) => (
-                    <MenuItem
-                      key={link.href}
-                      {...link}
-                      pathname={pathname}
-                      onPick={() => setOpen(false)}
-                      nested
-                    />
-                  ))}
-                </ul>
-              </li>
-              <MenuItem
-                {...CREATE_LINK}
-                pathname={pathname}
-                onPick={() => setOpen(false)}
-              />
-            </>
+            <MenuItem
+              {...CREATE_LINK}
+              pathname={pathname}
+              onPick={() => setOpen(false)}
+            />
           )}
         </ul>
       </div>
@@ -181,19 +157,17 @@ function NavItem({
   );
 }
 
-// A link in the phone menu; the pages under More sit indented, without rules
+// A link in the phone menu
 function MenuItem({
   href,
   label,
   pathname,
   onPick,
-  nested = false,
 }: {
   href: Href & string;
   label: string;
   pathname: string | null;
   onPick: () => void;
-  nested?: boolean;
 }) {
   return (
     <li>
@@ -201,7 +175,7 @@ function MenuItem({
         href={href}
         aria-current={isWithin(pathname, href) ? "page" : undefined}
         onClick={onPick}
-        className={`block text-ink aria-[current=page]:text-ink-soft ${nested ? "py-2 pl-4" : "py-3"}`}
+        className="block py-3 text-ink aria-[current=page]:text-ink-soft"
       >
         {label}
       </Link>

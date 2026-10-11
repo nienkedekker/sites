@@ -3,18 +3,19 @@ import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
 import PageHeader from "@nienke/ui/page-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
-import { TypeColumnsSkeleton } from "@/components/features/skeletons/type-columns-skeleton";
-import { AddUpNext } from "@/components/features/recs/add-up-next";
-import { BulkSelect } from "@/components/features/recs/bulk-select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  byline,
-  EntryTitle,
-  TypeColumns,
-} from "@/components/features/recs/entries";
-import { QuietActions } from "@/components/features/recs/quiet-actions";
-import { removeWanted, removeWantedMany } from "@/app/actions/recommendations";
-import { startUpNextAction } from "@/app/actions/items";
-import { getUpNext, type UpNextItem } from "@/utils/data/up-next";
+  UpNext,
+  type QueueItem,
+  type StartingBook,
+} from "@/components/features/up-next/up-next";
+import { getCachedItems } from "@/utils/data/items";
+import { getUpNext } from "@/utils/data/up-next";
+import { releaseMonth, startingBooks, titleKey } from "@/utils/data/upcoming";
+import { renderTime } from "@/utils/server/clock";
+import { coverOf } from "@/utils/server/covers";
+import { recentBooks } from "@/utils/server/hardcover";
+import { hasUpcoming } from "@/utils/server/services";
 import { createClientForServer } from "@/utils/supabase/server";
 
 // Only for me: the page sits behind sign-in, while the lists Radarr, Sonarr and
@@ -28,38 +29,94 @@ export const metadata: Metadata = {
 export default function UpNextPage() {
   return (
     <>
-      <PageHeader intro="Books, movies, and TV shows to read/watch">
-        Up next
-      </PageHeader>
-      <Suspense fallback={<TypeColumnsSkeleton label="Loading up next" />}>
-        <UpNext />
+      <PageHeader className="mb-6 sm:mb-8">Up next</PageHeader>
+      <Suspense fallback={<UpNextSkeleton />}>
+        <UpNextQueue />
       </Suspense>
     </>
   );
 }
 
-async function UpNext() {
-  let upNext: UpNextItem[];
-  let signedIn = false;
-  const reasons = new Map<string, string>();
+function UpNextSkeleton() {
+  return (
+    <div
+      role="status"
+      aria-busy="true"
+      aria-label="Loading up next"
+      className="max-w-3xl"
+    >
+      <Skeleton className="h-[68px] w-full" />
+      <div className="mt-15">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-6 py-4">
+            <Skeleton className="h-[130px] w-[90px]" />
+            <div className="flex-1">
+              <Skeleton className="mb-2 h-5 w-2/3" />
+              <Skeleton className="h-3 w-1/3" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// With nothing queued, a few new books from Discover to start with
+async function starting(): Promise<StartingBook[]> {
+  if (!hasUpcoming()) return [];
+  try {
+    const [books, logged, now] = await Promise.all([
+      recentBooks(),
+      getCachedItems(),
+      renderTime(),
+    ]);
+    // Amsterdam's date, as on Discover
+    const today = new Date(now).toLocaleDateString("sv-SE", {
+      timeZone: "Europe/Amsterdam",
+    });
+    const read = new Set(
+      logged
+        .filter((item) => item.itemtype === "Book")
+        .map((item) => titleKey(item.title)),
+    );
+    return startingBooks(books, read, today).map((book) => ({
+      id: book.id,
+      title: book.title,
+      author: book.authors[0] ?? "",
+      year: Number(book.releaseDate.slice(0, 4)),
+      cover: book.cover?.url ?? null,
+      when: releaseMonth(book.releaseDate, today),
+    }));
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("Error loading books to start up next with:", error);
+    return [];
+  }
+}
+
+async function UpNextQueue() {
+  let items: QueueItem[];
+  let books: StartingBook[] = [];
   try {
     const supabase = await createClientForServer();
-    const [items, { data: auth }] = await Promise.all([
+    const [upNext, { data: reasons }] = await Promise.all([
       getUpNext(),
-      supabase.auth.getUser(),
+      supabase.from("wanted").select("itemtype, external_id, reason"),
     ]);
-    upNext = items;
-    signedIn = Boolean(auth.user);
-    if (signedIn) {
-      const { data } = await supabase
-        .from("wanted")
-        .select("itemtype, external_id, reason");
-      for (const row of data ?? []) {
-        if (row.reason) {
-          reasons.set(`${row.itemtype}|${row.external_id}`, row.reason);
-        }
-      }
-    }
+    const reasonOf = new Map(
+      (reasons ?? []).map((row) => [
+        `${row.itemtype}|${row.external_id}`,
+        row.reason,
+      ]),
+    );
+    items = await Promise.all(
+      upNext.map(async (item) => ({
+        ...item,
+        cover: await coverOf(item),
+        reason: reasonOf.get(`${item.itemtype}|${item.external_id}`),
+      })),
+    );
+    if (items.length === 0) books = await starting();
   } catch (error) {
     unstable_rethrow(error);
     console.error("Error loading up next:", error);
@@ -70,60 +127,5 @@ async function UpNext() {
     );
   }
 
-  const columns = (
-    <TypeColumns
-      entries={upNext}
-      noun="item"
-      selectable={signedIn}
-      render={(entry) => {
-        const reason = reasons.get(`${entry.itemtype}|${entry.external_id}`);
-        return (
-          <>
-            <EntryTitle entry={entry} />
-            {byline(entry) && (
-              <p className="mt-1 text-sm text-ink-soft">{byline(entry)}</p>
-            )}
-            {reason && <p className="mt-3 text-sm text-ink">{reason}</p>}
-            {signedIn && (
-              <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft">
-                <QuietActions
-                  subject={entry.title}
-                  fields={{
-                    itemtype: entry.itemtype,
-                    externalId: entry.external_id,
-                  }}
-                  actions={[
-                    ...(entry.itemtype !== "Movie"
-                      ? [{ label: "started", action: startUpNextAction }]
-                      : []),
-                    { label: "remove", action: removeWanted },
-                  ]}
-                />
-              </div>
-            )}
-          </>
-        );
-      }}
-    />
-  );
-
-  return (
-    <>
-      {signedIn && <AddUpNext />}
-
-      {upNext.length > 0 ? (
-        signedIn ? (
-          <BulkSelect entries={upNext} noun="item" remove={removeWantedMany}>
-            {columns}
-          </BulkSelect>
-        ) : (
-          columns
-        )
-      ) : (
-        <p className="border border-dashed border-line-strong p-6 text-ink-soft">
-          Nothing up next right now.
-        </p>
-      )}
-    </>
-  );
+  return <UpNext items={items} starting={books} />;
 }

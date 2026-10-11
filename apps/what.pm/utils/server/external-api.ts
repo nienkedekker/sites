@@ -31,6 +31,10 @@ const NOT_GENRES = new Set(["TV Movie"]);
 
 const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
 
+// A poster small enough for a list row
+export const posterUrl = (path?: string | null) =>
+  path ? `https://image.tmdb.org/t/p/w185${path}` : null;
+
 export const yearOf = (date?: string) =>
   date ? Number(date.slice(0, 4)) || null : null;
 

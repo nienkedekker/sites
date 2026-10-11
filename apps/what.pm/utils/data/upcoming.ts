@@ -230,3 +230,35 @@ export const matchesGenres = (book: UpcomingBook, genres: Set<string>) =>
 // the log don't always agree on one ("Ninth House" or "Ninth House: A Novel")
 export const titleKey = (title: string) =>
   normalizeTitle(title.split(/[:(]/)[0]);
+
+// A few books to start an empty up next with: the most anticipated out this
+// month, then last month's, then those still to come
+export function startingBooks(
+  books: UpcomingBook[],
+  skip: Set<string>,
+  today: string,
+  count = 4,
+) {
+  const month = today.slice(0, 7);
+  const rank = (book: UpcomingBook) => {
+    const released = book.releaseDate.slice(0, 7);
+    return released === month ? 0 : released < month ? 1 : 2;
+  };
+  return books
+    .filter((book) => !skip.has(titleKey(book.title)))
+    .sort((a, b) => rank(a) - rank(b) || b.readers - a.readers)
+    .slice(0, count);
+}
+
+// When a book comes out, by the month: "out this month", "out in September",
+// "coming in November"
+export function releaseMonth(releaseDate: string, today: string) {
+  const released = releaseDate.slice(0, 7);
+  const month = today.slice(0, 7);
+  if (released === month) return "out this month";
+  const name = new Date(`${released}-01T00:00:00Z`).toLocaleDateString(
+    "en-GB",
+    { timeZone: "UTC", month: "long" },
+  );
+  return released < month ? `out in ${name}` : `coming in ${name}`;
+}

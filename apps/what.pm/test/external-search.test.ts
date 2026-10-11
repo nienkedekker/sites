@@ -47,7 +47,7 @@ describe("searchTitles", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("fills books from OpenLibrary with the first author only", async () => {
+  it("fills books from OpenLibrary with the first author only and a cover", async () => {
     const fetchMock = serve({
       "/search.json": () => ({
         docs: [
@@ -56,6 +56,7 @@ describe("searchTitles", () => {
             title: "The Library at Mount Char",
             author_name: ["Scott Hawkins", "Hillary Huber"],
             first_publish_year: 2015,
+            cover_i: 8231856,
           },
           { key: "/works/OL2W", title: "No details" },
         ],
@@ -68,8 +69,15 @@ describe("searchTitles", () => {
         title: "The Library at Mount Char",
         year: 2015,
         creator: "Scott Hawkins",
+        cover: "https://covers.openlibrary.org/b/id/8231856-M.jpg",
       },
-      { id: "/works/OL2W", title: "No details", year: null, creator: null },
+      {
+        id: "/works/OL2W",
+        title: "No details",
+        year: null,
+        creator: null,
+        cover: null,
+      },
     ]);
     const [, init] = fetchMock.mock.calls[0];
     expect(new Headers(init?.headers).get("User-Agent")).toContain("what.pm");
@@ -101,6 +109,7 @@ describe("searchTitles", () => {
             id: 1,
             title: "No Country for Old Men",
             release_date: "2007-05-19",
+            poster_path: "/poster.jpg",
           },
         ],
       }),
@@ -114,6 +123,7 @@ describe("searchTitles", () => {
         title: "No Country for Old Men",
         year: 2007,
         creator: "Joel Coen, Ethan Coen",
+        cover: "https://image.tmdb.org/t/p/w185/poster.jpg",
       },
     ]);
   });
@@ -217,7 +227,13 @@ describe("searchTitles", () => {
     });
 
     expect(await searchTitles("Show", "euphoria")).toEqual([
-      { id: "85552", title: "Euphoria", year: 2019, creator: null },
+      {
+        id: "85552",
+        title: "Euphoria",
+        year: 2019,
+        creator: null,
+        cover: null,
+      },
     ]);
   });
 });

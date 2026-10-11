@@ -6,6 +6,7 @@ import type { ExternalResult, SeasonYears } from "@/types/external-api";
 import {
   getJson,
   openLibraryJson,
+  posterUrl,
   tmdbUrl,
   yearOf,
 } from "@/utils/server/external-api";
@@ -15,7 +16,10 @@ const LIMIT = 6;
 async function searchBooks(query: string): Promise<ExternalResult[]> {
   const url = new URL("https://openlibrary.org/search.json");
   url.searchParams.set("q", query);
-  url.searchParams.set("fields", "key,title,author_name,first_publish_year");
+  url.searchParams.set(
+    "fields",
+    "key,title,author_name,first_publish_year,cover_i",
+  );
   url.searchParams.set("limit", String(LIMIT));
 
   const data = await openLibraryJson<{
@@ -24,6 +28,7 @@ async function searchBooks(query: string): Promise<ExternalResult[]> {
       title: string;
       author_name?: string[];
       first_publish_year?: number;
+      cover_i?: number;
     }[];
   }>(url);
 
@@ -32,6 +37,9 @@ async function searchBooks(query: string): Promise<ExternalResult[]> {
     title: doc.title,
     year: doc.first_publish_year ?? null,
     creator: doc.author_name?.[0] ?? null,
+    cover: doc.cover_i
+      ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
+      : null,
   }));
 }
 
@@ -47,7 +55,12 @@ async function directorsOf(id: number) {
   return names.length > 0 ? names.join(", ") : null;
 }
 
-type Movie = { id: number; title: string; release_date?: string };
+type Movie = {
+  id: number;
+  title: string;
+  release_date?: string;
+  poster_path?: string | null;
+};
 
 async function moviesDirectedBy(query: string): Promise<Movie[]> {
   const words = query.toLowerCase().split(/\s+/);
@@ -93,13 +106,19 @@ async function searchMovies(query: string): Promise<ExternalResult[]> {
       title: movie.title,
       year: yearOf(movie.release_date),
       creator: await directorsOf(movie.id).catch(() => null),
+      cover: posterUrl(movie.poster_path),
     })),
   );
 }
 
 async function searchShows(query: string): Promise<ExternalResult[]> {
   const data = await getJson<{
-    results: { id: number; name: string; first_air_date?: string }[];
+    results: {
+      id: number;
+      name: string;
+      first_air_date?: string;
+      poster_path?: string | null;
+    }[];
   }>(tmdbUrl("/search/tv", { query, include_adult: "false" }));
 
   return data.results.slice(0, LIMIT).map((show) => ({
@@ -107,6 +126,7 @@ async function searchShows(query: string): Promise<ExternalResult[]> {
     title: show.name,
     year: yearOf(show.first_air_date),
     creator: null,
+    cover: posterUrl(show.poster_path),
   }));
 }
 
