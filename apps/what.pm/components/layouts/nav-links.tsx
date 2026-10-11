@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { List, X } from "@phosphor-icons/react/ssr";
 import UiNavLinks from "@nienke/ui/nav-links";
 import { useAuth } from "@/providers/auth-provider";
 import {
@@ -104,7 +104,7 @@ export function NavLinksFor({
         {open ? (
           <X className="size-4" aria-hidden="true" />
         ) : (
-          <Menu className="size-4" aria-hidden="true" />
+          <List className="size-4" aria-hidden="true" />
         )}
       </button>
 

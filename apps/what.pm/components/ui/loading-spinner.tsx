@@ -1,4 +1,4 @@
-import { LoaderCircle } from "lucide-react";
+import { CircleNotch } from "@phosphor-icons/react/ssr";
 
 interface LoadingSpinnerProps {
   size?: number;
@@ -7,10 +7,9 @@ interface LoadingSpinnerProps {
 
 export function LoadingSpinner({ size = 16, className }: LoadingSpinnerProps) {
   return (
-    <LoaderCircle
+    <CircleNotch
       className={`animate-spin ${className || ""}`}
-      width={size}
-      height={size}
+      size={size}
       aria-hidden="true"
     />
   );

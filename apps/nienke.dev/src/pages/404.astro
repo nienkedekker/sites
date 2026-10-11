@@ -1,13 +1,16 @@
 ---
-import { ArrowLeft } from "lucide-react";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ArrowLeft from "phosphor-astro/ArrowLeft.astro";
 ---
 
 <BaseLayout title="Lost" description="This page flew away." canonical={false}>
   <section
     class="mx-auto flex max-w-3xl flex-col items-center px-4 pt-24 text-center sm:pt-32"
   >
-    <h1 class="rise display display-hero text-ink" style="--delay: 160ms">
+    <h1
+      class="rise display display-hero text-ink"
+      style="--delay: 160ms"
+    >
       404
     </h1>
     <p class="rise mt-6 max-w-md text-lg text-ink-soft" style="--delay: 240ms">
@@ -19,8 +22,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       style="--delay: 320ms"
     >
       <ArrowLeft
-        aria-hidden="true"
-        className="size-4 transition-transform group-hover:-translate-x-0.5"
+        class="size-4 transition-transform group-hover:-translate-x-0.5"
       /> Back home
     </a>
     <p

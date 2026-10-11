@@ -1,7 +1,7 @@
 ---
-import { ArrowUpRight } from "lucide-react";
 import { externalProps } from "@nienke/ui/external";
 import { formatDate, formatPlural } from "@nienke/ui/format";
+import ArrowUpRight from "phosphor-astro/ArrowUpRight.astro";
 import ArchiveFooter from "../components/archive-footer.astro";
 import FandomTimeline from "../components/fandom-timeline.astro";
 import PageLayout from "../layouts/PageLayout.astro";
@@ -94,10 +94,7 @@ const sections = tumblrSections.map((section) => ({
                       class="group flex items-center gap-1 font-mono text-xs text-ink-faint transition-colors hover:text-ink"
                     >
                       {blog}
-                      <ArrowUpRight
-                        aria-hidden="true"
-                        className="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                      />
+                      <ArrowUpRight class="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </a>
                     <span class="font-mono text-xs text-ink-faint">
                       {formatPlural(notes, "note")}

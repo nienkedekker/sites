@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { ArrowsClockwise, Warning } from "@phosphor-icons/react/ssr";
 
 interface ErrorFallbackProps {
   error?: string;
@@ -11,7 +11,7 @@ interface ErrorFallbackProps {
 export function DataLoadingError({ error, reset }: ErrorFallbackProps) {
   return (
     <div role="alert" className="panel max-w-xl">
-      <AlertTriangle className="mb-4 size-6 text-danger" aria-hidden="true" />
+      <Warning className="mb-4 size-6 text-danger" aria-hidden="true" />
       <h2 className="display display-sub mb-3 text-ink">
         Unable to load items
       </h2>
@@ -21,7 +21,7 @@ export function DataLoadingError({ error, reset }: ErrorFallbackProps) {
       <div className="flex gap-2">
         {reset && (
           <Button onClick={reset} variant="outline" size="sm">
-            <RefreshCw aria-hidden="true" />
+            <ArrowsClockwise aria-hidden="true" />
             Try again
           </Button>
         )}

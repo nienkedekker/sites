@@ -1,5 +1,6 @@
 ---
-import { Moon, Sun } from "lucide-react";
+import Sun from "phosphor-astro/Sun.astro";
+import Moon from "phosphor-astro/Moon.astro";
 import NavLinks from "@nienke/ui/nav-links";
 import SiteMark from "@nienke/ui/site-mark";
 
@@ -39,8 +40,8 @@ const navItems = [
         class="icon-button"
         aria-label="Toggle dark mode"
       >
-        <Sun aria-hidden="true" className="hidden size-4 dark:block" />
-        <Moon aria-hidden="true" className="block size-4 dark:hidden" />
+        <Sun class="hidden size-4 dark:block" />
+        <Moon class="block size-4 dark:hidden" />
       </button>
     </div>
   </nav>

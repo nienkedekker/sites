@@ -1,4 +1,9 @@
-import { RotateCcw, Clock, CircleSlash, type LucideIcon } from "lucide-react";
+import {
+  ArrowCounterClockwise,
+  Clock,
+  Prohibit,
+} from "@phosphor-icons/react/ssr";
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import { Item } from "@/types";
 import { cn } from "@/utils/ui";
 import { badgeStyles } from "@/utils/styles";
@@ -10,7 +15,7 @@ function ItemBadge({
   ariaLabel,
   className,
 }: {
-  icon: LucideIcon;
+  icon: PhosphorIcon;
   label: string;
   variant: "progress" | "redo" | "dnf";
   ariaLabel: string;
@@ -35,7 +40,7 @@ export function ItemBadges({
   if (item.did_not_finish) {
     return (
       <ItemBadge
-        icon={CircleSlash}
+        icon={Prohibit}
         label="Didn’t finish"
         variant="dnf"
         className={className}
@@ -53,7 +58,7 @@ export function ItemBadges({
     if (item.redo) {
       return (
         <ItemBadge
-          icon={RotateCcw}
+          icon={ArrowCounterClockwise}
           label={isBook ? "Reread in progress" : "Rewatch in progress"}
           variant="progress"
           className={className}
@@ -84,7 +89,7 @@ export function ItemBadges({
     const isBook = item.itemtype === "Book";
     return (
       <ItemBadge
-        icon={RotateCcw}
+        icon={ArrowCounterClockwise}
         label={isBook ? "Reread" : "Rewatch"}
         variant="redo"
         className={className}

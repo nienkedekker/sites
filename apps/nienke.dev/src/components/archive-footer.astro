@@ -1,5 +1,6 @@
 ---
-import { ArrowLeft, ArrowUp } from "lucide-react";
+import ArrowLeft from "phosphor-astro/ArrowLeft.astro";
+import ArrowUp from "phosphor-astro/ArrowUp.astro";
 ---
 
 <div class="mt-24 flex gap-6 font-mono text-xs text-ink-faint sm:mt-32">
@@ -8,8 +9,7 @@ import { ArrowLeft, ArrowUp } from "lucide-react";
     class="group flex items-center gap-1 transition-colors hover:text-ink"
   >
     <ArrowLeft
-      aria-hidden="true"
-      className="size-3 transition-transform group-hover:-translate-x-0.5"
+      class="size-3 transition-transform group-hover:-translate-x-0.5"
     />
     Archive
   </a>
@@ -18,10 +18,7 @@ import { ArrowLeft, ArrowUp } from "lucide-react";
     data-top
     class="group flex items-center gap-1 transition-colors hover:text-ink"
   >
-    <ArrowUp
-      aria-hidden="true"
-      className="size-3 transition-transform group-hover:-translate-y-0.5"
-    />
+    <ArrowUp class="size-3 transition-transform group-hover:-translate-y-0.5" />
     Top
   </a>
 </div>

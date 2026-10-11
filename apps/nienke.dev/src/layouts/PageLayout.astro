@@ -1,7 +1,7 @@
 ---
-import { ArrowLeft } from "lucide-react";
 import { formatDate } from "@nienke/ui/format";
 import PageHeader from "@nienke/ui/page-header";
+import ArrowLeft from "phosphor-astro/ArrowLeft.astro";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -35,10 +35,7 @@ const formattedDate = lastUpdated
           href={parent.href}
           class="rise group mb-8 flex w-fit items-center gap-1 font-mono text-xs text-ink-faint transition-colors hover:text-ink"
         >
-          <ArrowLeft
-            aria-hidden="true"
-            className="size-3 transition-transform group-hover:-translate-x-0.5"
-          />
+          <ArrowLeft class="size-3 transition-transform group-hover:-translate-x-0.5" />
           {parent.label}
         </a>
       )

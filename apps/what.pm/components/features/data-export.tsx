@@ -3,7 +3,7 @@
 import { useState } from "react";
 import CardHead from "@nienke/ui/card-head";
 import { Button } from "@/components/ui/button";
-import { FileText, Database, Calendar } from "lucide-react";
+import { Calendar, Database, FileText } from "@phosphor-icons/react/ssr";
 
 interface DataExportProps {
   currentYear?: number;

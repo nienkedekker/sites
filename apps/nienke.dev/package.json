@@ -22,7 +22,7 @@
     "@types/react-dom": "^19.2.3",
     "@upstash/redis": "^1.39.0",
     "astro": "^7.3.5",
-    "lucide-react": "^0.468.0",
+    "phosphor-astro": "^2.1.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "sharp": "^0.35.5",

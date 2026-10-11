@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentProps, ReactNode, Ref } from "react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react/ssr";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export function SearchField({

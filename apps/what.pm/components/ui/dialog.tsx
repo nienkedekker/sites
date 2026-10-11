@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { XIcon } from "lucide-react";
+import { X } from "@phosphor-icons/react/ssr";
 
 import { cn } from "@/utils/ui";
 
@@ -64,7 +64,7 @@ function DialogContent({
       >
         {children}
         <DialogPrimitive.Close className="icon-button absolute top-4 right-4">
-          <XIcon className="size-4" aria-hidden="true" />
+          <X className="size-4" aria-hidden="true" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

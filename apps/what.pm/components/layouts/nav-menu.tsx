@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react/ssr";
 import { isWithin } from "@/components/layouts/site-links";
 
 type Href = Parameters<typeof Link>[0]["href"];
@@ -59,7 +59,7 @@ export function NavMenu({
         className={`nav-link flex cursor-pointer items-center gap-1 ${inside ? "underline decoration-2" : ""}`}
       >
         {label}
-        <ChevronDown
+        <CaretDown
           className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />

@@ -1,6 +1,6 @@
 ---
-import { ArrowUpRight } from "lucide-react";
 import PageLayout from "../layouts/PageLayout.astro";
+import ArrowUpRight from "phosphor-astro/ArrowUpRight.astro";
 import { externalProps } from "@nienke/ui/external";
 import { links, linksIntro } from "../data/links";
 
@@ -31,10 +31,7 @@ const hostname = (href: string) => new URL(href).hostname.replace(/^www\./, "");
                 {hostname(href)}
               </span>
             </span>
-            <ArrowUpRight
-              aria-hidden="true"
-              className="size-4 shrink-0 text-ink-faint transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink"
-            />
+            <ArrowUpRight class="size-4 shrink-0 text-ink-faint transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" />
           </a>
         </li>
       ))
