@@ -1,13 +1,7 @@
 import { formatDate } from "@nienke/ui/format";
 import { SWATCH } from "@nienke/ui/series";
 import { getRecentItems } from "@/utils/data/items";
-import type { TypedItem } from "@/types/shared";
-
-const LABEL_MAP: Record<TypedItem["itemtype"], string> = {
-  Book: "Book",
-  Movie: "Movie",
-  Show: "TV",
-};
+import { TYPE_NAMES } from "@/utils/constants/app";
 
 export async function LastLogged({
   limit,
@@ -44,7 +38,7 @@ export async function LastLogged({
               )}
             </span>
             <span className="shrink-0 font-mono text-xs text-ink-soft">
-              <span className="sr-only">{LABEL_MAP[item.itemtype]}, </span>
+              <span className="sr-only">{TYPE_NAMES[item.itemtype].one}, </span>
               {item.created_at &&
                 formatDate(new Date(item.created_at), {
                   day: "numeric",

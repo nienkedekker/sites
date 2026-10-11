@@ -13,7 +13,8 @@ import {
   type Match,
 } from "@/components/features/up-next/queue-search";
 import { ItemTitle } from "@/components/ui/item-row";
-import { Cover, TYPE_LABEL } from "@/components/ui/cover";
+import { Cover } from "@/components/ui/cover";
+import { TYPE_NAMES } from "@/utils/constants/app";
 import { addUpNext, removeWanted } from "@/app/actions/recommendations";
 import { startUpNextAction } from "@/app/actions/items";
 import type { ValidItemType } from "@/types/shared";
@@ -204,7 +205,7 @@ function Row({
           <p className="mt-1 text-sm text-ink-soft">
             {meta.filter(Boolean).map((part) => `${part} · `)}
             <span className="font-mono text-xs uppercase tracking-[0.06em]">
-              {TYPE_LABEL[type]}
+              {TYPE_NAMES[type].one}
             </span>
           </p>
           {note && <p className="mt-2 text-sm text-ink">{note}</p>}

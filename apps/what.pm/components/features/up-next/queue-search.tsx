@@ -9,23 +9,11 @@ import {
 } from "react";
 import { Cover } from "@/components/ui/cover";
 import { SearchField } from "@/components/ui/search-field";
-import { CATEGORY_CONFIG } from "@/utils/constants/app";
+import { TYPE_NAMES } from "@/utils/constants/app";
 import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
 import type { ExternalResult } from "@/types/external-api";
 
 export type Match = ExternalResult & { itemtype: ValidItemType };
-
-// The types to pick from, named as the columns of the log are
-const PICKER = Object.fromEntries(
-  CATEGORY_CONFIG.map(({ type, title }) => [type, title]),
-) as Record<ValidItemType, string>;
-
-// What the box says it searches, by type
-const SEARCHING: Record<ValidItemType, string> = {
-  Book: "books",
-  Movie: "movies",
-  Show: "TV shows",
-};
 
 async function fetchMatches(
   itemtype: ValidItemType,
@@ -134,13 +122,13 @@ export function QueueSearch({
                 : "hover:text-ink"
             }`}
           >
-            {PICKER[type]}
+            {TYPE_NAMES[type].many}
           </button>
         ))}
       </div>
       <SearchField
         ref={inputRef}
-        label={`Search ${SEARCHING[itemType]}`}
+        label={`Search ${TYPE_NAMES[itemType].inText}`}
         value={query}
         onValueChange={(value) => {
           setQuery(value);
@@ -155,7 +143,7 @@ export function QueueSearch({
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
         onKeyDown={handleKeyDown}
-        placeholder={`Search ${SEARCHING[itemType]}`}
+        placeholder={`Search ${TYPE_NAMES[itemType].inText}`}
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={shown}

@@ -1,12 +1,25 @@
 import type { ValidItemType } from "@/types/shared";
 
+// What each type is called, the one place the site says so, so the words
+// can't drift apart: one for a single thing (a cover's label), many for a
+// group (a column, a filter, a picker, a chart's legend), and inText inside a
+// sentence. test/terminology.test.ts keeps other files from spelling their own
+export const TYPE_NAMES: Record<
+  ValidItemType,
+  { one: string; many: string; inText: string }
+> = {
+  Book: { one: "Book", many: "Books", inText: "books" },
+  Movie: { one: "Movie", many: "Movies", inText: "movies" },
+  Show: { one: "TV Show", many: "TV Shows", inText: "TV shows" },
+};
+
 export const CATEGORY_CONFIG: ReadonlyArray<{
   title: string;
   type: ValidItemType;
 }> = [
-  { title: "Books", type: "Book" },
-  { title: "Movies", type: "Movie" },
-  { title: "TV Shows", type: "Show" },
+  { title: TYPE_NAMES.Book.many, type: "Book" },
+  { title: TYPE_NAMES.Movie.many, type: "Movie" },
+  { title: TYPE_NAMES.Show.many, type: "Show" },
 ] as const;
 
 export const ITEM_TYPES = {
@@ -25,15 +38,15 @@ export type TabValue = (typeof TAB_VALUES)[keyof typeof TAB_VALUES];
 
 export const CHART_CONFIG = {
   [ITEM_TYPES.BOOK]: {
-    label: "Books",
+    label: TYPE_NAMES.Book.many,
     color: "var(--books)",
   },
   [ITEM_TYPES.MOVIE]: {
-    label: "Movies",
+    label: TYPE_NAMES.Movie.many,
     color: "var(--movies)",
   },
   [ITEM_TYPES.SHOW]: {
-    label: "Shows",
+    label: TYPE_NAMES.Show.many,
     color: "var(--shows)",
   },
 } as const;

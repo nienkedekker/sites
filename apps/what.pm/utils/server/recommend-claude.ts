@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import type { TypedItem, ValidItemType } from "@/types/shared";
+import { TYPE_NAMES } from "@/utils/constants/app";
 import { HIDDEN_PEOPLE } from "@/utils/constants/site";
 import { hasRecs } from "@/utils/server/services";
 import {
@@ -32,12 +33,6 @@ const SuggestionsSchema = z.object({
   ),
 });
 
-const TYPE_NAMES: Record<ValidItemType, string> = {
-  Book: "books",
-  Movie: "movies",
-  Show: "TV shows",
-};
-
 // Picking one type again leaves the picks for the others as they are
 const system = (
   only?: ValidItemType,
@@ -46,7 +41,7 @@ const system = (
 Everything in the log was finished and liked: I drop what I don't like, so there are no ratings and every entry counts as a yes. "reread" marks something I went back to, which is the strongest signal there is. Newer entries say more about my taste now than old ones. The log covers the last three years in full; before that it only has rereads and the entries that weigh most, and a line with the authors and directors I've logged most over the years.
 
 Suggest ${only ? TYPE_SUGGESTION_COUNT : SUGGESTION_COUNT}, best first:
-- ${only ? `Only ${TYPE_NAMES[only]} this time.` : "About a third each of books, movies and TV shows."}
+- ${only ? `Only ${TYPE_NAMES[only].inText} this time.` : "About a third each of books, movies and TV shows."}
 - Only by people I haven't logged anything by: <known_people> lists everyone I have. Nothing adapted from a book by one of them either. The point is discovering authors, directors and showrunners new to me.
 - Nothing in my log, nothing I dismissed, and nothing much like what I dismissed as not for me.
 - Nothing on my want list either. I picked those out of earlier suggestions to read or watch next, so they say a lot about what I'm after now.

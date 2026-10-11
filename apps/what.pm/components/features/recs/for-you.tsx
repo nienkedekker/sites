@@ -18,6 +18,7 @@ import {
   wantRecommendation,
 } from "@/app/actions/recommendations";
 import type { ValidItemType } from "@/types/shared";
+import { TYPE_NAMES } from "@/utils/constants/app";
 
 export interface ForYouPick {
   itemtype: ValidItemType;
@@ -31,9 +32,17 @@ export interface ForYouPick {
 }
 
 const COLUMNS: { type: ValidItemType; title: string; hint: string }[] = [
-  { type: "Book", title: "Books", hint: "novels, non-fiction, comics" },
-  { type: "Movie", title: "Movies", hint: "features and docs" },
-  { type: "Show", title: "TV Shows", hint: "series and limited runs" },
+  {
+    type: "Book",
+    title: TYPE_NAMES.Book.many,
+    hint: "novels, non-fiction, comics",
+  },
+  { type: "Movie", title: TYPE_NAMES.Movie.many, hint: "features and docs" },
+  {
+    type: "Show",
+    title: TYPE_NAMES.Show.many,
+    hint: "series and limited runs",
+  },
 ];
 
 const keyOf = (pick: ForYouPick) => `${pick.itemtype}|${pick.external_id}`;

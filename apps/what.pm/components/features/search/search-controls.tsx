@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { SearchSuggestion } from "@/utils/data/search-context";
+import { TYPE_NAMES } from "@/utils/constants/app";
 import { cn } from "@/utils/ui";
 
 const sortOptions = [
@@ -20,9 +21,9 @@ const sortOptions = [
 
 const TYPE_FILTERS = [
   { value: "all", label: "All", swatch: null },
-  { value: "Book", label: "Books", swatch: "bg-books" },
-  { value: "Movie", label: "Movies", swatch: "bg-movies" },
-  { value: "Show", label: "TV", swatch: "bg-shows" },
+  { value: "Book", label: TYPE_NAMES.Book.many, swatch: "bg-books" },
+  { value: "Movie", label: TYPE_NAMES.Movie.many, swatch: "bg-movies" },
+  { value: "Show", label: TYPE_NAMES.Show.many, swatch: "bg-shows" },
 ] as const;
 
 interface SearchInputProps {

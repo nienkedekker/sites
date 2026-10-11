@@ -2,15 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { TYPE_NAMES } from "@/utils/constants/app";
 import { cn } from "@/utils/ui";
 import type { ValidItemType } from "@/types/shared";
-
-// How a type is labelled next to a title: BOOK, FILM, TV
-export const TYPE_LABEL: Record<ValidItemType, string> = {
-  Book: "Book",
-  Movie: "Film",
-  Show: "TV",
-};
 
 // Sizes for when the caller doesn't set its own: a list row's cover, or a
 // search result's thumbnail
@@ -88,7 +82,7 @@ export function Cover({
     >
       <div className="flex items-center justify-between">
         <span className="font-mono text-[9px] uppercase leading-none tracking-[0.06em] text-ink-soft">
-          {TYPE_LABEL[type]}
+          {TYPE_NAMES[type].one}
         </span>
         <span className="size-1.5 bg-accent" />
       </div>

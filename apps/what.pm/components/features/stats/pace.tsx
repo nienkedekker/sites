@@ -12,6 +12,7 @@ import {
   typicalBy,
   type PaceYear,
 } from "@/utils/data/patterns";
+import { TYPE_NAMES } from "@/utils/constants/app";
 import { localDate } from "@/utils/formatters/date";
 import type { TypedItem } from "@/types/shared";
 
@@ -20,8 +21,9 @@ type ItemType = TypedItem["itemtype"];
 const STEP = 7;
 
 const TYPES: { type: ItemType; label: string; color: string }[] = [
-  { type: "Book", label: "Books", color: "var(--books)" },
-  { type: "Movie", label: "Movies", color: "var(--movies)" },
+  { type: "Book", label: TYPE_NAMES.Book.many, color: "var(--books)" },
+  { type: "Movie", label: TYPE_NAMES.Movie.many, color: "var(--movies)" },
+  // A logged show is a season of it, so the count is of seasons
   { type: "Show", label: "TV seasons", color: "var(--shows)" },
 ];
 
