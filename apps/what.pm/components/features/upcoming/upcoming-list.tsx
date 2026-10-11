@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { externalProps } from "@nienke/ui/external";
@@ -24,6 +24,14 @@ const day = (date: string) =>
     weekday: "short",
     day: "numeric",
     month: "short",
+  });
+
+// "Oct", or "Jan 2027" for a month in another year than today's
+const monthShort = (month: string, today: string) =>
+  new Date(`${month}-01T00:00:00Z`).toLocaleDateString("en-GB", {
+    timeZone: "UTC",
+    month: "short",
+    ...(month.slice(0, 4) === today.slice(0, 4) ? {} : { year: "numeric" }),
   });
 
 const monthName = (month: string) =>
@@ -155,12 +163,20 @@ interface Props {
   today: string;
 }
 
+type Part = "out" | "coming";
+
+// A month's anchor: a month can be in both parts, out before today and
+// coming after it
+const anchor = (part: Part, month: string) => `${part}-${month}`;
+
 function Months({
+  part,
   books,
   newestFirst,
   statusOf,
   today,
 }: {
+  part: Part;
   books: UpcomingBook[];
   newestFirst: boolean;
   statusOf: (book: UpcomingBook) => Status;
@@ -169,10 +185,17 @@ function Months({
   return (
     <div className="space-y-14">
       {byMonth(books, newestFirst).map(({ month, books }) => (
-        <section key={month} aria-labelledby={`month-${month}`}>
+        <section
+          key={month}
+          id={anchor(part, month)}
+          data-month
+          aria-labelledby={`${anchor(part, month)}-heading`}
+          // Clear of the site header and the month bar when jumped to
+          className="scroll-mt-32"
+        >
           <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
             <h3
-              id={`month-${month}`}
+              id={`${anchor(part, month)}-heading`}
               className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
             >
               {monthName(month)}
@@ -197,6 +220,104 @@ function Months({
   );
 }
 
+interface BarPart {
+  part: Part;
+  title: string;
+  months: string[];
+}
+
+// Under the site header as the page scrolls: every month, to jump to, with the
+// one in view marked. Sideways scrolling on a phone keeps it to one line
+function MonthBar({ parts, today }: { parts: BarPart[]; today: string }) {
+  const [active, setActive] = useState<string | null>(null);
+  const barRef = useRef<HTMLElement>(null);
+  // Changes only when the months shown change, as a genre is picked
+  const shownMonths = parts
+    .flatMap(({ part, months }) => months.map((month) => anchor(part, month)))
+    .join(" ");
+
+  // The month in view is the last one whose top has passed under the bar
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const sections = document.querySelectorAll<HTMLElement>("[data-month]");
+      let current: string | null = sections[0]?.id ?? null;
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 160) current = section.id;
+      }
+      setActive(current);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [shownMonths]);
+
+  // Keep the marked month in sight in the bar itself
+  useEffect(() => {
+    if (!active) return;
+    barRef.current
+      ?.querySelector<HTMLElement>(`[data-target="${active}"]`)
+      ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [active]);
+
+  const jump = (id: string) => {
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    document.getElementById(id)?.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "start",
+    });
+    history.replaceState(null, "", `#${id}`);
+  };
+
+  return (
+    <nav
+      ref={barRef}
+      aria-label="Months"
+      className="sticky top-14 z-10 -mx-4 mb-10 overflow-x-auto border-b border-rule bg-paper/90 px-4 backdrop-blur"
+    >
+      <div className="flex w-max items-center gap-x-1 py-2 font-mono text-xs">
+        {parts.map(({ part, title, months }, i) => (
+          <div key={part} className="flex items-center gap-x-1">
+            {i > 0 && (
+              <span className="mx-2 h-4 w-px bg-rule" aria-hidden="true" />
+            )}
+            <span className="pr-1 uppercase tracking-[0.06em] text-ink-faint">
+              {title}
+            </span>
+            {months.map((month) => {
+              const id = anchor(part, month);
+              return (
+                <a
+                  key={id}
+                  href={`#${id}`}
+                  data-target={id}
+                  aria-current={active === id ? "true" : undefined}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    jump(id);
+                  }}
+                  className="whitespace-nowrap px-2 py-1 text-ink-soft hover:text-ink aria-[current=true]:bg-ink aria-[current=true]:text-paper"
+                >
+                  {monthShort(month, today)}
+                </a>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
 export function UpcomingList({ books, upNext, read, today }: Props) {
   const genres = genresOf(books);
   // Everything to start with; a genre narrows it down
@@ -210,6 +331,22 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
   const shown = books.filter((book) => matchesGenres(book, picked));
   const out = shown.filter((book) => isOut(book, today));
   const coming = shown.filter((book) => !isOut(book, today));
+  const parts = [
+    {
+      part: "out" as const,
+      title: "Out now",
+      note: "the last two months, newest first",
+      books: out,
+      newestFirst: true,
+    },
+    {
+      part: "coming" as const,
+      title: "Coming soon",
+      note: "the next six months",
+      books: coming,
+      newestFirst: false,
+    },
+  ].filter(({ books }) => books.length > 0);
 
   const toggle = (genre: string) =>
     setPicked((current) => {
@@ -251,37 +388,31 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
         <p className="text-ink-soft">Nothing new in these genres.</p>
       ) : (
         <div className="space-y-20">
-          {[
-            {
-              title: "Out now",
-              note: "the last two months, newest first",
-              books: out,
-              newestFirst: true,
-            },
-            {
-              title: "Coming soon",
-              note: "the next six months",
-              books: coming,
-              newestFirst: false,
-            },
-          ]
-            .filter((part) => part.books.length > 0)
-            .map((part) => (
-              <section key={part.title} aria-label={part.title}>
-                <h2 className="mb-8 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                  <span className="tag">{part.title}</span>
-                  <span className="font-mono text-xs text-ink-faint">
-                    {part.note}
-                  </span>
-                </h2>
-                <Months
-                  books={part.books}
-                  newestFirst={part.newestFirst}
-                  statusOf={statusOf}
-                  today={today}
-                />
-              </section>
-            ))}
+          <MonthBar
+            today={today}
+            parts={parts.map(({ part, title, books, newestFirst }) => ({
+              part,
+              title,
+              months: byMonth(books, newestFirst).map(({ month }) => month),
+            }))}
+          />
+          {parts.map((part) => (
+            <section key={part.title} aria-label={part.title}>
+              <h2 className="mb-8 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <span className="tag">{part.title}</span>
+                <span className="font-mono text-xs text-ink-faint">
+                  {part.note}
+                </span>
+              </h2>
+              <Months
+                part={part.part}
+                books={part.books}
+                newestFirst={part.newestFirst}
+                statusOf={statusOf}
+                today={today}
+              />
+            </section>
+          ))}
         </div>
       )}
     </div>
