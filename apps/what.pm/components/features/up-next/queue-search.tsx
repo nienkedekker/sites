@@ -5,7 +5,7 @@ import {
   useId,
   useState,
   type KeyboardEvent,
-  type Ref,
+  type RefObject,
 } from "react";
 import { Cover, TYPE_LABEL } from "@/components/ui/cover";
 import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
@@ -13,7 +13,12 @@ import type { ExternalResult } from "@/types/external-api";
 
 export type Match = ExternalResult & { itemtype: ValidItemType };
 
-const SHOWN = 9;
+// What the box says it searches, by type
+const SEARCHING: Record<ValidItemType, string> = {
+  Book: "books",
+  Movie: "films",
+  Show: "TV shows",
+};
 
 async function fetchMatches(
   itemtype: ValidItemType,
@@ -31,35 +36,28 @@ async function fetchMatches(
   }
 }
 
-// Each source's matches in turn, best first, so one type doesn't crowd out
-// the others; an exact title goes to the top whichever source it's from
-function mix(lists: Match[][], query: string) {
-  const mixed: Match[] = [];
-  for (let i = 0; i < Math.max(...lists.map((list) => list.length)); i++) {
-    for (const list of lists) if (list[i]) mixed.push(list[i]);
-  }
-  const exact = (match: Match) =>
-    match.title.toLowerCase() === query.toLowerCase();
-  return [
-    ...mixed.filter(exact),
-    ...mixed.filter((match) => !exact(match)),
-  ].slice(0, SHOWN);
-}
-
-// One box for books, films and TV at once: the first match is highlighted,
-// arrows move the highlight, Enter or a click adds it, Escape closes
+// Pick a type, then search it: the first match is highlighted, arrows move
+// the highlight, Enter or a click adds it, Escape closes
 export function QueueSearch({
   inputRef,
   onPick,
 }: {
-  inputRef: Ref<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement | null>;
   onPick: (match: Match) => void;
 }) {
   const listId = useId();
+  const [itemType, setItemType] = useState<ValidItemType>("Book");
   const [query, setQuery] = useState("");
   const [matches, setMatches] = useState<Match[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+
+  // Keep what's typed and search the new type for it, back in the box
+  const changeType = (type: ValidItemType) => {
+    setItemType(type);
+    setMatches([]);
+    inputRef.current?.focus();
+  };
 
   const trimmed = query.trim();
   const searchable = trimmed.length >= 2 && trimmed.length <= 200;
@@ -68,20 +66,16 @@ export function QueueSearch({
     if (!searchable) return;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
-      const lists = await Promise.all(
-        VALID_ITEM_TYPES.map((type) =>
-          fetchMatches(type, trimmed, controller.signal),
-        ),
-      );
+      const found = await fetchMatches(itemType, trimmed, controller.signal);
       if (controller.signal.aborted) return;
-      setMatches(mix(lists, trimmed));
+      setMatches(found);
       setActive(0);
     }, 250);
     return () => {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [trimmed, searchable]);
+  }, [trimmed, searchable, itemType]);
 
   const shown = open && searchable && matches.length > 0;
 
@@ -114,79 +108,100 @@ export function QueueSearch({
   }
 
   return (
-    <div className="relative">
-      <input
-        ref={inputRef}
-        type="text"
-        value={query}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
-        onKeyDown={handleKeyDown}
-        placeholder="Search books, films and TV"
-        aria-label="Search books, films and TV"
-        role="combobox"
-        autoComplete="off"
-        spellCheck={false}
-        aria-autocomplete="list"
-        aria-expanded={shown}
-        aria-controls={listId}
-        aria-activedescendant={shown ? `${listId}-${active}` : undefined}
-        className="block w-full border border-rule bg-panel py-4 pl-5 pr-28 text-[22px] text-ink placeholder:text-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-      />
-      <span
-        className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-faint"
-        aria-hidden="true"
+    <div>
+      <div
+        role="radiogroup"
+        aria-label="Type"
+        className="mb-3 flex gap-4 font-mono text-xs text-ink-soft"
       >
-        ↵ to add
-      </span>
+        {VALID_ITEM_TYPES.map((type) => (
+          <button
+            key={type}
+            type="button"
+            role="radio"
+            aria-checked={itemType === type}
+            onClick={() => changeType(type)}
+            className={`cursor-pointer underline-offset-4 ${
+              itemType === type
+                ? "text-ink underline decoration-ink"
+                : "hover:text-ink"
+            }`}
+          >
+            {TYPE_LABEL[type]}
+          </button>
+        ))}
+      </div>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onKeyDown={handleKeyDown}
+          placeholder={`Search ${SEARCHING[itemType]}`}
+          aria-label={`Search ${SEARCHING[itemType]}`}
+          role="combobox"
+          autoComplete="off"
+          spellCheck={false}
+          aria-autocomplete="list"
+          aria-expanded={shown}
+          aria-controls={listId}
+          aria-activedescendant={shown ? `${listId}-${active}` : undefined}
+          className="block w-full border border-rule bg-panel py-4 pl-5 pr-28 text-[22px] text-ink placeholder:text-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        />
+        <span
+          className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-faint"
+          aria-hidden="true"
+        >
+          ↵ to add
+        </span>
 
-      <ul
-        id={listId}
-        role="listbox"
-        aria-label="Matches"
-        hidden={!shown}
-        className="absolute inset-x-0 top-full z-20 max-h-[28rem] overflow-y-auto border border-t-0 border-rule bg-panel"
-      >
-        {shown &&
-          matches.map((match, i) => (
-            <li
-              key={`${match.itemtype}|${match.id}`}
-              id={`${listId}-${i}`}
-              role="option"
-              aria-selected={i === active}
-              onMouseDown={(event) => event.preventDefault()}
-              onMouseEnter={() => setActive(i)}
-              onClick={() => pick(match)}
-              className={`flex cursor-pointer items-center gap-4 border-t border-line px-5 py-2.5 first:border-t-0 ${
-                i === active ? "bg-panel-2" : ""
-              }`}
-            >
-              <Cover
-                src={match.cover}
-                title={match.title}
-                type={match.itemtype}
-                size="small"
-              />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium text-ink">
-                  {match.title}
-                </span>
-                {(match.creator || match.year) && (
-                  <span className="mt-0.5 block truncate text-sm text-ink-soft">
-                    {[match.creator, match.year].filter(Boolean).join(" · ")}
+        <ul
+          id={listId}
+          role="listbox"
+          aria-label="Matches"
+          hidden={!shown}
+          className="absolute inset-x-0 top-full z-20 max-h-[28rem] overflow-y-auto border border-t-0 border-rule bg-panel"
+        >
+          {shown &&
+            matches.map((match, i) => (
+              <li
+                key={`${match.itemtype}|${match.id}`}
+                id={`${listId}-${i}`}
+                role="option"
+                aria-selected={i === active}
+                onMouseDown={(event) => event.preventDefault()}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => pick(match)}
+                className={`flex cursor-pointer items-center gap-4 border-t border-line px-5 py-2.5 first:border-t-0 ${
+                  i === active ? "bg-panel-2" : ""
+                }`}
+              >
+                <Cover
+                  src={match.cover}
+                  title={match.title}
+                  type={match.itemtype}
+                  size="small"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-ink">
+                    {match.title}
                   </span>
-                )}
-              </span>
-              <span className="shrink-0 border border-line-strong px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-ink-soft">
-                {TYPE_LABEL[match.itemtype]}
-              </span>
-            </li>
-          ))}
-      </ul>
+                  {(match.creator || match.year) && (
+                    <span className="mt-0.5 block truncate text-sm text-ink-soft">
+                      {[match.creator, match.year].filter(Boolean).join(" · ")}
+                    </span>
+                  )}
+                </span>
+              </li>
+            ))}
+        </ul>
+      </div>
     </div>
   );
 }
