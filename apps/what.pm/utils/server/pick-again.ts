@@ -15,8 +15,6 @@ type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
 export const CANCELLED = "Cancelled.";
 
-// A new batch of picks in place of the last one. Cancelling stops Claude
-// where it is, and nothing is saved once the signal has gone
 export async function pickAgain(
   supabase: SupabaseServer,
   signal: AbortSignal,
@@ -54,7 +52,6 @@ export async function pickAgain(
     return { error: "None of Claude’s picks checked out. Try again." };
   }
 
-  // The score keeps Claude's order, best first
   const batchAt = new Date().toISOString();
   const rows = picks.map(({ suggestion, found }, rank) => ({
     itemtype: found.itemtype,

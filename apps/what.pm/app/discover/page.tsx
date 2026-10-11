@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default function NewReleasesPage() {
-  // Without a Hardcover token, Discover is For you alone
   if (!hasUpcoming()) redirect("/discover/for-you");
   return (
     <>

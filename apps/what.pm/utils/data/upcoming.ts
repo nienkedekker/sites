@@ -1,8 +1,6 @@
 import { genresIn } from "@/utils/data/book-genres";
 import { normalizeTitle } from "@/utils/data/patterns";
 
-// New books, out in the last two months or coming soon, as Hardcover
-// describes them
 
 export interface Cover {
   url: string;
@@ -10,7 +8,6 @@ export interface Cover {
   height: number;
 }
 
-// A stretch of description text, in italics or bold or neither
 export interface Run {
   text: string;
   italic?: boolean;
@@ -22,9 +19,7 @@ export interface UpcomingBook {
   slug: string | null;
   title: string;
   authors: string[];
-  // YYYY-MM-DD
   releaseDate: string;
-  // How many Hardcover readers have it on a shelf: how anticipated it is
   readers: number;
   genres: string[];
   cover: Cover | null;
@@ -138,7 +133,6 @@ function shorten(runs: Run[]): Run[] {
   return kept;
 }
 
-// Writers, not the illustrators, translators and narrators listed with them
 function authorsOf(book: HardcoverBook) {
   const people = book.cached_contributors ?? [];
   const writers = people.filter(
@@ -184,8 +178,6 @@ export function toUpcoming(books: HardcoverBook[]): UpcomingBook[] {
 export const isOut = (book: UpcomingBook, today: string) =>
   book.releaseDate <= today;
 
-// Month by month, each month's books by release day, the most read first on a
-// day. Books out already go newest first, books to come soonest first
 export function byMonth(books: UpcomingBook[], newestFirst = false) {
   const months = new Map<string, UpcomingBook[]>();
   const direction = newestFirst ? -1 : 1;
@@ -201,7 +193,6 @@ export function byMonth(books: UpcomingBook[], newestFirst = false) {
   return [...months].map(([month, books]) => ({ month, books }));
 }
 
-// The genres I read most, from each logged book's genres
 export function favouriteGenres(genreLists: string[][], count = 4) {
   const tally = new Map<string, number>();
   for (const genre of genreLists.flat()) {

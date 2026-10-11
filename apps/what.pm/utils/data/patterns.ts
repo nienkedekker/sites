@@ -46,7 +46,6 @@ export function paceYears(
   });
 }
 
-// days is sorted, so count everything up to and including `day`
 export function countBy(days: number[], day: number) {
   let count = 0;
   while (count < days.length && days[count] <= day) count++;
@@ -66,8 +65,6 @@ export interface Typical {
   high: number;
 }
 
-// A typical year by `day`: the median of earlier years, with the middle half
-// of them as the range
 export function typicalBy(years: number[][], day: number): Typical {
   const counts = years.map((days) => countBy(days, day)).sort((a, b) => a - b);
   return {

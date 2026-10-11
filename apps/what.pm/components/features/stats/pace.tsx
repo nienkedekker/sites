@@ -23,7 +23,6 @@ const STEP = 7;
 const TYPES: { type: ItemType; label: string; color: string }[] = [
   { type: "Book", label: TYPE_NAMES.Book.many, color: "var(--books)" },
   { type: "Movie", label: TYPE_NAMES.Movie.many, color: "var(--movies)" },
-  // A logged show is a season of it, so the count is of seasons
   { type: "Show", label: "TV seasons", color: "var(--shows)" },
 ];
 

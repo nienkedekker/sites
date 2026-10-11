@@ -11,7 +11,6 @@ const REPORT_KEY =
 
 let client: Redis | undefined;
 
-// Made on first use, so a log without nanami never needs the keys
 const redis = () =>
   (client ??= new Redis({
     url: process.env.KV_REST_API_URL!,
@@ -25,7 +24,6 @@ export function sameSecret(given: string, expected: string) {
   return timingSafeEqual(sha256(given), sha256(expected));
 }
 
-// Without a token set, nothing gets to push
 export function isNanami(authorization: string | null) {
   const token = process.env.NANAMI_PUSH_TOKEN;
   return !!token && sameSecret(authorization ?? "", `Bearer ${token}`);
@@ -44,8 +42,6 @@ export const getReport = () => redis().get<StoredReport>(REPORT_KEY);
 export const saveReport = (report: Report) =>
   redis().set<StoredReport>(REPORT_KEY, { ...report, receivedAt: Date.now() });
 
-// For a page's first render: the report, or null when there's none or it can't
-// be read, and the time it was read, which its age is counted from
 export async function loadReport() {
   const report = await getReport().catch(() => null);
   return { report, renderedAt: Date.now() };

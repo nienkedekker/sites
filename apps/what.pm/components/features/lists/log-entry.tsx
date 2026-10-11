@@ -11,8 +11,6 @@ import { MADE_BY } from "@/components/features/lists/credit";
 import { ItemActions, ItemRow } from "@/components/ui/item-row";
 import { HighlightText } from "@/components/ui/highlight-text";
 
-// A logged show is a season of it; books and films say who made them and
-// when. A search marks what it matched in the title and the maker.
 function ItemMetadata({ item, query }: { item: Item; query: string }) {
   if (item.itemtype === "Show") {
     return item.season ? <span>Season {item.season}</span> : null;

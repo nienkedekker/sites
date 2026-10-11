@@ -33,7 +33,6 @@ const SuggestionsSchema = z.object({
   ),
 });
 
-// Picking one type again leaves the picks for the others as they are
 const system = (
   only?: ValidItemType,
 ) => `You recommend books, movies and TV shows to me, from my own log.
@@ -167,7 +166,6 @@ export async function suggestWithClaude(
     const suggestions = response.parsed_output.suggestions.filter(
       (suggestion) => !only || suggestion.itemtype === only,
     );
-    // A short answer leaves too few to look up, so say what came back
     if (suggestions.length < count / 2) {
       console.warn(
         "Claude came back short:",

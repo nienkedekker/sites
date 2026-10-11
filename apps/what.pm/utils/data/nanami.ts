@@ -8,7 +8,6 @@ export type Status = "ok" | "warn" | "down";
 export interface Check {
   status: Status;
   detail: string;
-  // When this check last changed status, as nanami saw it
   since?: string;
 }
 
@@ -21,10 +20,8 @@ export interface Part {
   id: string;
   name: string;
   role: string;
-  // The check in the report that colours this part's light
   check?: string;
   href?: string;
-  // Where it sits in the diagram, as [column, row]
   at?: [number, number];
 }
 
@@ -45,12 +42,9 @@ export interface Link {
   // bend share their vertical stretch, like a bus
   bend?: number;
   bendIn?: "from" | "to";
-  // Shift where a link leaves `from` or reaches `to`, to keep it off another line
   fromDy?: number;
   toDy?: number;
-  // Background work rather than a request or a hand-off
   dashed?: boolean;
-  // A request whose answer comes back along the same line: arrows at both ends
   twoWay?: boolean;
 }
 
@@ -63,7 +57,6 @@ export interface Topology {
 
 export type Kind = "movie" | "show" | "book";
 
-// Waiting means it's on up next but nothing has been found to download yet
 export type DownloadState =
   "downloading" | "queued" | "paused" | "processing" | "failed" | "waiting";
 
@@ -71,7 +64,6 @@ export interface Download {
   title: string;
   kind: Kind;
   state: DownloadState;
-  // From 0 to 100, once it's in progress
   progress?: number;
   detail: string;
 }
@@ -84,7 +76,6 @@ export interface Finished {
 
 export interface Downloads {
   items: Download[];
-  // What was recently added, newest first
   finished: Finished[];
 }
 
@@ -115,7 +106,6 @@ export const STATE_LABEL: Record<DownloadState, string> = {
   waiting: "Waiting",
 };
 
-// In progress first, then in the order they'd need a look
 const IN_PROGRESS: DownloadState[] = [
   "downloading",
   "processing",
@@ -126,7 +116,6 @@ const IN_PROGRESS: DownloadState[] = [
 
 export const isInProgress = ({ state }: Download) => state !== "waiting";
 
-// "1 downloading, 2 queued", for the top of the downloads page
 export function summarize(items: Download[]) {
   const parts = IN_PROGRESS.flatMap((state) => {
     const count = items.filter((item) => item.state === state).length;
@@ -135,7 +124,6 @@ export function summarize(items: Download[]) {
   return parts.length ? parts.join(", ") : "Nothing downloading";
 }
 
-// The diagram's grid, which the layout has to fit
 export const COLUMNS = 6;
 export const ROWS = 6;
 
@@ -174,7 +162,6 @@ const isId = (value: unknown) => typeof value === "string" && ID.test(value);
 
 class Refused extends Error {}
 
-// Throws Refused at the first thing that doesn't fit, so a bad report is refused whole
 function need(ok: boolean): asserts ok {
   if (!ok) throw new Refused();
 }
@@ -310,7 +297,6 @@ function parseDownloads(value: unknown): Downloads {
   };
 }
 
-// Only the shape the page knows how to show gets stored; anything else is refused whole
 export function parseReport(body: unknown): Report | null {
   try {
     need(!!body && typeof body === "object");

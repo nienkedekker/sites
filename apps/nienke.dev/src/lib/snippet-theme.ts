@@ -1,6 +1,5 @@
 import type { ThemeRegistration } from "shiki";
 
-// Colours are the site's tokens, so snippets follow light and dark mode.
 export const snippetTheme: ThemeRegistration = {
   name: "nienke",
   type: "light",

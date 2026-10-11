@@ -24,12 +24,9 @@ export function genresOf(item: TypedItem): string[] {
   return [...new Set(item.genres.map((name) => SHARED_GENRES[name] ?? name))];
 }
 
-// The first subgenre is the main one; a second stays in the data
 export const mainSubgenre = (item: TypedItem) =>
   item.subgenres.find((name) => !GENRE_TAGS.has(name)) ?? NO_SUBGENRE;
 
-// Every genre page as [genre] or [genre, subgenre] slugs, the subgenres
-// counted the way itemsInGenre matches them
 export function genreSlugs(items: TypedItem[]): string[][] {
   const paths = new Map<string, string[]>();
   for (const item of items) {
@@ -74,8 +71,6 @@ export interface GenreItems {
   items: TypedItem[];
 }
 
-// Everything logged under a genre, or under one of its subgenres or tags,
-// newest first. Null when nothing matches the slugs.
 export function itemsInGenre(
   items: TypedItem[],
   genre: string,
@@ -88,7 +83,6 @@ export function itemsInGenre(
     if (!name) return false;
     genreName = name;
     if (!subgenre) return true;
-    // Matches the stats: a subgenre by each item's main one, a tag anywhere
     const sub = [
       mainSubgenre(item),
       ...item.subgenres.filter((name) => GENRE_TAGS.has(name)),

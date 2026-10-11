@@ -31,14 +31,12 @@ const NOT_GENRES = new Set(["TV Movie"]);
 
 const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
 
-// A poster small enough for a list row
 export const posterUrl = (path?: string | null) =>
   path ? `https://image.tmdb.org/t/p/w185${path}` : null;
 
 export const yearOf = (date?: string) =>
   date ? Number(date.slice(0, 4)) || null : null;
 
-// A hanging API shouldn't hold up saving an item or the recs page
 const FETCH_TIMEOUT = 8_000;
 
 export async function getJson<T>(url: URL, init: RequestInit = {}): Promise<T> {
@@ -174,7 +172,6 @@ async function googleVolumeDetails(id: string): Promise<ExternalDetails> {
       categories?: string[];
     };
   }>(url);
-  // Search results often leave pageCount out when the volume itself has it
   const pages = [volumeInfo.pageCount, volumeInfo.printedPageCount].find(
     isPageCount,
   );

@@ -116,7 +116,6 @@ function FormComponent({
     fd.append("publishedYear", String(data.publishedYear));
     fd.append("belongsToYear", String(data.belongsToYear));
     fd.append("redo", data.redo ? "on" : "");
-    // Only keep the match if the title wasn't changed after picking it
     if (picked && picked.title === data.title) {
       fd.append("externalId", picked.id);
     }

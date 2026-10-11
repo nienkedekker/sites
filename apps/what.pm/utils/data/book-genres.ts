@@ -25,7 +25,6 @@ const NONFICTION_GENRES: [string, RegExp][] = [
 ];
 
 const isFiction = /(?<!non-?)fiction|novel/;
-// A bookshop shelf, not a description of the book
 const SHELF = /science fiction, fantasy, horror/;
 
 export function bookGenres(subjects: string[] = []): string[] {
@@ -44,8 +43,6 @@ export function bookGenres(subjects: string[] = []): string[] {
   return fiction ? ["Literary Fiction"] : [];
 }
 
-// Every genre a list of tags names, for tags that already are genres (like
-// Hardcover's) rather than library subjects a single genre has to be read from
 export function genresIn(tags: string[]): string[] {
   const lower = tags.map((tag) => tag.toLowerCase());
   return [...GENRES, ...NONFICTION_GENRES]

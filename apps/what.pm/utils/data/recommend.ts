@@ -31,9 +31,7 @@ const DAY = 86_400_000;
 const YEAR = 365.25 * DAY;
 const SEED_COUNT = 60;
 export const PICK_COUNT = 12;
-// More than are shown, since some won't be found or turn out to be known
 export const SUGGESTION_COUNT = 18;
-// Picking one type again keeps its share of the page
 export const TYPE_PICK_COUNT = PICK_COUNT / 3;
 export const TYPE_SUGGESTION_COUNT = 8;
 const RECENT_YEARS = 3;
@@ -189,7 +187,6 @@ export function favouriteCreators(
 
 const VOLUME = /^(.*?)[\s,:(–-]*(?:\bvol(?:ume)?\.?|#)\s*(\d+)\b.*$/i;
 
-// "Chainsaw Man, Vol. 2" and "Berserk Volume 2" are volume 2 of a series
 export function volumeOf(title: string) {
   const match = title.match(VOLUME);
   if (!match || !normalizeTitle(match[1])) return null;
@@ -271,8 +268,6 @@ export interface LoggedPick<T extends SavedPick> {
   days: number;
 }
 
-// Claude's picks that I saved and then logged, each with the first entry it
-// became, newest first. Picks I added myself have no reason, so they're left out.
 export function loggedPicks<T extends SavedPick>(
   wanted: T[],
   items: TypedItem[],
@@ -312,7 +307,6 @@ export function knownNames(items: TypedItem[]): string[] {
 
 const foundKey = (found: Found) => `${found.itemtype}|${found.external_id}`;
 
-// Why a looked-up suggestion is left out, or null when it's kept
 export function dropReason(
   found: Found | null,
   index: LogIndex,

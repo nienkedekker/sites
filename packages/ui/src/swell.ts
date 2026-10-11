@@ -1,7 +1,5 @@
 import { prefersLessMotion } from "./motion";
 
-// Letters near the pointer widen by up to this much; the rest of the line
-// narrows to make room, so the line keeps its width.
 const GROWTH = 0.2;
 
 export interface SwellLetter {
@@ -39,10 +37,6 @@ export function swellLine(
   });
 }
 
-// Where the swell sits along a line on a touch screen: it travels from the
-// start to the end of the line as the line scrolls from `startY` to the top
-// of the viewport, and fades out near both ends. `startY` is the bottom of the
-// viewport, or where the line rests if it's on screen when the page opens.
 export function scrollSwell(centerY: number, startY: number) {
   const progress = 1 - centerY / startY;
   const amount =
@@ -75,8 +69,6 @@ export function swellWords(text: string) {
     .map((word) => [...word]);
 }
 
-// For markup no framework owns: rewrites each text node into words of letter
-// spans, keeping the plain text for screen readers.
 export function splitSwell(root: HTMLElement) {
   if (root.querySelector(".swell-l")) return;
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);

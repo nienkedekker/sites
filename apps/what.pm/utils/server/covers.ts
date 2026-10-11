@@ -4,7 +4,6 @@ import { getJson, posterUrl, tmdbUrl } from "@/utils/server/external-api";
 import { isOpenLibraryKey, isTmdbId } from "@/utils/data/external-ids";
 import type { ValidItemType } from "@/types/shared";
 
-// A poster seldom changes, so it's looked up once a week
 async function tmdbPoster(itemtype: "Movie" | "Show", id: string) {
   "use cache: remote";
   cacheLife("weeks");

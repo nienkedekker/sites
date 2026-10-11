@@ -126,7 +126,6 @@ export interface PickKey {
   externalId: string;
 }
 
-// One delete per type, since the key is the pair
 async function deleteKeys(
   supabase: SupabaseServer,
   table: "wanted" | "recommendations",

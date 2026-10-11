@@ -23,7 +23,6 @@ export async function getSearchContext(): Promise<SearchContext> {
   "use cache";
   cacheLife("hours");
   cacheTag(ITEMS_TAG);
-  // Supabase returns at most 1000 rows per request, so page through
   const rows: {
     author: string | null;
     director: string | null;

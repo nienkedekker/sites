@@ -50,8 +50,6 @@ interface MostLoggedProps {
     name: string;
     count: number;
     type?: ItemType;
-    // Folded away under the row, like the subgenres of literary fiction,
-    // with tags that cut across them below a rule
     parts?: Part[];
     tags?: Part[];
   }[];

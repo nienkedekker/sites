@@ -1,9 +1,5 @@
 import type { ValidItemType } from "@/types/shared";
 
-// What each type is called, the one place the site says so, so the words
-// can't drift apart: one for a single thing (a cover's label), many for a
-// group (a column, a filter, a picker, a chart's legend), and inText inside a
-// sentence. test/terminology.test.ts keeps other files from spelling their own
 export const TYPE_NAMES: Record<
   ValidItemType,
   { one: string; many: string; inText: string }

@@ -4,7 +4,6 @@ import { CANCELLED, pickAgain } from "@/utils/server/pick-again";
 import { hasRecs } from "@/utils/server/services";
 import { createClientForServer } from "@/utils/supabase/server";
 
-// Claude and looking up its picks take a while
 export const maxDuration = 300;
 
 // Picking again runs here rather than as a server action, so closing the

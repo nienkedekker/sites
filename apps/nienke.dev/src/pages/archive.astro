@@ -24,7 +24,6 @@ const ticks = [
   ),
 ];
 
-// Overlapping eras go on separate lanes, each in the first one that's free.
 const pack = (eras: Era[]) => {
   const lanes: number[] = [];
   return eras.map((era) => {
@@ -173,7 +172,6 @@ const entries = archiveCollections.map((collection) => ({
         <figcaption class="sr-only">
           When each site, LiveJournal, and Tumblr was around
         </figcaption>
-        {/* Phones get a row per era: too narrow for the bars to say much */}
         <div class="space-y-10 sm:hidden">
           {
             rows.map(({ slug, eras }) => (
@@ -323,7 +321,6 @@ const entries = archiveCollections.map((collection) => ({
       });
   }
 
-  // Apache's ?C=N;O=A sort links, done in the browser.
   function sortIndex() {
     const list = document.querySelector("[data-index]");
     if (!list) return;

@@ -7,7 +7,6 @@ export interface LogFacts {
   books: number;
   movies: number;
   shows: number;
-  // Null until the first entry
   firstYear: number | null;
   yearCount: number;
   firstEntry: { title: string; itemtype: string; by: string | null } | null;

@@ -49,7 +49,6 @@ export function preferredType(accept: string | null, produces: string[]): string
     return { type, q: best?.q, position };
   });
 
-  // A header that only rules types out ("text/markdown;q=0") leaves the rest acceptable.
   if (ranges.every(({ q }) => q === 0)) {
     return scored.find(({ q }) => q === undefined)?.type ?? null;
   }

@@ -9,7 +9,6 @@ import {
 } from "@/utils/agents/markdown";
 import { SITE_NAME } from "@/utils/constants/site";
 
-// Middleware rewrites requests that ask for text/markdown here
 const markdown = (body: string, status = 200) =>
   new Response(body, {
     status,

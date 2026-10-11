@@ -69,7 +69,6 @@ export const createItemAction = async (
       author: validatedData.author || null,
       director: validatedData.director || null,
       season: validatedData.season || null,
-      // The forms only send inProgress when it's checked
       // Not finishing ends it, so it can't still be in progress
       in_progress:
         validatedData.itemtype === "Movie"

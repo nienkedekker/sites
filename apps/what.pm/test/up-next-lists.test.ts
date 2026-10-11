@@ -41,7 +41,6 @@ const LIST = [
   item({ itemtype: "Show", external_id: "42", title: "Not on TVDB" }),
 ];
 
-// TMDB's external ids, keyed by TMDB show id
 const TVDB: Record<string, number | null> = { "95396": 371980, "42": null };
 
 let fetchMock: ReturnType<typeof vi.fn>;

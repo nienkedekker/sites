@@ -1,5 +1,3 @@
-// The rules the backfill uses to decide which search result is the item I
-// logged, kept apart from the fetching so they can be tested
 import type { TypedItem } from "@/types/shared";
 import { splitNames } from "@/utils/data/names";
 import { normalizeTitle } from "@/utils/data/patterns";
@@ -9,7 +7,6 @@ export interface Match {
   id: string;
   title: string;
   year: number | null;
-  // "loose" matches are worth a look before trusting them
   confidence: "exact" | "loose";
 }
 
@@ -48,7 +45,6 @@ export function titleScore(
   for (const candidate of candidates) {
     if (!candidate) continue;
     if (normalizeTitle(candidate) === wanted) return 2;
-    // "Marvel's Runaways", "Tom Clancy's Jack Ryan"
     if (normalizeTitle(candidate.replace(/^[^:]*?['’]s\s+/, "")) === wanted) {
       return 2;
     }
@@ -57,7 +53,6 @@ export function titleScore(
   return score;
 }
 
-// Full-title matches first, keeping the source's own ranking within each
 export function byTitle<T>(items: T[], score: (item: T) => number) {
   return [
     ...items.filter((item) => score(item) === 2),

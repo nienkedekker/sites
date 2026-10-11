@@ -6,8 +6,6 @@ import type { createClientForServer } from "@/utils/supabase/server";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
-// Up next as its queue shows it: each item with a cover, and the reason it
-// was picked when it came from For you
 export async function loadQueue(
   supabase: SupabaseServer,
 ): Promise<QueueItem[]> {

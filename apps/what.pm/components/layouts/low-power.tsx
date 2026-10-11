@@ -30,7 +30,6 @@ function subscribe(onChange: () => void) {
   };
 }
 
-/** For motion CSS can't reach, like recharts' JS animations. */
 export function useLessMotion() {
   return useSyncExternalStore(subscribe, prefersLessMotion, () => true);
 }

@@ -111,7 +111,6 @@ export function SeriesCounts({
   skipZero = false,
 }: {
   counts: Counts;
-  // Up next lists whole shows, not seasons
   nouns?: Partial<Record<SeriesKey, string>>;
   skipZero?: boolean;
 }) {

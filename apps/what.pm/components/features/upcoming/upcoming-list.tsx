@@ -184,12 +184,9 @@ interface Props {
   books: UpcomingBook[];
   upNext: string[];
   read: string[];
-  // YYYY-MM-DD in Amsterdam: books released by then are out
   today: string;
 }
 
-// Where a month's books start, under the site header and the filter bar. The
-// month in view is the first one crossing the band from here down
 const BAND_TOP = 100;
 
 const anchor = (month: string) => `month-${month}`;
@@ -360,7 +357,6 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
       matchesGenres(book, new Set(picked ? [picked] : [])),
     );
   const sections = byMonth(inGenre(genre));
-  // Every month, whatever the genre, so the timeline holds still
   const months = byMonth(books).map(({ month }) => month);
   const shownKey = sections.map(({ month }) => month).join(" ");
 
@@ -433,7 +429,6 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
     return <p className="text-ink-soft">Nothing new right now.</p>;
   }
 
-  // Into history before scrolling, so the entry left behind keeps its place
   const jump = (month: string) => {
     mark(month);
     history.pushState(

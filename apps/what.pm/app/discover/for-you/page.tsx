@@ -31,8 +31,6 @@ export const metadata: Metadata = {
 
 type Rec = Tables<"recommendations"> & { itemtype: ValidItemType };
 
-// Picks from the log, and up next under them: what to get to after that.
-// Picks need Claude; without a key, the page is up next alone
 export default function ForYouPage() {
   return (
     <>
@@ -102,8 +100,6 @@ async function Recs() {
     );
   }
 
-  // Up next first: it's what's already chosen, and its search box is what
-  // the page gets opened for most; the picks to choose from follow
   return (
     <>
       <section id="up-next" aria-label="Up next" className="mb-12 scroll-mt-24">

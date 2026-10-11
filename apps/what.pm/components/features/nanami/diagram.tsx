@@ -35,7 +35,6 @@ function route(from: Placed, to: Placed, link: Link) {
         : `M${x} ${a.y} V${b.y + NODE.h}`;
     return { d, labelAt: null };
   }
-  // Links leave the side facing their target, so a few run right to left
   const rightward = to.at[0] > from.at[0];
   const start = {
     x: rightward ? a.x + NODE.w : a.x,

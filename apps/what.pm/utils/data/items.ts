@@ -91,7 +91,6 @@ export async function yearParams() {
 export const parseYear = (param: string) =>
   /^\d{4}$/.test(param) ? Number(param) : null;
 
-// The current year has a page even before its first entry
 export async function isLoggedYear(year: number) {
   return (
     year === (await thisYear()) || (await getDistinctYears()).includes(year)

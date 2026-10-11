@@ -19,8 +19,6 @@ export function ReadMore({
   // An element rather than a ref: it changes when the text becomes a button
   const [element, setElement] = useState<HTMLElement | null>(null);
 
-  // Whether the clamp hides anything depends on the width, so it's measured,
-  // and measured again when the column changes size
   useEffect(() => {
     if (!element || open) return;
     const measure = () =>

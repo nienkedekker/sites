@@ -155,7 +155,6 @@ const sectionHeading = "display display-section text-ink";
 </BaseLayout>
 
 <script>
-  // Touch screens have no hover, so a tap swaps the dither for the photo.
   function setupPhoto() {
     const photo = document.querySelector<HTMLElement>("[data-photo]");
     photo?.addEventListener("click", () => photo.toggleAttribute("data-on"));

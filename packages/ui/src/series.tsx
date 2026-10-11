@@ -61,9 +61,6 @@ export function SeriesRows({
   );
 }
 
-// One bar of a chart: the series stacked, its total over the bar when it's
-// the tallest, and the counts in a tooltip. The caller's wrapper is the group
-// that shows the tooltip, so it can be a link or a focusable figure.
 export function SeriesColumn({
   counts,
   top,

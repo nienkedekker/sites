@@ -196,7 +196,6 @@ describe("createItemAction", () => {
       did_not_finish: true,
       in_progress: false,
     });
-    // Movies are finished or not logged
     expect(db.inserted[1]).toMatchObject({ did_not_finish: false });
   });
 

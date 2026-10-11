@@ -19,7 +19,6 @@ const json = (body: unknown, status = 200) =>
     },
   });
 
-// nanami pushes its report here every minute
 export async function POST(request: NextRequest) {
   if (!hasNanami() || !isNanami(request.headers.get("authorization"))) {
     return json({ error: "Unauthorized" }, 401);

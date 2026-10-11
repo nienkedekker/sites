@@ -275,7 +275,6 @@ async function refreshDetails(items: TypedItem[]) {
       continue;
     }
     console.log(`  ✓  ${label} ${JSON.stringify(details)}`);
-    // coalesce keeps anything already filled in
     const sets = [
       `pages = coalesce(pages, ${sqlValue(details.pages)})`,
       `runtime_minutes = coalesce(runtime_minutes, ${sqlValue(details.runtime_minutes)})`,
@@ -288,8 +287,6 @@ async function refreshDetails(items: TypedItem[]) {
   return updates;
 }
 
-// Seasons of one show share a TMDB id, so each id is looked up once and its
-// genres go to every row with it
 async function fillGenres(items: TypedItem[]) {
   const byId = new Map<string, TypedItem[]>();
   for (const item of items) {

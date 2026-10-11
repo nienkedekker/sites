@@ -10,7 +10,6 @@ import {
 
 export const DESCRIPTION = `${SITE_NAME} is ${OWNER_NAME}'s public log of every book read, movie watched and TV season watched, organised by year.`;
 
-// https://llmstxt.org
 export const LLMS_TXT = `# ${SITE_NAME}
 
 > ${DESCRIPTION}

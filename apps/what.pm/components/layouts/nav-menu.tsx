@@ -73,7 +73,6 @@ export function NavMenu({
           <li key={href}>
             <Link
               href={href}
-              // Exactly this page: For you is under New releases' address
               aria-current={pathname === href ? "page" : undefined}
               onClick={() => setOpen(false)}
               className="option"

@@ -61,8 +61,6 @@ function authorization() {
   return token.startsWith("Bearer ") ? token : `Bearer ${token}`;
 }
 
-// The most read books of the last two months and the most anticipated of the
-// next six, fetched from Hardcover once a day at most
 export async function recentBooks(): Promise<UpcomingBook[]> {
   "use cache: remote";
   cacheLife("days");

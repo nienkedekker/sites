@@ -43,8 +43,6 @@ export function Light({ status, label }: { status: Lit; label?: string }) {
   );
 }
 
-// The latest report, fetched every minute while the page is in view. nanami
-// pushes once a minute, so polling faster would only fetch the same report
 export function useReport(initial: StoredReport | null, renderedAt: number) {
   const [report, setReport] = useState(initial);
   const [now, setNow] = useState(renderedAt);

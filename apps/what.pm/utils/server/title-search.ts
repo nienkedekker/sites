@@ -130,7 +130,6 @@ async function searchShows(query: string): Promise<ExternalResult[]> {
   }));
 }
 
-/** Matches for the title field; `null` when the source couldn't be reached. */
 export async function searchTitles(
   type: ValidItemType,
   query: string,

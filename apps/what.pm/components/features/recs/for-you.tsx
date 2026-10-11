@@ -128,7 +128,6 @@ function PickRow({
     year: pick.published_year,
   });
   return (
-    // A group, so Not for me can show on hovering or tabbing into the pick
     <ItemRow
       className="group"
       cover={
@@ -160,7 +159,6 @@ function PickRow({
             onClick={onNotForMe}
             disabled={busy}
             aria-label={`Not for me: ${pick.title}`}
-            // Only on hovering or tabbing in where there's a mouse; always on touch
             className="link cursor-pointer text-ink-soft transition-opacity hover:text-ink disabled:cursor-wait pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:group-focus-within:opacity-100"
           >
             Not for me
@@ -176,7 +174,6 @@ function PickRow({
       <div className="mt-1">
         <ReadMore
           clamp="line-clamp-2"
-          // Black under the grey credit, as descriptions are on New releases
           className="text-sm text-ink"
           toggle="text"
         >
@@ -233,8 +230,6 @@ export function PickColumns({
   );
 }
 
-// With unspoken, the words are for screen readers only, and the action
-// stands on its own on the right
 function StatusBand({
   title,
   detail,

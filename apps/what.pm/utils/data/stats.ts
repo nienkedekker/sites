@@ -36,9 +36,7 @@ export interface Person {
 export interface Genre {
   name: string;
   count: number;
-  // Each item's main subgenre, so these add up to the genre's count
   parts?: Genre[];
-  // Tags that cut across the subgenres, like Japanese or Queer Fiction
   tags?: Genre[];
 }
 
@@ -157,7 +155,6 @@ export function computeStats(items: TypedItem[]): StatsData {
         const tagged = tags.get(genre.name);
         return {
           ...genre,
-          // Books without a subgenre go last, whatever their count
           parts: ranked(sub).sort(
             (a, b) =>
               Number(a.name === NO_SUBGENRE) - Number(b.name === NO_SUBGENRE),

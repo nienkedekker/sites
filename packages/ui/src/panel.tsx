@@ -8,8 +8,6 @@ interface PanelProps {
   as?: "h2" | "h3";
   tag?: ReactNode;
   note?: ReactNode;
-  // Bottom sits the body at the foot of the panel, lining it up with the
-  // panels beside it in a grid
   align?: "top" | "bottom";
   className?: string;
   style?: CSSProperties;
