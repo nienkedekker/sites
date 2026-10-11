@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import UiNavLinks from "@nienke/ui/nav-links";
 import PageHeader from "@nienke/ui/page-header";
 import { hasUpcoming } from "@/utils/server/services";
 
@@ -20,27 +21,17 @@ export function DiscoverHeader({
   return (
     <div className="mb-8">
       <PageHeader className="">Discover</PageHeader>
-      {/* In the intro's place, as plain words rather than a control. The tabs
-          are pages of their own, so each view has its own address */}
+      {/* In the intro's place, drawn like the header's links, since these
+          are pages too. Pulled left by a link's padding to line up with the
+          title */}
       {tabs.length > 1 && (
-        <div
-          role="tablist"
+        <nav
           aria-label="Discover"
-          className="rise mt-5 flex flex-wrap gap-x-8 gap-y-2 text-lg sm:text-xl"
+          className="rise mt-4 -ml-2 sm:-ml-3"
           style={{ "--delay": "160ms" } as CSSProperties}
         >
-          {tabs.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              role="tab"
-              aria-selected={href === current}
-              className="text-ink-soft underline decoration-transparent decoration-2 underline-offset-8 transition-colors hover:text-ink aria-selected:text-ink aria-selected:decoration-ink"
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
+          <UiNavLinks links={tabs} currentPath={current} as={Link} />
+        </nav>
       )}
     </div>
   );
