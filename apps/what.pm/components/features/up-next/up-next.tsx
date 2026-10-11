@@ -15,6 +15,7 @@ import {
 import { ItemTitle } from "@/components/ui/item-row";
 import { Cover } from "@/components/ui/cover";
 import { OFFLINE_MESSAGE, TYPE_NAMES } from "@/utils/constants/app";
+import { isUnmatched } from "@/utils/data/external-ids";
 import { addUpNext, removeWanted } from "@/app/actions/recommendations";
 import { startUpNextAction } from "@/app/actions/items";
 import type { ValidItemType } from "@/types/shared";
@@ -172,6 +173,7 @@ function Row({
   type,
   note,
   dim = false,
+  unlinked = false,
   children,
 }: {
   number: number;
@@ -182,6 +184,7 @@ function Row({
   type: ValidItemType;
   note?: string | null;
   dim?: boolean;
+  unlinked?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -200,6 +203,12 @@ function Row({
             <span className="font-mono text-xs uppercase tracking-[0.06em]">
               {TYPE_NAMES[type].one}
             </span>
+            {unlinked && (
+              <span className="font-mono text-xs text-danger">
+                {" "}
+                · not linked
+              </span>
+            )}
           </p>
           {note && <p className="mt-2 text-sm text-ink">{note}</p>}
         </div>
@@ -245,6 +254,7 @@ function QueueRow({
       type={item.itemtype}
       note={item.reason}
       dim={item.saving || starting}
+      unlinked={isUnmatched(item.external_id)}
     >
       {error && (
         <span role="alert" className="text-danger">

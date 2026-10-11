@@ -17,6 +17,8 @@ import { ITEMS_TAG, WANTED_TAG } from "@/utils/constants/app";
 import { getCurrentYear } from "@/utils/formatters/date";
 import { getCachedItems } from "@/utils/data/items";
 import { isLogged, logIndex } from "@/utils/data/recommend";
+import { isUnmatched } from "@/utils/data/external-ids";
+import { lookUp } from "@/utils/server/recommend-lookup";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
@@ -140,7 +142,25 @@ export const startUpNextAction = async (
       { ...key, title: wanted.title, creator: wanted.creator },
       logIndex(await getCachedItems()),
     );
-    const details = await getExternalDetails(itemtype, key.external_id, season);
+    // Taken unmatched, so it gets one more lookup now it's being logged; still
+    // nothing logs it unlinked, for the backfill script to match later
+    const externalId = isUnmatched(key.external_id)
+      ? ((
+          await lookUp([
+            {
+              itemtype,
+              title: wanted.title,
+              creator: wanted.creator ?? "",
+              year: wanted.published_year,
+              reason: "",
+              because: [],
+            },
+          ])
+        )[0].found?.external_id ?? null)
+      : key.external_id;
+    const details = externalId
+      ? await getExternalDetails(itemtype, externalId, season)
+      : null;
     const pages = author
       ? details?.pages || (await googleBooksPages(wanted.title, author))
       : null;
@@ -148,7 +168,7 @@ export const startUpNextAction = async (
     const newItem: ItemInsert = {
       ...details,
       pages,
-      external_id: key.external_id,
+      external_id: externalId,
       title: wanted.title,
       itemtype,
       belongs_to_year: getCurrentYear(),

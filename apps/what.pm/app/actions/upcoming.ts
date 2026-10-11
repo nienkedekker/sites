@@ -3,6 +3,7 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { WANTED_TAG } from "@/utils/constants/app";
+import { unmatchedId } from "@/utils/data/external-ids";
 import { lookUp } from "@/utils/server/recommend-lookup";
 import { createClientForServer } from "@/utils/supabase/server";
 
@@ -13,7 +14,9 @@ const upcomingSchema = z.object({
 });
 
 // Up next keys books by their Open Library work, which is what the book
-// fetcher searches with, so the upcoming book is looked up there first
+// fetcher searches with, so the upcoming book is looked up there first. A
+// book Open Library doesn't have yet still goes on, unmatched, and takes the
+// match's place once a later try finds it
 export async function addUpcomingToUpNext(
   formData: FormData,
 ): Promise<{ error: string | null }> {
@@ -37,19 +40,13 @@ export async function addUpcomingToUpNext(
         because: [],
       },
     ]);
-    if (!found) {
-      return {
-        error:
-          "Open Library doesn’t have this book (yet), so up next can’t take it.",
-      };
-    }
-
+    const placeholder = unmatchedId(title, author);
     const { error } = await supabase.from("wanted").upsert(
       {
         itemtype: "Book",
-        external_id: found.external_id,
-        title: found.title,
-        creator: author || found.creator,
+        external_id: found?.external_id ?? placeholder,
+        title: found?.title ?? title,
+        creator: author || found?.creator || null,
         published_year: year,
       },
       { onConflict: "itemtype,external_id" },
@@ -57,6 +54,12 @@ export async function addUpcomingToUpNext(
     if (error) {
       console.error("Database error adding an upcoming book:", error);
       return { error: "Unable to add that. Please try again." };
+    }
+    if (found) {
+      await supabase
+        .from("wanted")
+        .delete()
+        .match({ itemtype: "Book", external_id: placeholder });
     }
 
     updateTag(WANTED_TAG);
