@@ -283,7 +283,7 @@ interface BarPart {
 // one in view marked. Sideways scrolling on a phone keeps it to one line
 function MonthBar({ parts, today }: { parts: BarPart[]; today: string }) {
   const [active, setActive] = useState<string | null>(null);
-  const barRef = useRef<HTMLElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   // Changes only when the months shown change, as a genre is picked
   const shownMonths = parts
     .flatMap(({ part, months }) => months.map((month) => anchor(part, month)))
@@ -320,6 +320,11 @@ function MonthBar({ parts, today }: { parts: BarPart[]; today: string }) {
       ?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [active]);
 
+  const toTop = () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    history.replaceState(null, "", location.pathname + location.search);
+  };
+
   const jump = (id: string) => {
     document
       .getElementById(id)
@@ -329,40 +334,49 @@ function MonthBar({ parts, today }: { parts: BarPart[]; today: string }) {
 
   return (
     <nav
-      ref={barRef}
       aria-label="Months"
-      className="sticky top-14 z-10 -mx-4 mb-10 overflow-x-auto border-b border-rule bg-paper/90 px-4 backdrop-blur"
+      className="sticky top-14 z-10 -mx-4 mb-10 flex items-center gap-2 border-b border-rule bg-paper/90 px-4 font-mono text-xs backdrop-blur"
     >
-      <div className="flex w-max items-center gap-x-1 py-2 font-mono text-xs">
-        {parts.map(({ part, title, months }, i) => (
-          <div key={part} className="flex items-center gap-x-1">
-            {i > 0 && (
-              <span className="mx-2 h-4 w-px bg-rule" aria-hidden="true" />
-            )}
-            <span className="pr-1 uppercase tracking-[0.06em] text-ink-faint">
-              {title}
-            </span>
-            {months.map((month) => {
-              const id = anchor(part, month);
-              return (
-                <a
-                  key={id}
-                  href={`#${id}`}
-                  data-target={id}
-                  aria-current={active === id ? "true" : undefined}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    jump(id);
-                  }}
-                  className="whitespace-nowrap px-2 py-1 text-ink-soft hover:text-ink aria-[current=true]:bg-ink aria-[current=true]:text-paper"
-                >
-                  {monthShort(month, today)}
-                </a>
-              );
-            })}
-          </div>
-        ))}
+      {/* The months scroll sideways on a phone; the way back up stays put */}
+      <div ref={barRef} className="min-w-0 flex-1 overflow-x-auto">
+        <div className="flex w-max items-center gap-x-1 py-2">
+          {parts.map(({ part, title, months }, i) => (
+            <div key={part} className="flex items-center gap-x-1">
+              {i > 0 && (
+                <span className="mx-2 h-4 w-px bg-rule" aria-hidden="true" />
+              )}
+              <span className="pr-1 uppercase tracking-[0.06em] text-ink-faint">
+                {title}
+              </span>
+              {months.map((month) => {
+                const id = anchor(part, month);
+                return (
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    data-target={id}
+                    aria-current={active === id ? "true" : undefined}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      jump(id);
+                    }}
+                    className="whitespace-nowrap px-2 py-1 text-ink-soft hover:text-ink aria-[current=true]:bg-ink aria-[current=true]:text-paper"
+                  >
+                    {monthShort(month, today)}
+                  </a>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
+      <button
+        type="button"
+        onClick={toTop}
+        className="shrink-0 cursor-pointer border-l border-rule py-1 pl-3 text-ink-soft hover:text-ink"
+      >
+        ↑ Top
+      </button>
     </nav>
   );
 }
