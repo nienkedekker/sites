@@ -22,23 +22,6 @@ export default defineConfig({
         access: "secret",
         optional: true,
       }),
-      // The /nanami status page: my password, and the token nanami pushes with
-      NANAMI_PASSWORD: envField.string({
-        context: "server",
-        access: "secret",
-        optional: true,
-      }),
-      NANAMI_PUSH_TOKEN: envField.string({
-        context: "server",
-        access: "secret",
-        optional: true,
-      }),
-      // Signs the status page's session cookie; a long random string
-      NANAMI_SESSION_SECRET: envField.string({
-        context: "server",
-        access: "secret",
-        optional: true,
-      }),
     },
   },
   prefetch: {

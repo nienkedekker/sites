@@ -9,6 +9,7 @@ export const SIGNED_IN_LINKS = [
   { href: "/search", label: "Search" },
   { href: "/up-next", label: "Up next" },
   { href: "/recs", label: "Recs" },
+  { href: "/nanami", label: "nanami" },
   { href: "/about", label: "About" },
   { href: "/create", label: "Create" },
 ] as const;

@@ -1,5 +1,5 @@
 import { externalProps } from "@nienke/ui/external";
-import type { Check, Link, Part, Status, Topology } from "../lib/nanami-report";
+import type { Check, Link, Part, Status, Topology } from "@/utils/data/nanami";
 
 // Everything is laid out on a fixed grid and scaled to fit. Columns 1 to 4 sit
 // inside nanami's outline, 0 and 5 outside it. The gap after column 2 is wider,
@@ -19,7 +19,10 @@ const LIGHT: Record<Status | "unknown", string> = {
 
 type Placed = Part & { at: [number, number] };
 
-const box = ({ at: [column, row] }: Placed) => ({ x: COLUMN_X[column], y: rowY(row) });
+const box = ({ at: [column, row] }: Placed) => ({
+  x: COLUMN_X[column],
+  y: rowY(row),
+});
 
 // Right edge to left edge, bending once in the gap after `from` (or before `to`),
 // or straight down within a column
@@ -28,7 +31,10 @@ function route(from: Placed, to: Placed, link: Link) {
   const b = box(to);
   if (from.at[0] === to.at[0]) {
     const x = a.x + NODE.w / 2;
-    const d = b.y > a.y ? `M${x} ${a.y + NODE.h} V${b.y}` : `M${x} ${a.y} V${b.y + NODE.h}`;
+    const d =
+      b.y > a.y
+        ? `M${x} ${a.y + NODE.h} V${b.y}`
+        : `M${x} ${a.y} V${b.y + NODE.h}`;
     return { d, labelAt: null };
   }
   // Links leave the side facing their target, so a few run right to left
@@ -117,7 +123,11 @@ export default function NanamiDiagram({ checks, topology }: Props) {
           className="fill-none stroke-ink-faint"
           strokeDasharray="6 5"
         />
-        <text x={NANAMI.x + 20} y={NANAMI.y + 28} className="fill-ink font-geist text-[15px]">
+        <text
+          x={NANAMI.x + 20}
+          y={NANAMI.y + 28}
+          className="fill-ink font-geist text-[15px]"
+        >
           nanami
         </text>
         {network && (
@@ -140,7 +150,11 @@ export default function NanamiDiagram({ checks, topology }: Props) {
         )}
 
         {[
-          ...topology.columns.map((text, column) => ({ text, x: COLUMN_X[column], y: 72 })),
+          ...topology.columns.map((text, column) => ({
+            text,
+            x: COLUMN_X[column],
+            y: 72,
+          })),
           ...topology.subheadings.map(({ text, column, row }) => ({
             text,
             x: COLUMN_X[column],
@@ -234,14 +248,28 @@ export default function NanamiDiagram({ checks, topology }: Props) {
                 strokeWidth={status === "down" ? 2 : 1}
               />
               {status && (
-                <rect x={x + 12} y={y + 16} width="9" height="9" className={LIGHT[status]} />
+                <rect
+                  x={x + 12}
+                  y={y + 16}
+                  width="9"
+                  height="9"
+                  className={LIGHT[status]}
+                />
               )}
               {!part.href && (
-                <text x={textX} y={y + 26} className="fill-ink text-[15px] font-medium">
+                <text
+                  x={textX}
+                  y={y + 26}
+                  className="fill-ink text-[15px] font-medium"
+                >
                   {part.name}
                 </text>
               )}
-              <text x={textX} y={y + 45} className="fill-ink-faint font-mono text-[12px]">
+              <text
+                x={textX}
+                y={y + 45}
+                className="fill-ink-faint font-mono text-[12px]"
+              >
                 {part.role}
               </text>
             </g>

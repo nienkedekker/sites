@@ -11,24 +11,30 @@ import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
 // The path is unknown while a dynamic route's shell prerenders, so the
 // Suspense fallback renders these links with nothing marked current
-export function NavLinks({ recs }: { recs: boolean }) {
-  return <NavLinksFor pathname={usePathname()} recs={recs} />;
+export function NavLinks({ recs, nanami }: { recs: boolean; nanami: boolean }) {
+  return <NavLinksFor pathname={usePathname()} recs={recs} nanami={nanami} />;
 }
 
-// recs comes from the server, which knows whether there's an Anthropic key
+// recs and nanami come from the server, which knows whether there's an
+// Anthropic key and a media server pushing reports
 export function NavLinksFor({
   pathname,
   recs,
+  nanami,
 }: {
   pathname: string | null;
   recs: boolean;
+  nanami: boolean;
 }) {
   const { isLoggedIn } = useAuth();
   const [open, setOpen] = useState(false);
   const [menuPathname, setMenuPathname] = useState(pathname);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const links = isLoggedIn
-    ? SIGNED_IN_LINKS.filter(({ href }) => recs || href !== "/recs")
+    ? SIGNED_IN_LINKS.filter(
+        ({ href }) =>
+          (recs || href !== "/recs") && (nanami || href !== "/nanami"),
+      )
     : SITE_LINKS;
 
   if (pathname !== menuPathname) {

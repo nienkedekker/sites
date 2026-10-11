@@ -312,6 +312,9 @@ importers:
       '@supabase/supabase-js':
         specifier: latest
         version: 2.117.3
+      '@upstash/redis':
+        specifier: ^1.39.0
+        version: 1.39.0
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
