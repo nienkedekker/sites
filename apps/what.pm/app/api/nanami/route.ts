@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// The nanami pages poll this for the latest report
 export async function GET() {
   if (!hasNanami() || !(await isOwner())) {
     return json({ error: "Unauthorized" }, 401);

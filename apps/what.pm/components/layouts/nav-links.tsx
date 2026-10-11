@@ -22,7 +22,6 @@ export function NavLinks({ upcoming }: { upcoming: boolean }) {
   return <NavLinksFor pathname={usePathname()} upcoming={upcoming} />;
 }
 
-// upcoming: whether New releases is there, with a Hardcover token
 export function NavLinksFor({
   pathname,
   upcoming,
@@ -115,7 +114,6 @@ export function NavLinksFor({
         className="own-grain absolute inset-x-0 top-full border-b border-rule bg-paper md:hidden"
       >
         <ul className="mx-auto max-w-6xl divide-y divide-rule px-4 font-geist text-base font-medium">
-          {/* On a phone, Discover's pages are rows of their own */}
           {(isLoggedIn
             ? [
                 ...discover,
@@ -145,8 +143,6 @@ export function NavLinksFor({
 
 type Href = Parameters<typeof Link>[0]["href"];
 
-// A header link, as @nienke/ui/nav-links draws them, current on the pages
-// under it too, so For you still marks Discover
 function NavItem({
   href,
   label,

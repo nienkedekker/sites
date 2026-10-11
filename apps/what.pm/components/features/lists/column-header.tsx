@@ -3,8 +3,6 @@ import { SWATCH, type ItemType } from "@nienke/ui/series";
 import SwellText from "@nienke/ui/swell-text";
 import { cn } from "@/utils/ui";
 
-// Over a column of books, movies or shows: the type's square and name in the
-// serif, how many on the right, over a rule. The year pages and For you share it
 export function ColumnHeader({
   id,
   type,

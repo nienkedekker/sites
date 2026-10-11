@@ -55,7 +55,6 @@ interface MostLoggedProps {
     parts?: Part[];
     tags?: Part[];
   }[];
-  // Where a row, or one of its parts, leads; search by default
   href?: (name: string, part?: string) => Route;
 }
 

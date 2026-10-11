@@ -16,18 +16,15 @@ export function SearchField({
   ...input
 }: Omit<ComponentProps<"input">, "value" | "onChange" | "className"> & {
   ref?: Ref<HTMLInputElement>;
-  // Read out, not shown
   label: string;
   value: string;
   onValueChange: (value: string) => void;
   onClear?: () => void;
   busy?: boolean;
-  // A word on the right while there's nothing to clear, like "↵ to add"
   hint?: ReactNode;
   children?: ReactNode;
 }) {
   return (
-    // A bordered box, with the cross, spinner and hint inside on the right
     <div className="relative flex items-center gap-3 border border-rule bg-panel pr-3 pl-5 focus-within:ring-2 focus-within:ring-accent/40">
       <input
         ref={ref}

@@ -10,7 +10,6 @@ export function tooltipAlign(position: number) {
   return "left-1/2 -translate-x-1/2";
 }
 
-/** Centre of the `i`th of `count` equal-width bars, for `tooltipAlign`. */
 export function barCentre(i: number, count: number) {
   return (i + 0.5) / count;
 }

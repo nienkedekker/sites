@@ -52,7 +52,6 @@ function DownloadRow({ item }: { item: Download }) {
           </div>
         )}
         <p className="mt-1 font-mono text-xs text-ink-faint [overflow-wrap:anywhere]">
-          {/* Unpacking says what step it's at, and waiting says why */}
           {!["processing", "waiting"].includes(item.state) &&
             `${STATE_LABEL[item.state]}. `}
           {item.detail}
@@ -77,7 +76,6 @@ export default function NanamiDownloads({ initial, renderedAt }: Props) {
   const needsLook = inProgress.some(({ state }) =>
     ["paused", "failed"].includes(state),
   );
-  // The lists stay up when the report is old, marked as what was true then
   const note = stale ? "from the last report" : undefined;
 
   return (

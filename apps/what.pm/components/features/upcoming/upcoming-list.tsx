@@ -31,7 +31,6 @@ const day = (date: string) =>
     month: "short",
   });
 
-// "Oct", or "Jan '27" where the year turns
 const monthShort = (month: string, previous: string) => {
   const name = new Date(`${month}-01T00:00:00Z`).toLocaleDateString("en-GB", {
     timeZone: "UTC",
@@ -51,7 +50,6 @@ const monthName = (month: string) =>
 
 type Status = "up-next" | "read" | null;
 
-// Three lines, opened in full by clicking them when there's more
 function Description({ runs }: { runs: Run[] }) {
   return (
     <div className="mt-3">
@@ -77,7 +75,6 @@ function Description({ runs }: { runs: Run[] }) {
   );
 }
 
-// The genre shown and how to pick another, for a book's genres to filter by
 interface GenreFilter {
   genre: string | null;
   onGenre: (genre: string | null) => void;
@@ -94,10 +91,8 @@ function BookRow({
   status: Status;
   out: boolean;
 } & GenreFilter) {
-  // Marked straight away, before the page has refreshed with up next
   const [added, setAdded] = useState(false);
   const shown = added ? "up-next" : status;
-  // The title goes to Goodreads
   const goodreads = sourceOf({
     itemtype: "Book",
     external_id: null,
@@ -106,8 +101,6 @@ function BookRow({
   });
   const author = book.authors.join(", ");
   return (
-    // Books already on up next or read fade back, so the rest stand out while
-    // scrolling; hovering or tabbing in brings one back to full strength
     <ItemRow
       as="article"
       className={`border-t border-line py-5 transition-opacity first:border-t-0 ${shown ? "opacity-45 hover:opacity-100 focus-within:opacity-100" : ""}`}
@@ -134,7 +127,6 @@ function BookRow({
           )}
           {book.genres.length > 0 && (
             <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
-              {/* Each one shows just that genre, or everything again */}
               {book.genres.map((genre) => (
                 <button
                   key={genre}
@@ -190,7 +182,6 @@ function BookRow({
 
 interface Props {
   books: UpcomingBook[];
-  // Title keys of books on up next, and of books in the log
   upNext: string[];
   read: string[];
   // YYYY-MM-DD in Amsterdam: books released by then are out
@@ -203,7 +194,6 @@ const BAND_TOP = 100;
 
 const anchor = (month: string) => `month-${month}`;
 
-// The address with its query changed, keeping what else is in it
 function withParams(change: (params: URLSearchParams) => void) {
   const params = new URLSearchParams(location.search);
   change(params);
@@ -234,7 +224,6 @@ function MonthSection({
       id={anchor(month)}
       data-month={month}
       aria-labelledby={`${anchor(month)}-heading`}
-      // Clear of the site header and the filter bar when jumped to
       className="scroll-mt-28"
     >
       <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
@@ -263,9 +252,6 @@ function MonthSection({
   );
 }
 
-// Under the site header as the page scrolls: the genre, every month from the
-// oldest out to the last coming, and the way back up. On a phone the months
-// scroll sideways, with the genre and Top staying put
 function FilterBar({
   genreMenu,
   months,
@@ -277,7 +263,6 @@ function FilterBar({
 }: {
   genreMenu: ReactNode;
   months: string[];
-  // The months with books in the genre picked
   shown: string[];
   active: string | null;
   currentMonth: string;
@@ -286,7 +271,6 @@ function FilterBar({
 }) {
   const barRef = useRef<HTMLDivElement>(null);
 
-  // Keep the marked month in sight in the bar itself, scrolling just the bar
   useEffect(() => {
     const bar = barRef.current;
     const item = bar?.querySelector<HTMLElement>(`[data-target="${active}"]`);
@@ -314,7 +298,6 @@ function FilterBar({
         <ol className="flex h-full w-max items-center gap-x-1 px-3 py-1.5">
           {months.map((month, i) => {
             const label = monthShort(month, months[i - 1] ?? currentMonth);
-            // Months gone by and this one in full ink, the ones to come grey
             const tone =
               month > currentMonth
                 ? "text-ink-faint hover:text-ink"
@@ -336,7 +319,6 @@ function FilterBar({
                     {label}
                   </a>
                 ) : (
-                  // Nothing in the genre picked this month
                   <span
                     className={`whitespace-nowrap px-2 py-1 opacity-35 ${tone}`}
                   >
@@ -359,9 +341,6 @@ function FilterBar({
   );
 }
 
-// Oldest month first, each month's books by release day, the current month's
-// out and coming together. The genre and the month clicked live in the
-// address, so Back goes back through them
 export function UpcomingList({ books, upNext, read, today }: Props) {
   const searchParams = useSearchParams();
   const genres = genresOf(books);
@@ -388,7 +367,6 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
   const [active, setActive] = useState<string | null>(null);
   // The month marked, read where state would be a render behind
   const activeRef = useRef<string | null>(null);
-  // The genre and month the page was last put in place for
   const placed = useRef<{ genre: string | null; month: string | null }>(null);
 
   const mark = (month: string) => {
@@ -396,7 +374,6 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
     setActive(month);
   };
 
-  // The first month of the list goes to the very top, with the page's header
   const place = (month: string, first: string | undefined) => {
     if (month === first) window.scrollTo({ top: 0, behavior: "instant" });
     else
@@ -443,12 +420,10 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
   useEffect(() => {
     const last = placed.current;
     placed.current = { genre, month: monthParam };
-    // Opening, or the effect running again with nothing changed
     if (!last || (last.genre === genre && last.month === monthParam)) return;
     const genreChanged = last.genre !== genre;
     const shown = shownKey.split(" ");
     const target = genreChanged ? activeRef.current : monthParam;
-    // A month clicked has been scrolled to already
     if (!genreChanged && monthParam === activeRef.current) return;
     if (target && shown.includes(target)) place(target, shown[0]);
     else window.scrollTo({ top: 0, behavior: "instant" });

@@ -48,7 +48,6 @@ const arg = (name: string) => {
 const limit = Number(arg("--limit") ?? Infinity);
 const reportPath = arg("--report");
 const sqlPath = arg("--sql");
-// e.g. --only "Kafka|Runaways" to retry a few titles
 const only = arg("--only");
 const refresh = process.argv.includes("--refresh");
 const genresOnly = process.argv.includes("--genres");

@@ -31,8 +31,6 @@ async function fetchMatches(
   }
 }
 
-// Pick a type, then search it: the first match is highlighted, arrows move
-// the highlight, Enter or a click adds it, Escape closes
 export function QueueSearch({
   inputRef,
   onPick,
@@ -47,7 +45,6 @@ export function QueueSearch({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
 
-  // Keep what's typed and search the new type for it, back in the box
   const changeType = (type: ValidItemType) => {
     setItemType(type);
     setMatches([]);
@@ -155,7 +152,6 @@ export function QueueSearch({
           role="listbox"
           aria-label="Matches"
           hidden={!shown}
-          // Hung from under the box's border, as wide as the box
           className="absolute -inset-x-px top-[calc(100%+1px)] z-20 max-h-[28rem] overflow-y-auto border border-t-0 border-rule bg-panel"
         >
           {shown &&

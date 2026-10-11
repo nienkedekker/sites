@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 
 export interface QuietAction {
   label: string;
-  // For screen readers, where the label alone doesn't say what it's about
   ariaLabel?: string;
   action: (formData: FormData) => Promise<{ error: string | null }>;
   fields?: Record<string, string>;

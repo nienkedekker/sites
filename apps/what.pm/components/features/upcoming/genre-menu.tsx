@@ -4,17 +4,12 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
 interface Props {
-  // Every genre with its number of books, the most common first
   genres: { genre: string; count: number }[];
   total: number;
-  // null for all of them
   current: string | null;
   onPick: (genre: string | null) => void;
 }
 
-// The genre to show, as a button that opens every genre with its count.
-// It closes on Escape, a click elsewhere, or tabbing out, and the arrow keys
-// go up and down it
 export function GenreMenu({ genres, total, current, onPick }: Props) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -32,7 +27,6 @@ export function GenreMenu({ genres, total, current, onPick }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    // Start on the genre shown
     listRef.current
       ?.querySelector<HTMLButtonElement>('[aria-pressed="true"]')
       ?.focus();

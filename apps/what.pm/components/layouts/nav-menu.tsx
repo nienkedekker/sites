@@ -7,9 +7,6 @@ import { isWithin } from "@/components/layouts/site-links";
 
 type Href = Parameters<typeof Link>[0]["href"];
 
-// A header item that opens the pages under it rather than going to one, so
-// Discover's two can be picked straight from the header. It closes again on
-// Escape, a click elsewhere, or going to another page
 export function NavMenu({
   label,
   section,
@@ -17,7 +14,6 @@ export function NavMenu({
   pathname,
 }: {
   label: string;
-  // Where the pages live, so the item is underlined on any of them
   section: string;
   links: readonly { href: Href & string; label: string }[];
   pathname: string | null;
@@ -60,7 +56,6 @@ export function NavMenu({
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls={menuId}
-        // Underlined like the current page while on one of its pages
         className={`nav-link flex cursor-pointer items-center gap-1 ${inside ? "underline decoration-2" : ""}`}
       >
         {label}

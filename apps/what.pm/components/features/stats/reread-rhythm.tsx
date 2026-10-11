@@ -25,8 +25,6 @@ const listYears = (years: number[]) =>
     ? `${years.slice(0, -1).join(", ")} and ${years[years.length - 1]}`
     : String(years[0]);
 
-// Every fifth year on the axis, plus the first and last when they're clear
-// of one
 function axisYears(span: number[]) {
   const start = span[0];
   const end = span[span.length - 1];

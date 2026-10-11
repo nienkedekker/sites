@@ -24,8 +24,6 @@ const box = ({ at: [column, row] }: Placed) => ({
   y: rowY(row),
 });
 
-// Right edge to left edge, bending once in the gap after `from` (or before `to`),
-// or straight down within a column
 function route(from: Placed, to: Placed, link: Link) {
   const a = box(from);
   const b = box(to);
@@ -54,7 +52,6 @@ function route(from: Placed, to: Placed, link: Link) {
       labelAt: { x: (start.x + end.x) / 2, y: labelY(start.y) },
     };
   }
-  // The bend sits in the gap beside `from` (or `to`), on the side the link heads
   const column = (link.bendIn === "to" ? to : from).at[0];
   const gapOnRight = rightward === (link.bendIn !== "to");
   const gapLeft = COLUMN_X[gapOnRight ? column : column - 1] + NODE.w;
@@ -172,7 +169,6 @@ export default function NanamiDiagram({ checks, topology }: Props) {
           </text>
         ))}
 
-        {/* Key for the dashed lines, in the bottom-left corner */}
         <g>
           <line
             x1={COLUMN_X[0]}

@@ -78,7 +78,6 @@ export async function suggestWithClaude(
     reason: string | null;
   }[],
   only?: ValidItemType,
-  // Cancelling stops the call
   signal?: AbortSignal,
 ): Promise<Suggestion[] | null> {
   if (!hasRecs()) return null;

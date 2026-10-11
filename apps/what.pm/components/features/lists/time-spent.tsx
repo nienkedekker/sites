@@ -10,7 +10,6 @@ export function TimeSpent({
   divided = true,
 }: {
   spent: Spent;
-  // Off when there's no chart above it to divide from
   divided?: boolean;
 }) {
   const hours = Math.round(spent.minutes / 60);

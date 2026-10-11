@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import { externalProps } from "@nienke/ui/external";
 
-// A book, film or show's title, linked to where it can be read about. One
-// size everywhere, but for a page's main list (className sets that)
 export function ItemTitle({
   title,
   href,
@@ -31,8 +29,6 @@ export function ItemTitle({
   );
 }
 
-// A row with a cover: the title, a line on who made it and when, whatever
-// the page says about it, and a quiet line of things to do with it
 export function ItemRow({
   as: Tag = "li",
   cover,

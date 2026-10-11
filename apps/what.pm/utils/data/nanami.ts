@@ -227,7 +227,6 @@ function parseLink(value: unknown): Link {
   for (const flag of ["labelBelow", "dashed", "twoWay"]) {
     need(optional(link[flag], (f) => typeof f === "boolean"));
   }
-  // Keep only the fields the diagram knows, nothing else that came along
   const keys = [
     "from",
     "to",

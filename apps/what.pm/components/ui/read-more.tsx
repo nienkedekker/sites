@@ -3,10 +3,6 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
-// Text cut to a few lines, opened in full when there's more than fits in
-// them: with "Read more" under it, or, with toggle="text", by clicking the
-// text itself, for where another link would crowd it. The clamp is a class,
-// like "line-clamp-3", for the text's own styles to go with
 export function ReadMore({
   children,
   clamp,

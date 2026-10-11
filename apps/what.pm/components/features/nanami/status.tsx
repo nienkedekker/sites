@@ -14,7 +14,6 @@ import {
   useReport,
 } from "@/components/features/nanami/live";
 
-// The Mac itself, shown apart from the flow; the flow comes with the report
 const machine: Part[] = [
   { id: "power", name: "Power", role: "", check: "power" },
   { id: "disk", name: "Disk", role: "", check: "disk" },
@@ -72,9 +71,7 @@ interface Props {
 
 export default function NanamiStatus({ initial, renderedAt }: Props) {
   const { report, now, stale } = useReport(initial, renderedAt);
-  // An old report says what was true then, not now, so its lights go grey
   const checks = (!stale && report?.checks) || {};
-  // The layout still holds when the report is old, only its lights go grey
   const topology = report?.topology;
   const results = Object.values(checks);
   const problems = results.filter(({ status }) => status !== "ok").length;
@@ -94,7 +91,6 @@ export default function NanamiStatus({ initial, renderedAt }: Props) {
         {headline}
       </Headline>
 
-      {/* The diagram on wide screens, the stages on narrow ones where it would be too small to read */}
       {topology && (
         <section aria-label="Topology" className="card hidden p-4 lg:block">
           <NanamiDiagram checks={checks} topology={topology} />
@@ -115,7 +111,6 @@ export default function NanamiStatus({ initial, renderedAt }: Props) {
               >
                 {stage.title}
               </CardHead>
-              {/* Side by side the parts need no rules between them */}
               <ul className="mt-2 grid gap-x-6 sm:grid-cols-2 sm:[&>li]:border-t-0 md:mt-0 lg:grid-cols-4">
                 {stage.parts.map((part) => (
                   <PartRow

@@ -21,9 +21,6 @@ export function DiscoverHeader({
   return (
     <div className="mb-8">
       <PageHeader className="">Discover</PageHeader>
-      {/* In the intro's place, drawn like the header's links, since these
-          are pages too. Pulled left by a link's padding to line up with the
-          title */}
       {tabs.length > 1 && (
         <nav
           aria-label="Discover"

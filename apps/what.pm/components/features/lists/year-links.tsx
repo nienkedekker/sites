@@ -44,12 +44,8 @@ export function YearLinksFor({
     document.fonts.ready.then(keepInSight);
   }, [activeYear]);
 
-  // Only on the log's own pages, one year each, where the others are a click
-  // away; elsewhere, and while the path is unknown, there's no strip
   if (activeYear === null) return null;
 
-  // Drawn like the filter bar on Discover: one row of years to pick, sideways
-  // on a phone
   return (
     <nav aria-label="Browse by year" className="border-b border-rule">
       <div className="mx-auto flex max-w-6xl items-stretch font-mono text-xs">

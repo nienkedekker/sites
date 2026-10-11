@@ -7,7 +7,6 @@ import {
   watchLowPower,
 } from "@nienke/ui/motion";
 
-/** Marks <html> while the battery is low enough for Chrome's Energy Saver. */
 export function LowPower() {
   useEffect(
     () =>

@@ -88,13 +88,10 @@ function PickedAt({ at }: { at: string }) {
 
 const primary =
   "shrink-0 cursor-pointer bg-ink px-4 py-2 font-mono text-xs text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink";
-// Like + Up next: an action that goes with the line it's on
 const quiet = "link cursor-pointer text-ink disabled:cursor-wait";
 const bordered =
   "shrink-0 cursor-pointer border border-rule px-4 py-2 font-mono text-xs text-ink transition-colors hover:bg-panel-2";
 
-// Where there's nothing yet, or while Claude is at it: rows to come, fading
-// down the column, pulsing while loading
 function GhostRows({ loading }: { loading: boolean }) {
   return (
     <ul aria-hidden="true" className="space-y-8 pt-6">
@@ -159,7 +156,6 @@ function PickRow({
             disabled={busy}
             aria-pressed={pick.upNext}
             aria-label={`Put ${pick.title} on Up next`}
-            // A quiet link until it's on up next, then a filled box for the state
             className="link cursor-pointer text-ink disabled:cursor-wait aria-pressed:bg-ink aria-pressed:px-1.5 aria-pressed:py-0.5 aria-pressed:text-paper aria-pressed:no-underline"
           >
             {pick.upNext ? "✓ On Up next" : "+ Up next"}
@@ -196,7 +192,6 @@ function PickRow({
   );
 }
 
-// Books, films and TV side by side, with rows to come before there are picks
 export function PickColumns({
   picks,
   loading = false,
@@ -274,7 +269,6 @@ function StatusBand({
   );
 }
 
-// The page while it loads, before anything's known
 export function ForYouSkeleton() {
   return (
     <>
@@ -290,9 +284,7 @@ export function ForYou({
   batchAt,
 }: {
   picks: ForYouPick[];
-  // How many titles are in the log, all of which Claude reads
   logCount: number;
-  // When the picks shown were made, if ever
   batchAt: string | null;
 }) {
   const router = useRouter();
@@ -300,7 +292,6 @@ export function ForYou({
   const [refreshing, startRefresh] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const controller = useRef<AbortController | null>(null);
-  // Changes made here, shown before the page has caught up with them
   const [hidden, setHidden] = useState(() => new Set<string>());
   const [upNext, setUpNext] = useState(() => new Map<string, boolean>());
   const [busy, setBusy] = useState(() => new Set<string>());
@@ -315,7 +306,6 @@ export function ForYou({
   const loading = running || refreshing;
 
   const run = async () => {
-    // One run at a time, however often the button's pressed
     if (controller.current) return;
     const current = new AbortController();
     controller.current = current;
@@ -481,7 +471,6 @@ export function ForYou({
             <PickedAt at={batchAt} /> · based on {titles}
           </>
         }
-        // The picks speak for themselves; only the way to new ones shows
         unspoken
         action={
           <button type="button" onClick={run} className={bordered}>

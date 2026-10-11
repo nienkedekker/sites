@@ -3,8 +3,6 @@
 import { Fragment, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import { canSwell, registerSwell, subscribeSwell, swellWords } from "./swell";
 
-// Plain text on the server and with reduced motion; letters that swell once
-// the page is running in a browser that allows it.
 export default function SwellText({ children }: { children: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const enabled = useSyncExternalStore(subscribeSwell, canSwell, () => false);

@@ -13,8 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/forms/submit-button";
 
-// Every delete asks here first: one item in the lists, or a selection on the
-// up next and recs pages. It closes once the action comes back without an error
 export function ConfirmDeleteDialog({
   label = "Delete",
   description,

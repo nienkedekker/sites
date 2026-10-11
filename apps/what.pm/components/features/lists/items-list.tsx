@@ -30,7 +30,6 @@ export default async function ItemsList({ year }: { year: number }) {
   const summary = summarizeYear(counted, year);
   const byMonth = hasMonthlyData(counted, year);
   const spent = timeSpent(counted);
-  // One type alone has nothing to compare against, so it gets no chart
   const types = SERIES.filter(({ key }) => summary.counts[key] > 0).length;
   const chart = byMonth ? "month" : types > 1 ? "type" : null;
 

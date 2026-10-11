@@ -12,8 +12,6 @@ interface Row {
   wait: number;
 }
 
-// "Dune: Part One" under "Dune" becomes "Part One"; two numbered parts
-// become "Parts 1 & 2"
 function suffixFor(book: string, screens: string[]) {
   const extras = screens
     .filter((title) => normalizeTitle(title) !== normalizeTitle(book))

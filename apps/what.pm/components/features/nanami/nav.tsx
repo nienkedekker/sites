@@ -7,7 +7,6 @@ const PAGES = [
   { href: "/nanami/downloads", label: "Downloads" },
 ] as const;
 
-// Both pages share a header, with a switch between them under it
 export function NanamiHeader({
   current,
 }: {

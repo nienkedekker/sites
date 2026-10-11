@@ -110,7 +110,6 @@ export function descriptionRuns(html: string): Run[] {
     else bold = Math.max(0, bold + step);
   }
   push(flat.slice(last));
-  // No runs of blank lines, nothing blank at either end
   const tidy = runs.map((run) => ({
     ...run,
     text: run.text.replace(/[ \t]*\n[ \t]*/g, "\n").replace(/\n{3,}/g, "\n\n"),
@@ -122,7 +121,6 @@ export function descriptionRuns(html: string): Run[] {
   return tidy.filter((run) => run.text);
 }
 
-// Cut at a word once the runs pass the length, with an ellipsis
 function shorten(runs: Run[]): Run[] {
   const kept: Run[] = [];
   let length = 0;
@@ -215,7 +213,6 @@ export function favouriteGenres(genreLists: string[][], count = 4) {
     .map(([genre]) => genre);
 }
 
-// Genres in the list, the most common first
 export function genresOf(books: UpcomingBook[]) {
   return favouriteGenres(
     books.map((book) => book.genres),

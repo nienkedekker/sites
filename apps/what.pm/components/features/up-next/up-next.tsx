@@ -27,7 +27,6 @@ export interface QueueItem {
   published_year: number | null;
   cover: string | null;
   reason?: string | null;
-  // Added on this page and still being saved
   saving?: boolean;
 }
 
@@ -51,9 +50,6 @@ const formOf = (fields: Record<string, string | number | null | undefined>) => {
 
 const OFFLINE: Result = { error: "Couldn’t reach the server. Try again." };
 
-// Up next as one queue, newest first, with a search box over it that adds
-// books, films and shows alike. Adding and removing show straight away and
-// undo themselves if the save fails
 export function UpNext({ items }: { items: QueueItem[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [queue, change] = useOptimistic(items, (state, update: Change) =>
@@ -167,8 +163,6 @@ export function UpNext({ items }: { items: QueueItem[] }) {
   );
 }
 
-// A row of the queue: cover, title and what it is, and what can be done with
-// it on the right
 function Row({
   number,
   cover,
@@ -200,7 +194,6 @@ function Row({
       {cover}
       <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0">
-          {/* The queue is the page's main list, so its titles are larger */}
           <ItemTitle title={title} href={href} className="text-[21px]" />
           <p className="mt-1 text-sm text-ink-soft">
             {meta.filter(Boolean).map((part) => `${part} · `)}

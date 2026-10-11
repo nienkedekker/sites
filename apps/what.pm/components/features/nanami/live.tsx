@@ -55,11 +55,9 @@ export function useReport(initial: StoredReport | null, renderedAt: number) {
         const res = await fetch("/api/nanami", {
           signal: AbortSignal.timeout(8000),
         });
-        // Signed out somewhere else, or the session ran out
         if (res.status === 401) return location.reload();
         if (res.ok) setReport(await res.json());
       } catch {
-        // Keep showing the last report; its age says how old it is
       }
       setNow(Date.now());
     };
@@ -93,7 +91,6 @@ interface HeadlineProps {
   children: string;
 }
 
-// An old report says what was true then, not now, so it says so instead
 export function Headline({
   report,
   stale,

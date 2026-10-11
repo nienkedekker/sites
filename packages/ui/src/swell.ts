@@ -304,9 +304,6 @@ function listen() {
   addEventListener("resize", wake, { passive: true });
 }
 
-// Kerns the letters inside `root` and makes them swell: under the pointer on
-// devices with a mouse, along with the scroll on touch screens. Returns a
-// cleanup function.
 export function registerSwell(root: HTMLElement) {
   kern(root);
   if (!canSwell()) return () => {};

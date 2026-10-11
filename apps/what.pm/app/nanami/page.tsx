@@ -6,7 +6,6 @@ import { NanamiHeader, NanamiSkeleton } from "@/components/features/nanami/nav";
 import { isOwner, loadReport } from "@/utils/server/nanami";
 import { hasNanami } from "@/utils/server/services";
 
-// Only for me: behind sign-in, for the owner only, and out of search engines
 export const metadata: Metadata = {
   title: "nanami",
   robots: { index: false },

@@ -6,8 +6,6 @@ import { TYPE_NAMES } from "@/utils/constants/app";
 import { cn } from "@/utils/ui";
 import type { ValidItemType } from "@/types/shared";
 
-// Sizes for when the caller doesn't set its own: a list row's cover, or a
-// search result's thumbnail
 const SIZE = {
   large: "h-[130px] w-[90px]",
   small: "h-[60px] w-[44px]",
@@ -21,10 +19,6 @@ const initial = (title: string) =>
     .charAt(0)
     .toUpperCase();
 
-// A cover, poster or thumbnail. Without an image, or when it fails to load,
-// a text cover stands in at the same size: the type and the title, or on a
-// small one just the title's first letter. The box's size comes from
-// className when given, so a caller can size it by width and aspect alone
 export function Cover({
   src,
   title,

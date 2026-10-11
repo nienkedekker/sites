@@ -1,7 +1,5 @@
 import type { ValidItemType } from "@/types/shared";
 
-// Who made it and when, as the log shows it: "by John Langan (2016)",
-// "dir. Kiyoshi Kurosawa (1997)", "created by Mike Flanagan (2021)"
 export function credit({
   itemtype,
   creator,
