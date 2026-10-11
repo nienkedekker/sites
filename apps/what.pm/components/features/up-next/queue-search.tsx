@@ -7,7 +7,7 @@ import {
   type KeyboardEvent,
   type RefObject,
 } from "react";
-import { Cover } from "@/components/ui/cover";
+import { MatchList } from "@/components/ui/match-list";
 import { SearchField } from "@/components/ui/search-field";
 import { TYPE_NAMES } from "@/utils/constants/app";
 import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
@@ -104,7 +104,7 @@ export function QueueSearch({
       <div
         role="radiogroup"
         aria-label="Type"
-        className="mb-3 flex gap-4 font-mono text-xs text-ink-soft"
+        className="mb-3 flex flex-wrap gap-2"
       >
         {VALID_ITEM_TYPES.map((type) => (
           <button
@@ -113,11 +113,7 @@ export function QueueSearch({
             role="radio"
             aria-checked={itemType === type}
             onClick={() => changeType(type)}
-            className={`cursor-pointer underline-offset-4 ${
-              itemType === type
-                ? "text-ink underline decoration-ink"
-                : "hover:text-ink"
-            }`}
+            className="tag"
           >
             {TYPE_NAMES[type].many}
           </button>
@@ -147,46 +143,16 @@ export function QueueSearch({
         aria-controls={listId}
         aria-activedescendant={shown ? `${listId}-${active}` : undefined}
       >
-        <ul
+        <MatchList
           id={listId}
-          role="listbox"
-          aria-label="Matches"
+          label="Matches"
+          matches={matches}
           hidden={!shown}
-          className="absolute -inset-x-px top-[calc(100%+1px)] z-20 max-h-[28rem] overflow-y-auto border border-t-0 border-rule bg-panel"
-        >
-          {shown &&
-            matches.map((match, i) => (
-              <li
-                key={`${match.itemtype}|${match.id}`}
-                id={`${listId}-${i}`}
-                role="option"
-                aria-selected={i === active}
-                onMouseDown={(event) => event.preventDefault()}
-                onMouseEnter={() => setActive(i)}
-                onClick={() => pick(match)}
-                className={`flex cursor-pointer items-center gap-4 border-t border-line px-5 py-2.5 first:border-t-0 ${
-                  i === active ? "bg-panel-2" : ""
-                }`}
-              >
-                <Cover
-                  src={match.cover}
-                  title={match.title}
-                  type={match.itemtype}
-                  size="small"
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium text-ink">
-                    {match.title}
-                  </span>
-                  {(match.creator || match.year) && (
-                    <span className="mt-0.5 block truncate text-sm text-ink-soft">
-                      {[match.creator, match.year].filter(Boolean).join(" · ")}
-                    </span>
-                  )}
-                </span>
-              </li>
-            ))}
-        </ul>
+          active={active}
+          onActive={setActive}
+          onPick={pick}
+          className="-inset-x-px top-[calc(100%+1px)] [&>li]:px-5"
+        />
       </SearchField>
     </div>
   );

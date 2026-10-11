@@ -1,7 +1,7 @@
 "use client";
 
-import CardHead from "@nienke/ui/card-head";
 import Meter from "@nienke/ui/meter";
+import Panel from "@nienke/ui/panel";
 import Tag from "@nienke/ui/tag";
 import {
   isInProgress,
@@ -93,47 +93,53 @@ export default function NanamiDownloads({ initial, renderedAt }: Props) {
 
       {downloads && (
         <>
-          <section className="card p-5 sm:p-6">
-            <CardHead as="h3" note={note}>
-              In progress
-            </CardHead>
+          <Panel
+            as="h3"
+            id="in-progress-heading"
+            title="In progress"
+            note={note}
+          >
             {inProgress.length ? (
-              <ul className="mt-2">
+              <ul>
                 {inProgress.map((item, i) => (
                   <DownloadRow key={`${item.title}-${i}`} item={item} />
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-sm text-ink-soft">
+              <p className="text-sm text-ink-soft">
                 Nothing is downloading right now.
               </p>
             )}
-          </section>
+          </Panel>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <section className="card p-5 sm:p-6">
-              <CardHead as="h3" note={note}>
-                Not found yet
-              </CardHead>
+            <Panel
+              as="h3"
+              id="not-found-yet-heading"
+              title="Not found yet"
+              note={note}
+            >
               {waiting.length ? (
-                <ul className="mt-2">
+                <ul>
                   {waiting.map((item, i) => (
                     <DownloadRow key={`${item.title}-${i}`} item={item} />
                   ))}
                 </ul>
               ) : (
-                <p className="mt-3 text-sm text-ink-soft">
+                <p className="text-sm text-ink-soft">
                   Everything on up next has been found.
                 </p>
               )}
-            </section>
+            </Panel>
 
-            <section className="card p-5 sm:p-6">
-              <CardHead as="h3" note={note}>
-                Recently added
-              </CardHead>
+            <Panel
+              as="h3"
+              id="recently-added-heading"
+              title="Recently added"
+              note={note}
+            >
               {finished.length ? (
-                <ul className="mt-2">
+                <ul>
                   {finished.map((item, i) => (
                     <li
                       key={`${item.title}-${i}`}
@@ -150,11 +156,11 @@ export default function NanamiDownloads({ initial, renderedAt }: Props) {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-3 text-sm text-ink-soft">
+                <p className="text-sm text-ink-soft">
                   Nothing in the last week.
                 </p>
               )}
-            </section>
+            </Panel>
           </div>
         </>
       )}

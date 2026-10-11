@@ -22,7 +22,7 @@ export function MadeIt({
       <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
         <h2
           id="made-it-heading"
-          className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
+          className="display display-section text-ink"
         >
           Made it into the log
         </h2>

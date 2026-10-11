@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
-import CardHead from "@nienke/ui/card-head";
 import MediaChart from "@nienke/ui/media-chart";
 import PageHeader from "@nienke/ui/page-header";
+import Panel from "@nienke/ui/panel";
 import { SERIES } from "@nienke/ui/series";
 import { CategoryList } from "@/components/features/lists/category-list";
 import { getItemsForYear } from "@/utils/data/items";
@@ -53,22 +53,22 @@ export default async function ItemsList({ year }: { year: number }) {
       </PageHeader>
 
       {counted.length > 0 && (chart || hasTimeSpent(spent)) && (
-        <section
-          aria-labelledby="year-chart-heading"
-          className="rise panel flex flex-col"
-          style={{ "--delay": "240ms" } as CSSProperties}
-        >
-          <CardHead id="year-chart-heading" className="mb-5">
-            {chart === "month"
+        <Panel
+          id="year-chart-heading"
+          title={
+            chart === "month"
               ? "Month by month"
               : chart === "type"
                 ? "By type"
-                : "Time spent"}
-          </CardHead>
+                : "Time spent"
+          }
+          className="rise"
+          style={{ "--delay": "240ms" } as CSSProperties}
+        >
           {chart === "month" && <MediaChart summary={summary} now={now} />}
           {chart === "type" && <TypeBreakdown counts={summary.counts} />}
           <TimeSpent spent={spent} divided={chart !== null} />
-        </section>
+        </Panel>
       )}
 
       <div className="mt-20 grid grid-cols-1 gap-16 sm:mt-28 lg:grid-cols-3 lg:gap-10">

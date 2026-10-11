@@ -1,4 +1,4 @@
-import CardHead from "@nienke/ui/card-head";
+import Panel from "@nienke/ui/panel";
 import { HeatCell, HeatLegend } from "@nienke/ui/heatmap";
 import { describeCounts, MONTHS, SeriesRows, SWATCH } from "@nienke/ui/series";
 import { barCentre } from "@nienke/ui/tooltip";
@@ -47,17 +47,14 @@ export function MonthHeatmap({ rows, now }: { rows: MonthRow[]; now: Date }) {
   const max = Math.max(1, ...rows.flatMap((row) => row.months.map(total)));
 
   return (
-    <section aria-labelledby="month-heatmap-heading" className="panel">
-      <CardHead
-        id="month-heatmap-heading"
-        note={rows.length > 0 && `since ${rows[0].year}`}
-      >
-        When I log
-      </CardHead>
-
+    <Panel
+      id="month-heatmap-heading"
+      title="When I log"
+      note={rows.length > 0 && `since ${rows[0].year}`}
+    >
       <table
         id="month-heatmap-table"
-        className="mt-5 w-full table-fixed border-separate border-spacing-[3px] text-[0.7rem]"
+        className="w-full table-fixed border-separate border-spacing-[3px] text-2xs"
       >
         <caption className="sr-only">
           Items logged per month, by year. Use the arrow keys to move between
@@ -118,6 +115,6 @@ export function MonthHeatmap({ rows, now }: { rows: MonthRow[]; now: Date }) {
       <HeatGridKeys tableId="month-heatmap-table" />
 
       <HeatLegend />
-    </section>
+    </Panel>
   );
 }

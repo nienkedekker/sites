@@ -18,7 +18,7 @@ export default function PageHeader({
     <header className={`max-w-2xl ${className}`}>
       {eyebrow && <p className="rise tag mb-6">{eyebrow}</p>}
       <h1
-        className="rise display text-ink text-[clamp(2.75rem,7vw,4.5rem)]"
+        className="rise display display-page text-ink"
         style={{ "--delay": "80ms" } as CSSProperties}
       >
         {typeof children === "string" || typeof children === "number" ? (

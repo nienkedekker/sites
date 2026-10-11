@@ -16,6 +16,7 @@
     "./motion": "./src/motion.ts",
     "./nav-links": "./src/nav-links.tsx",
     "./page-header": "./src/page-header.tsx",
+    "./panel": "./src/panel.tsx",
     "./series": "./src/series.tsx",
     "./site-footer": "./src/site-footer.tsx",
     "./site-mark": "./src/site-mark.tsx",

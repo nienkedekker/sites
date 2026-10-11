@@ -56,7 +56,7 @@ export function DataExport({ currentYear }: DataExportProps) {
   };
 
   return (
-    <div className="card divide-y divide-line px-6 sm:px-7">
+    <div className="panel divide-y divide-line py-0 sm:py-0">
       <section className="space-y-4 py-6 sm:py-7">
         <CardHead>Export all data</CardHead>
         <div className="flex flex-wrap gap-3">

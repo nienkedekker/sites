@@ -18,7 +18,7 @@ export function ColumnHeader({
     <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
       <h2
         id={id}
-        className="display flex items-center gap-3 text-ink text-[1.875rem] sm:text-[2.5rem]"
+        className="display flex items-center gap-3 display-section text-ink"
       >
         <span
           className={cn("size-3 shrink-0", SWATCH[type])}

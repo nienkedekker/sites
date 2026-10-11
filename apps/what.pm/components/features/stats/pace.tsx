@@ -1,4 +1,4 @@
-import CardHead from "@nienke/ui/card-head";
+import Panel from "@nienke/ui/panel";
 import { formatCount, formatDate } from "@nienke/ui/format";
 import { StatList, StatRow } from "@nienke/ui/stat-list";
 import {
@@ -133,12 +133,8 @@ export function Pace({ years, now }: { years: PaceYear[]; now: Date }) {
   const date = formatDate(now, { month: "long", day: "numeric" });
 
   return (
-    <section aria-labelledby="pace-heading" className="panel">
-      <CardHead id="pace-heading" note={`as of ${date}`}>
-        Pace
-      </CardHead>
-
-      <div className="mt-4 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-6">
+    <Panel id="pace-heading" title="Pace" note={`as of ${date}`}>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-6">
         {panels.map(({ type, ...panel }) => (
           <TypePace
             key={type}
@@ -150,7 +146,7 @@ export function Pace({ years, now }: { years: PaceYear[]; now: Date }) {
       </div>
 
       <p
-        className="mt-5 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.7rem] text-ink-faint"
+        className="axis-label mt-5 flex flex-wrap gap-x-4 gap-y-1"
         aria-hidden="true"
       >
         <span className="flex items-center gap-1.5">
@@ -166,6 +162,6 @@ export function Pace({ years, now }: { years: PaceYear[]; now: Date }) {
           middle half of earlier years
         </span>
       </p>
-    </section>
+    </Panel>
   );
 }

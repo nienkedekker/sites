@@ -44,7 +44,7 @@ export function HeatCell({
       style={{ backgroundColor: heatShade(count, max, scale) }}
     >
       <div
-        className={`tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left group-focus:opacity-100 ${tooltipAlign(position)}`}
+        className={`tooltip tooltip-wide ${tooltipAlign(position)}`}
         aria-hidden="true"
       >
         <p className="flex items-baseline justify-between gap-4 font-medium">
@@ -62,7 +62,7 @@ export function HeatCell({
 export function HeatLegend() {
   return (
     <div
-      className="mt-4 flex items-center justify-end gap-1 font-mono text-[0.7rem] text-ink-faint"
+      className="axis-label mt-4 flex items-center justify-end gap-1"
       aria-hidden="true"
     >
       Fewer

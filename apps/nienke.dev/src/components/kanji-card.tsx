@@ -133,13 +133,13 @@ function Stats({ progress }: { progress: Progress }) {
             style={{ flexGrow: count, flexBasis: 0 }}
           >
             <span className={`block h-full bg-movies ${shade}`} />
-            <span className={`tooltip px-2 py-1 ${tooltipAlign(centre)}`}>
+            <span className={`tooltip ${tooltipAlign(centre)}`}>
               {label}: <span className="font-medium tabular-nums">{formatCount(count)}</span>
             </span>
           </div>
         ))}
       </div>
-      <div className="mt-1.5 flex justify-between text-[0.7rem] text-ink-faint" aria-hidden="true">
+      <div className="axis-label mt-1.5 flex justify-between" aria-hidden="true">
         <span>Apprentice</span>
         <span>Burned</span>
       </div>

@@ -41,7 +41,7 @@ const personSchema = {
   sameAs: profile.profiles.map(({ href }) => href),
 };
 
-const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
+const sectionHeading = "display display-section text-ink";
 ---
 
 <BaseLayout markdown="/index.md">
@@ -57,7 +57,7 @@ const sectionHeading = "display text-ink text-[1.875rem] sm:text-[3rem]";
   >
     <div class="lg:col-span-7">
       <h1
-        class="rise display text-ink text-[clamp(3rem,7.5vw,5.5rem)]"
+        class="rise display display-hero text-ink"
         style="--delay: 100ms"
       >
         Hoi, I'm Nienke.

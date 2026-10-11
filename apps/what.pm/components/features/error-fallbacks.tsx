@@ -12,7 +12,7 @@ export function DataLoadingError({ error, reset }: ErrorFallbackProps) {
   return (
     <div role="alert" className="panel max-w-xl">
       <AlertTriangle className="mb-4 size-6 text-danger" aria-hidden="true" />
-      <h2 className="display mb-3 text-[1.875rem] text-ink">
+      <h2 className="display display-sub mb-3 text-ink">
         Unable to load items
       </h2>
       <p className="mb-6 text-ink-soft">

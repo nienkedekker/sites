@@ -94,7 +94,7 @@ export function GenreMenu({ genres, total, current, onPick }: Props) {
         role="group"
         aria-label="Genres"
         hidden={!open}
-        className="own-grain absolute top-full left-0 z-20 -mt-px max-h-[60vh] min-w-56 overflow-y-auto border border-rule bg-paper py-1"
+        className="popover absolute top-full left-0 z-20 -mt-px max-h-[60vh] min-w-56 overflow-y-auto py-1"
       >
         {options.map(({ genre, label, count }) => (
           <li key={label}>
@@ -106,7 +106,7 @@ export function GenreMenu({ genres, total, current, onPick }: Props) {
                 setOpen(false);
                 buttonRef.current?.focus();
               }}
-              className="flex w-full cursor-pointer items-center justify-between gap-6 px-3 py-1.5 text-left text-ink hover:bg-panel-2 focus-visible:bg-panel-2 aria-pressed:bg-ink aria-pressed:text-paper"
+              className="option"
             >
               {label}
               <span className="tabular-nums opacity-70">{count}</span>

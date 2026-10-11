@@ -74,7 +74,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
                   {book.title}
                 </span>
                 <span
-                  className={`tooltip max-w-48 px-2.5 py-1.5 group-focus:opacity-100 ${tooltipAlign(barCentre(i, books.length))}`}
+                  className={`tooltip tooltip-wide ${tooltipAlign(barCentre(i, books.length))}`}
                 >
                   <span className="block font-medium text-ink">{book.title}</span>
                   <span className="block text-ink-soft">

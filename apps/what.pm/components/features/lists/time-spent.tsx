@@ -25,7 +25,7 @@ export function TimeSpent({
         <div>
           <dt className="sr-only">Pages read</dt>
           <dd>
-            <p className="stat-figure text-3xl font-medium text-ink/75">
+            <p className="stat-figure text-4xl">
               {formatCount(spent.pages)}
             </p>
             <p className="mt-2 text-sm text-ink-soft">
@@ -41,7 +41,7 @@ export function TimeSpent({
         <div>
           <dt className="sr-only">Hours watched</dt>
           <dd>
-            <p className="stat-figure text-3xl font-medium text-ink/75">
+            <p className="stat-figure text-4xl">
               {formatCount(hours)}
             </p>
             <p className="mt-2 text-sm text-ink-soft">

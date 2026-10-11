@@ -64,7 +64,7 @@ export function SearchResults({
   if (!hasResults && hasQuery) {
     return (
       <div>
-        <p className="display text-[1.875rem] text-ink-soft sm:text-[2.5rem]">
+        <p className="display display-section text-ink-soft">
           Nothing for “{query}”.
         </p>
         {filterType !== "all" && (

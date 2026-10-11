@@ -44,7 +44,7 @@ function PaceTooltip({
   const [low, high] = point.range.map(Math.round);
 
   return (
-    <div className="grid min-w-[8rem] gap-1.5 border border-line bg-panel px-3 py-2 text-xs text-ink">
+    <div className="tooltip-box grid min-w-[8rem] gap-1.5">
       <p className="font-medium">
         {dayLabel(point.day, { month: "long", day: "numeric" })}
       </p>

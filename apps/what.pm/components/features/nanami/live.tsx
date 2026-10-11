@@ -104,7 +104,7 @@ export function Headline({
       ? `nanami has been quiet since ${clock(new Date(report.receivedAt).toISOString())}`
       : children;
   return (
-    <section className="framed flex flex-wrap items-center justify-between gap-x-6 gap-y-2 bg-panel p-5 sm:p-6">
+    <section className="framed flex flex-wrap items-center justify-between gap-x-6 gap-y-2 bg-panel p-6 sm:p-7">
       <div className="flex items-center gap-3">
         <Light status={!report || stale ? "down" : status} />
         <h2 className="card-title text-lg">{text}</h2>

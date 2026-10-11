@@ -3,6 +3,7 @@
 import { Fragment } from "react";
 import CardHead from "@nienke/ui/card-head";
 import { externalProps } from "@nienke/ui/external";
+import Panel from "@nienke/ui/panel";
 import { StatList, StatRow } from "@nienke/ui/stat-list";
 import Tag from "@nienke/ui/tag";
 import type { Check, Part, StoredReport } from "@/utils/data/nanami";
@@ -92,7 +93,7 @@ export default function NanamiStatus({ initial, renderedAt }: Props) {
       </Headline>
 
       {topology && (
-        <section aria-label="Topology" className="card hidden p-4 lg:block">
+        <section aria-label="Topology" className="panel hidden lg:block">
           <NanamiDiagram checks={checks} topology={topology} />
         </section>
       )}
@@ -104,7 +105,7 @@ export default function NanamiStatus({ initial, renderedAt }: Props) {
         {(topology?.stages ?? []).map((stage, i) => (
           <Fragment key={stage.title}>
             {i > 0 && <Arrow />}
-            <div className="card px-4 pt-4 pb-1.5 md:grid md:grid-cols-[8rem_1fr] md:gap-6 md:pb-4">
+            <div className="panel md:grid md:grid-cols-[8rem_1fr] md:gap-6">
               <CardHead
                 as="h3"
                 tag={<Tag>{String(i + 1).padStart(2, "0")}</Tag>}
@@ -126,9 +127,8 @@ export default function NanamiStatus({ initial, renderedAt }: Props) {
       </section>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <section className="card p-5 sm:p-6">
-          <CardHead as="h3">The Mac</CardHead>
-          <ul className="mt-2">
+        <Panel as="h3" id="mac-heading" title="The Mac">
+          <ul>
             {machine.map((part) => (
               <PartRow
                 key={part.name}
@@ -137,20 +137,22 @@ export default function NanamiStatus({ initial, renderedAt }: Props) {
               />
             ))}
           </ul>
-        </section>
+        </Panel>
         {report && report.facts.length > 0 && (
-          <section className="card p-5 sm:p-6">
-            <CardHead as="h3" note={stale ? "from the last report" : undefined}>
-              Facts
-            </CardHead>
-            <StatList className="mt-3 text-sm">
+          <Panel
+            as="h3"
+            id="facts-heading"
+            title="Facts"
+            note={stale ? "from the last report" : undefined}
+          >
+            <StatList className="text-sm">
               {report.facts.map(({ label, value }) => (
                 <StatRow key={label} label={label}>
                   {value}
                 </StatRow>
               ))}
             </StatList>
-          </section>
+          </Panel>
         )}
       </div>
 

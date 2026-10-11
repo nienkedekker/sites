@@ -133,7 +133,7 @@ function BookRow({
                   type="button"
                   aria-pressed={genre === current}
                   onClick={() => onGenre(genre === current ? null : genre)}
-                  className="tag cursor-pointer whitespace-nowrap transition-colors hover:bg-ink hover:text-paper aria-pressed:bg-ink aria-pressed:text-paper"
+                  className="tag whitespace-nowrap"
                 >
                   {genre}
                 </button>
@@ -229,7 +229,7 @@ function MonthSection({
       <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
         <h2
           id={`${anchor(month)}-heading`}
-          className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
+          className="display display-section text-ink"
         >
           {monthName(month)}
         </h2>
@@ -314,13 +314,13 @@ function FilterBar({
                       event.preventDefault();
                       onJump(month);
                     }}
-                    className={`whitespace-nowrap px-2 py-1 hover:bg-panel-2 aria-[current=true]:bg-ink aria-[current=true]:text-paper ${tone}`}
+                    className={`nav-link whitespace-nowrap ${tone}`}
                   >
                     {label}
                   </a>
                 ) : (
                   <span
-                    className={`whitespace-nowrap px-2 py-1 opacity-35 ${tone}`}
+                    className={`block whitespace-nowrap px-2 py-1.5 opacity-35 sm:px-3 ${tone}`}
                   >
                     {label}
                   </span>

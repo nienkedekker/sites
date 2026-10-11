@@ -74,7 +74,7 @@ function Stats({ stats }: { stats: ListeningStats }) {
               style={{ height: `${Math.max(2, (n / max) * 100)}%` }}
             />
             <span
-              className={`tooltip px-2 py-1 ${tooltipAlign(barCentre(i, weeks.length))}`}
+              className={`tooltip ${tooltipAlign(barCentre(i, weeks.length))}`}
             >
               {day(start)} – {day(start + WEEK - DAY)}:{" "}
               <span className="font-medium tabular-nums">{formatCount(n)}</span>
@@ -82,7 +82,7 @@ function Stats({ stats }: { stats: ListeningStats }) {
           </div>
         ))}
       </div>
-      <div className="mt-1.5 flex justify-between text-[0.7rem] text-ink-faint" aria-hidden="true">
+      <div className="axis-label mt-1.5 flex justify-between" aria-hidden="true">
         <span>{weeks.length} weeks ago</span>
         <span>last 7 days</span>
       </div>

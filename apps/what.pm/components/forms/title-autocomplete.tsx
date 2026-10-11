@@ -11,6 +11,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Input } from "@/components/ui/input";
+import { MatchList } from "@/components/ui/match-list";
 import type { ValidItemType } from "@/types/shared";
 import type { ExternalResult } from "@/types/external-api";
 
@@ -147,38 +148,17 @@ export function TitleAutocomplete({
         }
       />
 
-      {showList && (
-        <ul
-          id={listId}
-          role="listbox"
-          aria-label={`Matches from ${SOURCE[itemType]}`}
-          className="absolute inset-x-0 top-full z-20 mt-1 max-h-80 overflow-y-auto border border-rule bg-panel"
-        >
-          {results.map((result, i) => (
-            <li
-              key={result.id}
-              id={`${listId}-${i}`}
-              role="option"
-              aria-selected={i === active}
-              onMouseDown={(event) => event.preventDefault()}
-              onMouseEnter={() => setActive(i)}
-              onClick={() => choose(result)}
-              className={`cursor-pointer border-b border-line px-3 py-2 last:border-b-0 ${
-                i === active ? "bg-panel-2" : ""
-              }`}
-            >
-              <span className="block wrap-break-word text-sm font-medium text-ink">
-                {result.title}
-              </span>
-              {(result.year || result.creator) && (
-                <span className="mt-0.5 block truncate font-mono text-xs text-ink-soft">
-                  {[result.year, result.creator].filter(Boolean).join(" · ")}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      <MatchList
+        id={listId}
+        label={`Matches from ${SOURCE[itemType]}`}
+        matches={results}
+        type={itemType}
+        hidden={!showList}
+        active={active}
+        onActive={setActive}
+        onPick={choose}
+        className="inset-x-0"
+      />
 
       {searchable && failed && (
         <p className="mt-1.5 font-mono text-xs text-ink-faint">

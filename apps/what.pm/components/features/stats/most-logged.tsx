@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
-import CardHead from "@nienke/ui/card-head";
 import Meter from "@nienke/ui/meter";
+import Panel from "@nienke/ui/panel";
 import { SWATCH, type ItemType } from "@nienke/ui/series";
 
 interface Part {
@@ -69,12 +69,8 @@ export function MostLogged({
   const row = "group block border-b border-line py-2.5 last:border-b-0";
 
   return (
-    <section aria-labelledby={`${id}-heading`} className="panel h-full">
-      <CardHead id={`${id}-heading`} note={note}>
-        {title}
-      </CardHead>
-
-      <ol className="mt-5">
+    <Panel id={`${id}-heading`} title={title} note={note} className="h-full">
+      <ol>
         {people.map(({ name, count, type, parts, tags }) => {
           const label = (
             <span className="truncate text-sm text-ink underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-ink">
@@ -163,6 +159,6 @@ export function MostLogged({
           );
         })}
       </ol>
-    </section>
+    </Panel>
   );
 }

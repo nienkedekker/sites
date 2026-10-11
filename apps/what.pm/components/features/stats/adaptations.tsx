@@ -1,5 +1,5 @@
 import Link from "next/link";
-import CardHead from "@nienke/ui/card-head";
+import Panel from "@nienke/ui/panel";
 import { normalizeTitle, type Adaptation } from "@/utils/data/patterns";
 
 const SHOWN = 14;
@@ -127,17 +127,13 @@ export function Adaptations({ pairs }: { pairs: Adaptation[] }) {
   const half = Math.ceil(rows.length / 2);
 
   return (
-    <section aria-labelledby="adaptations-heading" className="panel">
-      <CardHead id="adaptations-heading" note="longest waits">
-        Page to screen
-      </CardHead>
-
-      <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-2">
+    <Panel id="adaptations-heading" title="Page to screen" note="longest waits">
+      <div className="grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-2">
         <Table rows={rows.slice(0, half)} longest={longest} />
         {rows.length > half && (
           <Table rows={rows.slice(half)} longest={longest} />
         )}
       </div>
-    </section>
+    </Panel>
   );
 }

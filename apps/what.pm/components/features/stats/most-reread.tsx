@@ -1,5 +1,5 @@
 import Link from "next/link";
-import CardHead from "@nienke/ui/card-head";
+import Panel from "@nienke/ui/panel";
 import { SWATCH } from "@nienke/ui/series";
 import type { Revisit } from "@/utils/data/stats";
 
@@ -7,13 +7,13 @@ const VERB = { Book: "read", Movie: "watched", Show: "watched" };
 
 export function MostReread({ titles }: { titles: Revisit[] }) {
   return (
-    <section
-      aria-labelledby="most-reread-heading"
-      className="panel flex h-full flex-col"
+    <Panel
+      id="most-reread-heading"
+      title="Most reread & rewatched"
+      align="bottom"
+      className="h-full"
     >
-      <CardHead id="most-reread-heading">Most reread &amp; rewatched</CardHead>
-
-      <ol className="mt-auto pt-6">
+      <ol>
         {titles.map(({ title, type, times }) => (
           <li key={`${type}-${title}`}>
             <Link
@@ -37,6 +37,6 @@ export function MostReread({ titles }: { titles: Revisit[] }) {
           </li>
         ))}
       </ol>
-    </section>
+    </Panel>
   );
 }

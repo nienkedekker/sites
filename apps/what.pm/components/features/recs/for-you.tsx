@@ -9,6 +9,7 @@ import { formatCount, formatDate, formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { credit } from "@/components/features/lists/credit";
 import { ColumnHeader } from "@/components/features/lists/column-header";
+import { Button } from "@/components/ui/button";
 import { Cover } from "@/components/ui/cover";
 import { ItemRow } from "@/components/ui/item-row";
 import { ReadMore } from "@/components/ui/read-more";
@@ -85,12 +86,6 @@ function PickedAt({ at }: { at: string }) {
     </>
   );
 }
-
-const primary =
-  "shrink-0 cursor-pointer bg-ink px-4 py-2 font-mono text-xs text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink";
-const quiet = "link cursor-pointer text-ink disabled:cursor-wait";
-const bordered =
-  "shrink-0 cursor-pointer border border-rule px-4 py-2 font-mono text-xs text-ink transition-colors hover:bg-panel-2";
 
 function GhostRows({ loading }: { loading: boolean }) {
   return (
@@ -218,7 +213,7 @@ export function PickColumns({
               }
             />
             {hints && (
-              <p className="mt-2 font-mono text-[0.6875rem] text-ink-faint">
+              <p className="mt-2 font-mono text-2xs text-ink-faint">
                 {hint}
               </p>
             )}
@@ -419,9 +414,9 @@ export function ForYou({
           </>
         }
         action={
-          <button type="button" disabled className={primary}>
+          <Button type="button" size="sm" disabled>
             Pick the first ones →
-          </button>
+          </Button>
         }
       />
     );
@@ -436,7 +431,7 @@ export function ForYou({
               type="button"
               onClick={cancel}
               disabled={refreshing}
-              className={quiet}
+              className="link cursor-pointer text-ink disabled:cursor-wait"
             >
               Cancel
             </button>
@@ -452,9 +447,9 @@ export function ForYou({
         title="Couldn’t pick right now."
         detail={error}
         action={
-          <button type="button" onClick={run} className={primary}>
+          <Button type="button" size="sm" onClick={run}>
             Try again
-          </button>
+          </Button>
         }
       />
     );
@@ -473,9 +468,9 @@ export function ForYou({
         }
         unspoken
         action={
-          <button type="button" onClick={run} className={bordered}>
+          <Button type="button" size="sm" variant="outline" onClick={run}>
             ↻ Ask Claude again
-          </button>
+          </Button>
         }
       />
     );
@@ -485,9 +480,9 @@ export function ForYou({
         title="Nothing picked yet."
         detail={`Claude reads your ${titles} and suggests what to try next.`}
         action={
-          <button type="button" onClick={run} className={primary}>
+          <Button type="button" size="sm" onClick={run}>
             Pick the first ones →
-          </button>
+          </Button>
         }
       />
     );

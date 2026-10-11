@@ -1,6 +1,6 @@
 import type { YearSummary } from "./summary";
-import { describeCounts, MONTHS, SERIES, SeriesRows } from "./series";
-import { barCentre, tooltipAlign } from "./tooltip";
+import { describeCounts, MONTHS, SERIES, SeriesColumn } from "./series";
+import { barCentre } from "./tooltip";
 
 export function niceScale(max: number) {
   const step = max > 30 ? 10 : 5;
@@ -53,7 +53,7 @@ export default function MediaChart({
         <p className="mt-auto pt-8 text-ink-soft">{failedMessage}</p>
       ) : (
         <div className="mt-auto flex gap-3 pt-8">
-          <div className="relative h-40 w-5 shrink-0 text-right text-[0.7rem] text-ink-faint tabular-nums">
+          <div className="axis-label relative h-40 w-5 shrink-0 text-right">
             {summary &&
               ticks.map((tick) => (
                 <span
@@ -81,11 +81,7 @@ export default function MediaChart({
               <div className="absolute inset-0 flex" aria-hidden={!summary}>
                 {MONTHS.map((name, i) => {
                   const month = months[i];
-                  const total = totals[i] ?? 0;
                   const upcoming = i + 1 > lastMonth;
-                  const segments = month
-                    ? [...SERIES].reverse().filter(({ key }) => month[key] > 0)
-                    : [];
 
                   if (!summary) {
                     return (
@@ -111,38 +107,14 @@ export default function MediaChart({
                         upcoming ? undefined : `${name}: ${describeCounts(month)}`
                       }
                     >
-                      {i === peak && total > 0 && (
-                        <span
-                          className="absolute text-[0.7rem] font-medium text-ink-soft tabular-nums"
-                          style={{
-                            bottom: `calc(${(total / top) * 100}% + 4px)`,
-                          }}
-                        >
-                          {total}
-                        </span>
-                      )}
-                      <div
-                        className="flex w-3/4 max-w-6 flex-col gap-[2px] transition-opacity group-hover:opacity-85"
-                        style={{ height: `${(total / top) * 100}%` }}
-                      >
-                        {segments.map(({ key, swatch }) => (
-                          <span
-                            key={key}
-                            className={swatch}
-                            style={{ flexGrow: month[key], flexBasis: 0 }}
-                          />
-                        ))}
-                      </div>
-
-                      {!upcoming && (
-                        <div
-                          className={`tooltip group-focus:opacity-100 ${tooltipAlign(
-                            barCentre(i, MONTHS.length)
-                          )}`}
-                        >
-                          <p className="mb-1 font-medium">{name}</p>
-                          <SeriesRows counts={month} />
-                        </div>
+                      {!upcoming && month && (
+                        <SeriesColumn
+                          counts={month}
+                          top={top}
+                          peak={i === peak}
+                          label={name}
+                          position={barCentre(i, MONTHS.length)}
+                        />
                       )}
                     </div>
                   );
@@ -151,7 +123,7 @@ export default function MediaChart({
             </div>
 
             <div
-              className="mt-2 flex text-[0.7rem] text-ink-faint"
+              className="axis-label mt-2 flex"
               aria-hidden="true"
             >
               {MONTHS.map((name, i) => (

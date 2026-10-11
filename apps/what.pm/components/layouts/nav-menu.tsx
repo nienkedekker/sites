@@ -67,7 +67,7 @@ export function NavMenu({
       <ul
         id={menuId}
         hidden={!open}
-        className="own-grain absolute left-0 top-full mt-1 min-w-40 border border-rule bg-paper py-1"
+        className="popover absolute left-0 top-full mt-1 min-w-40 py-1"
       >
         {links.map(({ href, label }) => (
           <li key={href}>
@@ -76,7 +76,7 @@ export function NavMenu({
               // Exactly this page: For you is under New releases' address
               aria-current={pathname === href ? "page" : undefined}
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-ink hover:bg-panel-2 aria-[current=page]:text-ink-soft"
+              className="option"
             >
               {label}
             </Link>

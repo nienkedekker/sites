@@ -99,12 +99,7 @@ export function SearchFilters({
               aria-pressed={active}
               disabled={empty && !active}
               onClick={() => onFilterChange(value)}
-              className={cn(
-                "tag cursor-pointer transition-colors disabled:cursor-default disabled:border-line-strong disabled:text-ink-faint",
-                active
-                  ? "bg-ink text-paper"
-                  : "hover:bg-panel-2 disabled:hover:bg-transparent",
-              )}
+              className="tag"
             >
               {swatch && (
                 <span
@@ -117,7 +112,7 @@ export function SearchFilters({
                 />
               )}
               {label}
-              <span className={cn("tabular-nums", !active && "text-ink-soft")}>
+              <span className="tabular-nums opacity-70">
                 {counts[value]}
               </span>
             </button>
@@ -166,10 +161,10 @@ export function SearchSuggestions({
             <button
               type="button"
               onClick={() => onPick(name)}
-              className="tag cursor-pointer transition-colors hover:bg-ink hover:text-paper"
+              className="tag"
             >
               {name}
-              <span className="tabular-nums opacity-60">{count}</span>
+              <span className="tabular-nums opacity-70">{count}</span>
             </button>
           </li>
         ))}

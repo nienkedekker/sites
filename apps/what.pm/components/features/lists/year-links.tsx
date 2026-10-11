@@ -56,7 +56,7 @@ export function YearLinksFor({
                 <Link
                   href={y === currentYear ? "/" : `/year/${y}`}
                   aria-current={y === activeYear ? "page" : undefined}
-                  className="block whitespace-nowrap px-2 py-1 text-ink hover:bg-panel-2 aria-[current=page]:bg-ink aria-[current=page]:text-paper"
+                  className="nav-link whitespace-nowrap"
                 >
                   {y}
                 </Link>

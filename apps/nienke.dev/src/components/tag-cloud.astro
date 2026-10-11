@@ -11,7 +11,7 @@ const level = (count: number) => Math.log(count / min) / Math.log(max / min);
 ---
 
 <section aria-labelledby="tags-heading">
-  <h2 id="tags-heading" class="display text-[2rem] text-ink sm:text-[2.5rem]">
+  <h2 id="tags-heading" class="display display-section text-ink">
     Tags
   </h2>
   <p class="mt-4 max-w-xl leading-[1.6] text-ink-soft">{tumblrTagsNote}</p>
@@ -27,7 +27,7 @@ const level = (count: number) => Math.log(count / min) / Math.log(max / min);
           style={`font-size: calc(0.875rem + ${level(count).toFixed(3)} * (clamp(1.75rem, 6vw, 3rem) - 0.875rem))`}
         >
           {name}
-          <span class="ml-0.5 font-mono text-[0.625rem] text-ink-faint">
+          <span class="ml-0.5 font-mono text-2xs text-ink-faint">
             {count}
           </span>
         </li>

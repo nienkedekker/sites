@@ -77,7 +77,7 @@ export function NavLinksFor({
                 aria-current={
                   isWithin(pathname, CREATE_LINK.href) ? "page" : undefined
                 }
-                className="block border border-rule px-3 py-1 transition-colors hover:bg-ink hover:text-paper aria-[current=page]:bg-ink aria-[current=page]:text-paper"
+                className="nav-link border border-rule"
               >
                 {CREATE_LINK.label}
               </Link>

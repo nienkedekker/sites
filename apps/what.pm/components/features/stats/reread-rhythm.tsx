@@ -1,5 +1,5 @@
 import Link from "next/link";
-import CardHead from "@nienke/ui/card-head";
+import Panel from "@nienke/ui/panel";
 import { SWATCH } from "@nienke/ui/series";
 import { tooltipAlign } from "@nienke/ui/tooltip";
 import type { Rhythm } from "@/utils/data/patterns";
@@ -50,14 +50,14 @@ export function RereadRhythm({
   const ticks = axisYears(span);
 
   return (
-    <section aria-labelledby="reread-rhythm-heading" className="panel">
-      <CardHead id="reread-rhythm-heading" note={`${first}–${currentYear}`}>
-        Reread rhythm
-      </CardHead>
-
+    <Panel
+      id="reread-rhythm-heading"
+      title="Reread rhythm"
+      note={`${first}–${currentYear}`}
+    >
       {/* Rows share the parent's columns, so every strip, and the axis below
           them, lines up whatever the width of its "every" label */}
-      <ol className="mt-6 grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 sm:grid-cols-[minmax(0,14rem)_1fr_auto]">
+      <ol className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 sm:grid-cols-[minmax(0,14rem)_1fr_auto]">
         {rhythms.map(({ title, type, season, years, every, due }) => {
           const name = season ? `${title}, season ${season}` : title;
           return (
@@ -90,7 +90,7 @@ export function RereadRhythm({
                 ))}
 
                 <span
-                  className={`tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left ${tooltipAlign(0.5)}`}
+                  className={`tooltip tooltip-wide ${tooltipAlign(0.5)}`}
                   aria-hidden="true"
                 >
                   <span className="block font-medium">{name}</span>
@@ -123,7 +123,7 @@ export function RereadRhythm({
           aria-hidden="true"
           className="col-span-2 grid grid-cols-subgrid pt-1 sm:col-span-3"
         >
-          <span className="col-span-2 flex gap-[3px] font-mono text-[0.7rem] text-ink-faint tabular-nums sm:col-span-1 sm:col-start-2">
+          <span className="axis-label col-span-2 flex gap-[3px] sm:col-span-1 sm:col-start-2">
             {span.map((year) => (
               <span key={year} className="relative h-4 min-w-0 flex-1">
                 {ticks.has(year) && (
@@ -136,6 +136,6 @@ export function RereadRhythm({
           </span>
         </li>
       </ol>
-    </section>
+    </Panel>
   );
 }

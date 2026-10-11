@@ -223,7 +223,7 @@ export default function SearchForm({
 
       {failed && !isSearching && (
         <div role="alert">
-          <p className="display text-[1.875rem] text-ink-soft sm:text-[2.5rem]">
+          <p className="display display-section text-ink-soft">
             Search didn’t go through.
           </p>
           <p className="mt-3 text-ink-soft">

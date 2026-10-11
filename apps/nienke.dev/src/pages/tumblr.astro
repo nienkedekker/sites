@@ -29,7 +29,7 @@ const sections = tumblrSections.map((section) => ({
     {
       sections.map(({ id, title, note, posts }) => (
         <section aria-labelledby={id} class="border-t border-line-strong pt-10">
-          <h2 id={id} class="display text-[2rem] text-ink sm:text-[2.5rem]">
+          <h2 id={id} class="display display-section text-ink">
             {title}
           </h2>
           <p class="mt-4 max-w-xl leading-[1.6] text-ink-soft">{note}</p>
@@ -109,7 +109,7 @@ const sections = tumblrSections.map((section) => ({
                   )}
 
                   {tags.length > 0 && (
-                    <p class="mt-2 font-mono text-[0.7rem] leading-[1.6] text-ink-faint [overflow-wrap:anywhere]">
+                    <p class="mt-2 font-mono text-2xs leading-[1.6] text-ink-faint [overflow-wrap:anywhere]">
                       {tags.map((tag) => `#${tag}`).join(" ")}
                     </p>
                   )}

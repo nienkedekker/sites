@@ -90,7 +90,7 @@ const entries = archiveCollections.map((collection) => ({
     <section aria-labelledby="index-heading">
       <h2
         id="index-heading"
-        class="display text-[2rem] text-ink sm:text-[2.5rem]"
+        class="display display-section text-ink"
       >
         Index of /archive
       </h2>
@@ -170,7 +170,7 @@ const entries = archiveCollections.map((collection) => ({
     <section aria-labelledby="timeline-heading">
       <h2
         id="timeline-heading"
-        class="display text-[2rem] text-ink sm:text-[2.5rem]"
+        class="display display-section text-ink"
       >
         Timeline
       </h2>
@@ -193,7 +193,7 @@ const entries = archiveCollections.map((collection) => ({
                           <span class="text-sm text-ink underline decoration-line-strong underline-offset-4 transition-colors group-hover:decoration-ink [overflow-wrap:anywhere]">
                             {era.name}
                           </span>
-                          <span class="font-mono text-[0.7rem] text-ink-faint">
+                          <span class="font-mono text-2xs text-ink-faint">
                             {era.years}
                           </span>
                         </span>
@@ -224,7 +224,7 @@ const entries = archiveCollections.map((collection) => ({
               ticks.map((year) => (
                 <span
                   class:list={[
-                    "absolute font-mono text-[0.7rem] text-ink-faint",
+                    "axis-label absolute",
                     year > archiveEnd - 3 && "-translate-x-full",
                   ]}
                   style={`left: ${x(year)}%`}
@@ -267,7 +267,7 @@ const entries = archiveCollections.map((collection) => ({
                         <span
                           aria-hidden="true"
                           class:list={[
-                            "tooltip max-w-[min(16rem,calc(100vw-7rem))] text-left group-focus:opacity-100",
+                            "tooltip tooltip-wide",
                             align(era),
                           ]}
                         >
@@ -294,7 +294,7 @@ const entries = archiveCollections.map((collection) => ({
                 ticks.map((year) => (
                   <span
                     class:list={[
-                      "absolute font-mono text-[0.7rem] text-ink-faint",
+                      "axis-label absolute",
                       year > archiveEnd - 3 && "-translate-x-full",
                     ]}
                     style={`left: ${x(year)}%`}

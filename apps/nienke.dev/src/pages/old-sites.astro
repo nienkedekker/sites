@@ -39,7 +39,7 @@ const snapshotDate = (date: string) =>
               >
                 {years}
               </a>
-              <h2 class="display mt-3 text-[2rem] text-ink [overflow-wrap:anywhere] sm:text-[2.5rem]">
+              <h2 class="display display-section mt-3 text-ink [overflow-wrap:anywhere]">
                 {domain.split(/(?<=[./])/).map((part, i) => (
                   <>
                     {i > 0 && <wbr />}
@@ -69,7 +69,7 @@ const snapshotDate = (date: string) =>
                   <time datetime={date}>{snapshotDate(date)}</time>
                 </a>
 
-                <h3 class="display mt-4 text-[1.75rem] text-ink [overflow-wrap:anywhere] sm:text-[2.125rem]">
+                <h3 class="display display-sub mt-4 text-ink [overflow-wrap:anywhere]">
                   {title}
                 </h3>
 
@@ -105,7 +105,7 @@ const snapshotDate = (date: string) =>
                 )}
 
                 {quote && (
-                  <blockquote class="mt-5 max-w-xl border-l-2 border-line-strong pl-4 font-mono text-[0.8125rem] leading-[1.65] text-ink">
+                  <blockquote class="mt-5 max-w-xl border-l-2 border-line-strong pl-4 font-mono text-xs leading-[1.65] text-ink">
                     {quote}
                   </blockquote>
                 )}
@@ -116,7 +116,7 @@ const snapshotDate = (date: string) =>
                       code={source.code}
                       lang={source.lang ?? "html"}
                       theme={snippetTheme}
-                      class="border border-rule p-4 font-mono text-[0.75rem] leading-[1.65]"
+                      class="border border-rule p-4 font-mono text-xs leading-[1.65]"
                     />
                     <figcaption class="mt-4 font-mono text-xs leading-[1.6] text-ink-faint">
                       {source.label}

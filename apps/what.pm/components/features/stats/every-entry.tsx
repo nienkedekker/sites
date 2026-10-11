@@ -1,5 +1,5 @@
 import Link from "next/link";
-import CardHead from "@nienke/ui/card-head";
+import Panel from "@nienke/ui/panel";
 import { formatCount } from "@nienke/ui/format";
 import { describeCounts, SERIES, SWATCH } from "@nienke/ui/series";
 import type { YearEntries } from "@/utils/data/stats";
@@ -16,15 +16,12 @@ export function EveryEntry({ years }: { years: YearEntries[] }) {
   const total = years.reduce((sum, { entries }) => sum + entries.length, 0);
 
   return (
-    <section aria-labelledby="every-entry-heading" className="panel">
-      <CardHead
-        id="every-entry-heading"
-        note={`${formatCount(total)} in ${years.length} years`}
-      >
-        Every entry
-      </CardHead>
-
-      <ol className="mt-6 space-y-2">
+    <Panel
+      id="every-entry-heading"
+      title="Every entry"
+      note={`${formatCount(total)} in ${years.length} years`}
+    >
+      <ol className="space-y-2">
         {years.map(({ year, entries }) => (
           <li key={year}>
             {entries.length > 0 ? (
@@ -64,6 +61,6 @@ export function EveryEntry({ years }: { years: YearEntries[] }) {
           </li>
         ))}
       </ol>
-    </section>
+    </Panel>
   );
 }

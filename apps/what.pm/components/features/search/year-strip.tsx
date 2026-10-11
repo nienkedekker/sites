@@ -1,13 +1,13 @@
 import Link from "next/link";
-import CardHead from "@nienke/ui/card-head";
 import { formatPlural } from "@nienke/ui/format";
+import Panel from "@nienke/ui/panel";
 import {
   describeCounts,
   SERIES,
-  SeriesRows,
+  SeriesColumn,
   type SeriesCounts,
 } from "@nienke/ui/series";
-import { barCentre, tooltipAlign } from "@nienke/ui/tooltip";
+import { barCentre } from "@nienke/ui/tooltip";
 import { Item } from "@/types";
 
 interface YearStripProps {
@@ -45,20 +45,17 @@ export function YearStrip({ results, years }: YearStripProps) {
   const yearsWithMatches = matchYears.length;
 
   return (
-    <section aria-labelledby="year-strip-heading" className="panel">
-      <CardHead
-        id="year-strip-heading"
-        note={
-          <>
-            {formatPlural(results.length, "match", "matches")} in{" "}
-            {formatPlural(yearsWithMatches, "year")}
-          </>
-        }
-      >
-        Across the years
-      </CardHead>
-
-      <ol className="mt-10 flex h-24 items-end gap-[3px] border-b border-line-strong">
+    <Panel
+      id="year-strip-heading"
+      title="Across the years"
+      note={
+        <>
+          {formatPlural(results.length, "match", "matches")} in{" "}
+          {formatPlural(yearsWithMatches, "year")}
+        </>
+      }
+    >
+      <ol className="mt-4 flex h-24 items-end gap-[3px] border-b border-line-strong">
         {range.map((year, i) => {
           const counts = byYear.get(year);
           const sum = total(counts);
@@ -74,50 +71,23 @@ export function YearStrip({ results, years }: YearStripProps) {
                 aria-label={`${year}: ${describeCounts(counts, { skipZero: true })}`}
                 className="group relative flex h-full w-full items-end justify-center"
               >
-                {sum === peak && (
-                  <span
-                    className="absolute font-mono text-[0.7rem] font-medium text-ink-soft tabular-nums"
-                    style={{ bottom: "calc(100% + 4px)" }}
-                    aria-hidden="true"
-                  >
-                    {sum}
-                  </span>
-                )}
-                <span
-                  className="flex w-full max-w-5 flex-col gap-px transition-opacity group-hover:opacity-80"
-                  style={{ height: `${(sum / peak) * 100}%` }}
-                >
-                  {[...SERIES]
-                    .reverse()
-                    .filter(({ key }) => counts[key] > 0)
-                    .map(({ key, swatch }) => (
-                      <span
-                        key={key}
-                        className={swatch}
-                        style={{ flexGrow: counts[key], flexBasis: 0 }}
-                      />
-                    ))}
-                </span>
-
-                <div
-                  className={`tooltip ${tooltipAlign(barCentre(i, range.length))}`}
-                >
-                  <p className="mb-1 font-medium">{year}</p>
-                  <SeriesRows counts={counts} skipZero />
-                </div>
+                <SeriesColumn
+                  counts={counts}
+                  top={peak}
+                  peak={sum === peak}
+                  label={year}
+                  position={barCentre(i, range.length)}
+                />
               </Link>
             </li>
           );
         })}
       </ol>
 
-      <div
-        className="mt-2 flex justify-between font-mono text-[0.7rem] text-ink-faint tabular-nums"
-        aria-hidden="true"
-      >
+      <div className="axis-label mt-2 flex justify-between" aria-hidden="true">
         <span>{range[0]}</span>
         <span>{range[range.length - 1]}</span>
       </div>
-    </section>
+    </Panel>
   );
 }
