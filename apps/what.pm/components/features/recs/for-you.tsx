@@ -80,6 +80,8 @@ const primary =
   "shrink-0 cursor-pointer bg-ink px-4 py-2 font-mono text-xs text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink";
 // Like + Up next: an action that goes with the line it's on
 const quiet = "link cursor-pointer text-ink disabled:cursor-wait";
+const bordered =
+  "shrink-0 cursor-pointer border border-rule px-4 py-2 font-mono text-xs text-ink transition-colors hover:bg-panel-2";
 
 // Where there's nothing yet, or while Claude is at it: rows to come, fading
 // down the column, pulsing while loading
@@ -235,23 +237,27 @@ export function PickColumns({
   );
 }
 
+// With unspoken, the words are for screen readers only, and the action
+// stands on its own on the right
 function StatusBand({
   title,
   detail,
   action,
   busy = false,
+  unspoken = false,
 }: {
   title: string;
   detail: ReactNode;
   action: ReactNode;
   busy?: boolean;
+  unspoken?: boolean;
 }) {
   return (
     <div
       aria-busy={busy}
-      className="mb-10 flex flex-wrap items-center justify-between gap-x-8 gap-y-4"
+      className={`mb-10 flex flex-wrap items-center gap-x-8 gap-y-4 ${unspoken ? "justify-end" : "justify-between"}`}
     >
-      <div aria-live="polite" className="min-w-0">
+      <div aria-live="polite" className={unspoken ? "sr-only" : "min-w-0"}>
         <p className="text-ink">{title}</p>
         <p className="mt-1 font-mono text-xs text-ink-soft">{detail}</p>
       </div>
@@ -464,13 +470,16 @@ export function ForYou({
         }
         detail={
           <>
-            <PickedAt at={batchAt} /> · based on {titles} ·{" "}
-            <button type="button" onClick={run} className={quiet}>
-              ↻ Pick again
-            </button>
+            <PickedAt at={batchAt} /> · based on {titles}
           </>
         }
-        action={null}
+        // The picks speak for themselves; only the way to new ones shows
+        unspoken
+        action={
+          <button type="button" onClick={run} className={bordered}>
+            ↻ Pick again
+          </button>
+        }
       />
     );
   } else {
