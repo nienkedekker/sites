@@ -145,7 +145,11 @@ function PickRow({
         </h3>
         {meta && <p className="mt-1 text-sm text-ink-soft">{meta}</p>}
         <div className="mt-1">
-          <ReadMore clamp="line-clamp-2" className="text-sm text-ink-soft">
+          <ReadMore
+            clamp="line-clamp-2"
+            className="text-sm text-ink-soft"
+            toggle="text"
+          >
             {pick.reason}
           </ReadMore>
         </div>
