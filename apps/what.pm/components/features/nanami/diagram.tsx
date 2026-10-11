@@ -1,9 +1,6 @@
 import { externalProps } from "@nienke/ui/external";
 import type { Check, Link, Part, Status, Topology } from "@/utils/data/nanami";
 
-// Everything is laid out on a fixed grid and scaled to fit. Columns 1 to 4 sit
-// inside nanami's outline, 0 and 5 outside it. The gap after column 2 is wider,
-// so two buses can run through it. What goes where comes with nanami's report
 const NODE = { w: 168, h: 58 };
 const COLUMN_X = [16, 258, 486, 754, 982, 1230];
 const rowY = (row: number) => 86 + row * 92;
@@ -71,7 +68,6 @@ interface Props {
   topology: Topology;
 }
 
-// Geist Mono's letters are 0.6em wide, at the labels' 12px
 const LABEL_CHAR = 7.2;
 
 export default function NanamiDiagram({ checks, topology }: Props) {

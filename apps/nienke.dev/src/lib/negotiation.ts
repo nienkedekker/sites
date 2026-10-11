@@ -76,7 +76,6 @@ export async function negotiate(
 ): Promise<Response> {
   const url = new URL(request.url);
   const path = pagePath(url.searchParams.get("path") ?? url.pathname);
-  // Nothing acceptable falls back to HTML rather than a 406, which RFC 9110 §12.5.1 allows.
   const type = preferredType(request.headers.get("accept"), [HTML, MARKDOWN]) ?? HTML;
   const isPage = pages.includes(path);
 

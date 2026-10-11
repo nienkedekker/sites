@@ -10,7 +10,6 @@ import { getJson } from "@/utils/server/external-api";
 const ENDPOINT = new URL("https://api.hardcover.app/v1/graphql");
 const MONTHS_BACK = 2;
 const MONTHS_AHEAD = 6;
-// Fewer shelves than this and it's mostly self-published or a data stub
 const MIN_READERS = 5;
 
 // Two top-level fields, so two requests against Hardcover's limits: books out
@@ -55,7 +54,6 @@ const QUERY = `query Recent($from: date!, $today: date!, $to: date!) {
 
 const isoDate = (date: Date) => date.toISOString().slice(0, 10);
 
-// The token goes in as is, or with "Bearer " added when it was saved without
 function authorization() {
   const token = process.env.HARDCOVER_API_TOKEN?.trim() ?? "";
   return token.startsWith("Bearer ") ? token : `Bearer ${token}`;

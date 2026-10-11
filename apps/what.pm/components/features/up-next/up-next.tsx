@@ -231,7 +231,6 @@ function QueueRow({
   const [error, setError] = useState<string | null>(null);
   const href = sourceOf({ ...item, author: item.creator })?.href;
 
-  // Starting logs it to this year as in progress, which a movie can't be
   const start = () => {
     setError(null);
     startTransition(async () => {

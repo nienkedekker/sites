@@ -11,7 +11,6 @@ const SIZE = {
   small: "h-[60px] w-[44px]",
 };
 
-// "The Hobbit" files under H
 const initial = (title: string) =>
   title
     .trim()

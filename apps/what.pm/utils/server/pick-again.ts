@@ -65,7 +65,6 @@ export async function pickAgain(
     batch_at: batchAt,
   }));
 
-  // Upsert, then clear the older batch, so a failed save keeps the old picks
   const { error: saveError } = await supabase
     .from("recommendations")
     .upsert(rows, { onConflict: "itemtype,external_id" });

@@ -26,8 +26,6 @@ const SKIP_PREFIXES = [
   "/markdown",
 ];
 
-// Which Markdown version a path has. "skip" leaves the request to Next as-is;
-// "missing" is a path no page answers, so it gets a Markdown 404.
 export function markdownTarget(pathname: string): MarkdownTarget {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
 

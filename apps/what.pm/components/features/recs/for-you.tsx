@@ -56,8 +56,6 @@ const fields = (pick: ForYouPick, extra: Record<string, string> = {}) => {
   return data;
 };
 
-// The minute, read on the client only: the server can't know how long ago
-// the picks were when the page is read
 const minuteNow = () => Math.floor(Date.now() / 60_000);
 const noChange = () => () => {};
 

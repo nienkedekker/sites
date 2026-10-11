@@ -51,7 +51,6 @@ async function NewReleases() {
       supabase.from("wanted").select("title").eq("itemtype", "Book"),
       renderTime(),
     ]);
-    // Amsterdam's date, so a book counts as out from midnight here
     today = new Date(now).toLocaleDateString("sv-SE", {
       timeZone: "Europe/Amsterdam",
     });

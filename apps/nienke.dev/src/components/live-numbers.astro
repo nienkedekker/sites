@@ -19,7 +19,6 @@ const filled = fillNumbers(
   import { liveNumbers } from "../lib/live-numbers";
   import { getSummary } from "../lib/whatpm";
 
-  // The build filled these in, but the log and WaniKani move on between deploys
   async function refresh() {
     const spans = [...document.querySelectorAll<HTMLElement>("[data-live]")];
     if (spans.length === 0) return;

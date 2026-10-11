@@ -12,7 +12,6 @@ const LIGHT: Record<Lit, { swatch: string; label: string }> = {
   unknown: { swatch: "border border-line-strong", label: "No report" },
 };
 
-// Home is in Amsterdam, and a fixed zone keeps the server and browser render the same
 export const clock = (iso: string) =>
   new Date(iso).toLocaleString("en-GB", {
     timeZone: "Europe/Amsterdam",

@@ -80,7 +80,6 @@ async function Recs() {
       upNext: wanted.has(`${rec.itemtype}|${rec.external_id}`),
     }));
     logCount = log.items.length;
-    // The newest batch, as types used to be picked on their own
     batchAt =
       (data as Rec[]).reduce<string | null>(
         (newest, rec) =>

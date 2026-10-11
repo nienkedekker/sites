@@ -7,8 +7,6 @@ const calendar = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
-// The date on my calendar, so something logged just after midnight on the
-// 1st counts toward the new month and not the one UTC is still in
 export function localDate(date: Date) {
   const parts = Object.fromEntries(
     calendar

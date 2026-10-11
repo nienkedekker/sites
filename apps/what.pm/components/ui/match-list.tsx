@@ -7,8 +7,6 @@ import type { ValidItemType } from "@/types/shared";
 
 type Match = ExternalResult & { itemtype?: ValidItemType };
 
-// The listbox under a combobox: the input keeps focus and points at the
-// active row with aria-activedescendant, so rows are `${id}-${index}`
 export function MatchList<T extends Match>({
   id,
   label,

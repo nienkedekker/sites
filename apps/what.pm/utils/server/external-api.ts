@@ -242,8 +242,6 @@ async function seasonRuntime(
     return sumRuntime(await episodesOf(season));
   }
 
-  // A single TMDB season, or one I'm past: the season I logged is one of the
-  // parts of TMDB's last season (My Dress-Up Darling S2 is its S1, eps 13–24)
   const last = Math.max(0, ...numbers);
   if (last === 0) return null;
   const part = numbers.includes(season) ? 0 : season - last;

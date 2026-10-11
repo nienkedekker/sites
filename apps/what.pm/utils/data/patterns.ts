@@ -145,8 +145,6 @@ export function rereadRhythms(
     );
 }
 
-// `before` means even the earliest log was a reread or rewatch, so the first
-// time happened before I started logging and its year isn't known
 export interface Adaptation {
   book: { title: string; author: string; year: number; before: boolean };
   screen: {
@@ -193,8 +191,6 @@ export const normalizeTitle = (title: string) =>
 
 const withoutBrackets = (title: string) => title.replace(/\([^)]*\)/g, " ");
 
-// "Dune: Part Two" is an adaptation of "Dune", but "The Hunger Games:
-// Catching Fire" is the next book's film, not the first one's
 function titlesMatch(book: string, screen: string) {
   const a = normalizeTitle(withoutBrackets(book));
   const b = normalizeTitle(withoutBrackets(screen));

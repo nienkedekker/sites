@@ -72,9 +72,6 @@ const decode = (text: string) =>
     return ENTITIES[name.toLowerCase()] ?? entity;
   });
 
-// Hardcover's descriptions are bits of HTML. Only italics, bold and line
-// breaks are kept, as plain runs of text the page draws itself; every other
-// tag goes, so nothing in a description is ever put on the page as HTML
 export function descriptionRuns(html: string): Run[] {
   const flat = html
     .replace(/<br\s*\/?>/gi, "\n")
@@ -210,7 +207,5 @@ export function genresOf(books: UpcomingBook[]) {
 export const matchesGenres = (book: UpcomingBook, genres: Set<string>) =>
   genres.size === 0 || book.genres.some((genre) => genres.has(genre));
 
-// Titles to compare by: without a subtitle, since Hardcover, Open Library and
-// the log don't always agree on one ("Ninth House" or "Ninth House: A Novel")
 export const titleKey = (title: string) =>
   normalizeTitle(title.split(/[:(]/)[0]);

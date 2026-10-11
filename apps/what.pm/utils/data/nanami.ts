@@ -87,7 +87,6 @@ export interface StoredReport extends Report {
   receivedAt: number;
 }
 
-// nanami pushes every minute, so three missed pushes means it's off, asleep or offline
 export const STALE_AFTER_MS = 3 * 60 * 1000;
 
 export const isStale = (report: StoredReport | null, now = Date.now()) =>
@@ -169,7 +168,6 @@ function parsePart(value: unknown): Part {
   >;
   need(isId(id) && text(name, 40) !== null && text(role, 40) !== null);
   need(optional(check, isId));
-  // Only links to real web pages; React would refuse javascript: anyway
   need(
     optional(
       href,

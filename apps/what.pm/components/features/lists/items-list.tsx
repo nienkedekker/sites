@@ -23,7 +23,6 @@ export default async function ItemsList({ year }: { year: number }) {
   if (!itemsResult.success) throw new Error(itemsResult.error);
 
   const validatedItems = itemsResult.data;
-  // Everything is listed, but only what I finished is counted
   const counted = validatedItems.filter(isCounted);
   const now = new Date(await renderTime());
   const isCurrentYear = year === localDate(now).year;

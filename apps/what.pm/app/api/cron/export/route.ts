@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Backups are optional, so a log without an R2 bucket skips them quietly
     if (!hasBackups()) {
       return NextResponse.json({ skipped: "no bucket" });
     }

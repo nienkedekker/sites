@@ -47,7 +47,6 @@ export const creatorOf = (item: TypedItem) =>
 const showKey = (item: TypedItem) =>
   item.external_id ?? normalizeTitle(item.title);
 
-// Older years were imported in bulk, so their created_at is the import date
 function loggedAt(item: TypedItem) {
   const created = item.created_at ? Date.parse(item.created_at) : NaN;
   if (

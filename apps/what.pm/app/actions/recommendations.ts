@@ -85,7 +85,6 @@ export async function wantRecommendation(
       console.error("Database error saving wanted item:", error);
       return { error: "Unable to save that pick. Please try again." };
     }
-    // The pick stays, marked as on up next, until the next batch replaces it
 
     updateTag(WANTED_TAG);
     revalidatePath("/discover/for-you");
@@ -171,7 +170,6 @@ export async function removeWantedMany(
   }
 }
 
-// Title search has no creator for shows
 async function showCreator(id: string) {
   const show = await getJson<{ created_by?: { name: string }[] }>(
     tmdbUrl(`/tv/${id}`),

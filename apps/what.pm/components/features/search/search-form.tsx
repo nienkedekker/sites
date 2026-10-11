@@ -50,8 +50,6 @@ export default function SearchForm({
   const lastSearch = useRef<string | null>(null);
   const inFlight = useRef<AbortController | null>(null);
 
-  // Submitting or picking a suggestion searches right away, and the debounce
-  // then sees the same query, so `force` is only for searching again on purpose
   const runSearch = (rawQuery: string, force = false) => {
     const trimmed = rawQuery.trim();
     if (trimmed.length > 0 && trimmed.length < MIN_QUERY_LENGTH) return;

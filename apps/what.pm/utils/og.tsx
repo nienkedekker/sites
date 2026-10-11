@@ -26,8 +26,6 @@ export const SERIES = [
 type SeriesKey = (typeof SERIES)[number]["key"];
 export type Counts = Record<SeriesKey, number>;
 
-// Read from disk so the share images never depend on the network at build,
-// and cached so reading them doesn't stop the images from prerendering
 export async function loadFonts() {
   "use cache";
   cacheLife("max");

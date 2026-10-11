@@ -47,7 +47,6 @@ export async function GET(
     {
       ...OG_SIZE,
       fonts,
-      // ImageResponse caches for a year by default, but genres grow
       headers: {
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
       },

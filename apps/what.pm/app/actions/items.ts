@@ -71,7 +71,6 @@ export const createItemAction = async (
       author: validatedData.author || null,
       director: validatedData.director || null,
       season: validatedData.season || null,
-      // Not finishing ends it, so it can't still be in progress
       in_progress:
         validatedData.itemtype === "Movie"
           ? null
@@ -181,8 +180,6 @@ export const startUpNextAction = async (
       console.error("Database error starting up next item:", error);
       return { error: "Unable to save that. Please try again." };
     }
-    // Up next already hides what's logged since it was added, so a failed
-    // clear only leaves a row
     const { error: clearError } = await supabase
       .from("wanted")
       .delete()
@@ -262,7 +259,6 @@ export const updateItemAction = async (
       author: validatedData.author || null,
       director: validatedData.director || null,
       season: validatedData.season || null,
-      // Not finishing ends it, so it can't still be in progress
       in_progress:
         validatedData.itemtype === "Movie"
           ? null

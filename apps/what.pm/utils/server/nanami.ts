@@ -27,8 +27,6 @@ export function isNanami(authorization: string | null) {
   return !!token && sameSecret(authorization ?? "", `Bearer ${token}`);
 }
 
-// The report says what runs at home, so being signed in isn't enough: it's
-// for the owner only, the same check the database's policies make
 export async function isOwner() {
   const supabase = await createClientForServer();
   const { data } = await supabase.rpc("is_owner");

@@ -4,7 +4,6 @@ export const splitNames = (value: string | null) =>
     .map((name) => name.trim())
     .filter(Boolean);
 
-// "A.D. Sui" and "A. D. Sui", "Colm Tóibín" and "Colm Toibin"
 export const nameKey = (name: string) =>
   name
     .toLowerCase()

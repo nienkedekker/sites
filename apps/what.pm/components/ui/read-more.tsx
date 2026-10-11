@@ -35,7 +35,6 @@ export function ReadMore({
     const text = (
       <span
         ref={setElement}
-        // The clamp sets its own display, so block is only for the full text
         className={`transition-colors group-hover/more:text-ink ${className} ${clamped || "block"}`}
       >
         {children}

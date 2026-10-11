@@ -25,7 +25,6 @@ const AuthCtx = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  // Bumped on every auth event, so a slow syncSession can't undo a later one
   const version = useRef(0);
 
   useEffect(() => {

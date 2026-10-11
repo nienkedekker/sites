@@ -22,7 +22,6 @@ import {
   type UpcomingBook,
 } from "@/utils/data/upcoming";
 
-// Release dates are calendar days, so read them in UTC to keep the day
 const day = (date: string) =>
   new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", {
     timeZone: "UTC",
@@ -361,7 +360,6 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
   const shownKey = sections.map(({ month }) => month).join(" ");
 
   const [active, setActive] = useState<string | null>(null);
-  // The month marked, read where state would be a render behind
   const activeRef = useRef<string | null>(null);
   const placed = useRef<{ genre: string | null; month: string | null }>(null);
 
@@ -378,10 +376,6 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
         ?.scrollIntoView({ behavior: "instant", block: "start" });
   };
 
-  // Follow the scroll: the month in view is the first one in the band under
-  // the bar, or the one above while a gap between months passes, or the first
-  // at the top of the page. The address is left alone, so opening the page
-  // again never lands halfway down
   useEffect(() => {
     const sections = [
       ...document.querySelectorAll<HTMLElement>("[data-month]"),
@@ -410,9 +404,6 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
     return () => observer.disconnect();
   }, [shownKey]);
 
-  // The page opens at the top, whatever the address says. A genre keeps the
-  // month in view when it has books then, and starts from the top when it
-  // doesn't; Back and Forward go to the month clicked then
   useEffect(() => {
     const last = placed.current;
     placed.current = { genre, month: monthParam };

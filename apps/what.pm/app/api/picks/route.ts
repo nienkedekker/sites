@@ -6,8 +6,6 @@ import { createClientForServer } from "@/utils/supabase/server";
 
 export const maxDuration = 300;
 
-// Picking again runs here rather than as a server action, so closing the
-// request (Cancel on the page) stops it: request.signal goes on to Claude
 export async function POST(request: NextRequest) {
   // Only from the site itself, since a run costs a Claude call
   const origin = request.headers.get("origin");

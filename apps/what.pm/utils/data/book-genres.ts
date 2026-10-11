@@ -32,7 +32,6 @@ export function bookGenres(subjects: string[] = []): string[] {
     .map((subject) => subject.toLowerCase())
     .filter((subject) => !SHELF.test(subject));
   const fiction = lower.some((subject) => isFiction.test(subject));
-  // A novel tagged "history" or "biography" is about those, not one of them
   const rules = fiction ? GENRES : [...GENRES, ...NONFICTION_GENRES];
   const match = rules.find(([, pattern]) =>
     lower.some((subject) => pattern.test(subject)),

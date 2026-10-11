@@ -11,7 +11,6 @@ export interface Era {
   start: number;
   end: number;
   href: string;
-  // For dates I only remember roughly.
   fuzzy?: boolean;
 }
 
@@ -87,7 +86,6 @@ export const archiveCollections: Collection[] = [
     title: "Tumblr",
     years: firstAndLast(tumblrBlogs),
     items: `${tumblrPosts.length} posts · ${fandoms.length} interests`,
-    // The Tumblr export only has dates, not times.
     modified: tumblrPosts
       .map(({ date }) => date)
       .sort()

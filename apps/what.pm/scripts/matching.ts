@@ -24,8 +24,6 @@ export interface TmdbShow {
   first_air_date?: string;
 }
 
-// Logged titles sometimes carry how I watched it ("3D", "IMAX", "(The Final
-// Cut)") or a note ("(Q&A)"), which the sources don't have
 export const cleanTitle = (title: string) =>
   title
     .replace(/\([^)]*\)/g, " ")
@@ -33,9 +31,6 @@ export const cleanTitle = (title: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-// 2 for the same title, 1 when the source only adds a subtitle ("Wolf Hall:
-// A Novel"), 0 otherwise. A logged "Mistborn: The Hero of Ages" never
-// matches plain "Mistborn"
 export function titleScore(
   logged: string,
   ...candidates: (string | undefined)[]
@@ -72,8 +67,6 @@ export interface OpenLibraryDoc {
   author_name?: string[];
 }
 
-// The title alone isn't enough: OpenLibrary also has study guides, critical
-// editions and movie companions with the same title by someone else
 export function pickBook(docs: OpenLibraryDoc[], item: TypedItem) {
   const byAuthor = docs.filter((doc) =>
     overlaps(item.author, doc.author_name ?? []),
