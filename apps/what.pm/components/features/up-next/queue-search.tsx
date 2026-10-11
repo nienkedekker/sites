@@ -8,6 +8,7 @@ import {
   type RefObject,
 } from "react";
 import { Cover } from "@/components/ui/cover";
+import { SearchField } from "@/components/ui/search-field";
 import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
 import type { ExternalResult } from "@/types/external-api";
@@ -137,36 +138,30 @@ export function QueueSearch({
           </button>
         ))}
       </div>
-      <div className="relative">
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setOpen(false)}
-          onKeyDown={handleKeyDown}
-          placeholder={`Search ${SEARCHING[itemType]}`}
-          aria-label={`Search ${SEARCHING[itemType]}`}
-          role="combobox"
-          autoComplete="off"
-          spellCheck={false}
-          aria-autocomplete="list"
-          aria-expanded={shown}
-          aria-controls={listId}
-          aria-activedescendant={shown ? `${listId}-${active}` : undefined}
-          className="block w-full border border-rule bg-panel py-4 pl-5 pr-28 text-[22px] text-ink placeholder:text-ink-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-        />
-        <span
-          className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-faint"
-          aria-hidden="true"
-        >
-          ↵ to add
-        </span>
-
+      <SearchField
+        ref={inputRef}
+        label={`Search ${SEARCHING[itemType]}`}
+        value={query}
+        onValueChange={(value) => {
+          setQuery(value);
+          setOpen(true);
+        }}
+        onClear={() => {
+          setQuery("");
+          setMatches([]);
+          inputRef.current?.focus();
+        }}
+        hint="↵ to add"
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onKeyDown={handleKeyDown}
+        placeholder={`Search ${SEARCHING[itemType]}`}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={shown}
+        aria-controls={listId}
+        aria-activedescendant={shown ? `${listId}-${active}` : undefined}
+      >
         <ul
           id={listId}
           role="listbox"
@@ -207,7 +202,7 @@ export function QueueSearch({
               </li>
             ))}
         </ul>
-      </div>
+      </SearchField>
     </div>
   );
 }

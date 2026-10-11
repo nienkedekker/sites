@@ -1,6 +1,5 @@
 import { Ref } from "react";
-import { X } from "lucide-react";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { SearchField } from "@/components/ui/search-field";
 import {
   Select,
   SelectContent,
@@ -42,48 +41,28 @@ export function SearchInput({
   onClear,
 }: SearchInputProps) {
   return (
-    <div className="relative flex items-end gap-4 border-b border-rule focus-within:border-movies focus-within:shadow-[0_1px_0_var(--movies)]">
-      <label htmlFor="search-query" className="sr-only">
-        Search items
-      </label>
-      <input
-        ref={ref}
-        type="search"
-        id="search-query"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape" && value) {
-            e.preventDefault();
-            onClear();
-          }
-        }}
-        placeholder="A title, author or director…"
-        aria-describedby="search-instructions search-results-status"
-        autoComplete="off"
-        spellCheck={false}
-        className="display w-full min-w-0 bg-transparent pb-2.5 text-[1.875rem] text-ink sm:text-[2.25rem] outline-none placeholder:text-ink-faint [&::-webkit-search-cancel-button]:hidden"
-      />
-      {isSearching && (
-        <span className="mb-3.5 shrink-0 text-ink-soft" aria-hidden="true">
-          <LoadingSpinner size={16} />
-        </span>
-      )}
-      {value && (
-        <button
-          type="button"
-          onClick={onClear}
-          aria-label="Clear search"
-          className="mb-1.5 grid size-9 shrink-0 cursor-pointer place-items-center text-ink-soft transition-colors hover:bg-panel-2 hover:text-ink"
-        >
-          <X className="size-5" aria-hidden="true" />
-        </button>
-      )}
+    <SearchField
+      ref={ref}
+      id="search-query"
+      label="Search items"
+      value={value}
+      onValueChange={onChange}
+      onClear={onClear}
+      busy={isSearching}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && value) {
+          e.preventDefault();
+          onClear();
+        }
+      }}
+      placeholder="A title, author or director…"
+      aria-describedby="search-instructions search-results-status"
+    >
       <p id="search-instructions" className="sr-only">
         Results update as you type. Press Escape to clear, or / to jump back
         here.
       </p>
-    </div>
+    </SearchField>
   );
 }
 
