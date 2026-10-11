@@ -20,6 +20,7 @@ import {
 } from "@/app/actions/recommendations";
 import type { ValidItemType } from "@/types/shared";
 import { OFFLINE_MESSAGE, TYPE_NAMES } from "@/utils/constants/app";
+import { ArrowRight, ArrowsClockwise, Check } from "@phosphor-icons/react/ssr";
 
 export interface ForYouPick {
   itemtype: ValidItemType;
@@ -148,9 +149,16 @@ function PickRow({
             disabled={busy}
             aria-pressed={pick.upNext}
             aria-label={`Put ${pick.title} on Up next`}
-            className="link cursor-pointer text-ink disabled:cursor-wait aria-pressed:bg-ink aria-pressed:px-1.5 aria-pressed:py-0.5 aria-pressed:text-paper aria-pressed:no-underline"
+            className="link inline-flex cursor-pointer items-center gap-1 text-ink disabled:cursor-wait aria-pressed:bg-ink aria-pressed:px-1.5 aria-pressed:py-0.5 aria-pressed:text-paper aria-pressed:no-underline"
           >
-            {pick.upNext ? "✓ On Up next" : "+ Up next"}
+            {pick.upNext ? (
+              <>
+                <Check aria-hidden="true" />
+                On Up next
+              </>
+            ) : (
+              "+ Up next"
+            )}
           </button>
           <button
             type="button"
@@ -403,7 +411,8 @@ export function ForYou({
         }
         action={
           <Button type="button" size="sm" disabled>
-            Pick the first ones →
+            Pick the first ones
+            <ArrowRight aria-hidden="true" />
           </Button>
         }
       />
@@ -457,7 +466,8 @@ export function ForYou({
         unspoken
         action={
           <Button type="button" size="sm" variant="outline" onClick={run}>
-            ↻ Ask Claude again
+            <ArrowsClockwise aria-hidden="true" />
+            Ask Claude again
           </Button>
         }
       />
@@ -469,7 +479,8 @@ export function ForYou({
         detail={`Claude reads your ${titles} and suggests what to try next.`}
         action={
           <Button type="button" size="sm" onClick={run}>
-            Pick the first ones →
+            Pick the first ones
+            <ArrowRight aria-hidden="true" />
           </Button>
         }
       />

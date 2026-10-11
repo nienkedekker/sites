@@ -14,6 +14,7 @@ import {
   Light,
   useReport,
 } from "@/components/features/nanami/live";
+import { ArrowDown } from "@phosphor-icons/react/ssr";
 
 const machine: Part[] = [
   { id: "power", name: "Power", role: "", check: "power" },
@@ -56,11 +57,8 @@ function PartRow({ part, check }: { part: Part; check?: Check }) {
 
 function Arrow() {
   return (
-    <div
-      className="flex justify-center py-1 font-mono text-sm text-ink-faint"
-      aria-hidden="true"
-    >
-      ↓
+    <div className="flex justify-center py-1 text-ink-faint" aria-hidden="true">
+      <ArrowDown className="size-4" />
     </div>
   );
 }

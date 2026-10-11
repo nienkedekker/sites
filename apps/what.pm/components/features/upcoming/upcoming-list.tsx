@@ -21,6 +21,7 @@ import {
   type Run,
   type UpcomingBook,
 } from "@/utils/data/upcoming";
+import { ArrowUp, Check } from "@phosphor-icons/react/ssr";
 
 const day = (date: string) =>
   new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -145,9 +146,10 @@ function BookRow({
         shown === "up-next" ? (
           <Link
             href="/discover/for-you#up-next"
-            className="inline-block bg-ink px-1.5 py-0.5 text-paper"
+            className="inline-flex items-center gap-1 bg-ink px-1.5 py-0.5 text-paper"
           >
-            ✓ On Up next
+            <Check aria-hidden="true" />
+            On Up next
           </Link>
         ) : shown === "read" ? (
           <span>Read</span>
@@ -329,9 +331,10 @@ function FilterBar({
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
-        className="shrink-0 cursor-pointer border-l border-rule pl-4 text-ink-soft hover:text-ink"
+        className="flex shrink-0 cursor-pointer items-center gap-1 border-l border-rule pl-4 text-ink-soft hover:text-ink"
       >
-        ↑ Top
+        <ArrowUp className="size-3" aria-hidden="true" />
+        Top
       </button>
     </nav>
   );

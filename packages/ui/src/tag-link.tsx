@@ -1,4 +1,5 @@
 import type { ElementType, ReactNode } from "react";
+import { ArrowUpRight } from "@phosphor-icons/react/ssr";
 import { externalProps, isExternal } from "./external";
 
 interface TagLinkProps {
@@ -15,9 +16,13 @@ export default function TagLink({
   arrow = isExternal(href),
 }: TagLinkProps) {
   return (
-    <Anchor href={href} className="tag whitespace-nowrap" {...externalProps(href)}>
+    <Anchor
+      href={href}
+      className="tag whitespace-nowrap"
+      {...externalProps(href)}
+    >
       {children}
-      {arrow && <span aria-hidden="true">↗</span>}
+      {arrow && <ArrowUpRight className="size-3" aria-hidden="true" />}
     </Anchor>
   );
 }

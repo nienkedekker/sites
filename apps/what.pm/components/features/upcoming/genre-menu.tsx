@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
+import { CaretDown } from "@phosphor-icons/react/ssr";
 
 interface Props {
   genres: { genre: string; count: number }[];
@@ -86,7 +87,10 @@ export function GenreMenu({ genres, total, current, onPick }: Props) {
           Genre
         </span>
         {current ?? "All"}
-        <span aria-hidden="true">▾</span>
+        <CaretDown
+          className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
       </button>
       <ul
         ref={listRef}
