@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
-import Tag from "@nienke/ui/tag";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { Cover } from "@/components/ui/cover";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
@@ -103,15 +102,23 @@ function Description({ runs }: { runs: Run[] }) {
   );
 }
 
+// The genre shown and how to pick another, for a book's genres to filter by
+interface GenreFilter {
+  genre: string | null;
+  onGenre: (genre: string | null) => void;
+}
+
 function BookRow({
   book,
   status,
   out,
+  genre: current,
+  onGenre,
 }: {
   book: UpcomingBook;
   status: Status;
   out: boolean;
-}) {
+} & GenreFilter) {
   // Marked straight away, before the page has refreshed with up next
   const [added, setAdded] = useState(false);
   const shown = added ? "up-next" : status;
@@ -161,8 +168,17 @@ function BookRow({
           )}
           {book.genres.length > 0 && (
             <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
+              {/* Each one shows just that genre, or everything again */}
               {book.genres.map((genre) => (
-                <Tag key={genre}>{genre}</Tag>
+                <button
+                  key={genre}
+                  type="button"
+                  aria-pressed={genre === current}
+                  onClick={() => onGenre(genre === current ? null : genre)}
+                  className="tag cursor-pointer whitespace-nowrap transition-colors hover:bg-ink hover:text-paper aria-pressed:bg-ink aria-pressed:text-paper"
+                >
+                  {genre}
+                </button>
               ))}
             </span>
           )}
@@ -228,12 +244,13 @@ function MonthSection({
   books,
   statusOf,
   today,
+  ...filter
 }: {
   month: string;
   books: UpcomingBook[];
   statusOf: (book: UpcomingBook) => Status;
   today: string;
-}) {
+} & GenreFilter) {
   const out = books.filter((book) => isOut(book, today)).length;
   const when =
     out === books.length
@@ -267,6 +284,7 @@ function MonthSection({
             book={book}
             status={statusOf(book)}
             out={isOut(book, today)}
+            {...filter}
           />
         ))}
       </div>
@@ -526,6 +544,8 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
             books={books}
             statusOf={statusOf}
             today={today}
+            genre={genre}
+            onGenre={pickGenre}
           />
         ))}
       </div>
