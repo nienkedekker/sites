@@ -48,16 +48,13 @@ export function YearLinksFor({
   // away; elsewhere, and while the path is unknown, there's no strip
   if (activeYear === null) return null;
 
-  // Drawn like the filter bar on Discover: a label, then one row of years to
-  // pick, sideways on a phone
+  // Drawn like the filter bar on Discover: one row of years to pick, sideways
+  // on a phone
   return (
     <nav aria-label="Browse by year" className="border-b border-rule">
       <div className="mx-auto flex max-w-6xl items-stretch font-mono text-xs">
-        <span className="flex shrink-0 items-center border-r border-rule px-4 py-2.5 uppercase tracking-[0.06em] text-ink-faint">
-          Year
-        </span>
         <div ref={barRef} className="relative min-w-0 flex-1 overflow-x-auto">
-          <ol className="flex w-max items-center gap-x-1 px-3 py-1.5 tabular-nums">
+          <ol className="flex w-max items-center gap-x-1 px-2.5 py-1.5 tabular-nums">
             {years.map((y, i) => (
               <li key={y} className="flex items-center gap-x-1">
                 {i > 0 && (
