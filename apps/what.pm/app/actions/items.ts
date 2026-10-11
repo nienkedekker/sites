@@ -101,9 +101,6 @@ export const createItemAction = async (
   }
 };
 
-// Started a book or show from up next: it moves to this year's list, in
-// progress, as a reread if it's in the log already. Up next doesn't know
-// seasons, so a show starts at season 1
 export const startUpNextAction = async (
   formData: FormData,
 ): Promise<{ error: string | null }> => {

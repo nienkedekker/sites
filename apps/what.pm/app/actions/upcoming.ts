@@ -13,10 +13,6 @@ const upcomingSchema = z.object({
   year: z.coerce.number().int().min(1000).max(3000),
 });
 
-// Up next keys books by their Open Library work, which is what the book
-// fetcher searches with, so the upcoming book is looked up there first. A
-// book Open Library doesn't have yet still goes on, unmatched, and takes the
-// match's place once a later try finds it
 export async function addUpcomingToUpNext(
   formData: FormData,
 ): Promise<{ error: string | null }> {

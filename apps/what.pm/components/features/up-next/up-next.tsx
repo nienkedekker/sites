@@ -59,8 +59,6 @@ export function UpNext({ items }: { items: QueueItem[] }) {
       : state.filter((item) => keyOf(item) !== keyOf(update.remove)),
   );
   const [, startTransition] = useTransition();
-  // Errors and repeats show under the box; what was added or removed is only
-  // read out, since the list itself shows it
   const [notice, setNotice] = useState<{
     text: string;
     kind: "error" | "info" | "done";
