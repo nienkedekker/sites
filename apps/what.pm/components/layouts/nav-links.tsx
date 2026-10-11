@@ -8,19 +8,31 @@ import UiNavLinks from "@nienke/ui/nav-links";
 import { useAuth } from "@/providers/auth-provider";
 import {
   CREATE_LINK,
+  DISCOVER_LINKS,
   isWithin,
   SIGNED_IN_LINKS,
   SITE_LINKS,
 } from "@/components/layouts/site-links";
+import { NavMenu } from "@/components/layouts/nav-menu";
 import { ThemeToggle } from "@/components/layouts/theme-toggle";
 
 // The path is unknown while a dynamic route's shell prerenders, so the
 // Suspense fallback renders these links with nothing marked current
-export function NavLinks() {
-  return <NavLinksFor pathname={usePathname()} />;
+export function NavLinks({ upcoming }: { upcoming: boolean }) {
+  return <NavLinksFor pathname={usePathname()} upcoming={upcoming} />;
 }
 
-export function NavLinksFor({ pathname }: { pathname: string | null }) {
+// upcoming: whether New releases is there, with a Hardcover token
+export function NavLinksFor({
+  pathname,
+  upcoming,
+}: {
+  pathname: string | null;
+  upcoming: boolean;
+}) {
+  const discover = DISCOVER_LINKS.filter(
+    ({ href }) => upcoming || href !== "/discover",
+  );
   const { isLoggedIn } = useAuth();
   const [open, setOpen] = useState(false);
   const [menuPathname, setMenuPathname] = useState(pathname);
@@ -47,9 +59,19 @@ export function NavLinksFor({ pathname }: { pathname: string | null }) {
       <div className="hidden md:block">
         {isLoggedIn ? (
           <ul className="nav-links">
-            {SIGNED_IN_LINKS.map((link) => (
-              <NavItem key={link.href} {...link} pathname={pathname} />
-            ))}
+            {SIGNED_IN_LINKS.map((link) =>
+              link.href === "/discover" ? (
+                <NavMenu
+                  key={link.href}
+                  label={link.label}
+                  section={link.href}
+                  links={discover}
+                  pathname={pathname}
+                />
+              ) : (
+                <NavItem key={link.href} {...link} pathname={pathname} />
+              ),
+            )}
             <li className="ml-2">
               <Link
                 href={CREATE_LINK.href}
@@ -93,14 +115,32 @@ export function NavLinksFor({ pathname }: { pathname: string | null }) {
         className="own-grain absolute inset-x-0 top-full border-b border-rule bg-paper md:hidden"
       >
         <ul className="mx-auto max-w-6xl divide-y divide-rule px-4 font-geist text-base font-medium">
-          {(isLoggedIn ? SIGNED_IN_LINKS : SITE_LINKS).map((link) => (
-            <MenuItem
-              key={link.href}
-              {...link}
-              pathname={pathname}
-              onPick={() => setOpen(false)}
-            />
-          ))}
+          {(isLoggedIn ? SIGNED_IN_LINKS : SITE_LINKS).map((link) =>
+            link.href === "/discover" ? (
+              // On a phone, Discover's pages sit under it, indented
+              <li key={link.href} className="py-3">
+                <p className="text-ink">{link.label}</p>
+                <ul className="mt-1">
+                  {discover.map((page) => (
+                    <MenuItem
+                      key={page.href}
+                      {...page}
+                      pathname={pathname}
+                      onPick={() => setOpen(false)}
+                      nested
+                    />
+                  ))}
+                </ul>
+              </li>
+            ) : (
+              <MenuItem
+                key={link.href}
+                {...link}
+                pathname={pathname}
+                onPick={() => setOpen(false)}
+              />
+            ),
+          )}
           {isLoggedIn && (
             <MenuItem
               {...CREATE_LINK}
@@ -146,19 +186,24 @@ function MenuItem({
   label,
   pathname,
   onPick,
+  nested = false,
 }: {
   href: Href & string;
   label: string;
   pathname: string | null;
   onPick: () => void;
+  // Under a heading, indented and without a rule, and current only on
+  // exactly its page, as For you is under New releases' address
+  nested?: boolean;
 }) {
+  const current = nested ? pathname === href : isWithin(pathname, href);
   return (
     <li>
       <Link
         href={href}
-        aria-current={isWithin(pathname, href) ? "page" : undefined}
+        aria-current={current ? "page" : undefined}
         onClick={onPick}
-        className="block py-3 text-ink aria-[current=page]:text-ink-soft"
+        className={`block text-ink aria-[current=page]:text-ink-soft ${nested ? "py-2 pl-4" : "py-3"}`}
       >
         {label}
       </Link>
