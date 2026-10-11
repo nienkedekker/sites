@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { formatPlural } from "@nienke/ui/format";
 import { SWATCH, type ItemType } from "@nienke/ui/series";
-import SwellText from "@nienke/ui/swell-text";
 import EditItemDialog from "./edit-item-dialog";
 import { ConfirmDeleteDialog } from "@/components/features/confirm-delete-dialog";
 import { deleteItemAction } from "@/app/actions/items";
 import { Item } from "@/types";
 import IsLoggedIn from "@/components/auth/is-logged-in";
-import { cn } from "@/utils/ui";
 import { ItemBadges } from "@/components/features/lists/item-badges";
 import { ItemSource } from "@/components/features/lists/item-source";
 import { credit } from "@/components/features/lists/credit";
+import { ColumnHeader } from "@/components/features/lists/column-header";
 import { ItemTitle } from "@/components/ui/item-row";
 
 interface CategoryListProps {
@@ -39,23 +38,17 @@ export function CategoryList({
   showYearLink = false,
 }: CategoryListProps) {
   const headingId = `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-heading`;
-  const itemType = items[0]?.itemtype || categoryTitle.slice(0, -1);
-  const swatch = SWATCH[itemType as ItemType] ?? SWATCH.Book;
+  const named = items[0]?.itemtype || categoryTitle.slice(0, -1);
+  const itemType: ItemType = named in SWATCH ? (named as ItemType) : "Book";
 
   return (
     <section aria-labelledby={headingId}>
-      <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
-        <h2
-          id={headingId}
-          className="display flex items-center gap-3 text-ink text-[1.875rem] sm:text-[2.5rem]"
-        >
-          <span className={cn("size-3 shrink-0", swatch)} aria-hidden="true" />
-          <SwellText>{categoryTitle}</SwellText>
-        </h2>
-        <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
-          {formatPlural(items.length, "item")}
-        </p>
-      </header>
+      <ColumnHeader
+        id={headingId}
+        type={itemType}
+        title={categoryTitle}
+        count={formatPlural(items.length, "item")}
+      />
 
       {items.length > 0 ? (
         <ol>

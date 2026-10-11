@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { formatCount, formatDate, formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { credit } from "@/components/features/lists/credit";
+import { ColumnHeader } from "@/components/features/lists/column-header";
 import { Cover } from "@/components/ui/cover";
 import { ItemRow } from "@/components/ui/item-row";
 import { ReadMore } from "@/components/ui/read-more";
@@ -31,8 +32,8 @@ export interface ForYouPick {
 
 const COLUMNS: { type: ValidItemType; title: string; hint: string }[] = [
   { type: "Book", title: "Books", hint: "novels, non-fiction, comics" },
-  { type: "Movie", title: "Films", hint: "features and docs" },
-  { type: "Show", title: "TV", hint: "series and limited runs" },
+  { type: "Movie", title: "Movies", hint: "features and docs" },
+  { type: "Show", title: "TV Shows", hint: "series and limited runs" },
 ];
 
 const keyOf = (pick: ForYouPick) => `${pick.itemtype}|${pick.external_id}`;
@@ -204,17 +205,14 @@ export function PickColumns({
         const shown = picks?.filter((pick) => pick.itemtype === type) ?? null;
         return (
           <section key={type} aria-labelledby={`picks-${type}`}>
-            <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
-              <h2
-                id={`picks-${type}`}
-                className="display text-[2.25rem] text-ink"
-              >
-                {title}
-              </h2>
-              <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
-                {shown && !loading ? shown.length : "—"}
-              </p>
-            </header>
+            <ColumnHeader
+              id={`picks-${type}`}
+              type={type}
+              title={title}
+              count={
+                shown && !loading ? formatPlural(shown.length, "pick") : "—"
+              }
+            />
             {hints && (
               <p className="mt-2 font-mono text-[0.6875rem] text-ink-faint">
                 {hint}
