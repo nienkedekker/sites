@@ -54,18 +54,13 @@ export function YearLinksFor({
     <nav aria-label="Browse by year" className="border-b border-rule">
       <div className="mx-auto flex max-w-6xl items-stretch font-mono text-xs">
         <div ref={barRef} className="relative min-w-0 flex-1 overflow-x-auto">
-          <ol className="flex w-max items-center gap-x-1 px-2.5 py-1.5 tabular-nums">
-            {years.map((y, i) => (
-              <li key={y} className="flex items-center gap-x-1">
-                {i > 0 && (
-                  <span className="px-0.5 text-ink-faint" aria-hidden="true">
-                    ·
-                  </span>
-                )}
+          <ol className="flex w-max items-center gap-x-1 px-2 py-1.5 tabular-nums">
+            {years.map((y) => (
+              <li key={y}>
                 <Link
                   href={y === currentYear ? "/" : `/year/${y}`}
                   aria-current={y === activeYear ? "page" : undefined}
-                  className="block whitespace-nowrap px-1.5 py-1 text-ink hover:bg-panel-2 aria-[current=page]:bg-ink aria-[current=page]:text-paper"
+                  className="block whitespace-nowrap px-2 py-1 text-ink hover:bg-panel-2 aria-[current=page]:bg-ink aria-[current=page]:text-paper"
                 >
                   {y}
                 </Link>
