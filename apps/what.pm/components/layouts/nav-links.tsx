@@ -115,32 +115,21 @@ export function NavLinksFor({
         className="own-grain absolute inset-x-0 top-full border-b border-rule bg-paper md:hidden"
       >
         <ul className="mx-auto max-w-6xl divide-y divide-rule px-4 font-geist text-base font-medium">
-          {(isLoggedIn ? SIGNED_IN_LINKS : SITE_LINKS).map((link) =>
-            link.href === "/discover" ? (
-              // On a phone, Discover's pages sit under it, indented
-              <li key={link.href} className="py-3">
-                <p className="text-ink">{link.label}</p>
-                <ul className="mt-1">
-                  {discover.map((page) => (
-                    <MenuItem
-                      key={page.href}
-                      {...page}
-                      pathname={pathname}
-                      onPick={() => setOpen(false)}
-                      nested
-                    />
-                  ))}
-                </ul>
-              </li>
-            ) : (
-              <MenuItem
-                key={link.href}
-                {...link}
-                pathname={pathname}
-                onPick={() => setOpen(false)}
-              />
-            ),
-          )}
+          {/* On a phone, Discover's pages are rows of their own */}
+          {(isLoggedIn
+            ? [
+                ...discover,
+                ...SIGNED_IN_LINKS.filter(({ href }) => href !== "/discover"),
+              ]
+            : SITE_LINKS
+          ).map((link) => (
+            <MenuItem
+              key={link.href}
+              {...link}
+              pathname={pathname}
+              onPick={() => setOpen(false)}
+            />
+          ))}
           {isLoggedIn && (
             <MenuItem
               {...CREATE_LINK}
@@ -180,30 +169,26 @@ function NavItem({
   );
 }
 
-// A link in the phone menu
+// A row of the phone menu: current only on exactly its page, as For you is
+// under New releases' address, and underlined like the header marks it
 function MenuItem({
   href,
   label,
   pathname,
   onPick,
-  nested = false,
 }: {
   href: Href & string;
   label: string;
   pathname: string | null;
   onPick: () => void;
-  // Under a heading, indented and without a rule, and current only on
-  // exactly its page, as For you is under New releases' address
-  nested?: boolean;
 }) {
-  const current = nested ? pathname === href : isWithin(pathname, href);
   return (
     <li>
       <Link
         href={href}
-        aria-current={current ? "page" : undefined}
+        aria-current={pathname === href ? "page" : undefined}
         onClick={onPick}
-        className={`block text-ink aria-[current=page]:text-ink-soft ${nested ? "py-2 pl-4" : "py-3"}`}
+        className="block py-3 text-ink underline-offset-4 aria-[current=page]:underline aria-[current=page]:decoration-2"
       >
         {label}
       </Link>
