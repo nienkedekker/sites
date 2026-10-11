@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
-import { formatCount } from "@nienke/ui/format";
 import { DiscoverHeader } from "@/components/features/discover/discover-header";
 import { DataLoadingError } from "@/components/features/error-fallbacks";
 import { MadeIt } from "@/components/features/recs/made-it";
@@ -114,22 +113,7 @@ async function Recs() {
   // the page gets opened for most; the picks to choose from follow
   return (
     <>
-      <section
-        id="up-next"
-        aria-labelledby="up-next-heading"
-        className="mb-20 scroll-mt-24"
-      >
-        <header className="mb-6 flex items-end justify-between gap-4 border-b border-rule pb-3">
-          <h2
-            id="up-next-heading"
-            className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
-          >
-            Up next
-          </h2>
-          <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">
-            {formatCount(queue.length)} queued
-          </p>
-        </header>
+      <section id="up-next" aria-label="Up next" className="mb-20 scroll-mt-24">
         <UpNext items={queue} />
       </section>
       {hasRecs() && picks && (

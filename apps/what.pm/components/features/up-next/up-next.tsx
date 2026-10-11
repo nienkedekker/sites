@@ -126,13 +126,6 @@ export function UpNext({ items }: { items: QueueItem[] }) {
 
   return (
     <>
-      {queue.length === 0 && (
-        <p className="mb-6 text-sm text-ink-soft">
-          Nothing queued yet. Find something here, or put one of the picks below
-          on it.
-        </p>
-      )}
-
       <div className="max-w-3xl">
         <QueueSearch inputRef={inputRef} onPick={addMatch} />
         <p aria-live="polite" className="mt-2 min-h-5 font-mono text-xs">
