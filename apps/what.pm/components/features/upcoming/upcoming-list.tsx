@@ -79,7 +79,11 @@ function BookRow({
   const href = book.slug ? `https://hardcover.app/books/${book.slug}` : null;
   const author = book.authors.join(", ");
   return (
-    <article className="flex gap-4 border-t border-line py-5 first:border-t-0 sm:gap-5">
+    // Books already on up next or read fade back, so the rest stand out while
+    // scrolling; hovering or tabbing in brings one back to full strength
+    <article
+      className={`flex gap-4 border-t border-line py-5 transition-opacity first:border-t-0 sm:gap-5 ${shown ? "opacity-45 hover:opacity-100 focus-within:opacity-100" : ""}`}
+    >
       <Cover book={book} />
       <div className="min-w-0 flex-1">
         <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
