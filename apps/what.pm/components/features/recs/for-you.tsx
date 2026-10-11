@@ -175,7 +175,8 @@ function PickRow({
       <div className="mt-1">
         <ReadMore
           clamp="line-clamp-2"
-          className="text-sm text-ink-soft"
+          // Black under the grey credit, as descriptions are on New releases
+          className="text-sm text-ink"
           toggle="text"
         >
           {pick.reason}
