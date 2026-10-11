@@ -64,6 +64,44 @@ function Cover({ book }: { book: UpcomingBook }) {
 
 type Status = "up-next" | "read" | null;
 
+// Three lines, and "Read more" when there's more than fits in them
+function Description({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const [cut, setCut] = useState(false);
+  const ref = useRef<HTMLParagraphElement>(null);
+
+  // Whether the clamp hides anything depends on the width, so it's measured,
+  // and measured again when the column changes size
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || open) return;
+    const measure = () =>
+      setCut(element.scrollHeight > element.clientHeight + 1);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [open]);
+
+  return (
+    <div className="mt-3">
+      <p ref={ref} className={`text-sm text-ink ${open ? "" : "line-clamp-3"}`}>
+        {text}
+      </p>
+      {(cut || open) && (
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          className="link mt-1 cursor-pointer font-mono text-xs text-ink-soft hover:text-ink"
+        >
+          {open ? "Show less" : "Read more"}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function BookRow({
   book,
   status,
@@ -116,11 +154,7 @@ function BookRow({
             ))}
           </p>
         )}
-        {book.description && (
-          <p className="mt-3 line-clamp-3 text-sm text-ink">
-            {book.description}
-          </p>
-        )}
+        {book.description && <Description text={book.description} />}
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ink-faint">
           <span>
             {formatPlural(book.readers, "reader")}{" "}

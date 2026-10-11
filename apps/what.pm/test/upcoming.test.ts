@@ -93,8 +93,8 @@ describe("toUpcoming", () => {
   });
 
   it("shortens long descriptions at a word", () => {
-    const [book] = toUpcoming([{ ...raw, description: "word ".repeat(200) }]);
-    expect(book.description!.length).toBeLessThanOrEqual(601);
+    const [book] = toUpcoming([{ ...raw, description: "word ".repeat(600) }]);
+    expect(book.description!.length).toBeLessThanOrEqual(2001);
     expect(book.description).toMatch(/word…$/);
   });
 });
