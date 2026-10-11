@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
+import { Cover } from "@/components/ui/cover";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { addUpcomingToUpNext } from "@/app/actions/upcoming";
 import { GenreMenu } from "@/components/features/upcoming/genre-menu";
@@ -47,27 +47,6 @@ const monthName = (month: string) =>
     month: "long",
     year: "numeric",
   });
-
-function Cover({ book }: { book: UpcomingBook }) {
-  if (!book.cover) {
-    return (
-      <div
-        className="aspect-2/3 w-20 shrink-0 border border-line bg-panel sm:w-24"
-        aria-hidden="true"
-      />
-    );
-  }
-  return (
-    <Image
-      src={book.cover.url}
-      width={book.cover.width}
-      height={book.cover.height}
-      sizes="96px"
-      alt=""
-      className="h-auto w-20 shrink-0 self-start border border-line sm:w-24"
-    />
-  );
-}
 
 type Status = "up-next" | "read" | null;
 
@@ -153,7 +132,13 @@ function BookRow({
     <article
       className={`flex gap-4 border-t border-line py-5 transition-opacity first:border-t-0 sm:gap-5 ${shown ? "opacity-45 hover:opacity-100 focus-within:opacity-100" : ""}`}
     >
-      <Cover book={book} />
+      <Cover
+        src={book.cover?.url}
+        title={book.title}
+        type="Book"
+        sizes="96px"
+        className="aspect-2/3 w-20 self-start sm:w-24"
+      />
       <div className="min-w-0 flex-1">
         <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
           {goodreads ? (
