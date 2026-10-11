@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
+import Tag from "@nienke/ui/tag";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { Cover } from "@/components/ui/cover";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
@@ -114,17 +115,13 @@ function BookRow({
   // Marked straight away, before the page has refreshed with up next
   const [added, setAdded] = useState(false);
   const shown = added ? "up-next" : status;
-  // The title goes to Goodreads; Hardcover, where the readers are counted,
-  // is linked from the count
+  // The title goes to Goodreads
   const goodreads = sourceOf({
     itemtype: "Book",
     external_id: null,
     title: book.title,
     author: book.authors[0] ?? null,
   });
-  const hardcover = book.slug
-    ? `https://hardcover.app/books/${book.slug}`
-    : null;
   const author = book.authors.join(", ");
   return (
     // Books already on up next or read fade back, so the rest stand out while
@@ -163,31 +160,15 @@ function BookRow({
             </span>
           )}
           {book.genres.length > 0 && (
-            <>
-              {" · "}
-              <span className="font-mono text-xs">
-                {book.genres.join(", ")}
-              </span>
-            </>
+            <span className="ml-2 inline-flex flex-wrap gap-1.5 align-middle">
+              {book.genres.map((genre) => (
+                <Tag key={genre}>{genre}</Tag>
+              ))}
+            </span>
           )}
         </p>
         {book.description && <Description runs={book.description} />}
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ink-faint">
-          {hardcover ? (
-            <a
-              href={hardcover}
-              className="link hover:text-ink"
-              {...externalProps(hardcover)}
-            >
-              {formatPlural(book.readers, "reader")}{" "}
-              {out ? "on Hardcover" : "waiting on Hardcover"}
-            </a>
-          ) : (
-            <span>
-              {formatPlural(book.readers, "reader")}{" "}
-              {out ? "on Hardcover" : "waiting"}
-            </span>
-          )}
           {shown === "up-next" ? (
             <Link href="/up-next" className="link text-ink hover:text-ink">
               ✓ On up next
