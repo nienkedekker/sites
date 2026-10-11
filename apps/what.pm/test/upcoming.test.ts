@@ -52,6 +52,19 @@ describe("toUpcoming", () => {
     ]);
   });
 
+  it("leaves out romance and romantasy, even alongside fantasy", () => {
+    const books = toUpcoming([
+      { ...raw, id: 1 },
+      {
+        ...raw,
+        id: 2,
+        cached_tags: { Genre: [{ tag: "Fantasy" }, { tag: "Romantasy" }] },
+      },
+      { ...raw, id: 3, cached_tags: { Genre: [{ tag: "Romance" }] } },
+    ]);
+    expect(books.map((book) => book.id)).toEqual([1]);
+  });
+
   it("drops books without a title or date, and covers without a size", () => {
     const books = toUpcoming([
       { ...raw, title: null },

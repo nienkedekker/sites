@@ -17,7 +17,8 @@ const MIN_READERS = 5;
 // already and books still to come are asked for apart, or the ones out, with
 // more time to gather readers, would crowd the others out. Category 1 is
 // books: no novellas, short stories, comics or poetry collections; status 1
-// leaves out books awaiting review or merged away
+// leaves out books awaiting review or merged away. The limits leave room for
+// the romance the page drops
 const FIELDS = `
     id
     slug
@@ -41,13 +42,13 @@ const QUERY = `query Recent($from: date!, $today: date!, $to: date!) {
   out: books(
     where: ${where("{ _gt: $from, _lte: $today }")}
     order_by: { users_count: desc }
-    limit: 150
+    limit: 250
   ) {${FIELDS}
   }
   coming: books(
     where: ${where("{ _gt: $today, _lte: $to }")}
     order_by: { users_count: desc }
-    limit: 200
+    limit: 300
   ) {${FIELDS}
   }
 }`;

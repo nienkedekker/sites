@@ -40,6 +40,10 @@ export interface HardcoverBook {
 
 const DESCRIPTION_LENGTH = 600;
 
+// Genres I don't read, left out altogether: a book tagged with any of them
+// goes, even when it's fantasy as well
+const LEFT_OUT = /\b(romance|romantasy)\b/i;
+
 const shorten = (text: string) =>
   text.length <= DESCRIPTION_LENGTH
     ? text
@@ -68,6 +72,7 @@ export function toUpcoming(books: HardcoverBook[]): UpcomingBook[] {
     const tags = (book.cached_tags?.Genre ?? [])
       .map(({ tag }) => tag)
       .filter((tag): tag is string => Boolean(tag));
+    if (tags.some((tag) => LEFT_OUT.test(tag))) return [];
     const description = book.description?.trim();
     return [
       {
