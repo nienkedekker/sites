@@ -41,10 +41,13 @@ export interface OpenLibraryDoc {
   edition_count?: number;
 }
 
+// With a year, a work first published then (or a year either side) comes
+// first: an anthology and a novel can share a title and an author
 export function matchBook(
   docs: OpenLibraryDoc[],
   title: string,
   author: string,
+  year?: number,
 ): OpenLibraryDoc | null {
   const matches = docs.filter(
     (doc) =>
@@ -52,7 +55,16 @@ export function matchBook(
       mainTitle(doc.title) === mainTitle(title) &&
       doc.author_name?.some((name) => nameKey(name) === nameKey(author)),
   );
-  matches.sort((a, b) => (b.edition_count ?? 0) - (a.edition_count ?? 0));
+  const inYear = (doc: OpenLibraryDoc) =>
+    year &&
+    doc.first_publish_year &&
+    Math.abs(doc.first_publish_year - year) <= 1
+      ? 1
+      : 0;
+  matches.sort(
+    (a, b) =>
+      inYear(b) - inYear(a) || (b.edition_count ?? 0) - (a.edition_count ?? 0),
+  );
   return matches[0] ?? null;
 }
 
@@ -154,10 +166,17 @@ async function screenDetails(itemtype: string, id: string) {
 
 async function find(suggestion: Suggestion): Promise<Found | null> {
   if (suggestion.itemtype === "Book") {
+    // Open Library's title search finds nothing for a subtitle it doesn't
+    // have ("Other Worlds Than These: A Talisman Novel"), so it gets the main
+    // title only, the part matching compares anyway
     const doc = matchBook(
-      await bookSearch(suggestion.title, suggestion.creator),
+      await bookSearch(
+        suggestion.title.split(":")[0].trim(),
+        suggestion.creator,
+      ),
       suggestion.title,
       suggestion.creator,
+      suggestion.year,
     );
     return doc
       ? {

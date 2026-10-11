@@ -29,6 +29,33 @@ describe("matchBook", () => {
     );
   });
 
+  it("prefers the work from the book's year over one sharing its title", () => {
+    const shared = [
+      {
+        key: "/works/OL17400760W",
+        title: "Other Worlds Than These",
+        author_name: ["John Joseph Adams", "Stephen King"],
+        first_publish_year: 2012,
+        edition_count: 9,
+      },
+      {
+        key: "/works/OL44907743W",
+        title: "Other Worlds Than These",
+        author_name: ["Stephen King", "Peter Straub"],
+        first_publish_year: 2026,
+        edition_count: 2,
+      },
+    ];
+    expect(
+      matchBook(
+        shared,
+        "Other Worlds Than These: A Talisman Novel",
+        "Stephen King",
+        2026,
+      )?.key,
+    ).toBe("/works/OL44907743W");
+  });
+
   it("finds nothing for a book that isn't there or by someone else", () => {
     expect(matchBook(docs, "Piranesi", "Someone Else")).toBeNull();
     expect(matchBook(docs, "Made Up Title", "Susanna Clarke")).toBeNull();

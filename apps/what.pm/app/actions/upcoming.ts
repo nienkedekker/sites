@@ -40,7 +40,7 @@ export async function addUpcomingToUpNext(
     if (!found) {
       return {
         error:
-          "Open Library doesn’t know this one yet. Try again closer to release.",
+          "Open Library doesn’t have this book (yet), so up next can’t take it.",
       };
     }
 
