@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
+import { sourceOf } from "@/components/features/lists/item-source";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { addUpcomingToUpNext } from "@/app/actions/upcoming";
 import { GenreMenu } from "@/components/features/upcoming/genre-menu";
@@ -134,7 +135,17 @@ function BookRow({
   // Marked straight away, before the page has refreshed with up next
   const [added, setAdded] = useState(false);
   const shown = added ? "up-next" : status;
-  const href = book.slug ? `https://hardcover.app/books/${book.slug}` : null;
+  // The title goes to Goodreads; Hardcover, where the readers are counted,
+  // is linked from the count
+  const goodreads = sourceOf({
+    itemtype: "Book",
+    external_id: null,
+    title: book.title,
+    author: book.authors[0] ?? null,
+  });
+  const hardcover = book.slug
+    ? `https://hardcover.app/books/${book.slug}`
+    : null;
   const author = book.authors.join(", ");
   return (
     // Books already on up next or read fade back, so the rest stand out while
@@ -145,11 +156,11 @@ function BookRow({
       <Cover book={book} />
       <div className="min-w-0 flex-1">
         <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
-          {href ? (
+          {goodreads ? (
             <a
-              href={href}
+              href={goodreads.href}
               className="underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink"
-              {...externalProps(href)}
+              {...externalProps(goodreads.href)}
             >
               {book.title}
             </a>
@@ -177,10 +188,21 @@ function BookRow({
         </p>
         {book.description && <Description runs={book.description} />}
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ink-faint">
-          <span>
-            {formatPlural(book.readers, "reader")}{" "}
-            {out ? "on Hardcover" : "waiting"}
-          </span>
+          {hardcover ? (
+            <a
+              href={hardcover}
+              className="link hover:text-ink"
+              {...externalProps(hardcover)}
+            >
+              {formatPlural(book.readers, "reader")}{" "}
+              {out ? "on Hardcover" : "waiting on Hardcover"}
+            </a>
+          ) : (
+            <span>
+              {formatPlural(book.readers, "reader")}{" "}
+              {out ? "on Hardcover" : "waiting"}
+            </span>
+          )}
           {shown === "up-next" ? (
             <Link href="/up-next" className="link text-ink hover:text-ink">
               ✓ On up next
@@ -342,12 +364,6 @@ function FilterBar({
               month > currentMonth
                 ? "text-ink-faint hover:text-ink"
                 : "text-ink";
-            // Part of this month's item, not one of its own
-            const now = month === currentMonth && (
-              <span className="ml-1.5 text-accent group-aria-[current=true]:text-paper">
-                TODAY
-              </span>
-            );
             return (
               <li key={month} className="flex items-center gap-x-1">
                 {i > 0 && dot}
@@ -360,10 +376,9 @@ function FilterBar({
                       event.preventDefault();
                       onJump(month);
                     }}
-                    className={`group whitespace-nowrap px-2 py-1 hover:bg-panel-2 aria-[current=true]:bg-ink aria-[current=true]:text-paper ${tone}`}
+                    className={`whitespace-nowrap px-2 py-1 hover:bg-panel-2 aria-[current=true]:bg-ink aria-[current=true]:text-paper ${tone}`}
                   >
                     {label}
-                    {now}
                   </a>
                 ) : (
                   // Nothing in the genre picked this month
@@ -371,7 +386,6 @@ function FilterBar({
                     className={`whitespace-nowrap px-2 py-1 opacity-35 ${tone}`}
                   >
                     {label}
-                    {now}
                   </span>
                 )}
               </li>
@@ -391,8 +405,8 @@ function FilterBar({
 }
 
 // Oldest month first, each month's books by release day, the current month's
-// out and coming together. The genre and month live in the address, so a view
-// can be shared and Back goes back through them
+// out and coming together. The genre and the month clicked live in the
+// address, so Back goes back through them
 export function UpcomingList({ books, upNext, read, today }: Props) {
   const searchParams = useSearchParams();
   const genres = genresOf(books);
@@ -419,7 +433,8 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
   const [active, setActive] = useState<string | null>(null);
   // The month marked, read where state would be a render behind
   const activeRef = useRef<string | null>(null);
-  const placedGenre = useRef<string | null | undefined>(undefined);
+  // The genre and month the page was last put in place for
+  const placed = useRef<{ genre: string | null; month: string | null }>(null);
 
   const mark = (month: string) => {
     activeRef.current = month;
@@ -437,8 +452,8 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
 
   // Follow the scroll: the month in view is the first one in the band under
   // the bar, or the one above while a gap between months passes, or the first
-  // at the top of the page. The address
-  // follows along without adding to history
+  // at the top of the page. The address is left alone, so opening the page
+  // again never lands halfway down
   useEffect(() => {
     const sections = [
       ...document.querySelectorAll<HTMLElement>("[data-month]"),
@@ -459,13 +474,7 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
             (section) => section.getBoundingClientRect().top <= BAND_TOP,
           )?.dataset.month ??
           sections[0]?.dataset.month;
-        if (!month || month === activeRef.current) return;
-        mark(month);
-        history.replaceState(
-          null,
-          "",
-          withParams((params) => params.set("month", month)),
-        );
+        if (month && month !== activeRef.current) mark(month);
       },
       { rootMargin: `-${BAND_TOP}px 0px -60% 0px` },
     );
@@ -473,18 +482,21 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
     return () => observer.disconnect();
   }, [shownKey]);
 
-  // Go to the month in the address when it's opened, when the genre changes,
-  // and when Back or Forward lands on another month. Without one the page
-  // opens at the top, and goes back there for a genre without the month
+  // The page opens at the top, whatever the address says. A genre keeps the
+  // month in view when it has books then, and starts from the top when it
+  // doesn't; Back and Forward go to the month clicked then
   useEffect(() => {
-    const opening = placedGenre.current === undefined;
-    const genreChanged = placedGenre.current !== genre;
-    placedGenre.current = genre;
-    // The address following the scroll needs no jump
-    if (!genreChanged && monthParam === activeRef.current) return;
+    const last = placed.current;
+    placed.current = { genre, month: monthParam };
+    // Opening, or the effect running again with nothing changed
+    if (!last || (last.genre === genre && last.month === monthParam)) return;
+    const genreChanged = last.genre !== genre;
     const shown = shownKey.split(" ");
-    if (monthParam && shown.includes(monthParam)) place(monthParam, shown[0]);
-    else if (!opening) window.scrollTo({ top: 0, behavior: "instant" });
+    const target = genreChanged ? activeRef.current : monthParam;
+    // A month clicked has been scrolled to already
+    if (!genreChanged && monthParam === activeRef.current) return;
+    if (target && shown.includes(target)) place(target, shown[0]);
+    else window.scrollTo({ top: 0, behavior: "instant" });
   }, [genre, monthParam, shownKey]);
 
   if (books.length === 0) {
@@ -502,23 +514,16 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
     place(month, sections[0]?.month);
   };
 
-  // A genre keeps the month in view when it has books then, and starts
-  // afresh when it doesn't
-  const pickGenre = (picked: string | null) => {
-    const kept = byMonth(inGenre(picked)).some(
-      ({ month }) => month === activeRef.current,
-    );
+  const pickGenre = (picked: string | null) =>
     history.pushState(
       null,
       "",
       withParams((params) => {
         if (picked) params.set("genre", picked);
         else params.delete("genre");
-        if (kept && activeRef.current) params.set("month", activeRef.current);
-        else params.delete("month");
+        params.delete("month");
       }),
     );
-  };
 
   const hrefFor = (month: string) => {
     const params = new URLSearchParams(searchParams.toString());
