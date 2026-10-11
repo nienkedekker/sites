@@ -10,7 +10,6 @@ import { useEffect } from "react";
 export function ScrollToHash() {
   useEffect(() => {
     const id = decodeURIComponent(window.location.hash.slice(1));
-    // "instant" overrides the page's scroll-behavior: smooth
     document
       .getElementById(id)
       ?.scrollIntoView({ block: "center", behavior: "instant" });

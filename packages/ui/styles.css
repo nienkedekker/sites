@@ -83,12 +83,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    html:not(.low-power) {
-      scroll-behavior: smooth;
-    }
-  }
-
   body {
     background-color: var(--paper);
     color: var(--ink);

@@ -271,8 +271,6 @@ function MonthBar({ parts, today }: { parts: BarPart[]; today: string }) {
       ?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [active]);
 
-  // Straight there: "instant" rather than "auto", which a smooth
-  // scroll-behavior in the CSS would turn into a glide
   const jump = (id: string) => {
     document
       .getElementById(id)
