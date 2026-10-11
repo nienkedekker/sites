@@ -1,4 +1,5 @@
 ---
+import { ArrowRight, MapPin } from "lucide-react";
 import { formatDate } from "@nienke/ui/format";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import NowPlaying from "../components/now-playing";
@@ -7,8 +8,6 @@ import ReadingCard from "../components/reading-card";
 import KanjiCard from "../components/kanji-card";
 import MediaChart from "../components/media-chart";
 import { getEntry, render } from "astro:content";
-import ArrowRight from "phosphor-astro/ArrowRight.astro";
-import MapPin from "phosphor-astro/MapPin.astro";
 import { profile, site } from "../data/profile";
 import { getHomeSnapshot } from "../lib/home-snapshot";
 
@@ -93,7 +92,7 @@ const sectionHeading = "display display-section text-ink";
         decoding="async"
       />
       <figcaption class="tag absolute bottom-4 left-4 bg-paper">
-        <MapPin class="size-3.5" /> Hydra, Greece
+        <MapPin aria-hidden="true" className="size-3.5" /> Hydra, Greece
       </figcaption>
     </figure>
   </section>
@@ -113,7 +112,8 @@ const sectionHeading = "display display-section text-ink";
       >
         Full /now page{nowUpdated && ` · ${nowUpdated}`}
         <ArrowRight
-          class="size-3.5 transition-transform group-hover:translate-x-0.5"
+          aria-hidden="true"
+          className="size-3.5 transition-transform group-hover:translate-x-0.5"
         />
       </a>
     </div>

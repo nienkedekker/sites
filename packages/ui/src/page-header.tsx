@@ -1,10 +1,19 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ElementType, ReactNode } from "react";
+import NavLinks from "./nav-links";
 import SwellText from "./swell-text";
+
+interface PageTabs {
+  label: string;
+  links: readonly { href: string; label: string }[];
+  current: string;
+  as?: ElementType;
+}
 
 interface PageHeaderProps {
   children: ReactNode;
   intro?: ReactNode;
   eyebrow?: ReactNode;
+  tabs?: PageTabs;
   className?: string;
 }
 
@@ -12,7 +21,8 @@ export default function PageHeader({
   children,
   intro,
   eyebrow,
-  className = "mb-12 sm:mb-16",
+  tabs,
+  className = tabs ? "mb-8" : "mb-12 sm:mb-16",
 }: PageHeaderProps) {
   return (
     <header className={`max-w-2xl ${className}`}>
@@ -34,6 +44,21 @@ export default function PageHeader({
         >
           {intro}
         </p>
+      )}
+      {/* Pulled left by the links' own padding, so their text lines up with
+          the heading's */}
+      {tabs && (
+        <nav
+          aria-label={tabs.label}
+          className="rise mt-4 -ml-2 sm:-ml-3"
+          style={{ "--delay": intro ? "240ms" : "160ms" } as CSSProperties}
+        >
+          <NavLinks
+            links={tabs.links}
+            currentPath={tabs.current}
+            as={tabs.as}
+          />
+        </nav>
       )}
     </header>
   );

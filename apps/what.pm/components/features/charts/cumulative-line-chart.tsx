@@ -44,9 +44,7 @@ export function CumulativeLineChart({
               key={category}
               type="linear"
               dataKey={category}
-              stroke={
-                config[category as keyof typeof config]?.color || "gray"
-              }
+              stroke={config[category as keyof typeof config]?.color || "gray"}
               strokeWidth={2}
               dot={false}
               isAnimationActive={!lessMotion}

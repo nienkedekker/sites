@@ -215,9 +215,9 @@ importers:
       astro:
         specifier: ^7.3.5
         version: 7.3.6(@types/node@22.20.5)(@upstash/redis@1.39.0)(@vercel/functions@3.9.11(@aws-sdk/credential-provider-web-identity@3.972.78))(jiti@2.7.0)(yaml@2.9.1)
-      phosphor-astro:
-        specifier: ^2.1.0
-        version: 2.1.0
+      lucide-react:
+        specifier: ^0.468.0
+        version: 0.468.0(react@19.3.0)
       react:
         specifier: ^19.2.3
         version: 19.3.0
@@ -4151,9 +4151,6 @@ packages:
 
   path-to-regexp@6.3.0:
     resolution: {integrity: sha512-Yhpw4T9C6hPpgPeA28us07OJeqZ5EzQTkbfwuhsUg0c237RomFoETJgmp2sa3F/41gfLE6G5cqcYwznmeEeOlQ==}
-
-  phosphor-astro@2.1.0:
-    resolution: {integrity: sha512-qyYUlxF8DbfHc+85DDGPL04ghNBwrVK75EsNsBfYOChiCeCRwAwfbHxj/qqPrrSFPMgh9cUyEvgKYjI/7bjCUA==}
 
   piccolore@0.1.3:
     resolution: {integrity: sha512-o8bTeDWjE086iwKrROaDf31K0qC/BENdm15/uH9usSC/uZjJOKb2YGiVHfLY4GhwsERiPI1jmwI2XrA7ACOxVw==}
@@ -8928,8 +8925,6 @@ snapshots:
       minipass: 7.1.3
 
   path-to-regexp@6.3.0: {}
-
-  phosphor-astro@2.1.0: {}
 
   piccolore@0.1.3: {}
 

@@ -1,5 +1,11 @@
 import type { ValidItemType } from "@/types/shared";
 
+export const MADE_BY: Record<ValidItemType, string> = {
+  Book: "by",
+  Movie: "dir.",
+  Show: "created by",
+};
+
 export function credit({
   itemtype,
   creator,
@@ -9,12 +15,6 @@ export function credit({
   creator: string | null | undefined;
   year: number | null | undefined;
 }) {
-  const made =
-    creator &&
-    (itemtype === "Book"
-      ? `by ${creator}`
-      : itemtype === "Movie"
-        ? `dir. ${creator}`
-        : `created by ${creator}`);
+  const made = creator && `${MADE_BY[itemtype]} ${creator}`;
   return [made, year && `(${year})`].filter(Boolean).join(" ");
 }

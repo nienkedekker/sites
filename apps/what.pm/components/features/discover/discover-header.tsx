@@ -1,6 +1,4 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
-import UiNavLinks from "@nienke/ui/nav-links";
 import PageHeader from "@nienke/ui/page-header";
 import { hasUpcoming } from "@/utils/server/services";
 
@@ -19,17 +17,15 @@ export function DiscoverHeader({
 }) {
   const tabs = TABS.filter(({ shown }) => shown());
   return (
-    <div className="mb-8">
-      <PageHeader className="">Discover</PageHeader>
-      {tabs.length > 1 && (
-        <nav
-          aria-label="Discover"
-          className="rise mt-4 -ml-2 sm:-ml-3"
-          style={{ "--delay": "160ms" } as CSSProperties}
-        >
-          <UiNavLinks links={tabs} currentPath={current} as={Link} />
-        </nav>
-      )}
-    </div>
+    <PageHeader
+      tabs={
+        tabs.length > 1
+          ? { label: "Discover", links: tabs, current, as: Link }
+          : undefined
+      }
+      className="mb-8"
+    >
+      Discover
+    </PageHeader>
   );
 }

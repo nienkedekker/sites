@@ -20,7 +20,7 @@ export default function MediaChart({
   summary,
   now,
   failed = false,
-  failedMessage = "Couldn't reach what.pm right now.",
+  failedMessage = "Couldn’t reach what.pm right now.",
 }: MediaChartProps) {
   const lastMonth =
     summary && summary.year === now.getUTCFullYear()
@@ -50,7 +50,7 @@ export default function MediaChart({
       </ul>
 
       {failed && !summary ? (
-        <p className="mt-auto pt-8 text-ink-soft">{failedMessage}</p>
+        <p className="mt-auto pt-8 text-sm text-ink-soft">{failedMessage}</p>
       ) : (
         <div className="mt-auto flex gap-3 pt-8">
           <div className="axis-label relative h-40 w-5 shrink-0 text-right">

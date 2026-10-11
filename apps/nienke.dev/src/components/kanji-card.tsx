@@ -82,7 +82,7 @@ export default function KanjiCard({ initial }: { initial?: Progress }) {
             </span>
           </>
         ) : failed ? (
-          <span className="text-sm text-ink-faint">Couldn't reach WaniKani right now.</span>
+          <span className="text-sm text-ink-soft">Couldn’t reach WaniKani right now.</span>
         ) : (
           <span className="skeleton size-28" />
         )}

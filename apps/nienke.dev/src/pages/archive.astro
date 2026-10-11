@@ -88,10 +88,7 @@ const entries = archiveCollections.map((collection) => ({
 <PageLayout title="Archive" intro={archiveIntro} markdown="/archive.md">
   <div class="space-y-24 sm:space-y-32">
     <section aria-labelledby="index-heading">
-      <h2
-        id="index-heading"
-        class="display display-section text-ink"
-      >
+      <h2 id="index-heading" class="display display-section text-ink">
         Index of /archive
       </h2>
 
@@ -168,10 +165,7 @@ const entries = archiveCollections.map((collection) => ({
     </section>
 
     <section aria-labelledby="timeline-heading">
-      <h2
-        id="timeline-heading"
-        class="display display-section text-ink"
-      >
+      <h2 id="timeline-heading" class="display display-section text-ink">
         Timeline
       </h2>
 
@@ -266,10 +260,7 @@ const entries = archiveCollections.map((collection) => ({
                         </span>
                         <span
                           aria-hidden="true"
-                          class:list={[
-                            "tooltip tooltip-wide",
-                            align(era),
-                          ]}
+                          class:list={["tooltip tooltip-wide", align(era)]}
                         >
                           <span class="block font-medium [overflow-wrap:anywhere]">
                             {era.name}

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import UiNavLinks from "@nienke/ui/nav-links";
 import PageHeader from "@nienke/ui/page-header";
 
 const PAGES = [
@@ -13,12 +12,9 @@ export function NanamiHeader({
   current: (typeof PAGES)[number]["href"];
 }) {
   return (
-    <>
-      <PageHeader className="mb-8">nanami</PageHeader>
-      <nav aria-label="nanami" className="mb-8">
-        <UiNavLinks links={PAGES} currentPath={current} as={Link} />
-      </nav>
-    </>
+    <PageHeader tabs={{ label: "nanami", links: PAGES, current, as: Link }}>
+      nanami
+    </PageHeader>
   );
 }
 

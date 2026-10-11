@@ -14,7 +14,7 @@ import {
 } from "@/components/features/up-next/queue-search";
 import { ItemTitle } from "@/components/ui/item-row";
 import { Cover } from "@/components/ui/cover";
-import { TYPE_NAMES } from "@/utils/constants/app";
+import { OFFLINE_MESSAGE, TYPE_NAMES } from "@/utils/constants/app";
 import { addUpNext, removeWanted } from "@/app/actions/recommendations";
 import { startUpNextAction } from "@/app/actions/items";
 import type { ValidItemType } from "@/types/shared";
@@ -48,7 +48,7 @@ const formOf = (fields: Record<string, string | number | null | undefined>) => {
   return formData;
 };
 
-const OFFLINE: Result = { error: "Couldn’t reach the server. Try again." };
+const OFFLINE: Result = { error: OFFLINE_MESSAGE };
 
 export function UpNext({ items }: { items: QueueItem[] }) {
   const inputRef = useRef<HTMLInputElement>(null);

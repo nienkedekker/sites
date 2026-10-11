@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { OFFLINE_MESSAGE } from "@/utils/constants/app";
 
 export interface QuietAction {
   label: string;
@@ -29,7 +30,7 @@ export function QuietActions({
     setError(null);
     startTransition(async () => {
       const result = await action(formData).catch(() => ({
-        error: "Couldn’t reach the server. Try again.",
+        error: OFFLINE_MESSAGE,
       }));
       setError(result.error);
     });

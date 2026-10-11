@@ -112,9 +112,7 @@ export function SearchFilters({
                 />
               )}
               {label}
-              <span className="tabular-nums opacity-70">
-                {counts[value]}
-              </span>
+              <span className="tabular-nums opacity-70">{counts[value]}</span>
             </button>
           );
         })}
@@ -158,11 +156,7 @@ export function SearchSuggestions({
       <ul className="flex flex-wrap gap-2">
         {suggestions.map(({ name, count }) => (
           <li key={name}>
-            <button
-              type="button"
-              onClick={() => onPick(name)}
-              className="tag"
-            >
+            <button type="button" onClick={() => onPick(name)} className="tag">
               {name}
               <span className="tabular-nums opacity-70">{count}</span>
             </button>

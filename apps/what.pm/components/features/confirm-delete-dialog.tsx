@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { OFFLINE_MESSAGE } from "@/utils/constants/app";
 
 export function ConfirmDeleteDialog({
   label = "Delete",
@@ -41,9 +42,7 @@ export function ConfirmDeleteDialog({
       }
     } catch (err) {
       unstable_rethrow(err);
-      setError(
-        "Couldn’t reach the server. Check your connection and try again.",
-      );
+      setError(OFFLINE_MESSAGE);
     }
   };
 

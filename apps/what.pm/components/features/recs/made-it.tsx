@@ -20,10 +20,7 @@ export function MadeIt({
   return (
     <section aria-labelledby="made-it-heading" className="mt-24">
       <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
-        <h2
-          id="made-it-heading"
-          className="display display-section text-ink"
-        >
+        <h2 id="made-it-heading" className="display display-section text-ink">
           Made it into the log
         </h2>
         <p className="pb-1 font-mono text-xs text-ink-soft tabular-nums">

@@ -19,7 +19,7 @@ import {
   wantRecommendation,
 } from "@/app/actions/recommendations";
 import type { ValidItemType } from "@/types/shared";
-import { TYPE_NAMES } from "@/utils/constants/app";
+import { OFFLINE_MESSAGE, TYPE_NAMES } from "@/utils/constants/app";
 
 export interface ForYouPick {
   itemtype: ValidItemType;
@@ -213,9 +213,7 @@ export function PickColumns({
               }
             />
             {hints && (
-              <p className="mt-2 font-mono text-2xs text-ink-faint">
-                {hint}
-              </p>
+              <p className="mt-2 font-mono text-2xs text-ink-faint">{hint}</p>
             )}
             {shown && !loading && row ? (
               shown.length > 0 ? (
@@ -324,9 +322,7 @@ export function ForYou({
       startRefresh(() => router.refresh());
     } catch {
       if (!current.signal.aborted) {
-        setError(
-          "Couldn’t reach the server. Check your connection and try again.",
-        );
+        setError(OFFLINE_MESSAGE);
       }
     } finally {
       controller.current = null;

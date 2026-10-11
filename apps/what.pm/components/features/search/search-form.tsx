@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import type { SearchContext } from "@/utils/data/search-context";
 import type { Item } from "@/types";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { OFFLINE_MESSAGE } from "@/utils/constants/app";
 
 const MIN_QUERY_LENGTH = 2;
 const DEBOUNCE_MS = 250;
@@ -226,9 +227,7 @@ export default function SearchForm({
           <p className="display display-section text-ink-soft">
             Search didn’t go through.
           </p>
-          <p className="mt-3 text-ink-soft">
-            Couldn’t reach the server. Check your connection and try again.
-          </p>
+          <p className="mt-3 text-ink-soft">{OFFLINE_MESSAGE}</p>
           <Button
             type="button"
             onClick={() => runSearch(searchState.query, true)}

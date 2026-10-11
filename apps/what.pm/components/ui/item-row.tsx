@@ -6,7 +6,7 @@ export function ItemTitle({
   href,
   className = "",
 }: {
-  title: string;
+  title: ReactNode;
   href?: string | null;
   className?: string;
 }) {
@@ -29,6 +29,14 @@ export function ItemTitle({
   );
 }
 
+export function ItemActions({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-ink-soft">
+      {children}
+    </div>
+  );
+}
+
 export function ItemRow({
   as: Tag = "li",
   cover,
@@ -36,15 +44,17 @@ export function ItemRow({
   href,
   meta,
   actions,
+  aside,
   className = "",
   children,
 }: {
   as?: "li" | "article";
-  cover: ReactNode;
-  title: string;
+  cover?: ReactNode;
+  title: ReactNode;
   href?: string | null;
   meta?: ReactNode;
   actions?: ReactNode;
+  aside?: ReactNode;
   className?: string;
   children?: ReactNode;
 }) {
@@ -55,12 +65,9 @@ export function ItemRow({
         <ItemTitle title={title} href={href} />
         {meta && <p className="mt-1 text-sm text-ink-soft">{meta}</p>}
         {children}
-        {actions && (
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-ink-faint">
-            {actions}
-          </div>
-        )}
+        {actions && <ItemActions>{actions}</ItemActions>}
       </div>
+      {aside && <div className="shrink-0">{aside}</div>}
     </Tag>
   );
 }

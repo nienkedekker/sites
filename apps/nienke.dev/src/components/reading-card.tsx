@@ -49,7 +49,7 @@ export default function ReadingCard({ initial }: { initial?: Summary }) {
           {summary ? (
             "books read so far."
           ) : failed ? (
-            <>Couldn't reach my reading log right now. It lives on {logLink}.</>
+            <>Couldn’t reach my reading log right now. It lives on {logLink}.</>
           ) : (
             <span className="text-ink-faint">Checking my reading log…</span>
           )}

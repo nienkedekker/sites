@@ -22,6 +22,7 @@ import { signInSchema, type SignInInput } from "@/utils/schemas/validation";
 import { signInAction } from "@/app/actions/auth";
 import { useAuth } from "@/providers/auth-provider";
 import { getSafeRedirectUrl } from "@/utils/auth/safe-redirect";
+import { OFFLINE_MESSAGE } from "@/utils/constants/app";
 
 function getQueryMessage(
   searchParams: URLSearchParams,
@@ -67,8 +68,7 @@ export function SignInForm() {
     } catch (error) {
       unstable_rethrow(error);
       form.setError("root", {
-        message:
-          "Couldn’t reach the server. Check your connection and try again.",
+        message: OFFLINE_MESSAGE,
       });
       return;
     }

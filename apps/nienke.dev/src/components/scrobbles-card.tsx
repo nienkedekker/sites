@@ -40,8 +40,10 @@ export default function ScrobblesCard({ initial }: { initial?: ListeningStats })
       {stats ? (
         <Stats stats={stats} />
       ) : (
-        <p className="mt-auto pt-6 text-sm text-ink-faint">
-          {failed ? "Couldn't reach Last.fm right now." : "Counting…"}
+        <p
+          className={`mt-auto pt-6 text-sm ${failed ? "text-ink-soft" : "text-ink-faint"}`}
+        >
+          {failed ? "Couldn’t reach Last.fm right now." : "Counting…"}
         </p>
       )}
     </div>

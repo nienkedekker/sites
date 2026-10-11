@@ -47,7 +47,7 @@ export function SearchField({
           type="button"
           onClick={onClear}
           aria-label="Clear search"
-          className="grid size-9 shrink-0 cursor-pointer place-items-center text-ink-soft transition-colors hover:bg-panel-2 hover:text-ink"
+          className="icon-button size-9"
         >
           <X className="size-5" aria-hidden="true" />
         </button>

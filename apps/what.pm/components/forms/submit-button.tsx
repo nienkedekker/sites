@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { type ComponentProps } from "react";
 import { useFormStatus } from "react-dom";
-import { LoaderCircle } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 type Props = ComponentProps<typeof Button> & {
   pendingText?: string;
@@ -31,12 +31,7 @@ export function SubmitButton({
     >
       {isPending ? (
         <>
-          <LoaderCircle
-            className="animate-spin"
-            width={16}
-            height={16}
-            aria-hidden="true"
-          />
+          <LoadingSpinner />
           <span>{pendingText}</span>
         </>
       ) : (

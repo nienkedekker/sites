@@ -30,7 +30,12 @@ import {
   type MovieItemInput,
   type ShowItemInput,
 } from "@/utils/schemas/validation";
-import { TAB_VALUES, ITEM_TYPES, type TabValue } from "@/utils/constants/app";
+import {
+  ITEM_TYPES,
+  OFFLINE_MESSAGE,
+  TAB_VALUES,
+  type TabValue,
+} from "@/utils/constants/app";
 import { formStyles } from "@/utils/styles";
 import { toNumber, formatNumberInputValue } from "@/utils/form";
 
@@ -132,8 +137,7 @@ function FormComponent({
       } catch (error) {
         unstable_rethrow(error);
         form.setError("root", {
-          message:
-            "Couldn’t reach the server. Check your connection and try again.",
+          message: OFFLINE_MESSAGE,
         });
       }
     });

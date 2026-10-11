@@ -23,6 +23,7 @@ import {
   type ChangePasswordInput,
 } from "@/utils/schemas/validation";
 import { changePasswordAction } from "@/app/actions/auth";
+import { OFFLINE_MESSAGE } from "@/utils/constants/app";
 
 export function ChangePasswordForm() {
   const [changed, setChanged] = useState(false);
@@ -48,8 +49,7 @@ export function ChangePasswordForm() {
     } catch (error) {
       unstable_rethrow(error);
       form.setError("root", {
-        message:
-          "Couldn’t reach the server. Check your connection and try again.",
+        message: OFFLINE_MESSAGE,
       });
       return;
     }

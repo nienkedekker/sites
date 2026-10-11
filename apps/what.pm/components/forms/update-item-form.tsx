@@ -27,7 +27,7 @@ import {
   type MovieItemInput,
   type ShowItemInput,
 } from "@/utils/schemas/validation";
-import { ITEM_TYPES } from "@/utils/constants/app";
+import { ITEM_TYPES, OFFLINE_MESSAGE } from "@/utils/constants/app";
 import { getCurrentYear } from "@/utils/formatters/date";
 import { toNumber, formatNumberInputValue } from "@/utils/form";
 import type { Item } from "@/types";
@@ -82,8 +82,7 @@ export default function UpdateItemForm({ item, onSaved }: UpdateItemFormProps) {
     } catch (error) {
       unstable_rethrow(error);
       form.setError("root", {
-        message:
-          "Couldn’t reach the server. Check your connection and try again.",
+        message: OFFLINE_MESSAGE,
       });
       return;
     }
