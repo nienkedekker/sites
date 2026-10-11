@@ -224,7 +224,7 @@ export function PickColumns({
                 <ul className="space-y-8 pt-6">{shown.map(row)}</ul>
               ) : (
                 <p className="py-5 text-sm text-ink-soft">
-                  Nothing left here. Pick again for more.
+                  Nothing left here. Ask Claude again for more.
                 </p>
               )
             ) : (
@@ -477,7 +477,7 @@ export function ForYou({
         unspoken
         action={
           <button type="button" onClick={run} className={bordered}>
-            ↻ Pick again
+            ↻ Ask Claude again
           </button>
         }
       />
