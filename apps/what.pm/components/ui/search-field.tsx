@@ -27,7 +27,8 @@ export function SearchField({
   children?: ReactNode;
 }) {
   return (
-    <div className="relative flex items-end gap-4 border-b border-rule focus-within:border-movies focus-within:shadow-[0_1px_0_var(--movies)]">
+    // A bordered box, with the cross, spinner and hint inside on the right
+    <div className="relative flex items-center gap-3 border border-rule bg-panel pr-3 pl-5 focus-within:ring-2 focus-within:ring-accent/40">
       <input
         ref={ref}
         type="search"
@@ -36,11 +37,11 @@ export function SearchField({
         aria-label={label}
         autoComplete="off"
         spellCheck={false}
-        className="display w-full min-w-0 bg-transparent pb-2.5 text-[1.875rem] text-ink outline-none placeholder:text-ink-faint sm:text-[2.25rem] [&::-webkit-search-cancel-button]:hidden"
+        className="w-full min-w-0 bg-transparent py-4 text-[22px] text-ink outline-none placeholder:text-ink-faint [&::-webkit-search-cancel-button]:hidden"
         {...input}
       />
       {busy && (
-        <span className="mb-3.5 shrink-0 text-ink-soft" aria-hidden="true">
+        <span className="shrink-0 text-ink-soft" aria-hidden="true">
           <LoadingSpinner size={16} />
         </span>
       )}
@@ -49,14 +50,14 @@ export function SearchField({
           type="button"
           onClick={onClear}
           aria-label="Clear search"
-          className="mb-1.5 grid size-9 shrink-0 cursor-pointer place-items-center text-ink-soft transition-colors hover:bg-panel-2 hover:text-ink"
+          className="grid size-9 shrink-0 cursor-pointer place-items-center text-ink-soft transition-colors hover:bg-panel-2 hover:text-ink"
         >
           <X className="size-5" aria-hidden="true" />
         </button>
       ) : (
         hint && (
           <span
-            className="mb-3.5 shrink-0 font-mono text-xs whitespace-nowrap text-ink-faint"
+            className="shrink-0 pr-2 font-mono text-xs whitespace-nowrap text-ink-faint"
             aria-hidden="true"
           >
             {hint}

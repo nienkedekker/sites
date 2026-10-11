@@ -167,7 +167,8 @@ export function QueueSearch({
           role="listbox"
           aria-label="Matches"
           hidden={!shown}
-          className="absolute inset-x-0 top-full z-20 max-h-[28rem] overflow-y-auto border border-t-0 border-rule bg-panel"
+          // Hung from under the box's border, as wide as the box
+          className="absolute -inset-x-px top-[calc(100%+1px)] z-20 max-h-[28rem] overflow-y-auto border border-t-0 border-rule bg-panel"
         >
           {shown &&
             matches.map((match, i) => (
