@@ -10,19 +10,7 @@ import {
   pickKeysSchema,
   upNextSchema,
 } from "@/utils/schemas/validation";
-import { loadLog } from "@/utils/server/recommend-log";
-import {
-  dropReason,
-  keepNew,
-  knownCreators,
-  logIndex,
-  PICK_COUNT,
-  TYPE_PICK_COUNT,
-} from "@/utils/data/recommend";
 import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
-import { lookUp } from "@/utils/server/recommend-lookup";
-import { suggestWithClaude } from "@/utils/server/recommend-claude";
-import { hasRecs } from "@/utils/server/services";
 
 type SupabaseServer = Awaited<ReturnType<typeof createClientForServer>>;
 
@@ -31,98 +19,6 @@ const SIGNED_OUT_ERROR = "Your session has expired. Sign in again.";
 async function isSignedIn(supabase: SupabaseServer) {
   const { data } = await supabase.auth.getUser();
   return Boolean(data.user);
-}
-
-// With an itemtype, only that type's picks are replaced
-export async function refreshRecommendations(
-  itemtype?: ValidItemType,
-): Promise<{
-  error: string | null;
-}> {
-  try {
-    if (itemtype !== undefined && !VALID_ITEM_TYPES.includes(itemtype)) {
-      return { error: "Invalid request." };
-    }
-    const supabase = await createClientForServer();
-    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
-
-    if (!hasRecs()) {
-      return { error: "Picks need an ANTHROPIC_API_KEY." };
-    }
-    const { items, dismissed, wanted } = await loadLog(supabase);
-    const suggestions = await suggestWithClaude(
-      items,
-      dismissed,
-      wanted,
-      itemtype,
-    );
-    if (!suggestions) {
-      return { error: "Claude didn’t come back with picks. Try again." };
-    }
-    const looked = await lookUp(suggestions);
-    const index = logIndex(items, [...dismissed, ...wanted]);
-    const known = knownCreators(items);
-    const picks = keepNew(
-      looked,
-      index,
-      known,
-      itemtype ? TYPE_PICK_COUNT : PICK_COUNT,
-    );
-    if (picks.length === 0) {
-      console.warn(
-        "No picks kept:",
-        JSON.stringify({
-          logged: items.length,
-          dismissed: dismissed.length,
-          wanted: wanted.length,
-          suggestions: looked.map(
-            ({ suggestion, found }) =>
-              `${suggestion.itemtype} ${suggestion.title} (${suggestion.year}): ${dropReason(found, index, known)}`,
-          ),
-        }),
-      );
-      return { error: "None of Claude’s picks checked out. Try again." };
-    }
-
-    // The score keeps Claude's order, best first
-    const batchAt = new Date().toISOString();
-    const rows = picks.map(({ suggestion, found }, rank) => ({
-      itemtype: found.itemtype,
-      external_id: found.external_id,
-      title: found.title,
-      creator: found.creator,
-      published_year: found.year ?? suggestion.year,
-      reason: suggestion.reason,
-      because: suggestion.because,
-      score: picks.length - rank,
-      batch_at: batchAt,
-    }));
-
-    // Upsert, then clear the older batch, so a failed save keeps the old picks
-    const { error: saveError } = await supabase
-      .from("recommendations")
-      .upsert(rows, { onConflict: "itemtype,external_id" });
-    if (saveError) {
-      console.error("Database error saving recommendations:", saveError);
-      return { error: "Unable to save the new picks. Please try again." };
-    }
-    const older = supabase
-      .from("recommendations")
-      .delete()
-      .lt("batch_at", batchAt);
-    const { error: clearError } = await (itemtype
-      ? older.eq("itemtype", itemtype)
-      : older);
-    if (clearError) {
-      console.error("Database error clearing old recommendations:", clearError);
-    }
-
-    revalidatePath("/discover/for-you");
-    return { error: null };
-  } catch (error) {
-    console.error("Unexpected error in refreshRecommendations:", error);
-    return { error: "Something went wrong. Please try again." };
-  }
 }
 
 export async function dismissRecommendation(
@@ -189,13 +85,7 @@ export async function wantRecommendation(
       console.error("Database error saving wanted item:", error);
       return { error: "Unable to save that pick. Please try again." };
     }
-    const { error: clearError } = await supabase
-      .from("recommendations")
-      .delete()
-      .match(key);
-    if (clearError) {
-      console.error("Database error clearing wanted pick:", clearError);
-    }
+    // The pick stays, marked as on up next, until the next batch replaces it
 
     updateTag(WANTED_TAG);
     revalidatePath("/discover/for-you");
@@ -280,30 +170,6 @@ export async function removeWantedMany(
     return { error: null };
   } catch (error) {
     console.error("Unexpected error in removeWantedMany:", error);
-    return { error: "Something went wrong. Please try again." };
-  }
-}
-
-export async function removeRecommendations(
-  keys: PickKey[],
-): Promise<{ error: string | null }> {
-  try {
-    const parsed = pickKeysSchema.safeParse(keys);
-    if (!parsed.success) return { error: "Invalid request." };
-
-    const supabase = await createClientForServer();
-    if (!(await isSignedIn(supabase))) return { error: SIGNED_OUT_ERROR };
-
-    const error = await deleteKeys(supabase, "recommendations", parsed.data);
-    if (error) {
-      console.error("Database error removing recommendations:", error);
-      return { error: "Unable to remove those. Please try again." };
-    }
-
-    revalidatePath("/discover/for-you");
-    return { error: null };
-  } catch (error) {
-    console.error("Unexpected error in removeRecommendations:", error);
     return { error: "Something went wrong. Please try again." };
   }
 }

@@ -83,6 +83,8 @@ export async function suggestWithClaude(
     reason: string | null;
   }[],
   only?: ValidItemType,
+  // Cancelling stops the call
+  signal?: AbortSignal,
 ): Promise<Suggestion[] | null> {
   if (!hasRecs()) return null;
   const logged = logIndex(items);
@@ -113,9 +115,13 @@ export async function suggestWithClaude(
     .join("\n\n");
 
   try {
-    // The page gets 120 seconds, and looking up the picks takes some of them
-    const client = new Anthropic({ timeout: 90_000, maxRetries: 0 });
-    const response = await client.beta.messages.parse(
+    // Streamed, so a long think doesn't hit a request timeout, and so the
+    // log can say where the time went. The route gets 300 seconds, and
+    // looking up the picks takes some of them
+    const client = new Anthropic({ maxRetries: 0 });
+    const started = Date.now();
+    let answerAt: number | null = null;
+    const stream = client.beta.messages.stream(
       {
         model: "claude-opus-5-5",
         max_tokens: 16000,
@@ -129,7 +135,36 @@ export async function suggestWithClaude(
         system: system(only),
         messages: [{ role: "user", content: prompt }],
       },
-      { signal: AbortSignal.timeout(95_000) },
+      {
+        signal: AbortSignal.any([
+          AbortSignal.timeout(270_000),
+          ...(signal ? [signal] : []),
+        ]),
+      },
+    );
+    stream.on("streamEvent", (event) => {
+      if (
+        answerAt === null &&
+        event.type === "content_block_start" &&
+        event.content_block.type === "text"
+      ) {
+        answerAt = Date.now();
+      }
+    });
+    const response = await stream.finalMessage();
+    const seconds = (at: number) => Math.round((at - started) / 100) / 10;
+    console.info(
+      "Claude picked:",
+      JSON.stringify({
+        model: response.model,
+        stop_reason: response.stop_reason,
+        input_tokens: response.usage.input_tokens,
+        output_tokens: response.usage.output_tokens,
+        log_lines: log.length,
+        prompt_chars: prompt.length,
+        thinking_seconds: answerAt === null ? null : seconds(answerAt),
+        total_seconds: seconds(Date.now()),
+      }),
     );
     if (response.stop_reason === "refusal" || !response.parsed_output) {
       console.error("Claude gave no usable suggestions:", response.stop_reason);
@@ -153,7 +188,9 @@ export async function suggestWithClaude(
     }
     return suggestions.length > 0 ? suggestions : null;
   } catch (error) {
-    console.error("Claude recommendation pass failed:", error);
+    if (!signal?.aborted) {
+      console.error("Claude recommendation pass failed:", error);
+    }
     return null;
   }
 }
