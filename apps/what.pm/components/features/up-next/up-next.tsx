@@ -126,7 +126,7 @@ export function UpNext({ items }: { items: QueueItem[] }) {
 
   return (
     <>
-      <div className="max-w-3xl">
+      <div>
         <QueueSearch inputRef={inputRef} onPick={addMatch} />
         <p aria-live="polite" className="mt-2 min-h-5 font-mono text-xs">
           <span

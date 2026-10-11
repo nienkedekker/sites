@@ -78,8 +78,8 @@ function PickedAt({ at }: { at: string }) {
 
 const primary =
   "shrink-0 cursor-pointer bg-ink px-4 py-2 font-mono text-xs text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-ink";
-const bordered =
-  "shrink-0 cursor-pointer border border-rule px-4 py-2 font-mono text-xs text-ink transition-colors hover:bg-panel-2";
+// Like + Up next: an action that goes with the line it's on
+const quiet = "link cursor-pointer text-ink disabled:cursor-wait";
 
 // Where there's nothing yet, or while Claude is at it: rows to come, fading
 // down the column, pulsing while loading
@@ -421,18 +421,21 @@ export function ForYou({
     band = (
       <StatusBand
         title="Reading your log…"
-        detail={`${formatCount(logCount)} titles · usually takes about two minutes`}
-        busy
-        action={
-          <button
-            type="button"
-            onClick={cancel}
-            disabled={refreshing}
-            className={bordered}
-          >
-            Cancel
-          </button>
+        detail={
+          <>
+            {formatCount(logCount)} titles · usually takes about two minutes ·{" "}
+            <button
+              type="button"
+              onClick={cancel}
+              disabled={refreshing}
+              className={quiet}
+            >
+              Cancel
+            </button>
+          </>
         }
+        busy
+        action={null}
       />
     );
   } else if (error) {
@@ -457,14 +460,13 @@ export function ForYou({
         }
         detail={
           <>
-            <PickedAt at={batchAt} /> · based on {titles}
+            <PickedAt at={batchAt} /> · based on {titles} ·{" "}
+            <button type="button" onClick={run} className={quiet}>
+              ↻ Pick again
+            </button>
           </>
         }
-        action={
-          <button type="button" onClick={run} className={bordered}>
-            ↻ Pick again
-          </button>
-        }
+        action={null}
       />
     );
   } else {
