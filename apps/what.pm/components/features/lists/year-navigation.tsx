@@ -12,16 +12,12 @@ export default async function YearNavigation() {
   }
 
   return (
-    <nav aria-label="Browse by year" className="border-b border-rule">
-      <div className="mx-auto max-w-6xl px-4 py-3">
-        <Suspense
-          fallback={
-            <YearLinksFor years={years} currentYear={year} pathname={null} />
-          }
-        >
-          <YearLinks years={years} currentYear={year} />
-        </Suspense>
-      </div>
-    </nav>
+    <Suspense
+      fallback={
+        <YearLinksFor years={years} currentYear={year} pathname={null} />
+      }
+    >
+      <YearLinks years={years} currentYear={year} />
+    </Suspense>
   );
 }

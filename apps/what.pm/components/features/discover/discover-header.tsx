@@ -1,5 +1,4 @@
 import Link from "next/link";
-import UiNavLinks from "@nienke/ui/nav-links";
 import PageHeader from "@nienke/ui/page-header";
 import { hasRecs, hasUpcoming } from "@/utils/server/services";
 
@@ -17,20 +16,32 @@ export function DiscoverHeader({
   current: (typeof TABS)[number]["href"];
   intro: string;
 }) {
-  const tabs = TABS.filter(({ shown }) => shown()).map(({ href, label }) => ({
-    href,
-    label,
-  }));
+  const tabs = TABS.filter(({ shown }) => shown());
   return (
-    <>
-      <PageHeader intro={intro} className="mb-8">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
+      <PageHeader intro={intro} className="">
         Discover
       </PageHeader>
+      {/* The tabs are pages of their own, so each view has its own address */}
       {tabs.length > 1 && (
-        <nav aria-label="Discover" className="mb-12 sm:mb-16">
-          <UiNavLinks links={tabs} currentPath={current} as={Link} />
-        </nav>
+        <div
+          role="tablist"
+          aria-label="Discover"
+          className="flex shrink-0 border border-rule font-mono text-xs"
+        >
+          {tabs.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              role="tab"
+              aria-selected={href === current}
+              className="px-3 py-2 text-ink transition-colors not-first:border-l not-first:border-rule hover:bg-panel-2 aria-selected:bg-ink aria-selected:text-paper"
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
       )}
-    </>
+    </div>
   );
 }

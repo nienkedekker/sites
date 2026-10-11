@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
-import Tag from "@nienke/ui/tag";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { addUpcomingToUpNext } from "@/app/actions/upcoming";
+import { GenreMenu } from "@/components/features/upcoming/genre-menu";
 import {
   byMonth,
   genresOf,
@@ -27,13 +29,16 @@ const day = (date: string) =>
     month: "short",
   });
 
-// "Oct", or "Jan 2027" for a month in another year than today's
-const monthShort = (month: string, today: string) =>
-  new Date(`${month}-01T00:00:00Z`).toLocaleDateString("en-GB", {
+// "Oct", or "Jan '27" where the year turns
+const monthShort = (month: string, previous: string) => {
+  const name = new Date(`${month}-01T00:00:00Z`).toLocaleDateString("en-GB", {
     timeZone: "UTC",
     month: "short",
-    ...(month.slice(0, 4) === today.slice(0, 4) ? {} : { year: "numeric" }),
   });
+  return month.slice(0, 4) === previous.slice(0, 4)
+    ? name
+    : `${name} '${month.slice(2, 4)}`;
+};
 
 const monthName = (month: string) =>
   new Date(`${month}-01T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -161,14 +166,15 @@ function BookRow({
               Not out yet: {day(book.releaseDate)}
             </span>
           )}
+          {book.genres.length > 0 && (
+            <>
+              {" · "}
+              <span className="font-mono text-xs">
+                {book.genres.join(", ")}
+              </span>
+            </>
+          )}
         </p>
-        {book.genres.length > 0 && (
-          <p className="mt-2 flex flex-wrap gap-1.5">
-            {book.genres.map((genre) => (
-              <Tag key={genre}>{genre}</Tag>
-            ))}
-          </p>
-        )}
         {book.description && <Description runs={book.description} />}
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ink-faint">
           <span>
@@ -216,164 +222,167 @@ interface Props {
   today: string;
 }
 
-type Part = "out" | "coming";
+// Where a month's books start, under the site header and the filter bar. The
+// month in view is the first one crossing the band from here down
+const BAND_TOP = 100;
 
-// A month's anchor: a month can be in both parts, out before today and
-// coming after it
-const anchor = (part: Part, month: string) => `${part}-${month}`;
+const anchor = (month: string) => `month-${month}`;
 
-function Months({
-  part,
+// The address with its query changed, keeping what else is in it
+function withParams(change: (params: URLSearchParams) => void) {
+  const params = new URLSearchParams(location.search);
+  change(params);
+  return params.size ? `?${params}` : location.pathname;
+}
+
+function MonthSection({
+  month,
   books,
-  newestFirst,
   statusOf,
   today,
 }: {
-  part: Part;
+  month: string;
   books: UpcomingBook[];
-  newestFirst: boolean;
   statusOf: (book: UpcomingBook) => Status;
   today: string;
 }) {
+  const out = books.filter((book) => isOut(book, today)).length;
+  const when =
+    out === books.length
+      ? "out now"
+      : out === 0
+        ? "coming soon"
+        : "out now + coming";
   return (
-    <div className="space-y-14">
-      {byMonth(books, newestFirst).map(({ month, books }) => (
-        <section
-          key={month}
-          id={anchor(part, month)}
-          data-month
-          aria-labelledby={`${anchor(part, month)}-heading`}
-          // Clear of the site header and the month bar when jumped to
-          className="scroll-mt-32"
+    <section
+      id={anchor(month)}
+      data-month={month}
+      aria-labelledby={`${anchor(month)}-heading`}
+      // Clear of the site header and the filter bar when jumped to
+      className="scroll-mt-28"
+    >
+      <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
+        <h2
+          id={`${anchor(month)}-heading`}
+          className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
         >
-          <header className="flex items-end justify-between gap-4 border-b border-rule pb-3">
-            <h3
-              id={`${anchor(part, month)}-heading`}
-              className="display text-ink text-[1.875rem] sm:text-[2.5rem]"
-            >
-              {monthName(month)}
-            </h3>
-            <p className="font-mono text-xs text-ink-faint">
-              {formatPlural(books.length, "book")}
-            </p>
-          </header>
-          <div className="max-w-3xl">
-            {books.map((book) => (
-              <BookRow
-                key={book.id}
-                book={book}
-                status={statusOf(book)}
-                out={isOut(book, today)}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
+          {monthName(month)}
+        </h2>
+        <p className="font-mono text-xs text-ink-faint">
+          {formatPlural(books.length, "book")} · {when}
+        </p>
+      </header>
+      <div className="max-w-3xl">
+        {books.map((book) => (
+          <BookRow
+            key={book.id}
+            book={book}
+            status={statusOf(book)}
+            out={isOut(book, today)}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
-interface BarPart {
-  part: Part;
-  title: string;
+// Under the site header as the page scrolls: the genre, every month from the
+// oldest out to the last coming, and the way back up. On a phone the months
+// scroll sideways, with the genre and Top staying put
+function FilterBar({
+  genreMenu,
+  months,
+  shown,
+  active,
+  currentMonth,
+  hrefFor,
+  onJump,
+}: {
+  genreMenu: ReactNode;
   months: string[];
-}
-
-// Under the site header as the page scrolls: every month, to jump to, with the
-// one in view marked. Sideways scrolling on a phone keeps it to one line
-function MonthBar({ parts, today }: { parts: BarPart[]; today: string }) {
-  const [active, setActive] = useState<string | null>(null);
+  // The months with books in the genre picked
+  shown: string[];
+  active: string | null;
+  currentMonth: string;
+  hrefFor: (month: string) => string;
+  onJump: (month: string) => void;
+}) {
   const barRef = useRef<HTMLDivElement>(null);
-  // Changes only when the months shown change, as a genre is picked
-  const shownMonths = parts
-    .flatMap(({ part, months }) => months.map((month) => anchor(part, month)))
-    .join(" ");
 
-  // The month in view is the last one whose top has passed under the bar
+  // Keep the marked month in sight in the bar itself, scrolling just the bar
   useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const sections = document.querySelectorAll<HTMLElement>("[data-month]");
-      let current: string | null = sections[0]?.id ?? null;
-      for (const section of sections) {
-        if (section.getBoundingClientRect().top <= 160) current = section.id;
-      }
-      setActive(current);
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
-    };
-  }, [shownMonths]);
-
-  // Keep the marked month in sight in the bar itself
-  useEffect(() => {
-    if (!active) return;
-    barRef.current
-      ?.querySelector<HTMLElement>(`[data-target="${active}"]`)
-      ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    const bar = barRef.current;
+    const item = bar?.querySelector<HTMLElement>(`[data-target="${active}"]`);
+    if (!bar || !item) return;
+    const left = item.offsetLeft;
+    const right = left + item.offsetWidth;
+    if (left < bar.scrollLeft || right > bar.scrollLeft + bar.clientWidth) {
+      bar.scrollLeft = left - (bar.clientWidth - item.offsetWidth) / 2;
+    }
   }, [active]);
 
-  const toTop = () => {
-    window.scrollTo({ top: 0, behavior: "instant" });
-    history.replaceState(null, "", location.pathname + location.search);
-  };
-
-  const jump = (id: string) => {
-    document
-      .getElementById(id)
-      ?.scrollIntoView({ behavior: "instant", block: "start" });
-    history.replaceState(null, "", `#${id}`);
-  };
+  const dot = (
+    <span className="px-0.5 text-ink-faint" aria-hidden="true">
+      ·
+    </span>
+  );
 
   return (
     <nav
-      aria-label="Months"
-      className="sticky top-14 z-10 -mx-4 mb-10 flex items-center gap-2 border-b border-rule bg-paper/90 px-4 font-mono text-xs backdrop-blur"
+      aria-label="Genre and month"
+      className="sticky top-14 z-10 -mx-4 mb-8 flex items-stretch border-y border-rule bg-paper/90 font-mono text-xs backdrop-blur"
     >
-      {/* The months scroll sideways on a phone; the way back up stays put */}
-      <div ref={barRef} className="min-w-0 flex-1 overflow-x-auto">
-        <div className="flex w-max items-center gap-x-1 py-2">
-          {parts.map(({ part, title, months }, i) => (
-            <div key={part} className="flex items-center gap-x-1">
-              {i > 0 && (
-                <span className="mx-2 h-4 w-px bg-rule" aria-hidden="true" />
-              )}
-              <span className="pr-1 uppercase tracking-[0.06em] text-ink-faint">
-                {title}
-              </span>
-              {months.map((month) => {
-                const id = anchor(part, month);
-                return (
+      {genreMenu}
+      <div ref={barRef} className="relative min-w-0 flex-1 overflow-x-auto">
+        <ol className="flex h-full w-max items-center gap-x-1 px-3 py-1.5">
+          {months.map((month, i) => {
+            const label = monthShort(month, months[i - 1] ?? currentMonth);
+            // Months gone by and this one in full ink, the ones to come grey
+            const tone =
+              month > currentMonth
+                ? "text-ink-faint hover:text-ink"
+                : "text-ink";
+            return (
+              <li key={month} className="flex items-center gap-x-1">
+                {i > 0 && dot}
+                {shown.includes(month) ? (
                   <a
-                    key={id}
-                    href={`#${id}`}
-                    data-target={id}
-                    aria-current={active === id ? "true" : undefined}
+                    href={hrefFor(month)}
+                    data-target={month}
+                    aria-current={active === month ? "true" : undefined}
                     onClick={(event) => {
                       event.preventDefault();
-                      jump(id);
+                      onJump(month);
                     }}
-                    className="whitespace-nowrap px-2 py-1 text-ink-soft hover:text-ink aria-[current=true]:bg-ink aria-[current=true]:text-paper"
+                    className={`whitespace-nowrap px-2 py-1 hover:bg-panel-2 aria-[current=true]:bg-ink aria-[current=true]:text-paper ${tone}`}
                   >
-                    {monthShort(month, today)}
+                    {label}
                   </a>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+                ) : (
+                  // Nothing in the genre picked this month
+                  <span
+                    className={`whitespace-nowrap px-2 py-1 opacity-35 ${tone}`}
+                  >
+                    {label}
+                  </span>
+                )}
+                {month === currentMonth && (
+                  <>
+                    {dot}
+                    <span className="whitespace-nowrap px-1 text-accent">
+                      TODAY
+                    </span>
+                  </>
+                )}
+              </li>
+            );
+          })}
+        </ol>
       </div>
       <button
         type="button"
-        onClick={toTop}
-        className="shrink-0 cursor-pointer border-l border-rule py-1 pl-3 text-ink-soft hover:text-ink"
+        onClick={() => window.scrollTo({ top: 0, behavior: "instant" })}
+        className="shrink-0 cursor-pointer border-l border-rule px-4 text-ink-soft hover:text-ink"
       >
         ↑ Top
       </button>
@@ -381,103 +390,176 @@ function MonthBar({ parts, today }: { parts: BarPart[]; today: string }) {
   );
 }
 
+// Oldest month first, each month's books by release day, the current month's
+// out and coming together. The genre and month live in the address, so a view
+// can be shared and Back goes back through them
 export function UpcomingList({ books, upNext, read, today }: Props) {
+  const searchParams = useSearchParams();
   const genres = genresOf(books);
-  // Everything to start with; a genre narrows it down
-  const [picked, setPicked] = useState(() => new Set<string>());
+  const genreParam = searchParams.get("genre");
+  const genre = genreParam && genres.includes(genreParam) ? genreParam : null;
+  const monthParam = searchParams.get("month");
+  const currentMonth = today.slice(0, 7);
+
   const onUpNext = new Set(upNext);
   const inLog = new Set(read);
   const statusOf = (book: UpcomingBook): Status => {
     const key = titleKey(book.title);
     return onUpNext.has(key) ? "up-next" : inLog.has(key) ? "read" : null;
   };
-  const shown = books.filter((book) => matchesGenres(book, picked));
-  const out = shown.filter((book) => isOut(book, today));
-  const coming = shown.filter((book) => !isOut(book, today));
-  const parts = [
-    {
-      part: "out" as const,
-      title: "Out now",
-      note: "the last two months, newest first",
-      books: out,
-      newestFirst: true,
-    },
-    {
-      part: "coming" as const,
-      title: "Coming soon",
-      note: "the next six months",
-      books: coming,
-      newestFirst: false,
-    },
-  ].filter(({ books }) => books.length > 0);
+  const inGenre = (picked: string | null) =>
+    books.filter((book) =>
+      matchesGenres(book, new Set(picked ? [picked] : [])),
+    );
+  const sections = byMonth(inGenre(genre));
+  // Every month, whatever the genre, so the timeline holds still
+  const months = byMonth(books).map(({ month }) => month);
+  const shownKey = sections.map(({ month }) => month).join(" ");
 
-  const toggle = (genre: string) =>
-    setPicked((current) => {
-      const next = new Set(current);
-      if (next.has(genre)) next.delete(genre);
-      else next.add(genre);
-      return next;
-    });
+  const [active, setActive] = useState<string | null>(null);
+  // The month marked, read where state would be a render behind
+  const activeRef = useRef<string | null>(null);
+  const placedGenre = useRef<string | null | undefined>(undefined);
+
+  const mark = (month: string) => {
+    activeRef.current = month;
+    setActive(month);
+  };
+
+  // The first month of the list goes to the very top, with the page's header
+  const place = (month: string, first: string | undefined) => {
+    if (month === first) window.scrollTo({ top: 0, behavior: "instant" });
+    else
+      document
+        .getElementById(anchor(month))
+        ?.scrollIntoView({ behavior: "instant", block: "start" });
+  };
+
+  // Follow the scroll: the month in view is the first one in the band under
+  // the bar, or the one above while a gap between months passes, or the first
+  // at the top of the page. The address
+  // follows along without adding to history
+  useEffect(() => {
+    const sections = [
+      ...document.querySelectorAll<HTMLElement>("[data-month]"),
+    ];
+    const inBand = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const month = (entry.target as HTMLElement).dataset.month ?? "";
+          if (entry.isIntersecting) inBand.add(month);
+          else inBand.delete(month);
+        }
+        const month =
+          sections
+            .map((section) => section.dataset.month ?? "")
+            .find((month) => inBand.has(month)) ??
+          sections.findLast(
+            (section) => section.getBoundingClientRect().top <= BAND_TOP,
+          )?.dataset.month ??
+          sections[0]?.dataset.month;
+        if (!month || month === activeRef.current) return;
+        mark(month);
+        history.replaceState(
+          null,
+          "",
+          withParams((params) => params.set("month", month)),
+        );
+      },
+      { rootMargin: `-${BAND_TOP}px 0px -60% 0px` },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [shownKey]);
+
+  // Go to the month in the address when it's opened, when the genre changes,
+  // and when Back or Forward lands on another month; without one, this month
+  // or the nearest after it
+  useEffect(() => {
+    const genreChanged = placedGenre.current !== genre;
+    placedGenre.current = genre;
+    // The address following the scroll needs no jump
+    if (!genreChanged && monthParam === activeRef.current) return;
+    const shown = shownKey.split(" ");
+    const target =
+      monthParam && shown.includes(monthParam)
+        ? monthParam
+        : (shown.find((month) => month >= currentMonth) ?? shown.at(-1));
+    if (target) place(target, shown[0]);
+  }, [genre, monthParam, shownKey, currentMonth]);
+
+  if (books.length === 0) {
+    return <p className="text-ink-soft">Nothing new right now.</p>;
+  }
+
+  // Into history before scrolling, so the entry left behind keeps its place
+  const jump = (month: string) => {
+    mark(month);
+    history.pushState(
+      null,
+      "",
+      withParams((params) => params.set("month", month)),
+    );
+    place(month, sections[0]?.month);
+  };
+
+  // A genre keeps the month in view when it has books then, and starts
+  // afresh when it doesn't
+  const pickGenre = (picked: string | null) => {
+    const kept = byMonth(inGenre(picked)).some(
+      ({ month }) => month === activeRef.current,
+    );
+    history.pushState(
+      null,
+      "",
+      withParams((params) => {
+        if (picked) params.set("genre", picked);
+        else params.delete("genre");
+        if (kept && activeRef.current) params.set("month", activeRef.current);
+        else params.delete("month");
+      }),
+    );
+  };
+
+  const hrefFor = (month: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("month", month);
+    return `?${params}`;
+  };
 
   return (
     <div>
-      <div
-        role="group"
-        aria-label="Genres"
-        className="mb-10 flex flex-wrap items-center gap-2"
-      >
-        <button
-          type="button"
-          onClick={() => setPicked(new Set())}
-          aria-pressed={picked.size === 0}
-          className="tag cursor-pointer aria-pressed:bg-ink aria-pressed:text-paper"
-        >
-          All
-        </button>
-        {genres.map((genre) => (
-          <button
-            key={genre}
-            type="button"
-            onClick={() => toggle(genre)}
-            aria-pressed={picked.has(genre)}
-            className="tag cursor-pointer aria-pressed:bg-ink aria-pressed:text-paper"
-          >
-            {genre}
-          </button>
+      <FilterBar
+        genreMenu={
+          <GenreMenu
+            genres={genres.map((genre) => ({
+              genre,
+              count: inGenre(genre).length,
+            }))}
+            total={books.length}
+            current={genre}
+            onPick={pickGenre}
+          />
+        }
+        months={months}
+        shown={sections.map(({ month }) => month)}
+        active={active}
+        currentMonth={currentMonth}
+        hrefFor={hrefFor}
+        onJump={jump}
+      />
+      <div className="space-y-14">
+        {sections.map(({ month, books }) => (
+          <MonthSection
+            key={month}
+            month={month}
+            books={books}
+            statusOf={statusOf}
+            today={today}
+          />
         ))}
       </div>
-
-      {shown.length === 0 ? (
-        <p className="text-ink-soft">Nothing new in these genres.</p>
-      ) : (
-        <div className="space-y-20">
-          <MonthBar
-            today={today}
-            parts={parts.map(({ part, title, books, newestFirst }) => ({
-              part,
-              title,
-              months: byMonth(books, newestFirst).map(({ month }) => month),
-            }))}
-          />
-          {parts.map((part) => (
-            <section key={part.title} aria-label={part.title}>
-              <h2 className="mb-8 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <span className="tag">{part.title}</span>
-                <span className="font-mono text-xs text-ink-faint">
-                  {part.note}
-                </span>
-              </h2>
-              <Months
-                part={part.part}
-                books={part.books}
-                newestFirst={part.newestFirst}
-                statusOf={statusOf}
-                today={today}
-              />
-            </section>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

@@ -281,7 +281,7 @@
   }
 
   .nav-link {
-    @apply block px-2 py-1.5 text-ink underline decoration-1 underline-offset-4 aria-[current=page]:no-underline sm:px-3;
+    @apply block px-2 py-1.5 text-ink decoration-1 underline-offset-4 hover:underline aria-[current=page]:underline aria-[current=page]:decoration-2 sm:px-3;
   }
 
   .icon-button {

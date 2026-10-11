@@ -6,11 +6,11 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import UiNavLinks from "@nienke/ui/nav-links";
 import { useAuth } from "@/providers/auth-provider";
-import { isWithin, NextMenu } from "@/components/layouts/next-menu";
+import { isWithin, MoreMenu } from "@/components/layouts/more-menu";
 import {
-  NEXT_LINKS,
-  SIGNED_IN_END,
-  SIGNED_IN_START,
+  CREATE_LINK,
+  MORE_LINKS,
+  SIGNED_IN_LINKS,
   SITE_LINKS,
 } from "@/components/layouts/site-links";
 import { ThemeToggle } from "@/components/layouts/theme-toggle";
@@ -44,7 +44,9 @@ export function NavLinksFor({
   const [open, setOpen] = useState(false);
   const [menuPathname, setMenuPathname] = useState(pathname);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const next = NEXT_LINKS.filter(({ href }) => SHOWN[href]?.(features) ?? true);
+  const shown = ({ href }: { href: string }) => SHOWN[href]?.(features) ?? true;
+  const links = SIGNED_IN_LINKS.filter(shown);
+  const more = MORE_LINKS.filter(shown);
 
   if (pathname !== menuPathname) {
     setMenuPathname(pathname);
@@ -67,13 +69,21 @@ export function NavLinksFor({
       <div className="hidden md:block">
         {isLoggedIn ? (
           <ul className="nav-links">
-            {SIGNED_IN_START.map((link) => (
+            {links.map((link) => (
               <NavItem key={link.href} {...link} pathname={pathname} />
             ))}
-            <NextMenu links={next} pathname={pathname} />
-            {SIGNED_IN_END.map((link) => (
-              <NavItem key={link.href} {...link} pathname={pathname} />
-            ))}
+            <MoreMenu links={more} pathname={pathname} />
+            <li className="ml-2">
+              <Link
+                href={CREATE_LINK.href}
+                aria-current={
+                  isWithin(pathname, CREATE_LINK.href) ? "page" : undefined
+                }
+                className="block border border-rule px-3 py-1 transition-colors hover:bg-ink hover:text-paper aria-[current=page]:bg-ink aria-[current=page]:text-paper"
+              >
+                {CREATE_LINK.label}
+              </Link>
+            </li>
           </ul>
         ) : (
           <UiNavLinks
@@ -106,7 +116,7 @@ export function NavLinksFor({
         className="own-grain absolute inset-x-0 top-full border-b border-rule bg-paper md:hidden"
       >
         <ul className="mx-auto max-w-6xl divide-y divide-rule px-4 font-geist text-base font-medium">
-          {(isLoggedIn ? SIGNED_IN_START : SITE_LINKS).map((link) => (
+          {(isLoggedIn ? links : SITE_LINKS).map((link) => (
             <MenuItem
               key={link.href}
               {...link}
@@ -118,10 +128,10 @@ export function NavLinksFor({
             <>
               <li className="py-3">
                 <p className="font-mono text-xs uppercase tracking-[0.06em] text-ink-faint">
-                  Next
+                  More
                 </p>
                 <ul className="mt-1">
-                  {next.map((link) => (
+                  {more.map((link) => (
                     <MenuItem
                       key={link.href}
                       {...link}
@@ -132,14 +142,11 @@ export function NavLinksFor({
                   ))}
                 </ul>
               </li>
-              {SIGNED_IN_END.map((link) => (
-                <MenuItem
-                  key={link.href}
-                  {...link}
-                  pathname={pathname}
-                  onPick={() => setOpen(false)}
-                />
-              ))}
+              <MenuItem
+                {...CREATE_LINK}
+                pathname={pathname}
+                onPick={() => setOpen(false)}
+              />
             </>
           )}
         </ul>
@@ -150,7 +157,8 @@ export function NavLinksFor({
 
 type Href = Parameters<typeof Link>[0]["href"];
 
-// A header link, as @nienke/ui/nav-links draws them
+// A header link, as @nienke/ui/nav-links draws them, current on the pages
+// under it too, so For you still marks Discover
 function NavItem({
   href,
   label,
@@ -164,7 +172,7 @@ function NavItem({
     <li>
       <Link
         href={href}
-        aria-current={pathname === href ? "page" : undefined}
+        aria-current={isWithin(pathname, href) ? "page" : undefined}
         className="nav-link"
       >
         {label}
@@ -173,7 +181,7 @@ function NavItem({
   );
 }
 
-// A link in the phone menu; the pages under Next sit indented, without rules
+// A link in the phone menu; the pages under More sit indented, without rules
 function MenuItem({
   href,
   label,

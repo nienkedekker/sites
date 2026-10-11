@@ -3,21 +3,21 @@
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import type { NEXT_LINKS } from "@/components/layouts/site-links";
+import type { MORE_LINKS } from "@/components/layouts/site-links";
 
-type NextLink = (typeof NEXT_LINKS)[number];
+type MoreLink = (typeof MORE_LINKS)[number];
 
 // A page and everything under it, so /nanami/downloads still counts as nanami
 export const isWithin = (pathname: string | null, href: string) =>
   pathname === href || Boolean(pathname?.startsWith(`${href}/`));
 
-// "Next" in the header: a button that shows the pages under it, closing again
+// "More" in the header: a button that shows the pages under it, closing again
 // on Escape, a click elsewhere, or going to another page
-export function NextMenu({
+export function MoreMenu({
   links,
   pathname,
 }: {
-  links: readonly NextLink[];
+  links: readonly MoreLink[];
   pathname: string | null;
 }) {
   const [open, setOpen] = useState(false);
@@ -58,9 +58,10 @@ export function NextMenu({
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls={menuId}
-        className={`nav-link flex cursor-pointer items-center gap-1 ${inside ? "no-underline" : ""}`}
+        // Underlined like the current page while on one of its pages
+        className={`nav-link flex cursor-pointer items-center gap-1 ${inside ? "underline decoration-2" : ""}`}
       >
-        Next
+        More
         <ChevronDown
           className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
