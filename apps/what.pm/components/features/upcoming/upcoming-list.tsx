@@ -342,6 +342,12 @@ function FilterBar({
               month > currentMonth
                 ? "text-ink-faint hover:text-ink"
                 : "text-ink";
+            // Part of this month's item, not one of its own
+            const now = month === currentMonth && (
+              <span className="ml-1.5 text-accent group-aria-[current=true]:text-paper">
+                TODAY
+              </span>
+            );
             return (
               <li key={month} className="flex items-center gap-x-1">
                 {i > 0 && dot}
@@ -354,9 +360,10 @@ function FilterBar({
                       event.preventDefault();
                       onJump(month);
                     }}
-                    className={`whitespace-nowrap px-2 py-1 hover:bg-panel-2 aria-[current=true]:bg-ink aria-[current=true]:text-paper ${tone}`}
+                    className={`group whitespace-nowrap px-2 py-1 hover:bg-panel-2 aria-[current=true]:bg-ink aria-[current=true]:text-paper ${tone}`}
                   >
                     {label}
+                    {now}
                   </a>
                 ) : (
                   // Nothing in the genre picked this month
@@ -364,15 +371,8 @@ function FilterBar({
                     className={`whitespace-nowrap px-2 py-1 opacity-35 ${tone}`}
                   >
                     {label}
+                    {now}
                   </span>
-                )}
-                {month === currentMonth && (
-                  <>
-                    {dot}
-                    <span className="whitespace-nowrap px-1 text-accent">
-                      TODAY
-                    </span>
-                  </>
                 )}
               </li>
             );
@@ -474,20 +474,18 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
   }, [shownKey]);
 
   // Go to the month in the address when it's opened, when the genre changes,
-  // and when Back or Forward lands on another month; without one, this month
-  // or the nearest after it
+  // and when Back or Forward lands on another month. Without one the page
+  // opens at the top, and goes back there for a genre without the month
   useEffect(() => {
+    const opening = placedGenre.current === undefined;
     const genreChanged = placedGenre.current !== genre;
     placedGenre.current = genre;
     // The address following the scroll needs no jump
     if (!genreChanged && monthParam === activeRef.current) return;
     const shown = shownKey.split(" ");
-    const target =
-      monthParam && shown.includes(monthParam)
-        ? monthParam
-        : (shown.find((month) => month >= currentMonth) ?? shown.at(-1));
-    if (target) place(target, shown[0]);
-  }, [genre, monthParam, shownKey, currentMonth]);
+    if (monthParam && shown.includes(monthParam)) place(monthParam, shown[0]);
+    else if (!opening) window.scrollTo({ top: 0, behavior: "instant" });
+  }, [genre, monthParam, shownKey]);
 
   if (books.length === 0) {
     return <p className="text-ink-soft">Nothing new right now.</p>;
