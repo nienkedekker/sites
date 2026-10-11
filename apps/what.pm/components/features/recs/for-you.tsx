@@ -16,6 +16,7 @@ import { formatCount, formatDate, formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { byline } from "@/components/features/recs/entries";
 import { Cover } from "@/components/ui/cover";
+import { ReadMore } from "@/components/ui/read-more";
 import {
   dismissRecommendation,
   removeWanted,
@@ -170,7 +171,11 @@ function PickRow({
         </h3>
         {meta && <p className="mt-1 text-sm text-ink-soft">{meta}</p>}
         <Because titles={pick.because} />
-        <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{pick.reason}</p>
+        <div className="mt-1">
+          <ReadMore clamp="line-clamp-2" className="text-sm text-ink-soft">
+            {pick.reason}
+          </ReadMore>
+        </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs">
           <button
             type="button"

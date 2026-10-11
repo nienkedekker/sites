@@ -8,6 +8,7 @@ import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { Cover } from "@/components/ui/cover";
+import { ReadMore } from "@/components/ui/read-more";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { addUpcomingToUpNext } from "@/app/actions/upcoming";
 import { GenreMenu } from "@/components/features/upcoming/genre-menu";
@@ -52,28 +53,11 @@ type Status = "up-next" | "read" | null;
 
 // Three lines, and "Read more" when there's more than fits in them
 function Description({ runs }: { runs: Run[] }) {
-  const [open, setOpen] = useState(false);
-  const [cut, setCut] = useState(false);
-  const ref = useRef<HTMLParagraphElement>(null);
-
-  // Whether the clamp hides anything depends on the width, so it's measured,
-  // and measured again when the column changes size
-  useEffect(() => {
-    const element = ref.current;
-    if (!element || open) return;
-    const measure = () =>
-      setCut(element.scrollHeight > element.clientHeight + 1);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [open]);
-
   return (
     <div className="mt-3">
-      <p
-        ref={ref}
-        className={`text-sm whitespace-pre-line text-ink ${open ? "" : "line-clamp-3"}`}
+      <ReadMore
+        clamp="line-clamp-3"
+        className="text-sm whitespace-pre-line text-ink"
       >
         {runs.map((run, i) =>
           run.italic || run.bold ? (
@@ -87,17 +71,7 @@ function Description({ runs }: { runs: Run[] }) {
             run.text
           ),
         )}
-      </p>
-      {(cut || open) && (
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          className="link mt-1 cursor-pointer font-mono text-xs text-ink-soft hover:text-ink"
-        >
-          {open ? "Show less" : "Read more"}
-        </button>
-      )}
+      </ReadMore>
     </div>
   );
 }
