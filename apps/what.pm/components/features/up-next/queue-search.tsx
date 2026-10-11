@@ -7,16 +7,22 @@ import {
   type KeyboardEvent,
   type RefObject,
 } from "react";
-import { Cover, TYPE_LABEL } from "@/components/ui/cover";
+import { Cover } from "@/components/ui/cover";
+import { CATEGORY_CONFIG } from "@/utils/constants/app";
 import { VALID_ITEM_TYPES, type ValidItemType } from "@/types/shared";
 import type { ExternalResult } from "@/types/external-api";
 
 export type Match = ExternalResult & { itemtype: ValidItemType };
 
+// The types to pick from, named as the columns of the log are
+const PICKER = Object.fromEntries(
+  CATEGORY_CONFIG.map(({ type, title }) => [type, title]),
+) as Record<ValidItemType, string>;
+
 // What the box says it searches, by type
 const SEARCHING: Record<ValidItemType, string> = {
   Book: "books",
-  Movie: "films",
+  Movie: "movies",
   Show: "TV shows",
 };
 
@@ -127,7 +133,7 @@ export function QueueSearch({
                 : "hover:text-ink"
             }`}
           >
-            {TYPE_LABEL[type]}
+            {PICKER[type]}
           </button>
         ))}
       </div>
