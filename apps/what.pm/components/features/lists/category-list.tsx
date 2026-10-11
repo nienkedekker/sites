@@ -10,6 +10,8 @@ import IsLoggedIn from "@/components/auth/is-logged-in";
 import { cn } from "@/utils/ui";
 import { ItemBadges } from "@/components/features/lists/item-badges";
 import { ItemSource } from "@/components/features/lists/item-source";
+import { credit } from "@/components/features/lists/credit";
+import { ItemTitle } from "@/components/ui/item-row";
 
 interface CategoryListProps {
   categoryTitle: string;
@@ -17,28 +19,18 @@ interface CategoryListProps {
   showYearLink?: boolean;
 }
 
+// A logged show is a season of it; books and films say who made them and when
 function ItemMetadata({ item }: { item: Item }) {
-  switch (item.itemtype) {
-    case "Book":
-      return (
-        <>
-          {item.author && <span>by {item.author}</span>}
-          {item.published_year && <span>({item.published_year})</span>}
-        </>
-      );
-    case "Movie":
-      return (
-        <span>
-          {item.director && `dir. ${item.director}`}
-          {item.director && item.published_year && " · "}
-          {item.published_year}
-        </span>
-      );
-    case "Show":
-      return item.season ? <span>Season {item.season}</span> : null;
-    default:
-      return null;
+  if (item.itemtype === "Show") {
+    return item.season ? <span>Season {item.season}</span> : null;
   }
+  if (item.itemtype !== "Book" && item.itemtype !== "Movie") return null;
+  const line = credit({
+    itemtype: item.itemtype,
+    creator: item.itemtype === "Book" ? item.author : item.director,
+    year: item.published_year,
+  });
+  return line ? <span>{line}</span> : null;
 }
 
 export function CategoryList({
@@ -78,9 +70,7 @@ export function CategoryList({
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
-                    {item.title}
-                  </h3>
+                  <ItemTitle title={item.title} />
                   <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-ink-soft">
                     <ItemMetadata item={item} />
                     <ItemBadges item={item} className="ml-1.5" />

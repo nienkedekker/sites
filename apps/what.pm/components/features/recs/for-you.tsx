@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatCount, formatDate, formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
-import { byline } from "@/components/features/recs/entries";
+import { credit } from "@/components/features/lists/credit";
 import { Cover } from "@/components/ui/cover";
 import { ItemRow } from "@/components/ui/item-row";
 import { ReadMore } from "@/components/ui/read-more";
@@ -118,7 +118,11 @@ function PickRow({
   error: string | null;
 }) {
   const href = sourceOf({ ...pick, author: pick.creator })?.href;
-  const meta = byline(pick);
+  const meta = credit({
+    itemtype: pick.itemtype,
+    creator: pick.creator,
+    year: pick.published_year,
+  });
   return (
     // A group, so Not for me can show on hovering or tabbing into the pick
     <ItemRow
