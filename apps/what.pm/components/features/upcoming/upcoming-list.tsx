@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { externalProps } from "@nienke/ui/external";
 import { formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { Cover } from "@/components/ui/cover";
+import { ItemRow } from "@/components/ui/item-row";
 import { ReadMore } from "@/components/ui/read-more";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
 import { addUpcomingToUpNext } from "@/app/actions/upcoming";
@@ -107,31 +107,22 @@ function BookRow({
   return (
     // Books already on up next or read fade back, so the rest stand out while
     // scrolling; hovering or tabbing in brings one back to full strength
-    <article
-      className={`flex gap-4 border-t border-line py-5 transition-opacity first:border-t-0 sm:gap-5 ${shown ? "opacity-45 hover:opacity-100 focus-within:opacity-100" : ""}`}
-    >
-      <Cover
-        src={book.cover?.url}
-        title={book.title}
-        type="Book"
-        sizes="96px"
-        className="aspect-2/3 w-20 self-start sm:w-24"
-      />
-      <div className="min-w-0 flex-1">
-        <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
-          {goodreads ? (
-            <a
-              href={goodreads.href}
-              className="underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink"
-              {...externalProps(goodreads.href)}
-            >
-              {book.title}
-            </a>
-          ) : (
-            book.title
-          )}
-        </h3>
-        <p className="mt-1 text-sm text-ink-soft">
+    <ItemRow
+      as="article"
+      className={`border-t border-line py-5 transition-opacity first:border-t-0 ${shown ? "opacity-45 hover:opacity-100 focus-within:opacity-100" : ""}`}
+      cover={
+        <Cover
+          src={book.cover?.url}
+          title={book.title}
+          type="Book"
+          sizes="96px"
+          className="aspect-2/3 w-20 self-start sm:w-24"
+        />
+      }
+      title={book.title}
+      href={goodreads?.href}
+      meta={
+        <>
           {author && `by ${author} · `}
           {out ? (
             `out ${day(book.releaseDate)}`
@@ -156,38 +147,39 @@ function BookRow({
               ))}
             </span>
           )}
-        </p>
-        {book.description && <Description runs={book.description} />}
-        <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-ink-faint">
-          {shown === "up-next" ? (
-            <Link href="/up-next" className="link text-ink hover:text-ink">
-              ✓ On up next
-            </Link>
-          ) : shown === "read" ? (
-            <span>Read</span>
-          ) : (
-            <QuietActions
-              subject={book.title}
-              fields={{
-                title: book.title,
-                author: book.authors[0] ?? "",
-                year: book.releaseDate.slice(0, 4),
-              }}
-              actions={[
-                {
-                  label: "Put on up next",
-                  action: async (formData) => {
-                    const result = await addUpcomingToUpNext(formData);
-                    if (!result.error) setAdded(true);
-                    return result;
-                  },
+        </>
+      }
+      actions={
+        shown === "up-next" ? (
+          <Link href="/up-next" className="link text-ink hover:text-ink">
+            ✓ On up next
+          </Link>
+        ) : shown === "read" ? (
+          <span>Read</span>
+        ) : (
+          <QuietActions
+            subject={book.title}
+            fields={{
+              title: book.title,
+              author: book.authors[0] ?? "",
+              year: book.releaseDate.slice(0, 4),
+            }}
+            actions={[
+              {
+                label: "Put on up next",
+                action: async (formData) => {
+                  const result = await addUpcomingToUpNext(formData);
+                  if (!result.error) setAdded(true);
+                  return result;
                 },
-              ]}
-            />
-          )}
-        </p>
-      </div>
-    </article>
+              },
+            ]}
+          />
+        )
+      }
+    >
+      {book.description && <Description runs={book.description} />}
+    </ItemRow>
   );
 }
 

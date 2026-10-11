@@ -8,12 +8,12 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
-import { externalProps } from "@nienke/ui/external";
 import { sourceOf } from "@/components/features/lists/item-source";
 import {
   QueueSearch,
   type Match,
 } from "@/components/features/up-next/queue-search";
+import { ItemRow, ItemTitle } from "@/components/ui/item-row";
 import { Cover, TYPE_LABEL } from "@/components/ui/cover";
 import { addUpNext, removeWanted } from "@/app/actions/recommendations";
 import { addUpcomingToUpNext } from "@/app/actions/upcoming";
@@ -256,44 +256,36 @@ function StartingRow({
     author: book.author || null,
   });
   return (
-    <li className="flex gap-4 border-t border-line py-5 first:border-t-0 sm:gap-5">
-      <Cover
-        src={book.cover}
-        title={book.title}
-        type="Book"
-        sizes="96px"
-        className="aspect-2/3 w-20 self-start sm:w-24"
-      />
-      <div className="min-w-0 flex-1">
-        <h3 className="wrap-break-word font-medium leading-snug tracking-[-0.01em] text-ink">
-          {goodreads ? (
-            <a
-              href={goodreads.href}
-              className="underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink"
-              {...externalProps(goodreads.href)}
-            >
-              {book.title}
-            </a>
-          ) : (
-            book.title
-          )}
-        </h3>
-        <p className="mt-1 text-sm text-ink-soft">
+    <ItemRow
+      className="border-t border-line py-5 first:border-t-0"
+      cover={
+        <Cover
+          src={book.cover}
+          title={book.title}
+          type="Book"
+          sizes="96px"
+          className="aspect-2/3 w-20 self-start sm:w-24"
+        />
+      }
+      title={book.title}
+      href={goodreads?.href}
+      meta={
+        <>
           {book.author && `by ${book.author} · `}
           {book.when}
-        </p>
-        <p className="mt-3 font-mono text-xs text-ink-faint">
-          <button
-            type="button"
-            onClick={onAdd}
-            aria-label={`${book.title}: Put on up next`}
-            className="link cursor-pointer hover:text-ink"
-          >
-            Put on up next
-          </button>
-        </p>
-      </div>
-    </li>
+        </>
+      }
+      actions={
+        <button
+          type="button"
+          onClick={onAdd}
+          aria-label={`${book.title}: Put on up next`}
+          className="link cursor-pointer hover:text-ink"
+        >
+          Put on up next
+        </button>
+      }
+    />
   );
 }
 
@@ -330,19 +322,8 @@ function Row({
       {cover}
       <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0">
-          <h3 className="wrap-break-word text-[21px] font-medium leading-snug tracking-[-0.01em] text-ink">
-            {href ? (
-              <a
-                href={href}
-                className="underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink"
-                {...externalProps(href)}
-              >
-                {title}
-              </a>
-            ) : (
-              title
-            )}
-          </h3>
+          {/* The queue is the page's main list, so its titles are larger */}
+          <ItemTitle title={title} href={href} className="text-[21px]" />
           <p className="mt-1 text-sm text-ink-soft">
             {meta.filter(Boolean).map((part) => `${part} · `)}
             <span className="font-mono text-xs uppercase tracking-[0.06em]">

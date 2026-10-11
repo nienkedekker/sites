@@ -5,11 +5,11 @@ import { useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { flushSync } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { externalProps } from "@nienke/ui/external";
 import { formatCount, formatDate, formatPlural } from "@nienke/ui/format";
 import { sourceOf } from "@/components/features/lists/item-source";
 import { byline } from "@/components/features/recs/entries";
 import { Cover } from "@/components/ui/cover";
+import { ItemRow } from "@/components/ui/item-row";
 import { ReadMore } from "@/components/ui/read-more";
 import {
   dismissRecommendation,
@@ -121,39 +121,22 @@ function PickRow({
   const meta = byline(pick);
   return (
     // A group, so Not for me can show on hovering or tabbing into the pick
-    <li className="group flex gap-4">
-      <Cover
-        src={pick.cover}
-        title={pick.title}
-        type={pick.itemtype}
-        sizes="64px"
-        className="h-24 w-16 self-start"
-      />
-      <div className="min-w-0 flex-1">
-        <h3 className="wrap-break-word text-[17px] font-medium leading-snug tracking-[-0.01em] text-ink">
-          {href ? (
-            <a
-              href={href}
-              className="underline decoration-transparent underline-offset-4 transition-colors hover:decoration-ink"
-              {...externalProps(href)}
-            >
-              {pick.title}
-            </a>
-          ) : (
-            pick.title
-          )}
-        </h3>
-        {meta && <p className="mt-1 text-sm text-ink-soft">{meta}</p>}
-        <div className="mt-1">
-          <ReadMore
-            clamp="line-clamp-2"
-            className="text-sm text-ink-soft"
-            toggle="text"
-          >
-            {pick.reason}
-          </ReadMore>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs">
+    <ItemRow
+      className="group"
+      cover={
+        <Cover
+          src={pick.cover}
+          title={pick.title}
+          type={pick.itemtype}
+          sizes="64px"
+          className="h-24 w-16 self-start"
+        />
+      }
+      title={pick.title}
+      href={href}
+      meta={meta || null}
+      actions={
+        <>
           <button
             type="button"
             onClick={onUpNext}
@@ -180,9 +163,19 @@ function PickRow({
               {error}
             </span>
           )}
-        </div>
+        </>
+      }
+    >
+      <div className="mt-1">
+        <ReadMore
+          clamp="line-clamp-2"
+          className="text-sm text-ink-soft"
+          toggle="text"
+        >
+          {pick.reason}
+        </ReadMore>
       </div>
-    </li>
+    </ItemRow>
   );
 }
 
