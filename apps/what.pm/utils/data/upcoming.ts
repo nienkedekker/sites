@@ -42,7 +42,7 @@ const DESCRIPTION_LENGTH = 600;
 
 // Genres I don't read, left out altogether: a book tagged with any of them
 // goes, even when it's fantasy as well
-const LEFT_OUT = /\b(romance|romantasy)\b/i;
+const LEFT_OUT = /\b(romance|romantasy|young adult|ya)\b/i;
 
 const shorten = (text: string) =>
   text.length <= DESCRIPTION_LENGTH

@@ -52,6 +52,19 @@ describe("toUpcoming", () => {
     ]);
   });
 
+  it("leaves out young adult, written out or as YA", () => {
+    const books = toUpcoming([
+      { ...raw, id: 1 },
+      {
+        ...raw,
+        id: 2,
+        cached_tags: { Genre: [{ tag: "Fantasy" }, { tag: "Young Adult" }] },
+      },
+      { ...raw, id: 3, cached_tags: { Genre: [{ tag: "YA" }] } },
+    ]);
+    expect(books.map((book) => book.id)).toEqual([1]);
+  });
+
   it("leaves out romance and romantasy, even alongside fantasy", () => {
     const books = toUpcoming([
       { ...raw, id: 1 },
