@@ -1,7 +1,7 @@
-# recs
+# recs (wip)
 
 Recommendations from the what.pm log, mostly so I can learn some machine
-learning on data I know. It all runs locally; the only network calls are to
+learning on data I know. It all runs locally, the only network calls are to
 TMDB and Open Library for metadata and to Hugging Face for model weights.
 
 Each book, film and show becomes a vector from a pretrained text-embedding
@@ -17,9 +17,9 @@ directory:
     uv sync --all-groups
     cp .env.example .env     # and put the TMDB key in it
 
-`src/recs/` is a package; `uv sync` installs it and the commands below are
+`src/recs/` is a package and`uv sync` installs it and the commands below are
 its entry points. Each step can be re-run, and every API response is cached
-in `data/cache/`, so a second run makes no network calls.
+in `data/cache/` so a second run makes no network calls.
 
 | step | command | reads | writes |
 |---|---|---|---|
@@ -33,7 +33,7 @@ in `data/cache/`, so a second run makes no network calls.
 same step by step.
 
 fetch-whatpm doesn't touch the database. `scripts/export-items.ts` in the
-Next app dumps every row to `data/raw/whatpm.json` (`--refresh` runs it),
+Next app dumps every row to `data/raw/whatpm.json` (`--refresh` will run it),
 and re-reads and later seasons are collapsed into one row per work, dated
 when I first logged it. The export also brings what I did with the app's
 picks, the `wanted` and `dismissed` tables, and those become
