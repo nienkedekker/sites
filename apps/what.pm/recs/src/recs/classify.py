@@ -6,6 +6,8 @@
     uv run classify --recommend          # train on everything, print picks
 
 Positives are my history, presumed negatives a random sample of the catalog.
+The picks I've acted on in the app join in when there are any: wanted as
+positives, not for me as true negatives, and none of them are picked again.
 Features per item: its content vector, its recency-weighted similarity to my
 history, and for films its MovieLens vector. Logistic regression, then a
 small MLP, ranked on the same candidates and split as evaluate.
@@ -21,12 +23,25 @@ from sklearn.preprocessing import StandardScaler
 
 from recs.config import default_model_key, model_keys
 from recs.evaluate import HOLDOUT, ROLLING, Split, is_complete, summarise, temporal_split
-from recs.paths import FILE_NAMES, ITEMS, MEDIA, catalog_path, embedding_path
-from recs.recommend import HALF_LIFE, K_NEIGHBOURS, blend_scores, recency_weights, score_candidates
+from recs.paths import FILE_NAMES, ITEMS, LABELS, MEDIA, catalog_path, embedding_path
+from recs.recommend import HALF_LIFE, K_NEIGHBOURS, blend_scores, load_vectors, recency_weights, score_candidates
 
 MOVIELENS = "movielens"
 NEGATIVES_PER_POSITIVE = 5
+# A pick I said no to is worth more than a random catalog item, which is
+# only presumed unwanted: this many of them. A guess until there are enough
+# dismissals to tune it on.
+DISMISSED_WEIGHT = 5.0
 SEED = 0
+
+
+def load_labels(model_key: str) -> tuple[pd.DataFrame, np.ndarray]:
+    """What I did with the app's picks, with their vectors. Empty until the
+    export has read them."""
+    if not LABELS.exists():
+        return pd.DataFrame(columns=["medium", "source_id", "label", "date", "synopsis", "genres"]), np.zeros((0, 0))
+    labels = pd.read_parquet(LABELS)
+    return labels, load_vectors(model_key, "labels", len(labels))
 
 
 def self_excluded_scores(history: np.ndarray, k: int, weights: np.ndarray | None) -> np.ndarray:
@@ -51,46 +66,66 @@ class Features:
     and the catalog almost never does, so a classifier trained on the lot
     learns to spot my data source instead of my taste. MovieLens stays out
     of the features for the same reason (most of my films are in it, recent
-    ones aren't) and is blended in afterwards."""
+    ones aren't) and is blended in afterwards.
 
-    def __init__(self, items: pd.DataFrame, split: Split, model_key: str, medium: str, k: int, half_life: float):
+    The labels are rows of the same shape: wanted picks as extra positives,
+    dismissed ones as true negatives. They're dated after every cut date,
+    so the rolling evaluation uses them as if I'd always known; none of
+    them is a held-out item, so nothing leaks."""
+
+    def __init__(self, items: pd.DataFrame, split: Split, model_key: str, medium: str, k: int, half_life: float,
+                 dismissed_weight: float = DISMISSED_WEIGHT):
         of_medium = (items["medium"] == medium).to_numpy()
         self.medium = medium
         self.train_rows = split.train & of_medium
         self.heldout_rows = split.heldout & of_medium
-        vectors = np.load(embedding_path(model_key, "items"))
+        vectors = load_vectors(model_key, "items", len(items))
         catalog_df = pd.read_parquet(catalog_path(medium))
-        catalog = np.load(embedding_path(model_key, FILE_NAMES[medium]))
+        catalog = load_vectors(model_key, FILE_NAMES[medium], len(catalog_df))
         history = vectors[self.train_rows]
         self.weights = recency_weights(items.loc[self.train_rows, "date_logged"], half_life, split.cut_date)
+
+        def with_similarity(rows: np.ndarray) -> np.ndarray:
+            return np.hstack([rows, score_candidates(rows, history, k, self.weights)[0][:, None]]).astype(np.float32)
 
         complete_history = is_complete(items[self.train_rows])
         self.complete_catalog = is_complete(catalog_df)
         own = self_excluded_scores(history, k, self.weights)
         self.positive = np.hstack([history, own[:, None]])[complete_history].astype(np.float32)
-        self.catalog = np.hstack([catalog, score_candidates(catalog, history, k, self.weights)[0][:, None]]).astype(np.float32)
-        heldout = vectors[self.heldout_rows]
-        self.heldout = np.hstack([heldout, score_candidates(heldout, history, k, self.weights)[0][:, None]]).astype(np.float32)
+        self.catalog = with_similarity(catalog)
+        self.heldout = with_similarity(vectors[self.heldout_rows])
         self.train_weights = (self.weights if self.weights is not None else np.ones(len(history)))[complete_history]
+
+        labels, label_vectors = load_labels(model_key)
+        of_mine = ((labels["medium"] == medium) & is_complete(labels)).to_numpy() if len(labels) else np.zeros(0, dtype=bool)
+        wanted = of_mine & (labels["label"] == "wanted").to_numpy()
+        dismissed = of_mine & (labels["label"] == "not_for_me").to_numpy()
+        self.wanted = with_similarity(label_vectors[wanted]) if wanted.any() else np.zeros((0, self.positive.shape[1]), dtype=np.float32)
+        self.dismissed = with_similarity(label_vectors[dismissed]) if dismissed.any() else np.zeros((0, self.positive.shape[1]), dtype=np.float32)
+        wanted_weights = recency_weights(labels.loc[wanted, "date"], half_life, split.cut_date)
+        self.wanted_weights = wanted_weights if wanted_weights is not None else np.ones(len(self.wanted))
+        self.dismissed_weights = np.full(len(self.dismissed), dismissed_weight)
+        # Every labelled item stays out of the picks and the negative sample
+        self.labelled = catalog_df["source_id"].isin(labels.loc[labels["medium"] == medium, "source_id"]).to_numpy()
         # The year of every candidate: ranking on it alone is the sanity row
         self.years = np.r_[catalog_df["year"].fillna(0).to_numpy(), items.loc[self.heldout_rows, "year"].to_numpy()].astype(float)
 
         # The MovieLens score for every candidate, blended in after scoring
         self.other = None
         if embedding_path(MOVIELENS, FILE_NAMES[medium]).exists():
-            ml_items = np.load(embedding_path(MOVIELENS, "items"))
-            ml_candidates = np.vstack([np.load(embedding_path(MOVIELENS, FILE_NAMES[medium])), ml_items[self.heldout_rows]])
+            ml_items = load_vectors(MOVIELENS, "items", len(items))
+            ml_candidates = np.vstack([load_vectors(MOVIELENS, FILE_NAMES[medium], len(catalog_df)), ml_items[self.heldout_rows]])
             self.other = score_candidates(ml_candidates, ml_items[self.train_rows], k, self.weights)[0]
             self.known = np.abs(ml_candidates).sum(axis=1) > 0
 
     def training_set(self, negatives_per_positive: int, rng: np.random.Generator):
-        pool = np.flatnonzero(self.complete_catalog)
+        pool = np.flatnonzero(self.complete_catalog & ~self.labelled)
         n_neg = min(len(pool), negatives_per_positive * len(self.positive))
         negatives = self.catalog[rng.choice(pool, n_neg, replace=False)]
-        x = np.vstack([self.positive, negatives])
-        y = np.r_[np.ones(len(self.positive)), np.zeros(n_neg)]
+        x = np.vstack([self.positive, self.wanted, negatives, self.dismissed])
+        y = np.r_[np.ones(len(self.positive) + len(self.wanted)), np.zeros(n_neg + len(self.dismissed))]
         # Recent positives count more, as in the similarity baseline
-        weight = np.r_[self.train_weights, np.ones(n_neg)]
+        weight = np.r_[self.train_weights, self.wanted_weights, np.ones(n_neg), self.dismissed_weights]
         return x, y, weight
 
     @property
@@ -144,7 +179,8 @@ def ranks_of_heldout(scores: np.ndarray, n_heldout: int) -> np.ndarray:
     return rank[len(scores) - n_heldout:]
 
 
-def evaluate(model_key: str, windows, negatives_per_positive: int, k: int, half_life: float, complete_only: bool, methods) -> pd.DataFrame:
+def evaluate(model_key: str, windows, negatives_per_positive: int, k: int, half_life: float, complete_only: bool, methods,
+             dismissed_weight: float = DISMISSED_WEIGHT) -> pd.DataFrame:
     items = pd.read_parquet(ITEMS)
     content_dims = np.load(embedding_path(model_key, "items")).shape[1]
     rng = np.random.default_rng(SEED)
@@ -154,7 +190,7 @@ def evaluate(model_key: str, windows, negatives_per_positive: int, k: int, half_
         per_method: dict[str, list[np.ndarray]] = {m: [] for m in methods}
         for holdout, end in windows:
             split = temporal_split(items, holdout, end)
-            features = Features(items, split, model_key, medium, k, half_life)
+            features = Features(items, split, model_key, medium, k, half_life, dismissed_weight)
             x, y, weight = features.training_set(negatives_per_positive, rng)
             keep = is_complete(items[split.heldout & (items["medium"] == medium)]) if complete_only else slice(None)
             for name in methods:
@@ -173,7 +209,8 @@ def evaluate(model_key: str, windows, negatives_per_positive: int, k: int, half_
     return pd.DataFrame(rows)
 
 
-def recommend(model_key: str, negatives_per_positive: int, k: int, half_life: float, top: int) -> None:
+def recommend(model_key: str, negatives_per_positive: int, k: int, half_life: float, top: int,
+              dismissed_weight: float = DISMISSED_WEIGHT) -> None:
     """Train the MLP on the whole log and print the top candidates, with
     the two history items each is nearest to, for a sense of why."""
     items = pd.read_parquet(ITEMS)
@@ -181,15 +218,17 @@ def recommend(model_key: str, negatives_per_positive: int, k: int, half_life: fl
     today = pd.Timestamp.today().date().isoformat()
     for medium in MEDIA:
         split = Split(train=np.ones(len(items), dtype=bool), heldout=np.zeros(len(items), dtype=bool), cut_date=today)
-        features = Features(items, split, model_key, medium, k, half_life)
+        features = Features(items, split, model_key, medium, k, half_life, dismissed_weight)
         x, y, weight = features.training_set(negatives_per_positive, rng)
         scores = features.blended(fit_mlp(x, y, weight)(features.candidates))
+        scores[features.labelled] = -np.inf
         catalog = pd.read_parquet(catalog_path(medium))
         history = items[features.train_rows].reset_index(drop=True)
-        vectors = np.load(embedding_path(model_key, "items"))[features.train_rows]
-        catalog_vectors = np.load(embedding_path(model_key, FILE_NAMES[medium]))
+        vectors = load_vectors(model_key, "items", len(items))[features.train_rows]
+        catalog_vectors = load_vectors(model_key, FILE_NAMES[medium], len(catalog))
         _, nearest = score_candidates(catalog_vectors, vectors, 2, features.weights)
-        print(f"\n== {medium}: top {top} of {len(catalog)} candidates ==")
+        print(f"\n== {medium}: top {top} of {len(catalog)} candidates, "
+              f"{len(features.wanted)} wanted and {len(features.dismissed)} dismissed picks in the training set ==")
         for rank, i in enumerate(np.argsort(-scores)[:top], start=1):
             row = catalog.iloc[i]
             by = f", {row['creator']}" if isinstance(row["creator"], str) and row["creator"] else ""
@@ -207,19 +246,26 @@ def main() -> None:
     parser.add_argument("--half-life", type=float, default=HALF_LIFE)
     parser.add_argument("--recommend", action="store_true", help="train on the whole log and print picks")
     parser.add_argument("--top", type=int, default=20)
+    parser.add_argument("--dismissed-weight", type=float, default=DISMISSED_WEIGHT,
+                        help="how many presumed negatives one dismissed pick is worth, 0 to leave them out")
     args = parser.parse_args()
     model_key = args.model or default_model_key()
     if args.recommend:
-        recommend(model_key, args.negatives, args.k, args.half_life, args.top)
+        recommend(model_key, args.negatives, args.k, args.half_life, args.top, args.dismissed_weight)
         return
     windows = ROLLING if args.rolling else [(HOLDOUT, 1.0)]
     # "newest" ranks on the year alone: if it comes close to the others, the
     # catalog is older than what I read and the rest is reading the year too
     methods = ("newest", "similarity", "logistic", "mlp")
+    labels, _ = load_labels(model_key)
+    counts = labels["label"].value_counts().to_dict()
     print(f"features from {model_key}, {args.negatives} presumed negatives per positive, "
-          f"half-life {args.half_life}; films blended with movielens where it exists\n")
+          f"half-life {args.half_life}; films blended with movielens where it exists")
+    print(f"labels: {counts.get('wanted', 0)} wanted as positives, {counts.get('not_for_me', 0)} not for me "
+          f"as negatives at weight {args.dismissed_weight:g}\n")
     for complete_only in (False, True):
-        table = evaluate(model_key, windows, args.negatives, args.k, args.half_life, complete_only, methods)
+        table = evaluate(model_key, windows, args.negatives, args.k, args.half_life, complete_only, methods,
+                         args.dismissed_weight)
         table = table.set_index(["medium", "method"])
         print("held-out items with a synopsis and genres only:" if complete_only else "all held-out items:")
         with pd.option_context("display.width", 140, "display.float_format", "{:.3f}".format):

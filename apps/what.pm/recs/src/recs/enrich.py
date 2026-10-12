@@ -1,11 +1,12 @@
-"""Attach TMDB / Open Library metadata to each of my items.
+"""Attach TMDB / Open Library metadata to each of my items, and to the
+labels (the picks I wanted, dismissed or had seen) when there are any.
 
     uv run enrich
 """
 
 import pandas as pd
 
-from recs.paths import ITEMS, OVERRIDES, RAW_ITEMS, UNMATCHED
+from recs.paths import ITEMS, LABELS, OVERRIDES, RAW_ITEMS, RAW_LABELS, UNMATCHED
 from recs.sources import (
     TMDB_EXTRAS,
     fill_from_google,
@@ -19,7 +20,7 @@ from recs.sources import (
 )
 
 OPEN_LIBRARY_FIELDS = "key,title,author_name,first_publish_year"
-SOURCE_COLUMNS = ["source", "source_id", "source_title", "source_year", "genres", "synopsis"]
+FOUND_COLUMNS = ["source", "source_id", "source_title", "source_year", "genres", "keywords", "synopsis", "match"]
 
 Match = tuple[dict | None, str, str]
 
@@ -42,7 +43,7 @@ def show_by_id(tmdb_id: str) -> dict | None:
     return tmdb_show_record(raw) if raw else None
 
 
-def book_by_key(key: str, creator: str | None, year: int) -> dict | None:
+def book_by_key(key: str, creator: str | None, year: int | None) -> dict | None:
     work = open_library_get(f"{key}.json")
     if not work:
         return None
@@ -50,13 +51,13 @@ def book_by_key(key: str, creator: str | None, year: int) -> dict | None:
     return fill_from_google(record, work.get("title") or "", creator)
 
 
-def search_movie(title: str, year: int) -> Match:
+def search_movie(title: str, year: int | None) -> Match:
     data = tmdb_get("/search/movie", query=title, include_adult="false") or {}
     results = data.get("results", [])
     for raw in results:
         rec = tmdb_movie_record(raw)
         if same_title(title, raw.get("title"), raw.get("original_title")):
-            if rec["year"] is not None and abs(rec["year"] - year) <= 1:
+            if year is None or (rec["year"] is not None and abs(rec["year"] - year) <= 1):
                 return movie_by_id(rec["source_id"]), "exact", ""
             return movie_by_id(rec["source_id"]), "loose", f"year {rec['year']} vs {year}"
     if results:
@@ -65,14 +66,14 @@ def search_movie(title: str, year: int) -> Match:
     return None, "none", "no results"
 
 
-def search_show(title: str, year: int) -> Match:
+def search_show(title: str, year: int | None) -> Match:
     data = tmdb_get("/search/tv", query=title, include_adult="false") or {}
     results = data.get("results", [])
     for raw in results:
         rec = tmdb_show_record(raw)
         if same_title(title, raw.get("name"), raw.get("original_name")):
             # A season can't air before its show started
-            if rec["year"] is not None and rec["year"] <= year + 1:
+            if year is None or (rec["year"] is not None and rec["year"] <= year + 1):
                 return show_by_id(rec["source_id"]), "exact", ""
             return show_by_id(rec["source_id"]), "loose", f"first aired {rec['year']}"
     if results:
@@ -86,7 +87,7 @@ def search_books(**query: str) -> list[dict]:
     return data.get("docs", [])
 
 
-def search_book(title: str, creator: str | None, year: int) -> Match:
+def search_book(title: str, creator: str | None, year: int | None) -> Match:
     # The fielded search misses translations filed under the original title
     docs = search_books(title=title, author=creator or "") or search_books(
         q=f"{title} {creator or ''}".strip()
@@ -113,7 +114,8 @@ def search_book(title: str, creator: str | None, year: int) -> Match:
 
 
 def resolve(row: pd.Series, source_id: str) -> Match:
-    medium, title, creator, year = row["medium"], row["title"], row["creator"], int(row["year"])
+    medium, title, creator = row["medium"], row["title"], row["creator"]
+    year = int(row["year"]) if pd.notna(row["year"]) else None
 
     if medium == "movie" and is_tmdb_id(source_id):
         rec = movie_by_id(source_id)
@@ -139,13 +141,12 @@ def load_overrides() -> dict[str, str]:
     return dict(zip(df["my_id"], df["source_id"]))
 
 
-def main() -> None:
-    items = pd.read_parquet(RAW_ITEMS)
-    overrides = load_overrides()
+def enrich_frame(items: pd.DataFrame, overrides: dict[str, str]) -> tuple[pd.DataFrame, list[dict]]:
     found: list[dict] = []
     unmatched: list[dict] = []
+    items = items.copy()
 
-    for i, row in items.iterrows():
+    for n, (i, row) in enumerate(items.iterrows(), start=1):
         source_id = overrides.get(row["id"], row["source_id"])
         rec, confidence, note = resolve(row, source_id)
         found.append(
@@ -180,20 +181,44 @@ def main() -> None:
                     "note": note,
                 }
             )
-        if (i + 1) % 100 == 0:
-            print(f"{i + 1}/{len(items)}")
+        if n % 100 == 0:
+            print(f"{n}/{len(items)}")
 
-    enriched = pd.concat([items.drop(columns=["source_id"]), pd.DataFrame(found)], axis=1)
-    ITEMS.parent.mkdir(parents=True, exist_ok=True)
-    enriched.to_parquet(ITEMS, index=False)
-    pd.DataFrame(unmatched).to_csv(UNMATCHED, index=False)
+    # Named columns so an empty frame (no labels yet) still has them all
+    enriched = pd.concat([items.drop(columns=["source_id"]).reset_index(drop=True), pd.DataFrame(found, columns=FOUND_COLUMNS)], axis=1)
+    # A dismissed pick comes with no year; it has one once it's looked up
+    if enriched["year"].isna().any():
+        enriched["year"] = enriched["year"].fillna(enriched["source_year"]).astype("Int64")
+    return enriched, unmatched
 
-    print(f"\n{len(enriched)} items -> {ITEMS}")
+
+def report(enriched: pd.DataFrame, path) -> None:
+    print(f"\n{len(enriched)} rows -> {path}")
     print(enriched["match"].value_counts().to_string())
-    print(f"{len(unmatched)} to check in {UNMATCHED}")
     no_synopsis = (enriched["synopsis"] == "").groupby(enriched["medium"]).sum()
     no_genres = (enriched["genres"].map(len) == 0).groupby(enriched["medium"]).sum()
     print("without a synopsis:", no_synopsis.to_dict(), " without genres:", no_genres.to_dict())
+
+
+def main() -> None:
+    overrides = load_overrides()
+    ITEMS.parent.mkdir(parents=True, exist_ok=True)
+
+    enriched, unmatched = enrich_frame(pd.read_parquet(RAW_ITEMS), overrides)
+    enriched.to_parquet(ITEMS, index=False)
+    report(enriched, ITEMS)
+
+    if RAW_LABELS.exists():
+        labels, labels_unmatched = enrich_frame(pd.read_parquet(RAW_LABELS), overrides)
+        labels.to_parquet(LABELS, index=False)
+        unmatched += labels_unmatched
+        if len(labels):
+            report(labels, LABELS)
+        else:
+            print(f"\nno labels yet -> {LABELS}")
+
+    pd.DataFrame(unmatched).to_csv(UNMATCHED, index=False)
+    print(f"{len(unmatched)} to check in {UNMATCHED}")
 
 
 if __name__ == "__main__":

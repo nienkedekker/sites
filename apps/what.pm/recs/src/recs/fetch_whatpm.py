@@ -2,6 +2,10 @@
 
     uv run fetch-whatpm            # uses data/raw/whatpm.json if it exists
     uv run fetch-whatpm --refresh  # runs the Next app's export first
+
+The export also has what I did with the app's picks: wanted, not for me,
+seen. Those become data/raw/labels.parquet, one row each, minus anything
+that's in the log by now.
 """
 
 import argparse
@@ -11,7 +15,7 @@ import subprocess
 
 import pandas as pd
 
-from recs.paths import RAW_ITEMS, ROOT, WHATPM_JSON
+from recs.paths import RAW_ITEMS, RAW_LABELS, ROOT, WHATPM_JSON
 
 APP_DIR = ROOT.parent
 MEDIUM = {"Book": "book", "Movie": "movie", "Show": "show"}
@@ -87,6 +91,29 @@ def normalise(items: list[dict]) -> pd.DataFrame:
     )
 
 
+LABEL_COLUMNS = ["id", "medium", "title", "year", "creator", "source_id", "label", "date"]
+
+
+def normalise_labels(dismissed: list[dict], wanted: list[dict], works: pd.DataFrame) -> pd.DataFrame:
+    rows = [
+        {**row, "label": "wanted"} for row in wanted
+    ] + [
+        {**row, "label": row["kind"]} for row in dismissed
+    ]
+    df = pd.DataFrame(rows, columns=["itemtype", "external_id", "title", "creator", "published_year", "created_at", "label"])
+    df["medium"] = df["itemtype"].map(MEDIUM)
+    df["title"] = df["title"].map(clean_title)
+    df["year"] = df["published_year"].astype("Int64")
+    df["source_id"] = df["external_id"]
+    df["id"] = [f"{m}:{s}" for m, s in zip(df["medium"], df["source_id"])]
+    df["date"] = [str(c)[:10] for c in df["created_at"]]
+    # Wanted and then logged is just logged; dismissed and logged anyway
+    # is the log's call too
+    logged = {f"{m}:{s}" for m, s in zip(works["medium"], works["source_id"])}
+    df = df[~df["id"].isin(logged)]
+    return df[LABEL_COLUMNS].reset_index(drop=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--refresh", action="store_true", help="re-run the export")
@@ -95,13 +122,18 @@ def main() -> None:
     if args.refresh or not WHATPM_JSON.exists():
         run_export()
 
-    items = json.loads(WHATPM_JSON.read_text())["items"]
-    works = normalise(items)
+    export = json.loads(WHATPM_JSON.read_text())
+    works = normalise(export["items"])
+    labels = normalise_labels(export.get("dismissed", []), export.get("wanted", []), works)
     RAW_ITEMS.parent.mkdir(parents=True, exist_ok=True)
     works.to_parquet(RAW_ITEMS, index=False)
+    labels.to_parquet(RAW_LABELS, index=False)
 
-    print(f"{len(items)} rows -> {len(works)} works -> {RAW_ITEMS}")
+    print(f"{len(export['items'])} rows -> {len(works)} works -> {RAW_ITEMS}")
     print(works["medium"].value_counts().to_string())
+    print(f"{len(labels)} labels -> {RAW_LABELS}")
+    if len(labels):
+        print(labels["label"].value_counts().to_string())
 
 
 if __name__ == "__main__":

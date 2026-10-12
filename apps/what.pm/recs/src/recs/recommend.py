@@ -19,6 +19,17 @@ TOP_N = 20
 HALF_LIFE = 3.0
 
 
+def load_vectors(model_key: str, name: str, rows: int) -> np.ndarray:
+    """An embedding file is only good for the parquet it was made from; a
+    re-export or new labels leave it one row off, which ranks quietly wrong."""
+    path = embedding_path(model_key, name)
+    vectors = np.load(path) if path.exists() else np.zeros((0, 0))
+    if len(vectors) != rows:
+        raise SystemExit(f"{path} has {len(vectors)} rows for {rows} items; "
+                         f"embed it (`uv run embed --model {model_key} --only {name}`, or `uv run movielens`)")
+    return vectors
+
+
 def recency_weights(dates: pd.Series, half_life: float | None, now: str) -> np.ndarray | None:
     """Half-life in years; None weights every history item the same."""
     if not half_life:
@@ -64,14 +75,14 @@ def blend_scores(content: np.ndarray, other: np.ndarray, known: np.ndarray) -> n
 
 def load_history(model_key: str, medium: str) -> tuple[pd.DataFrame, np.ndarray]:
     items = pd.read_parquet(ITEMS)
-    vectors = np.load(embedding_path(model_key, "items"))
+    vectors = load_vectors(model_key, "items", len(items))
     mask = (items["medium"] == medium).to_numpy()
     return items[mask].reset_index(drop=True), vectors[mask]
 
 
 def load_catalog(model_key: str, medium: str) -> tuple[pd.DataFrame, np.ndarray]:
     catalog = pd.read_parquet(catalog_path(medium))
-    return catalog, np.load(embedding_path(model_key, FILE_NAMES[medium]))
+    return catalog, load_vectors(model_key, FILE_NAMES[medium], len(catalog))
 
 
 def label(row: pd.Series) -> str:

@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from recs.paths import EMBEDDINGS, FILE_NAMES, ITEMS, MEDIA, catalog_path, embedding_path
-from recs.recommend import HALF_LIFE, K_NEIGHBOURS, blend_scores, recency_weights, score_candidates
+from recs.recommend import HALF_LIFE, K_NEIGHBOURS, blend_scores, load_vectors, recency_weights, score_candidates
 
 HOLDOUT = 0.2
 KS = (10, 50, 100)
@@ -57,19 +57,19 @@ def ranks_for(
     weights = recency_weights(items.loc[split.train & of_medium, "date_logged"], half_life, split.cut_date)
 
     def scores_from(key: str) -> tuple[np.ndarray, np.ndarray]:
-        vectors = np.load(embedding_path(key, "items"))
-        catalog = np.load(embedding_path(key, FILE_NAMES[medium]))
+        vectors = load_vectors(key, "items", len(items))
+        catalog = load_vectors(key, FILE_NAMES[medium], catalog_rows)
         # The catalog leaves out everything I've logged, held-out items too, so
         # without adding them here the baseline could never find them
         candidates = np.vstack([catalog, vectors[split.heldout & of_medium]])
         scored, _ = score_candidates(candidates, vectors[split.train & of_medium], k, weights)
         return scored, candidates
 
+    catalog_rows = len(pd.read_parquet(catalog_path(medium)))
     scores, candidates = scores_from(model_key)
     if blend and blend != model_key and embedding_path(blend, FILE_NAMES[medium]).exists():
         other, other_candidates = scores_from(blend)
         scores = blend_scores(scores, other, np.abs(other_candidates).sum(axis=1) > 0)
-    catalog_rows = len(candidates) - int((split.heldout & of_medium).sum())
     order = np.argsort(-scores)
     rank_of = np.empty(len(candidates), dtype=int)
     rank_of[order] = np.arange(1, len(candidates) + 1)

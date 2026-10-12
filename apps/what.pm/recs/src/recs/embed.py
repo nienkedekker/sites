@@ -2,6 +2,7 @@
 
     uv run embed                    # the default model in config.toml
     uv run embed --model baseline   # any other key in config.toml
+    uv run embed --only labels      # just the one file, after new labels
 """
 
 import argparse
@@ -17,7 +18,7 @@ from huggingface_hub import constants, model_info, try_to_load_from_cache
 from sentence_transformers import SentenceTransformer
 
 from recs.config import ModelConfig, model_config, model_keys
-from recs.paths import FILE_NAMES, ITEMS, MEDIA, catalog_path, embedding_dir, embedding_path
+from recs.paths import FILE_NAMES, ITEMS, LABELS, MEDIA, catalog_path, embedding_dir, embedding_path
 
 SLOW_SECONDS = 600
 
@@ -48,7 +49,7 @@ def texts(df: pd.DataFrame, prefix: str) -> list[str]:
         prefix
         + item_text(
             row.title,
-            row.year,
+            int(row.year) if pd.notna(row.year) else None,
             list(row.genres),
             row.synopsis,
             row.creator if isinstance(row.creator, str) else None,
@@ -102,6 +103,9 @@ def embed(model: SentenceTransformer, cfg: ModelConfig, df: pd.DataFrame) -> np.
 
 
 def write_meta(cfg: ModelConfig, model: SentenceTransformer, counts: dict[str, int], seconds: float) -> None:
+    meta_path = embedding_dir(cfg.key) / "meta.json"
+    if meta_path.exists():
+        counts = {**json.loads(meta_path.read_text()).get("rows", {}), **counts}
     meta = {
         "key": cfg.key,
         "model": cfg.name,
@@ -114,12 +118,13 @@ def write_meta(cfg: ModelConfig, model: SentenceTransformer, counts: dict[str, i
         "seconds": round(seconds, 1),
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
-    (embedding_dir(cfg.key) / "meta.json").write_text(json.dumps(meta, indent=2))
+    meta_path.write_text(json.dumps(meta, indent=2))
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--model", choices=model_keys(), help="a key from config.toml")
+    parser.add_argument("--only", choices=["items", "labels", *FILE_NAMES.values()], help="one file")
     args = parser.parse_args()
 
     cfg = model_config(args.model)
@@ -128,12 +133,18 @@ def main() -> None:
 
     started = time.perf_counter()
     counts: dict[str, int] = {}
-    targets = [("items", ITEMS)] + [(FILE_NAMES[m], catalog_path(m)) for m in MEDIA]
+    targets = [("items", ITEMS), ("labels", LABELS)] + [(FILE_NAMES[m], catalog_path(m)) for m in MEDIA]
     for name, path in targets:
+        if args.only and name != args.only:
+            continue
         if not path.exists():
             print(f"skip {name}: {path} missing")
             continue
         df = pd.read_parquet(path)
+        if df.empty:
+            np.save(embedding_path(cfg.key, name), np.zeros((0, model.get_embedding_dimension()), dtype=np.float32))
+            counts[name] = 0
+            continue
         vectors = embed(model, cfg, df)
         np.save(embedding_path(cfg.key, name), vectors)
         counts[name] = len(df)

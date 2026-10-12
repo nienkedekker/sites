@@ -8,7 +8,8 @@ Each book, film and show becomes a vector from a pretrained text-embedding
 model, and the catalog items whose vectors sit closest to the ones I've
 logged are the picks. what.pm has no ratings and everything on it is
 something I liked, so there are no negatives to learn from, only "more like
-these".
+these". The one exception is the picks I've said no to in the app, which the
+classifier uses.
 
 Needs [uv](https://docs.astral.sh/uv/), and Node for the export. From this
 directory:
@@ -22,8 +23,8 @@ in `data/cache/`, so a second run makes no network calls.
 
 | step | command | reads | writes |
 |---|---|---|---|
-| 1 | `uv run fetch-whatpm` | `data/raw/whatpm.json` | `data/raw/items.parquet` |
-| 2 | `uv run enrich` | step 1, `data/enriched/overrides.csv` | `data/enriched/items.parquet`, `unmatched.csv` |
+| 1 | `uv run fetch-whatpm` | `data/raw/whatpm.json` | `data/raw/items.parquet`, `labels.parquet` |
+| 2 | `uv run enrich` | step 1, `data/enriched/overrides.csv` | `data/enriched/items.parquet`, `labels.parquet`, `unmatched.csv` |
 | 3 | `uv run build-catalog` | step 2 | `data/catalog/{books,movies,tv}.parquet` |
 | 4 | `uv run embed [--model KEY]` | steps 2 and 3 | `embeddings/KEY/*.npy`, `meta.json` |
 | 5 | `uv run recommend [--model KEY]` | step 4 | prints the top 20 per medium |
@@ -34,7 +35,13 @@ same step by step.
 fetch-whatpm doesn't touch the database. `scripts/export-items.ts` in the
 Next app dumps every row to `data/raw/whatpm.json` (`--refresh` runs it),
 and re-reads and later seasons are collapsed into one row per work, dated
-when I first logged it.
+when I first logged it. The export also brings what I did with the app's
+picks, the `wanted` and `dismissed` tables, and those become
+`data/raw/labels.parquet`: one row per pick, labelled `wanted`,
+`not_for_me` or `seen`, minus anything that's in the log by now. Only the
+owner can read `dismissed`, so the export wants `SUPABASE_SERVICE_ROLE_KEY`
+in the app's `.env.local` (Supabase dashboard, project settings, API keys);
+without it the dismissals stay empty and it says so.
 
 enrich looks items up by the TMDB id or Open Library work key the app
 already has, and searches on title and year for the rest. TMDB details come
@@ -59,7 +66,10 @@ per candidate, about an hour in all. `--pages`, `--subjects` and
 
 embed is the ML part. `item_text()` in `embed.py` builds the text that gets
 embedded, `"{title} ({year}). By {creator}. {genres}. {keywords}. {synopsis}"`,
-for my items and the candidates alike.
+for my items, the labels and the candidates alike. `--only labels` (or
+`items`, `books`, ...) redoes one file; after a fresh export that's all
+that's needed, and every step checks that an embedding file still has as
+many rows as the parquet it came from.
 
 recommend scores a candidate by its mean cosine similarity to the five of my
 items it's closest to, per medium, and prints the two behind each pick.
@@ -123,6 +133,16 @@ for films the MovieLens score is blended in afterwards, as for the baseline.
 row that ranks on the year alone. `--recommend` trains on the whole log and
 prints picks. Notebook 02 walks through it.
 
+The labels join the training set when there are any: a wanted pick is one
+more positive, dated when I saved it, and a pick I marked not for me is a
+true negative, where the sampled ones are only presumed. One dismissal
+counts as five presumed negatives (`--dismissed-weight`, 0 leaves them
+out); that's a guess until there are enough to tune it on. Seen ones carry
+no signal either way. All three stay out of the picks and out of the
+negative sample. They're dated after every cut date of the rolling
+evaluation, so it uses them as if I'd always had them, which is fair as far
+as leaks go: none of them is a held-out item.
+
 Two shortcuts it had to be stopped from taking. Training on every item, it
 learned to tell my data source from the catalog's: a fifth of my items had
 a bare title-and-author text and the catalog almost never does, so it put
@@ -165,8 +185,8 @@ MovieLens, which knows who else liked my films, is what moves them.
 ## Layout
 
     config.toml           embedding models
-    data/raw/             the what.pm export, and one row per work
-    data/enriched/        items with metadata, unmatched.csv, overrides.csv
+    data/raw/             the what.pm export, one row per work, and the labels
+    data/enriched/        items and labels with metadata, unmatched.csv, overrides.csv
     data/catalog/         candidates I haven't logged, per medium
     data/cache/           every API response, keyed by request
     embeddings/<model>/   one .npy per parquet file, same row order, and meta.json

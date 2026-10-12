@@ -16,7 +16,9 @@ EMBEDDINGS = ROOT / "embeddings"
 
 WHATPM_JSON = RAW / "whatpm.json"
 RAW_ITEMS = RAW / "items.parquet"
+RAW_LABELS = RAW / "labels.parquet"
 ITEMS = ENRICHED / "items.parquet"
+LABELS = ENRICHED / "labels.parquet"
 UNMATCHED = ENRICHED / "unmatched.csv"
 OVERRIDES = ENRICHED / "overrides.csv"
 
