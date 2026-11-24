@@ -24,8 +24,11 @@ import {
 } from "@/utils/data/upcoming";
 import { ArrowUp, Check } from "@phosphor-icons/react/ssr";
 
-async function addToUpNext(formData: FormData) {
-  const res = await fetch("/api/up-next", {
+async function postBook(
+  path: "/api/up-next" | "/api/read",
+  formData: FormData,
+) {
+  const res = await fetch(path, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(Object.fromEntries(formData)),
@@ -106,8 +109,8 @@ function BookRow({
   status: Status;
   out: boolean;
 } & GenreFilter) {
-  const [added, setAdded] = useState(false);
-  const shown = added ? "up-next" : status;
+  const [marked, setMarked] = useState<Status>(null);
+  const shown = marked ?? status;
   const goodreads = sourceOf({
     itemtype: "Book",
     external_id: null,
@@ -181,8 +184,17 @@ function BookRow({
                 label: "+ Up next",
                 ariaLabel: `Put ${book.title} on Up next`,
                 action: async (formData) => {
-                  const result = await addToUpNext(formData);
-                  if (!result.error) setAdded(true);
+                  const result = await postBook("/api/up-next", formData);
+                  if (!result.error) setMarked("up-next");
+                  return result;
+                },
+              },
+              {
+                label: "Already read",
+                ariaLabel: `Mark ${book.title} as already read`,
+                action: async (formData) => {
+                  const result = await postBook("/api/read", formData);
+                  if (!result.error) setMarked("read");
                   return result;
                 },
               },

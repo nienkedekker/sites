@@ -38,7 +38,7 @@ async function NewReleases() {
   let today: string;
   try {
     const supabase = await createClientForServer();
-    const [upcoming, logged, wanted, now] = await Promise.all([
+    const [upcoming, logged, wanted, seen, now] = await Promise.all([
       recentBooks(),
       fetchAllRows<{ title: string }>((from, to) =>
         supabase
@@ -49,6 +49,11 @@ async function NewReleases() {
           .range(from, to),
       ),
       supabase.from("wanted").select("title").eq("itemtype", "Book"),
+      supabase
+        .from("dismissed")
+        .select("title")
+        .eq("itemtype", "Book")
+        .eq("kind", "seen"),
       renderTime(),
     ]);
     today = new Date(now).toLocaleDateString("sv-SE", {
@@ -56,7 +61,10 @@ async function NewReleases() {
     });
     books = upcoming;
     upNext = (wanted.data ?? []).map((item) => titleKey(item.title));
-    read = logged.map((item) => titleKey(item.title));
+    // Marked read on this page without being logged counts as read too
+    read = [...logged, ...(seen.data ?? [])].map((item) =>
+      titleKey(item.title),
+    );
   } catch (error) {
     unstable_rethrow(error);
     console.error("Error loading recent books:", error);
