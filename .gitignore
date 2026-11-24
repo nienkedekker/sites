@@ -25,3 +25,5 @@ old-sites-handover/tumblr-backup/
 apps/nienke.dev/scripts/old-sites-snapshot/cache/
 .vercel
 .env*
+# 1Password references only, safe to commit
+!.env.op

@@ -39,9 +39,9 @@ when I first logged it. The export also brings what I did with the app's
 picks, the `wanted` and `dismissed` tables, and those become
 `data/raw/labels.parquet`: one row per pick, labelled `wanted`,
 `not_for_me` or `seen`, minus anything that's in the log by now. Only the
-owner can read `dismissed`, so the export wants `SUPABASE_SECRET_KEY`
-in the app's `.env.local` (Supabase dashboard, project settings, API keys);
-without it the dismissals stay empty and it says so.
+owner can read `dismissed`, so the export wants `SUPABASE_SECRET_KEY`,
+which the app's `.env.op` takes from 1Password; without it the dismissals
+stay empty and it says so.
 
 enrich looks items up by the TMDB id or Open Library work key the app
 already has, and searches on title and year for the rest. TMDB details come

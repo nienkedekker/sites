@@ -23,8 +23,8 @@ MEDIUM = {"Book": "book", "Movie": "movie", "Show": "show"}
 
 def run_export() -> None:
     subprocess.run(
-        # op run fills in the 1Password references in .env.local
-        ["op", "run", "--env-file=.env.local", "--"]
+        # op run fills in the 1Password references in .env.op
+        ["op", "run", "--env-file=.env.op", "--"]
         + ["node", "scripts/export-items.ts"],
         cwd=APP_DIR,
         check=True,

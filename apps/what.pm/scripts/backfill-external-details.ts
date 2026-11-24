@@ -1,18 +1,18 @@
 // Matches logged items to OpenLibrary/TMDB to fill in external_id, pages,
 // runtime_minutes and based_on. It only reads from Supabase; --sql writes the
 // updates to a file to check and then run with `supabase db query -f`:
-//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts --limit 20
-//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts --only "Kafka|Runaways"
-//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts \
+//   op run --env-file=.env.op -- npx tsx scripts/backfill-external-details.ts --limit 20
+//   op run --env-file=.env.op -- npx tsx scripts/backfill-external-details.ts --only "Kafka|Runaways"
+//   op run --env-file=.env.op -- npx tsx scripts/backfill-external-details.ts \
 //     --report matches.tsv --sql backfill.sql
 // --refresh skips matching and re-checks items that are already matched but
 // still have no page count or runtime, like a season the source added later.
 // Books without pages also try Google Books, matched or not:
-//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts \
+//   op run --env-file=.env.op -- npx tsx scripts/backfill-external-details.ts \
 //     --refresh --sql refresh.sql
 // --genres fills in genres for matched items that don't have any yet, from
 // TMDB for movies and shows and from subjects for books:
-//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts \
+//   op run --env-file=.env.op -- npx tsx scripts/backfill-external-details.ts \
 //     --genres --sql genres.sql
 import { writeFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";

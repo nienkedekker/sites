@@ -1,8 +1,8 @@
-// op run --env-file=.env.local -- node scripts/export-items.ts
+// op run --env-file=.env.op -- node scripts/export-items.ts
 //
-// With SUPABASE_SECRET_KEY in .env.local the dismissed picks come
-// along too; the publishable key can't read that table, so without it they stay
-// empty and the classifier learns from the log alone.
+// The dismissed picks need SUPABASE_SECRET_KEY; the publishable key can't
+// read that table, so without it they stay empty and the classifier learns
+// from the log alone.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
