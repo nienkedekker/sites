@@ -7,7 +7,7 @@ import {
   titleScore,
   type TmdbMovie,
   type TmdbShow,
-} from "@/scripts/matching";
+} from "@/utils/data/matching";
 import { book, movie, show } from "./items";
 
 describe("cleanTitle", () => {
