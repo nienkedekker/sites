@@ -124,7 +124,7 @@ function BookRow({
             `out ${day(book.releaseDate)}`
           ) : (
             <span className="font-medium text-ink">
-              Not out yet: {day(book.releaseDate)}
+              out on {day(book.releaseDate)}
             </span>
           )}
           {book.genres.length > 0 && (
