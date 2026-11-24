@@ -11,7 +11,6 @@ import { Cover } from "@/components/ui/cover";
 import { ItemRow } from "@/components/ui/item-row";
 import { ReadMore } from "@/components/ui/read-more";
 import { QuietActions } from "@/components/features/recs/quiet-actions";
-import { addUpcomingToUpNext } from "@/app/actions/upcoming";
 import { GenreMenu } from "@/components/features/upcoming/genre-menu";
 import {
   byMonth,
@@ -24,6 +23,20 @@ import {
   type UpcomingBook,
 } from "@/utils/data/upcoming";
 import { ArrowUp, Check } from "@phosphor-icons/react/ssr";
+
+async function addToUpNext(formData: FormData) {
+  const res = await fetch("/api/up-next", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(Object.fromEntries(formData)),
+  });
+  const body: { error?: string | null } = await res.json().catch(() => ({}));
+  return {
+    error: res.ok
+      ? null
+      : (body.error ?? "Something went wrong. Please try again."),
+  };
+}
 
 const day = (date: string) =>
   new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -168,7 +181,7 @@ function BookRow({
                 label: "+ Up next",
                 ariaLabel: `Put ${book.title} on Up next`,
                 action: async (formData) => {
-                  const result = await addUpcomingToUpNext(formData);
+                  const result = await addToUpNext(formData);
                   if (!result.error) setAdded(true);
                   return result;
                 },

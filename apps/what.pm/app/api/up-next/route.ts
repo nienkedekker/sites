@@ -1,6 +1,5 @@
-"use server";
-
-import { revalidatePath, updateTag } from "next/cache";
+import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { WANTED_TAG } from "@/utils/constants/app";
 import { unmatchedId } from "@/utils/data/external-ids";
@@ -13,18 +12,32 @@ const upcomingSchema = z.object({
   year: z.coerce.number().int().min(1000).max(3000),
 });
 
-export async function addUpcomingToUpNext(
-  formData: FormData,
-): Promise<{ error: string | null }> {
+// A route, not a Server Action: anything an action revalidates makes the
+// router re-render the page and scroll back to the top, mid-list on Discover
+export async function POST(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  if (!origin || new URL(origin).host !== request.headers.get("host")) {
+    return NextResponse.json({ error: "Not allowed." }, { status: 403 });
+  }
+
   try {
-    const parsed = upcomingSchema.safeParse(Object.fromEntries(formData));
-    if (!parsed.success) return { error: "That book is missing its details." };
+    const parsed = upcomingSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "That book is missing its details." },
+        { status: 400 },
+      );
+    }
     const { title, author, year } = parsed.data;
 
     const supabase = await createClientForServer();
     const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user)
-      return { error: "Your session has expired. Sign in again." };
+    if (!auth.user) {
+      return NextResponse.json(
+        { error: "Your session has expired. Sign in again." },
+        { status: 401 },
+      );
+    }
 
     const [{ found }] = await lookUp([
       {
@@ -49,7 +62,10 @@ export async function addUpcomingToUpNext(
     );
     if (error) {
       console.error("Database error adding an upcoming book:", error);
-      return { error: "Unable to add that. Please try again." };
+      return NextResponse.json(
+        { error: "Unable to add that. Please try again." },
+        { status: 500 },
+      );
     }
     if (found) {
       await supabase
@@ -58,12 +74,14 @@ export async function addUpcomingToUpNext(
         .match({ itemtype: "Book", external_id: placeholder });
     }
 
-    updateTag(WANTED_TAG);
+    revalidateTag(WANTED_TAG, { expire: 0 });
     revalidatePath("/discover/for-you");
-    revalidatePath("/discover");
-    return { error: null };
+    return NextResponse.json({ error: null });
   } catch (error) {
-    console.error("Unexpected error in addUpcomingToUpNext:", error);
-    return { error: "Something went wrong. Please try again." };
+    console.error("Unexpected error adding an upcoming book:", error);
+    return NextResponse.json(
+      { error: "Something went wrong. Please try again." },
+      { status: 500 },
+    );
   }
 }
