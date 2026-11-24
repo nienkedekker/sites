@@ -1,14 +1,17 @@
 import { externalProps } from "@nienke/ui/external";
 import { formatCount } from "@nienke/ui/format";
 import { Item } from "@/types";
+import { splitNames } from "@/utils/data/names";
 
 // Goodreads has no API, so books link to a search, where the book is nearly
-// always the top result
+// always the top result. The first author is enough, as on new releases
 export function sourceOf(
   item: Pick<Item, "itemtype" | "external_id" | "title" | "author">,
 ) {
   if (item.itemtype === "Book") {
-    const query = [item.title, item.author].filter(Boolean).join(" ");
+    const query = [item.title, splitNames(item.author)[0]]
+      .filter(Boolean)
+      .join(" ");
     return {
       name: "Goodreads",
       href: `https://www.goodreads.com/search?q=${encodeURIComponent(query)}`,

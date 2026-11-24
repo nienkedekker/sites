@@ -132,8 +132,6 @@ export function matchScreen(
 }
 
 async function bookSearch(title: string, author: string) {
-  "use cache: remote";
-  cacheLife("weeks");
   const url = new URL("https://openlibrary.org/search.json");
   url.searchParams.set("title", title);
   url.searchParams.set("author", author);
@@ -147,8 +145,6 @@ async function bookSearch(title: string, author: string) {
 }
 
 async function googleBookSearch(title: string, author: string) {
-  "use cache: remote";
-  cacheLife("weeks");
   const key = process.env.GOOGLE_API_KEY;
   if (!key) return [];
   const url = new URL("https://www.googleapis.com/books/v1/volumes");
@@ -161,8 +157,6 @@ async function googleBookSearch(title: string, author: string) {
 }
 
 async function screenSearch(kind: string, title: string) {
-  "use cache: remote";
-  cacheLife("weeks");
   const data = await getJson<{ results: TmdbResult[] }>(
     tmdbUrl(`/search/${kind}`, { query: title }),
   );
@@ -202,63 +196,86 @@ async function screenDetails(itemtype: string, id: string) {
   };
 }
 
-async function find(suggestion: Suggestion): Promise<Found | null> {
-  if (suggestion.itemtype === "Book") {
-    // Open Library's title search finds nothing for a subtitle it doesn't
-    // have ("Other Worlds Than These: A Talisman Novel"), so it gets the main
-    // title only, the part matching compares anyway
-    const mainPart = suggestion.title.split(":")[0].trim();
-    const doc = matchBook(
-      await bookSearch(mainPart, suggestion.creator),
-      suggestion.title,
-      suggestion.creator,
-      suggestion.year,
-    );
-    if (doc) {
-      return {
-        itemtype: "Book",
-        external_id: doc.key,
-        title: doc.title,
-        creator: suggestion.creator,
-        year: doc.first_publish_year ?? null,
-      };
-    }
-    // Open Library adds new releases months late, Google Books has them
-    // before they're out
-    const volume = matchGoogleBook(
-      await googleBookSearch(mainPart, suggestion.creator),
-      suggestion.title,
-      suggestion.creator,
-      suggestion.year,
-    );
-    return volume
-      ? {
-          itemtype: "Book",
-          external_id: volume.id,
-          title: volume.volumeInfo.title ?? suggestion.title,
-          creator: suggestion.creator,
-          year: yearOf(volume.volumeInfo.publishedDate),
-        }
-      : null;
-  }
-  const kind = suggestion.itemtype === "Movie" ? "movie" : "tv";
-  const result = matchScreen(
-    await screenSearch(kind, suggestion.title),
-    suggestion.title,
-    suggestion.year,
+// A miss is kept an hour, not weeks: a new release often turns up on Open
+// Library or Google Books later, and the details cron should find it then
+async function findBook(
+  title: string,
+  creator: string,
+  year: number,
+): Promise<Found | null> {
+  "use cache: remote";
+  // Open Library's title search finds nothing for a subtitle it doesn't
+  // have ("Other Worlds Than These: A Talisman Novel"), so it gets the main
+  // title only, the part matching compares anyway
+  const mainPart = title.split(":")[0].trim();
+  const doc = matchBook(
+    await bookSearch(mainPart, creator),
+    title,
+    creator,
+    year,
   );
-  if (!result) return null;
-  const id = String(result.id);
-  const details = await screenDetails(suggestion.itemtype, id);
+  if (doc) {
+    cacheLife("weeks");
+    return {
+      itemtype: "Book",
+      external_id: doc.key,
+      title: doc.title,
+      creator,
+      year: doc.first_publish_year ?? null,
+    };
+  }
+  // Open Library adds new releases months late, Google Books has them
+  // before they're out
+  const volume = matchGoogleBook(
+    await googleBookSearch(mainPart, creator),
+    title,
+    creator,
+    year,
+  );
+  if (!volume) {
+    cacheLife("hours");
+    return null;
+  }
+  cacheLife("weeks");
   return {
-    itemtype: suggestion.itemtype,
+    itemtype: "Book",
+    external_id: volume.id,
+    title: volume.volumeInfo.title ?? title,
+    creator,
+    year: yearOf(volume.volumeInfo.publishedDate),
+  };
+}
+
+async function findScreen(
+  itemtype: "Movie" | "Show",
+  title: string,
+  creator: string,
+  year: number,
+): Promise<Found | null> {
+  "use cache: remote";
+  const kind = itemtype === "Movie" ? "movie" : "tv";
+  const result = matchScreen(await screenSearch(kind, title), title, year);
+  if (!result) {
+    cacheLife("hours");
+    return null;
+  }
+  cacheLife("weeks");
+  const id = String(result.id);
+  const details = await screenDetails(itemtype, id);
+  return {
+    itemtype,
     external_id: id,
-    title: result.title ?? result.name ?? suggestion.title,
-    creator: details.creator ?? suggestion.creator,
+    title: result.title ?? result.name ?? title,
+    creator: details.creator ?? creator,
     year: yearOf(result.release_date || result.first_air_date),
     based_on: details.based_on,
   };
 }
+
+const find = ({ itemtype, title, creator, year }: Suggestion) =>
+  itemtype === "Book"
+    ? findBook(title, creator, year)
+    : findScreen(itemtype, title, creator, year);
 
 export function lookUp(suggestions: Suggestion[]) {
   return mapLimit(suggestions, CONCURRENCY, async (suggestion) => {

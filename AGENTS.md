@@ -11,7 +11,7 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 
 ## Architecture Overview
 
-Turbo monorepo with npm workspaces:
+Turbo monorepo with pnpm workspaces:
 
 - `apps/what.pm`: what.pm, the Next.js app (Supabase backend)
 - `apps/nienke.dev`: nienke.dev, an Astro site (imported with history via `git subtree`)

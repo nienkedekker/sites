@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       new URL("https://assets.hardcover.app/**"),
       { protocol: "https", hostname: "covers.openlibrary.org" },
       { protocol: "https", hostname: "image.tmdb.org" },
+      { protocol: "https", hostname: "books.google.com" },
     ],
   },
   // Share images read their fonts with readFile, which tracing misses for
