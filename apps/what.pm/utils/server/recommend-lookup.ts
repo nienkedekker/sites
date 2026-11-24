@@ -1,7 +1,7 @@
 import "server-only";
 import { cacheLife } from "next/cache";
 import { nameKey } from "@/utils/data/names";
-import { isOpenLibraryKey } from "@/utils/data/external-ids";
+import { isGoogleVolumeId, isOpenLibraryKey } from "@/utils/data/external-ids";
 import { normalizeTitle } from "@/utils/data/patterns";
 import type { Found, Suggestion } from "@/utils/data/recommend";
 import {
@@ -66,6 +66,32 @@ export function matchBook(
   return matches[0] ?? null;
 }
 
+export interface GoogleVolume {
+  id: string;
+  volumeInfo: { title?: string; authors?: string[]; publishedDate?: string };
+}
+
+export function matchGoogleBook(
+  volumes: GoogleVolume[],
+  title: string,
+  author: string,
+  year?: number,
+): GoogleVolume | null {
+  const matches = volumes.filter(
+    ({ id, volumeInfo }) =>
+      isGoogleVolumeId(id) &&
+      volumeInfo.title !== undefined &&
+      mainTitle(volumeInfo.title) === mainTitle(title) &&
+      volumeInfo.authors?.some((name) => nameKey(name) === nameKey(author)),
+  );
+  const distance = ({ volumeInfo }: GoogleVolume) => {
+    const published = yearOf(volumeInfo.publishedDate);
+    return year && published ? Math.abs(published - year) : Infinity;
+  };
+  matches.sort((a, b) => distance(a) - distance(b));
+  return matches[0] ?? null;
+}
+
 export interface TmdbResult {
   id: number;
   title?: string;
@@ -120,6 +146,20 @@ async function bookSearch(title: string, author: string) {
   return data.docs;
 }
 
+async function googleBookSearch(title: string, author: string) {
+  "use cache: remote";
+  cacheLife("weeks");
+  const key = process.env.GOOGLE_API_KEY;
+  if (!key) return [];
+  const url = new URL("https://www.googleapis.com/books/v1/volumes");
+  url.searchParams.set("q", `${title} ${author}`);
+  url.searchParams.set("printType", "books");
+  url.searchParams.set("maxResults", "20");
+  url.searchParams.set("key", key);
+  const data = await getJson<{ items?: GoogleVolume[] }>(url);
+  return data.items ?? [];
+}
+
 async function screenSearch(kind: string, title: string) {
   "use cache: remote";
   cacheLife("weeks");
@@ -167,22 +207,37 @@ async function find(suggestion: Suggestion): Promise<Found | null> {
     // Open Library's title search finds nothing for a subtitle it doesn't
     // have ("Other Worlds Than These: A Talisman Novel"), so it gets the main
     // title only, the part matching compares anyway
+    const mainPart = suggestion.title.split(":")[0].trim();
     const doc = matchBook(
-      await bookSearch(
-        suggestion.title.split(":")[0].trim(),
-        suggestion.creator,
-      ),
+      await bookSearch(mainPart, suggestion.creator),
       suggestion.title,
       suggestion.creator,
       suggestion.year,
     );
-    return doc
+    if (doc) {
+      return {
+        itemtype: "Book",
+        external_id: doc.key,
+        title: doc.title,
+        creator: suggestion.creator,
+        year: doc.first_publish_year ?? null,
+      };
+    }
+    // Open Library adds new releases months late, Google Books has them
+    // before they're out
+    const volume = matchGoogleBook(
+      await googleBookSearch(mainPart, suggestion.creator),
+      suggestion.title,
+      suggestion.creator,
+      suggestion.year,
+    );
+    return volume
       ? {
           itemtype: "Book",
-          external_id: doc.key,
-          title: doc.title,
+          external_id: volume.id,
+          title: volume.volumeInfo.title ?? suggestion.title,
           creator: suggestion.creator,
-          year: doc.first_publish_year ?? null,
+          year: yearOf(volume.volumeInfo.publishedDate),
         }
       : null;
   }

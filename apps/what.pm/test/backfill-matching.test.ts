@@ -80,6 +80,54 @@ describe("pickBook", () => {
     expect(picked?.key).toBe("/works/OL3W");
   });
 
+  it("prefers the book with more of the authors over an anthology", () => {
+    const picked = pickBook(
+      [
+        {
+          key: "/works/OL5W",
+          title: "Other Worlds Than These",
+          first_publish_year: 2012,
+          author_name: ["John Joseph Adams", "Stephen King"],
+        },
+        {
+          key: "/works/OL6W",
+          title: "Other Worlds Than These",
+          first_publish_year: 2026,
+          author_name: ["Stephen King", "Peter Straub"],
+        },
+      ],
+      book({
+        title: "Other Worlds Than These",
+        author: "Stephen King, Peter Straub",
+        published_year: 2026,
+      }),
+    );
+
+    expect(picked?.key).toBe("/works/OL6W");
+  });
+
+  it("prefers the nearer year among the same author's books", () => {
+    const picked = pickBook(
+      [
+        {
+          key: "/works/OL7W",
+          title: "Dune",
+          first_publish_year: 1965,
+          author_name: ["Frank Herbert"],
+        },
+        {
+          key: "/works/OL8W",
+          title: "Dune",
+          first_publish_year: 2021,
+          author_name: ["Frank Herbert"],
+        },
+      ],
+      book({ title: "Dune", author: "Frank Herbert", published_year: 2021 }),
+    );
+
+    expect(picked?.key).toBe("/works/OL8W");
+  });
+
   it("returns null when only other authors have the title", () => {
     expect(
       pickBook(

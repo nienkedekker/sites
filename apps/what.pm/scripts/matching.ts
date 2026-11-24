@@ -67,10 +67,19 @@ export interface OpenLibraryDoc {
   author_name?: string[];
 }
 
+// An anthology with one King story shares a title and an author with the King
+// and Straub novel, so the book sharing more authors wins, then the nearer year
 export function pickBook(docs: OpenLibraryDoc[], item: TypedItem) {
-  const byAuthor = docs.filter((doc) =>
-    overlaps(item.author, doc.author_name ?? []),
-  );
+  const names = splitNames(item.author ?? null);
+  const shared = (doc: OpenLibraryDoc) =>
+    names.filter((name) => overlaps(name, doc.author_name ?? [])).length;
+  const distance = (doc: OpenLibraryDoc) =>
+    doc.first_publish_year === undefined
+      ? Infinity
+      : Math.abs(doc.first_publish_year - item.published_year);
+  const byAuthor = docs
+    .filter((doc) => shared(doc) > 0)
+    .sort((a, b) => shared(b) - shared(a) || distance(a) - distance(b));
   const [match] = byTitle(byAuthor, (doc) => titleScore(item.title, doc.title));
   return match ?? null;
 }

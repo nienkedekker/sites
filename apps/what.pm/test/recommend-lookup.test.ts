@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { matchBook, matchScreen } from "@/utils/server/recommend-lookup";
+import {
+  matchBook,
+  matchGoogleBook,
+  matchScreen,
+} from "@/utils/server/recommend-lookup";
 
 describe("matchBook", () => {
   const docs = [
@@ -59,6 +63,39 @@ describe("matchBook", () => {
   it("finds nothing for a book that isn't there or by someone else", () => {
     expect(matchBook(docs, "Piranesi", "Someone Else")).toBeNull();
     expect(matchBook(docs, "Made Up Title", "Susanna Clarke")).toBeNull();
+  });
+});
+
+describe("matchGoogleBook", () => {
+  const volume = (
+    id: string,
+    title: string,
+    authors: string[],
+    date: string,
+  ) => ({
+    id,
+    volumeInfo: { title, authors, publishedDate: date },
+  });
+
+  it("finds the volume by title and author, the nearest year first", () => {
+    const volumes = [
+      volume("Pqa0EQAAQBAJ", "Hunger", ["Joe Hill"], "2027-06-15"),
+      volume("qUDb0QEACAAJ", "Hunger", ["Joe Hill"], "2026-10-20"),
+      volume("cRx4EAAAQBAJ", "Hunger", ["FAO"], "2026-10-12"),
+    ];
+    expect(
+      matchGoogleBook(volumes, "Hunger: A Novel", "Joe Hill", 2026)?.id,
+    ).toBe("qUDb0QEACAAJ");
+  });
+
+  it("finds nothing by someone else", () => {
+    expect(
+      matchGoogleBook(
+        [volume("cRx4EAAAQBAJ", "Hunger", ["FAO"], "2020-10-12")],
+        "Hunger",
+        "Joe Hill",
+      ),
+    ).toBeNull();
   });
 });
 

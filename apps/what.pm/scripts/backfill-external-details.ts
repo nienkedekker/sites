@@ -231,7 +231,7 @@ const sqlValue = (value: string | number | null) =>
 const sqlArray = (values: string[]) =>
   `array[${values.map(sqlValue).join(", ")}]::text[]`;
 
-// Only touches the new columns, and only rows that are still unmatched, so
+// Only fills what is empty, and only on rows that are still unmatched, so
 // running the file twice is harmless
 function writeSql(results: Result[], path: string) {
   const updates = results
@@ -239,10 +239,10 @@ function writeSql(results: Result[], path: string) {
     .map(({ item, match, details }) => {
       const sets = [
         `external_id = ${sqlValue(match!.id)}`,
-        `pages = ${sqlValue(details!.pages)}`,
-        `runtime_minutes = ${sqlValue(details!.runtime_minutes)}`,
-        `based_on = ${sqlValue(details!.based_on)}`,
-        `genres = ${sqlArray(details!.genres)}`,
+        `pages = coalesce(pages, ${sqlValue(details!.pages)})`,
+        `runtime_minutes = coalesce(runtime_minutes, ${sqlValue(details!.runtime_minutes)})`,
+        `based_on = coalesce(based_on, ${sqlValue(details!.based_on)})`,
+        `genres = case when genres = '{}' then ${sqlArray(details!.genres)} else genres end`,
       ].join(", ");
       return `update public.items set ${sets} where id = ${sqlValue(item.id)} and external_id is null; -- ${match!.confidence}: ${item.title.replace(/\n/g, " ")}`;
     });
