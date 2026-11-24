@@ -4,6 +4,7 @@ import {
   byMonth,
   descriptionRuns,
   favouriteGenres,
+  isEarlier,
   isOut,
   matchesGenres,
   titleKey,
@@ -126,6 +127,17 @@ describe("byMonth", () => {
       ["2026-10", [2]],
       ["2026-11", [3, 1]],
     ]);
+  });
+});
+
+describe("isEarlier", () => {
+  it("is a book from a month before this one, not just an earlier day", () => {
+    const [october, november] = toUpcoming([
+      { ...raw, id: 1, release_date: "2026-10-31" },
+      { ...raw, id: 2, release_date: "2026-11-01" },
+    ]);
+    expect(isEarlier(october, "2026-11-24")).toBe(true);
+    expect(isEarlier(november, "2026-11-24")).toBe(false);
   });
 });
 

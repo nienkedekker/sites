@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { flushSync } from "react-dom";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { formatPlural } from "@nienke/ui/format";
@@ -15,6 +16,7 @@ import { GenreMenu } from "@/components/features/upcoming/genre-menu";
 import {
   byMonth,
   genresOf,
+  isEarlier,
   isOut,
   matchesGenres,
   titleKey,
@@ -253,6 +255,9 @@ function MonthSection({
 function FilterBar({
   genreMenu,
   months,
+  earlier,
+  showEarlier,
+  onEarlier,
   shown,
   active,
   currentMonth,
@@ -261,6 +266,9 @@ function FilterBar({
 }: {
   genreMenu: ReactNode;
   months: string[];
+  earlier: string[];
+  showEarlier: boolean;
+  onEarlier: () => void;
   shown: string[];
   active: string | null;
   currentMonth: string;
@@ -294,6 +302,19 @@ function FilterBar({
       {genreMenu}
       <div ref={barRef} className="relative min-w-0 flex-1 overflow-x-auto">
         <ol className="flex h-full w-max items-center gap-x-1 px-3 py-1.5">
+          {earlier.length > 0 && (
+            <li className="flex items-center gap-x-1">
+              <button
+                type="button"
+                aria-expanded={showEarlier}
+                onClick={onEarlier}
+                className="nav-link cursor-pointer whitespace-nowrap text-ink-soft hover:text-ink"
+              >
+                {showEarlier ? "Hide earlier" : "Earlier"}
+              </button>
+              {months.length > 0 && dot}
+            </li>
+          )}
           {months.map((month, i) => {
             const label = monthShort(month, months[i - 1] ?? currentMonth);
             const tone =
@@ -342,11 +363,22 @@ function FilterBar({
 
 export function UpcomingList({ books, upNext, read, today }: Props) {
   const searchParams = useSearchParams();
-  const genres = genresOf(books);
-  const genreParam = searchParams.get("genre");
-  const genre = genreParam && genres.includes(genreParam) ? genreParam : null;
   const monthParam = searchParams.get("month");
   const currentMonth = today.slice(0, 7);
+
+  // Months before this one stay folded away unless asked for, or linked to
+  const [revealed, setRevealed] = useState(false);
+  const showEarlier = revealed || (!!monthParam && monthParam < currentMonth);
+  const earlier = byMonth(books.filter((book) => isEarlier(book, today))).map(
+    ({ month }) => month,
+  );
+  const visible = showEarlier
+    ? books
+    : books.filter((book) => !isEarlier(book, today));
+
+  const genres = genresOf(visible);
+  const genreParam = searchParams.get("genre");
+  const genre = genreParam && genres.includes(genreParam) ? genreParam : null;
 
   const onUpNext = new Set(upNext);
   const inLog = new Set(read);
@@ -355,11 +387,11 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
     return onUpNext.has(key) ? "up-next" : inLog.has(key) ? "read" : null;
   };
   const inGenre = (picked: string | null) =>
-    books.filter((book) =>
+    visible.filter((book) =>
       matchesGenres(book, new Set(picked ? [picked] : [])),
     );
   const sections = byMonth(inGenre(genre));
-  const months = byMonth(books).map(({ month }) => month);
+  const months = byMonth(visible).map(({ month }) => month);
   const shownKey = sections.map(({ month }) => month).join(" ");
 
   const [active, setActive] = useState<string | null>(null);
@@ -433,6 +465,24 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
     place(month, sections[0]?.month);
   };
 
+  const revealEarlier = () => {
+    flushSync(() => setRevealed(true));
+    const latest = earlier.at(-1);
+    if (latest) jump(latest);
+  };
+
+  const hideEarlier = () => {
+    setRevealed(false);
+    if (monthParam && monthParam < currentMonth) {
+      history.pushState(
+        null,
+        "",
+        withParams((params) => params.delete("month")),
+      );
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
   const pickGenre = (picked: string | null) =>
     history.pushState(
       null,
@@ -459,12 +509,15 @@ export function UpcomingList({ books, upNext, read, today }: Props) {
               genre,
               count: inGenre(genre).length,
             }))}
-            total={books.length}
+            total={visible.length}
             current={genre}
             onPick={pickGenre}
           />
         }
         months={months}
+        earlier={earlier}
+        showEarlier={showEarlier}
+        onEarlier={showEarlier ? hideEarlier : revealEarlier}
         shown={sections.map(({ month }) => month)}
         active={active}
         currentMonth={currentMonth}

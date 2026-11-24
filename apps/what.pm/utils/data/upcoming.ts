@@ -1,7 +1,6 @@
 import { genresIn } from "@/utils/data/book-genres";
 import { normalizeTitle } from "@/utils/data/patterns";
 
-
 export interface Cover {
   url: string;
   width: number;
@@ -171,6 +170,11 @@ export function toUpcoming(books: HardcoverBook[]): UpcomingBook[] {
 export const isOut = (book: UpcomingBook, today: string) =>
   book.releaseDate <= today;
 
+export const monthOf = (book: UpcomingBook) => book.releaseDate.slice(0, 7);
+
+export const isEarlier = (book: UpcomingBook, today: string) =>
+  monthOf(book) < today.slice(0, 7);
+
 export function byMonth(books: UpcomingBook[], newestFirst = false) {
   const months = new Map<string, UpcomingBook[]>();
   const direction = newestFirst ? -1 : 1;
@@ -180,7 +184,7 @@ export function byMonth(books: UpcomingBook[], newestFirst = false) {
       b.readers - a.readers,
   );
   for (const book of sorted) {
-    const month = book.releaseDate.slice(0, 7);
+    const month = monthOf(book);
     months.set(month, [...(months.get(month) ?? []), book]);
   }
   return [...months].map(([month, books]) => ({ month, books }));
