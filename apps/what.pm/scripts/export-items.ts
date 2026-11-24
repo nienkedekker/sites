@@ -1,7 +1,7 @@
-// node --env-file=.env.local scripts/export-items.ts
+// op run --env-file=.env.local -- node scripts/export-items.ts
 //
-// With SUPABASE_SERVICE_ROLE_KEY in .env.local the dismissed picks come
-// along too; the anon key can't read that table, so without it they stay
+// With SUPABASE_SECRET_KEY in .env.local the dismissed picks come
+// along too; the publishable key can't read that table, so without it they stay
 // empty and the classifier learns from the log alone.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -11,10 +11,10 @@ import { validateAndTypeItem, type TypedItem } from "../types/shared.ts";
 import { fetchAllRows } from "../utils/data/fetch-all.ts";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!url || !anonKey) throw new Error("Missing Supabase env vars");
-const supabase = createClient(url, serviceKey ?? anonKey, {
+const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const secretKey = process.env.SUPABASE_SECRET_KEY;
+if (!url || !publishableKey) throw new Error("Missing Supabase env vars");
+const supabase = createClient(url, secretKey ?? publishableKey, {
   auth: { persistSession: false },
 });
 
@@ -41,7 +41,9 @@ const [rawItems, dismissed, wanted] = await Promise.all([
   fetchAllRows((from, to) =>
     supabase
       .from("wanted")
-      .select("itemtype, external_id, title, creator, published_year, created_at")
+      .select(
+        "itemtype, external_id, title, creator, published_year, created_at",
+      )
       .order("created_at")
       .order("external_id")
       .range(from, to),
@@ -56,10 +58,8 @@ if (items.length !== rawItems.length) {
   console.warn(`${rawItems.length - items.length} invalid items left out`);
 }
 if (items.length === 0) throw new Error("No items came back, not writing");
-if (!serviceKey) {
-  console.warn(
-    "No SUPABASE_SERVICE_ROLE_KEY, so dismissed picks weren't read",
-  );
+if (!secretKey) {
+  console.warn("No SUPABASE_SECRET_KEY, so dismissed picks weren't read");
 }
 
 mkdirSync(dirname(target), { recursive: true });

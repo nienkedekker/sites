@@ -1,18 +1,18 @@
 // Matches logged items to OpenLibrary/TMDB to fill in external_id, pages,
 // runtime_minutes and based_on. It only reads from Supabase; --sql writes the
 // updates to a file to check and then run with `supabase db query -f`:
-//   npx tsx --env-file=.env.local scripts/backfill-external-details.ts --limit 20
-//   npx tsx --env-file=.env.local scripts/backfill-external-details.ts --only "Kafka|Runaways"
-//   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
+//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts --limit 20
+//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts --only "Kafka|Runaways"
+//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts \
 //     --report matches.tsv --sql backfill.sql
 // --refresh skips matching and re-checks items that are already matched but
 // still have no page count or runtime, like a season the source added later.
 // Books without pages also try Google Books, matched or not:
-//   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
+//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts \
 //     --refresh --sql refresh.sql
 // --genres fills in genres for matched items that don't have any yet, from
 // TMDB for movies and shows and from subjects for books:
-//   npx tsx --env-file=.env.local scripts/backfill-external-details.ts \
+//   op run --env-file=.env.local -- npx tsx scripts/backfill-external-details.ts \
 //     --genres --sql genres.sql
 import { writeFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
@@ -38,9 +38,9 @@ const refresh = process.argv.includes("--refresh");
 const genresOnly = process.argv.includes("--genres");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!url || !anonKey) throw new Error("Missing Supabase env vars");
-const supabase = createClient(url, anonKey, {
+const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+if (!url || !publishableKey) throw new Error("Missing Supabase env vars");
+const supabase = createClient(url, publishableKey, {
   auth: { persistSession: false },
 });
 

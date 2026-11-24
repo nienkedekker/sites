@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const supabase = createAdminClient();
     if (!supabase) {
-      return NextResponse.json({ skipped: "no service role key" });
+      return NextResponse.json({ skipped: "no secret key" });
     }
 
     const summary = await fillMissingDetails(supabase, {
